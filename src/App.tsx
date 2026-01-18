@@ -1,12 +1,23 @@
-import { Button } from "./components/ui/button";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 
 function App() {
   return (
-    <>
-      <div className="flex min-h-svh flex-col items-center justify-center">
-        <Button variant={"outline"}>Click me</Button>
-      </div>
-    </>
+    <BrowserRouter>
+      <Routes>
+        {/* Route Login memanggil LoginPage */}
+        <Route path="/login" element={<LoginPage />} />
+        {/* Route Dashboard (Terproteksi) */}
+        <Route element={<ProtectedRoute />}>
+          {/* <Route element={<DashboardLayout />}>
+            <Route path="/" element={<DashboardPage />} />
+          </Route> */}
+        </Route>
+        {/* Redirect default */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
