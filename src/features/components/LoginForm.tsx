@@ -11,19 +11,19 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { handleApiError } from "@/lib/utils";
-import { type LoginRequest } from "@/model/auth-model";
-import { AuthServices } from "@/services/auth-services";
-import { AuthValidation } from "@/validation/auth-validation";
+import { type LoginRequest } from "@/model/user-model";
+import { AuthServices } from "@/services/user-services";
+import { UserValidation } from "@/validation/user-validation";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckEmailCard } from "./fragments/CheckEmailCard";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -32,41 +32,135 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
+  const [showResend, setShowResend] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [lastEmail, setLastEmail] = useState("");
+
+  const [isResendSuccess, setIsResendSuccess] = useState(false);
+  const [successEmail, setSuccessEmail] = useState("");
+
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+
+    const timer = setInterval(() => {
+      setCooldown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
   const form = useForm<LoginRequest>({
-    resolver: zodResolver(AuthValidation.LOGIN),
+    resolver: zodResolver(UserValidation.LOGIN),
     defaultValues: {
       identifier: "",
       password: "",
     },
   });
 
+  const handleBackToLogin = () => {
+    setIsResendSuccess(false);
+    setShowResend(false);
+    setGlobalError(null);
+  };
+
   async function onSubmit(data: LoginRequest) {
     setIsLoading(true);
     setGlobalError(null);
+    setShowResend(false);
 
     try {
+      setLastEmail(data.identifier);
+
       const result = await AuthServices.login(data);
 
-      localStorage.setItem("token", result.token);
+      localStorage.setItem("token", result.token!);
       navigate("/");
     } catch (error) {
       const errorMessage = handleApiError(error);
+
+      setGlobalError(errorMessage);
+
+      if (errorMessage.toLowerCase().includes("not verified")) {
+        setShowResend(true);
+      }
       setGlobalError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   }
+
+  async function handleResend() {
+    if (!lastEmail) return;
+    setResendLoading(true);
+    try {
+      const email = await AuthServices.resendVerification(lastEmail);
+
+      setSuccessEmail(email);
+
+      setIsResendSuccess(true);
+
+      setCooldown(60);
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+
+      setGlobalError(errorMessage);
+    } finally {
+      setResendLoading(false);
+    }
+  }
+
+  if (isResendSuccess) {
+    return (
+      <CheckEmailCard
+        title="Email Sent!"
+        message={
+          <>
+            A new verification link has been sent to{" "}
+            <strong>{successEmail}</strong>.
+            <br />
+            Please check your Inbox or Spam folder.
+          </>
+        }
+        buttonText="Back to Login"
+        onAction={handleBackToLogin}
+      />
+    );
+  }
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sinari Cell</CardTitle>
-        <CardDescription>Login to your account</CardDescription>
+        <CardTitle className="text-center">Sinari Cell</CardTitle>
+        <CardDescription className="text-center">
+          Sign in to your account
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {globalError && (
-          <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md flex items-center gap-2 mb-4 animate-in fade-in slide-in-from-top-1">
-            <AlertCircle className="size-4" />
-            <span>{globalError}</span>
+          <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="size-4" />
+              <span>{globalError}</span>
+            </div>
+
+            {showResend && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-destructive text-destructive hover:bg-destructive/10 mt-1"
+                onClick={handleResend}
+                disabled={resendLoading || cooldown > 0}
+              >
+                {resendLoading ? (
+                  <Loader2 className="animate-spin size-3 mr-2" />
+                ) : null}
+
+                {cooldown > 0
+                  ? `Resend available in ${cooldown}s`
+                  : "Resend Verification Email"}
+              </Button>
+            )}
           </div>
         )}
 
@@ -76,11 +170,10 @@ export function LoginForm() {
               control={form.control}
               name="identifier"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email or Username</FormLabel>
+                <FormItem className="mb-8">
                   <FormControl>
                     <Input
-                      placeholder="admin"
+                      placeholder="Username or Email"
                       {...field}
                       disabled={isLoading}
                     />
@@ -93,13 +186,12 @@ export function LoginForm() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
+                <FormItem className="mb-6">
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="••••••"
+                        placeholder="Password"
                         {...field}
                         disabled={isLoading}
                       />
