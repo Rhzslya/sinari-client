@@ -53,11 +53,16 @@ export function LoginForm() {
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(UserValidation.LOGIN),
+    mode: "onChange",
     defaultValues: {
       identifier: "",
       password: "",
     },
   });
+
+  useEffect(() => {
+    localStorage.removeItem("token");
+  }, []);
 
   const handleBackToLogin = () => {
     setIsResendSuccess(false);
@@ -76,6 +81,7 @@ export function LoginForm() {
       const result = await AuthServices.login(data);
 
       localStorage.setItem("token", result.token!);
+
       navigate("/");
     } catch (error) {
       const errorMessage = handleApiError(error);
@@ -130,37 +136,42 @@ export function LoginForm() {
   }
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="text-2xl">
         <CardTitle className="text-center">Sinari Cell</CardTitle>
+        <CardDescription className="text-center text-xl font-medium text-black">
+          Sign In
+        </CardDescription>
+
         <CardDescription className="text-center">
-          Sign in to your account
+          Enter your email or username and password for{" "}
+          <strong>Sinari Cell</strong> to continue.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         {globalError && (
-          <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="size-4" />
-              <span>{globalError}</span>
+          <div className="absolute -top-6 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
+            <div className="text-destructive text-sm  flex flex-col gap-2">
+              <div className="flex items-center gap-2 font-medium text-xs">
+                <AlertCircle className="size-4" />
+                <span>{globalError}</span>
+              </div>
+
+              {showResend && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-destructive text-destructive hover:bg-destructive/20 bg-white/50 mt-1 h-8"
+                  onClick={handleResend}
+                  disabled={resendLoading || cooldown > 0}
+                >
+                  {resendLoading ? (
+                    <Loader2 className="animate-spin size-3 mr-2" />
+                  ) : null}
+
+                  {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend Email"}
+                </Button>
+              )}
             </div>
-
-            {showResend && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-destructive text-destructive hover:bg-destructive/10 mt-1"
-                onClick={handleResend}
-                disabled={resendLoading || cooldown > 0}
-              >
-                {resendLoading ? (
-                  <Loader2 className="animate-spin size-3 mr-2" />
-                ) : null}
-
-                {cooldown > 0
-                  ? `Resend available in ${cooldown}s`
-                  : "Resend Verification Email"}
-              </Button>
-            )}
           </div>
         )}
 
@@ -170,7 +181,7 @@ export function LoginForm() {
               control={form.control}
               name="identifier"
               render={({ field }) => (
-                <FormItem className="mb-8">
+                <FormItem className="relative mb-8">
                   <FormControl>
                     <Input
                       placeholder="Username or Email"
@@ -178,7 +189,7 @@ export function LoginForm() {
                       disabled={isLoading}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="absolute -bottom-6 left-0 text-xs" />{" "}
                 </FormItem>
               )}
             />
@@ -186,7 +197,7 @@ export function LoginForm() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="mb-6">
+                <FormItem className="relative mb-6">
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -209,11 +220,15 @@ export function LoginForm() {
                       </button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="absolute -bottom-6 left-0 text-xs" />{" "}
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit" disabled={isLoading}>
+            <Button
+              className="w-full mt-10"
+              type="submit"
+              disabled={!form.formState.isValid || isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
