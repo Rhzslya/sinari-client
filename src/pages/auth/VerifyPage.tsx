@@ -25,7 +25,7 @@ export default function VerifyPage() {
     AuthServices.verify(token)
       .then(() => {
         setStatus("success");
-        setTimeout(() => navigate("/auth/login"), 3000);
+        setTimeout(() => navigate("/login"), 3000);
       })
       .catch(() => {
         setStatus("error");
@@ -59,7 +59,7 @@ export default function VerifyPage() {
                   Your account is now active. Redirecting to login...
                 </p>
               </div>
-              <Button onClick={() => navigate("/auth/login")}>Login Now</Button>
+              <Button onClick={() => navigate("/login")}>Login Now</Button>
             </>
           )}
 
@@ -72,7 +72,7 @@ export default function VerifyPage() {
                   The token is invalid or has expired.
                 </p>
               </div>
-              <Button variant="outline" onClick={() => navigate("/auth/login")}>
+              <Button variant="outline" onClick={() => navigate("/login")}>
                 Back to Login
               </Button>
             </>

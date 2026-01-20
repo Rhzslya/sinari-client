@@ -35,6 +35,7 @@ export function toUserResponse(data: UserResponse): UserResponse {
     name: data.name,
     email: data.email,
     role: data.role,
+    token: data.token,
   };
 }
 

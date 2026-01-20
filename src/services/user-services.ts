@@ -48,6 +48,18 @@ export class AuthServices {
     return toUserResponse(response.data.data);
   }
 
+  static async logout(): Promise<boolean> {
+    try {
+      await api.delete("/users/logout");
+
+      return true;
+    } catch (error) {
+      console.warn("Failed to Request Logout, but it's not a problem", error);
+
+      return true;
+    }
+  }
+
   static async verify(token: string): Promise<boolean> {
     await api.get(`/auth/verify?token=${token}`);
     return true;
