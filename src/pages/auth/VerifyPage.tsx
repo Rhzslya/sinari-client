@@ -25,7 +25,7 @@ export default function VerifyPage() {
     AuthServices.verify(token)
       .then(() => {
         setStatus("success");
-        setTimeout(() => navigate("/login"), 3000);
+        setTimeout(() => navigate("/login"), 10000000);
       })
       .catch(() => {
         setStatus("error");

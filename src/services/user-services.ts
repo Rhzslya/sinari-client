@@ -1,9 +1,17 @@
 import { api } from "@/lib/axios";
 import {
+  toForgotPasswordResponse,
+  toResendVerificationResponse,
+  toResetPasswordResponse,
   toUserResponse,
   type ApiResponse,
+  type ForgotPasswordRequest,
+  type ForgotPasswordResponse,
   type LoginRequest,
   type RegisterRequest,
+  type ResendVerificationResponse,
+  type ResetPasswordRequest,
+  type ResetPasswordResponse,
   type UserResponse,
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
@@ -65,15 +73,59 @@ export class AuthServices {
     return true;
   }
 
-  static async resendVerification(identifier: string): Promise<string> {
+  static async resendVerification(
+    identifier: string,
+  ): Promise<ResendVerificationResponse> {
     const isEmail = identifier.includes("@");
 
     const paramKey = isEmail ? "email" : "username";
 
-    const response = await api.get(
+    const response = await api.get<ApiResponse<ResendVerificationResponse>>(
       `/auth/resend-verify?${paramKey}=${identifier}`,
     );
 
-    return response.data.data.email;
+    return toResendVerificationResponse(response.data.data);
+  }
+
+  static async forgotPassword(
+    request: ForgotPasswordRequest,
+  ): Promise<ForgotPasswordResponse> {
+    const forgotPasswordRequest = Validation.validate(
+      UserValidation.FORGOT_PASSWORD,
+      request,
+    );
+
+    const payload = {
+      identifier: forgotPasswordRequest.identifier,
+    };
+
+    const response = await api.post<ApiResponse<ForgotPasswordResponse>>(
+      "/auth/forgot-password",
+      payload,
+    );
+
+    return toForgotPasswordResponse(response.data.data);
+  }
+
+  static async resetPassword(
+    request: ResetPasswordRequest,
+  ): Promise<ResetPasswordResponse> {
+    const resetPasswordRequest = Validation.validate(
+      UserValidation.RESET_PASSWORD,
+      request,
+    );
+
+    const payload = {
+      token: resetPasswordRequest.token,
+      new_password: resetPasswordRequest.new_password,
+      confirm_new_password: resetPasswordRequest.confirm_new_password,
+    };
+
+    const response = await api.patch<ApiResponse<ResetPasswordResponse>>(
+      "/auth/reset-password",
+      payload,
+    );
+
+    return toResetPasswordResponse(response.data.data);
   }
 }
