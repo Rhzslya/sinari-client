@@ -2,14 +2,8 @@ import { RegisterForm } from "@/features/components/RegisterForm";
 
 const RegisterPage = () => {
   return (
-    <div className="relative min-h-svh flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+    <div className="dark relative min-h-svh flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-4 z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-            System Management
-          </h1>
-        </div>
-
         <RegisterForm />
       </div>
 

@@ -74,24 +74,30 @@ export function RegisterForm() {
     );
   }
   return (
-    <>
-      <Card>
+    <div className="w-full max-w-md mx-auto space-y-6">
+      <Card className="bg-transparent border-none shadow-none text-foreground">
         <CardHeader>
-          <CardTitle className="text-center">Sinari Cell</CardTitle>
-          <CardDescription className="text-center">
-            Create Your Account
+          <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
+            Sinari Cell
+          </CardTitle>
+          <CardDescription className="text-center text-muted-foreground text-base">
+            Create your account to get started
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative mt-6">
           {globalError && (
-            <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md flex items-center gap-2 mb-4 animate-in fade-in slide-in-from-top-1">
-              <AlertCircle className="size-4" />
-              <span>{globalError}</span>
+            <div className="absolute -top-10 flex justify-center  left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-destructive/20 w-full px-4 py-1 rounded-xs text-destructive flex flex-col gap-2">
+                <div className="flex items-center justify-center gap-2 font-medium text-sm">
+                  <AlertCircle className="size-4" />
+                  <span>{globalError}</span>
+                </div>
+              </div>
             </div>
           )}
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -99,12 +105,14 @@ export function RegisterForm() {
                   <FormItem className="relative mb-8">
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="Email"
                         {...field}
                         disabled={isLoading}
+                        className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2"
                       />
                     </FormControl>
-                    <FormMessage className="absolute -bottom-6 left-0 text-xs" />{" "}
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />
@@ -116,12 +124,14 @@ export function RegisterForm() {
                   <FormItem className="relative mb-8">
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="Username"
                         {...field}
                         disabled={isLoading}
+                        className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2"
                       />
                     </FormControl>
-                    <FormMessage className="absolute -bottom-6 left-0 text-xs" />{" "}
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />
@@ -133,12 +143,14 @@ export function RegisterForm() {
                   <FormItem className="relative mb-8">
                     <FormControl>
                       <Input
-                        placeholder="Name"
+                        autoComplete="off"
+                        placeholder="Full Name"
                         {...field}
                         disabled={isLoading}
+                        className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2"
                       />
                     </FormControl>
-                    <FormMessage className="absolute -bottom-6 left-0 text-xs" />{" "}
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />
@@ -147,7 +159,7 @@ export function RegisterForm() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem className="relative mb-6">
+                  <FormItem className="relative mb-8">
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -155,35 +167,36 @@ export function RegisterForm() {
                           placeholder="Password"
                           {...field}
                           disabled={isLoading}
+                          className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground outline-none"
+                          className="absolute right-3 top-2 text-muted-foreground hover:text-primary transition-colors outline-none"
                           tabIndex={-1}
                         >
                           {showPassword ? (
-                            <EyeOff className="size-4" />
+                            <EyeOff className="size-5" />
                           ) : (
-                            <Eye className="size-4" />
+                            <Eye className="size-5" />
                           )}
                         </button>
                       </div>
                     </FormControl>
-                    <FormMessage className="absolute -bottom-6 left-0 text-xs" />{" "}
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />
+
               <Button
-                variant="outline"
-                className="w-full"
+                className="w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20"
                 type="submit"
                 disabled={!form.formState.isValid || isLoading}
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Loading...
+                    Creating account...
                   </>
                 ) : (
                   "Sign Up"
@@ -191,18 +204,22 @@ export function RegisterForm() {
               </Button>
             </form>
           </Form>
+
+          <div className="mt-6">
+            <GoogleSignIn onClick={handleGoogleLogin} isLoading={isLoading} />
+          </div>
         </CardContent>
       </Card>
 
-      <GoogleSignIn onClick={handleGoogleLogin} isLoading={isLoading} />
-      <Button
-        variant="ghost"
-        className="w-full"
-        type="button"
-        onClick={() => navigate("/login")}
-      >
-        Already Have an Account?<strong>Sign in</strong>
-      </Button>
-    </>
+      <nav className="w-full text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <button
+          className="font-semibold text-primary hover:text-primary/80 hover:underline transition-all cursor-pointer"
+          onClick={() => navigate("/login")}
+        >
+          Sign in
+        </button>
+      </nav>
+    </div>
   );
 }
