@@ -19,7 +19,7 @@ import { type RegisterRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +32,24 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
+
   const [isSuccess, setIsSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  const [cardError, setCardError] = useState<string | null>(null);
+  const [isVerifiedNow, setIsVerifiedNow] = useState(false);
+
+  const [isDailyLimit, setIsDailyLimit] = useState(false);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(UserValidation.REGISTER),
@@ -48,11 +65,13 @@ export function RegisterForm() {
   async function onSubmit(data: RegisterRequest) {
     setIsLoading(true);
     setGlobalError(null);
+    setIsDailyLimit(false);
 
     try {
       await AuthServices.register(data);
-
+      setRegisteredEmail(data.email);
       setIsSuccess(true);
+      setCooldown(60);
     } catch (error) {
       const errorMessage = handleApiError(error);
       setGlobalError(errorMessage);
@@ -61,6 +80,40 @@ export function RegisterForm() {
     }
   }
 
+  const handleResend = async () => {
+    if (!registeredEmail) return;
+    setResendLoading(true);
+    setCardError(null);
+    setIsVerifiedNow(false);
+
+    try {
+      await AuthServices.resendVerification(registeredEmail);
+      setCooldown(60);
+    } catch (error) {
+      const errorMessage = handleApiError(error);
+
+      if (
+        errorMessage.toLowerCase().includes("wait") &&
+        errorMessage.includes("seconds")
+      ) {
+        const match = errorMessage.match(/(\d+) seconds/);
+        if (match && match[1]) {
+          setCooldown(parseInt(match[1], 10));
+        }
+      } else if (errorMessage.toLowerCase().includes("limit")) {
+        setCardError(errorMessage);
+        setIsDailyLimit(true);
+      } else if (errorMessage.toLowerCase().includes("already verified")) {
+        setIsVerifiedNow(true);
+        setCardError(null);
+      } else {
+        setCardError(errorMessage);
+      }
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     console.log("Redirecting to Google...");
   };
@@ -68,11 +121,53 @@ export function RegisterForm() {
   if (isSuccess) {
     return (
       <CheckEmailCard
-        onAction={() => navigate("/login")}
-        buttonText="Go to Login"
+        title={
+          isVerifiedNow
+            ? "Account Verified!"
+            : cardError
+              ? "Failed to Send"
+              : "Registration Success"
+        }
+        message={
+          isVerifiedNow ? (
+            <div className="text-center">
+              <span className="text-green-600 font-medium text-lg">
+                Successfully Verified!
+              </span>
+              <br />
+              <span className="text-sm text-muted-foreground mt-2 block">
+                Your account is active. You can now login.
+              </span>
+            </div>
+          ) : cardError ? (
+            <div className="text-center">
+              <span className="text-destructive font-medium flex items-center justify-center gap-2">
+                <AlertCircle className="size-4" />
+                {cardError}
+              </span>
+              <br />
+            </div>
+          ) : (
+            <div className="text-center">
+              <span>
+                Please check your email to verify your account.
+                <br />A verification link has been sent to{" "}
+                <strong>{registeredEmail}</strong>.
+              </span>
+            </div>
+          )
+        }
+        buttonResend={isVerifiedNow ? "Login Now" : "Resend Verification Email"}
+        buttonNavigate={isVerifiedNow ? null : "Back to Login"}
+        onActionResend={isVerifiedNow ? () => navigate("/login") : handleResend}
+        onActionNavigate={() => navigate("/login")}
+        isLoading={resendLoading}
+        cooldown={cooldown}
+        isDisabled={isDailyLimit}
       />
     );
   }
+
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
       <Card className="bg-transparent border-none shadow-none text-foreground">
@@ -86,12 +181,10 @@ export function RegisterForm() {
         </CardHeader>
         <CardContent className="relative mt-6">
           {globalError && (
-            <div className="absolute -top-10 flex justify-center  left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
-              <div className="bg-destructive/20 w-full px-4 py-1 rounded-xs text-destructive flex flex-col gap-2">
-                <div className="flex items-center justify-center gap-2 font-medium text-sm">
-                  <AlertCircle className="size-4" />
-                  <span>{globalError}</span>
-                </div>
+            <div className="absolute -top-10 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-destructive/20 w-full px-4 py-2 rounded-md text-destructive flex items-center justify-center gap-2 border border-destructive/20 shadow-sm">
+                <AlertCircle className="size-4" />
+                <span className="text-sm font-medium">{globalError}</span>
               </div>
             </div>
           )}
@@ -172,7 +265,7 @@ export function RegisterForm() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2 text-muted-foreground hover:text-primary transition-colors outline-none"
+                          className="absolute right-3 top-2.5 text-muted-foreground hover:text-primary transition-colors outline-none"
                           tabIndex={-1}
                         >
                           {showPassword ? (

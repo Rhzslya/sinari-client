@@ -33,22 +33,24 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  const [showResend, setShowResend] = useState(false);
+  const [showUnverifiedCard, setShowUnverifiedCard] = useState(false);
+
   const [resendLoading, setResendLoading] = useState(false);
-  const [lastEmail, setLastEmail] = useState("");
-
-  const [isResendSuccess, setIsResendSuccess] = useState(false);
-  const [successEmail, setSuccessEmail] = useState("");
-
+  const [identifier, setIdentifier] = useState("");
   const [cooldown, setCooldown] = useState(0);
+
+  const [email, setEmail] = useState<string | null>(null);
+  const [cardError, setCardError] = useState<string | null>(null);
+
+  const [isVerifiedNow, setIsVerifiedNow] = useState(false);
+
+  const [isDailyLimit, setIsDailyLimit] = useState(false);
 
   useEffect(() => {
     if (cooldown <= 0) return;
-
     const timer = setInterval(() => {
       setCooldown((prev) => prev - 1);
     }, 1000);
-
     return () => clearInterval(timer);
   }, [cooldown]);
 
@@ -66,23 +68,26 @@ export function LoginForm() {
   }, []);
 
   const handleBackToLogin = () => {
-    setIsResendSuccess(false);
-    setShowResend(false);
+    setShowUnverifiedCard(false);
     setGlobalError(null);
+    setEmail(null);
+    setCardError(null);
+    setIsVerifiedNow(false);
   };
 
   async function onSubmit(data: LoginRequest) {
     setIsLoading(true);
     setGlobalError(null);
-    setShowResend(false);
+    setShowUnverifiedCard(false);
+    setEmail(null);
+    setCardError(null);
+    setIsDailyLimit(false);
 
     try {
-      setLastEmail(data.identifier);
+      setIdentifier(data.identifier);
 
       const result = await AuthServices.login(data);
-
       localStorage.setItem("token", result.token!);
-
       navigate("/");
     } catch (error) {
       const rawMessage = handleApiError(error);
@@ -90,17 +95,11 @@ export function LoginForm() {
       try {
         if (rawMessage.includes("ZodError")) {
           const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-
           const errorObj = JSON.parse(jsonString);
-
           if (errorObj.name === "ZodError" && errorObj.message) {
             const issues = JSON.parse(errorObj.message);
-
             if (issues.length > 0) {
-              const cleanMessage = issues[0].message;
-
-              setGlobalError(cleanMessage);
-
+              setGlobalError(issues[0].message);
               return;
             }
           }
@@ -109,10 +108,10 @@ export function LoginForm() {
         console.error("Gagal parsing error validation:", e);
       }
 
-      setGlobalError(rawMessage);
-
       if (rawMessage.toLowerCase().includes("not verified")) {
-        setShowResend(true);
+        setShowUnverifiedCard(true);
+      } else {
+        setGlobalError(rawMessage);
       }
     } finally {
       setIsLoading(false);
@@ -120,20 +119,40 @@ export function LoginForm() {
   }
 
   async function handleResend() {
-    if (!lastEmail) return;
+    if (!identifier) return;
     setResendLoading(true);
+    setCardError(null);
+    setIsVerifiedNow(false);
+    setEmail(null);
+
     try {
-      const email = await AuthServices.resendVerification(lastEmail);
+      const response = await AuthServices.resendVerification(identifier);
 
-      setSuccessEmail(email);
-
-      setIsResendSuccess(true);
+      if (response) {
+        setEmail(response.email);
+      }
 
       setCooldown(60);
     } catch (error) {
       const errorMessage = handleApiError(error);
 
-      setGlobalError(errorMessage);
+      if (
+        errorMessage.toLowerCase().includes("wait") &&
+        errorMessage.includes("seconds")
+      ) {
+        const match = errorMessage.match(/(\d+) seconds/);
+        if (match && match[1]) {
+          setCooldown(parseInt(match[1], 10));
+        }
+      } else if (errorMessage.toLowerCase().includes("limit")) {
+        setCardError(errorMessage);
+        setIsDailyLimit(true);
+      } else if (errorMessage.toLowerCase().includes("already verified")) {
+        setIsVerifiedNow(true);
+        setCardError(null);
+      } else {
+        setCardError(errorMessage);
+      }
     } finally {
       setResendLoading(false);
     }
@@ -143,23 +162,61 @@ export function LoginForm() {
     console.log("Login with Google...");
   };
 
-  if (isResendSuccess) {
+  if (showUnverifiedCard) {
     return (
       <CheckEmailCard
-        title="Email Sent!"
-        message={
-          <>
-            A new verification link has been sent to{" "}
-            <strong>{successEmail}</strong>.
-            <br />
-            Please check your Inbox or Spam folder.
-          </>
+        title={
+          isVerifiedNow
+            ? "Account Verified!"
+            : email
+              ? "Check Your Email"
+              : cardError
+                ? "Failed to Send"
+                : "Account Not Verified"
         }
-        buttonText="Back to Login"
-        onAction={handleBackToLogin}
+        message={
+          isVerifiedNow ? (
+            <div className="text-center">
+              <span className="text-sm text-muted-foreground mt-2 block">
+                Your account is active. Please login to continue.
+              </span>
+            </div>
+          ) : email ? (
+            <div className="text-center">
+              <span>
+                Please check your email to verify your account.
+                <br />A verification link has been sent to{" "}
+                <strong>{email}</strong>.
+              </span>
+            </div>
+          ) : cardError ? (
+            <div className="text-center">
+              <span className="text-destructive font-medium flex items-center justify-center gap-2">
+                <AlertCircle className="size-4" />
+                {cardError}
+              </span>
+              <br />
+            </div>
+          ) : (
+            <>
+              Your account <strong>{identifier}</strong> is not verified yet.
+              <br />
+              Please check your inbox or click the button below to resend the
+              link.
+            </>
+          )
+        }
+        buttonResend={isVerifiedNow ? "Login Now" : "Resend Verification Email"}
+        buttonNavigate={isVerifiedNow ? null : "Back to Login"}
+        onActionResend={isVerifiedNow ? handleBackToLogin : handleResend}
+        onActionNavigate={handleBackToLogin}
+        isLoading={resendLoading}
+        cooldown={cooldown}
+        isDisabled={isDailyLimit}
       />
     );
   }
+
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
       <Card className="bg-card border-none shadow-xl shadow-black/5">
@@ -174,29 +231,10 @@ export function LoginForm() {
         <CardContent className="relative mt-6">
           {/* Global Error Alert */}
           {globalError && (
-            <div className="absolute -top-10 flex justify-center  left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
-              <div className="bg-destructive/20 w-full px-4 py-1 rounded-xs text-destructive flex flex-col gap-2">
-                <div className="flex items-center justify-center gap-2 font-medium text-sm">
-                  <AlertCircle className="size-4" />
-                  <span>{globalError}</span>
-                </div>
-
-                {showResend && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full border-destructive text-destructive hover:bg-destructive hover:text-white transition-colors h-8 text-xs"
-                    onClick={handleResend}
-                    disabled={resendLoading || cooldown > 0}
-                  >
-                    {resendLoading ? (
-                      <Loader2 className="animate-spin size-3 mr-2" />
-                    ) : null}
-                    {cooldown > 0
-                      ? `Resend in ${cooldown}s`
-                      : "Resend Verification Email"}
-                  </Button>
-                )}
+            <div className="absolute -top-10 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-destructive/20 w-full px-4 py-2 rounded-md text-destructive flex items-center justify-center gap-2 border border-destructive/20 shadow-sm">
+                <AlertCircle className="size-4" />
+                <span className="text-sm font-medium">{globalError}</span>
               </div>
             </div>
           )}
@@ -228,7 +266,7 @@ export function LoginForm() {
                 render={({ field }) => (
                   <FormItem className="relative mb-8">
                     <FormControl>
-                      <div>
+                      <div className="relative">
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="Password"
@@ -239,7 +277,7 @@ export function LoginForm() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2 text-muted-foreground hover:text-primary transition-colors outline-none"
+                          className="absolute right-3 top-2.5 text-muted-foreground hover:text-primary transition-colors outline-none"
                           tabIndex={-1}
                         >
                           {showPassword ? (
@@ -250,14 +288,15 @@ export function LoginForm() {
                         </button>
                       </div>
                     </FormControl>
-                    <FormMessage className="absolute top-9 left-0 text-xs" />
+                    <FormMessage className="absolute top-10 left-0 text-xs" />
                     <div className="text-right mt-1">
-                      <a
-                        href="#"
-                        className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                      <button
+                        type="button"
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                        onClick={() => navigate("/forgot-password")}
                       >
                         Forgot password?
-                      </a>
+                      </button>
                     </div>
                   </FormItem>
                 )}
