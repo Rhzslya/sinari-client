@@ -19,6 +19,10 @@ export type RegisterRequest = {
   name: string;
 };
 
+export type GoogleLoginRequest = {
+  token: string;
+};
+
 export type ApiResponse<T> = {
   data: T;
   errors?: string;
@@ -60,6 +64,13 @@ export function toUserResponse(data: UserResponse): UserResponse {
     email: data.email,
     role: data.role,
     token: data.token,
+  };
+}
+
+export function toGoogleUserResponse(data: UserResponse): UserResponse {
+  return {
+    ...toUserResponse(data),
+    google_id: data.google_id,
   };
 }
 

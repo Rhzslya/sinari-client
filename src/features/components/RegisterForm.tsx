@@ -24,7 +24,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckEmailCard } from "./fragments/CheckEmailCard";
-import { GoogleSignIn } from "./fragments/GoogleSignIn";
+import { GoogleSignInFragments } from "./fragments/GoogleSignInFragments";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export function RegisterForm() {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
@@ -114,9 +116,32 @@ export function RegisterForm() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    console.log("Redirecting to Google...");
-  };
+  const handleGoogleLogin = useGoogleLogin({
+    flow: "auth-code",
+
+    onSuccess: async (codeResponse) => {
+      setIsGoogleLoading(true);
+      setGlobalError(null);
+
+      try {
+        const result = await AuthServices.googleLogin({
+          token: codeResponse.code,
+        });
+
+        localStorage.setItem("token", result.token!);
+        navigate("/");
+      } catch (error) {
+        console.error("Backend Google Login Failed", error);
+        setGlobalError(handleApiError(error));
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      console.error("Google Login Failed from Provider");
+      setGlobalError("Failed to connect to Google.");
+    },
+  });
 
   if (isSuccess) {
     return (
@@ -256,6 +281,7 @@ export function RegisterForm() {
                     <FormControl>
                       <div className="relative">
                         <Input
+                          autoComplete="off"
                           type={showPassword ? "text" : "password"}
                           placeholder="Password"
                           {...field}
@@ -299,7 +325,10 @@ export function RegisterForm() {
           </Form>
 
           <div className="mt-6">
-            <GoogleSignIn onClick={handleGoogleLogin} isLoading={isLoading} />
+            <GoogleSignInFragments
+              onClick={handleGoogleLogin}
+              isLoading={isGoogleLoading}
+            />
           </div>
         </CardContent>
       </Card>

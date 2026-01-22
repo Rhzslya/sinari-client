@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle2, Loader2, Timer } from "lucide-react"; // Tambahkan Icon
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  CircleX,
+  Loader2,
+  Mail,
+  Timer,
+} from "lucide-react";
 
 interface CheckEmailCardProps {
   title?: string;
@@ -25,11 +33,41 @@ export function CheckEmailCard({
   cooldown = 0,
   isDisabled = false,
 }: CheckEmailCardProps) {
+  const isSuccessTitle =
+    title === "Account Verified!" || title === "Registration Success";
+
+  const isErrorTitle =
+    title === "Account Not Verified" || title === "Failed to Send";
+
+  const isMailSent = title === "Check Your Email";
+
+  let titleColor = "text-foreground";
+  if (isSuccessTitle) titleColor = "text-green-600";
+  else if (isErrorTitle) titleColor = "text-destructive";
+  else if (isMailSent) titleColor = "text-primary";
+
   return (
     <Card className="shadow-xl border-none shadow-black/5">
       <CardHeader>
-        <CardTitle className="text-center text-primary flex flex-col items-center gap-4 text-2xl font-bold">
-          <CheckCircle2 className="size-12 text-green-500" />
+        <CardTitle
+          className={`text-center flex flex-col items-center gap-4 text-2xl font-bold ${titleColor}`}
+        >
+          {isSuccessTitle && (
+            <Check className="size-16 text-green-600" strokeWidth={1.5} />
+          )}
+
+          {isErrorTitle && (
+            <CircleX className="size-16 text-destructive" strokeWidth={1.5} />
+          )}
+
+          {isMailSent && (
+            <Mail className="size-16 text-primary" strokeWidth={1.5} />
+          )}
+
+          {!isSuccessTitle && !isErrorTitle && !isMailSent && (
+            <CheckCircle2 className="size-16 text-primary" strokeWidth={1.5} />
+          )}
+
           {title}
         </CardTitle>
       </CardHeader>

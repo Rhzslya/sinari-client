@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 
-interface GoogleSignInProps {
-  onClick: () => void; // Function untuk handle login
-  isLoading?: boolean; // Optional, default false
+interface GoogleSignInFragmentsProps {
+  onClick: () => void;
+  isLoading?: boolean;
 }
 
-export function GoogleSignIn({
+export function GoogleSignInFragments({
   onClick,
   isLoading = false,
-}: GoogleSignInProps) {
+}: GoogleSignInFragmentsProps) {
   return (
     <div className="w-full">
       <div className="relative my-4">

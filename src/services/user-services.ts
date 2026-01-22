@@ -7,6 +7,7 @@ import {
   type ApiResponse,
   type ForgotPasswordRequest,
   type ForgotPasswordResponse,
+  type GoogleLoginRequest,
   type LoginRequest,
   type RegisterRequest,
   type ResendVerificationResponse,
@@ -33,6 +34,20 @@ export class AuthServices {
       "/auth/login",
       payload,
     );
+    return toUserResponse(response.data.data);
+  }
+
+  static async googleLogin(request: GoogleLoginRequest): Promise<UserResponse> {
+    const loginRequest = Validation.validate(
+      UserValidation.GOOGLE_LOGIN,
+      request,
+    );
+
+    const response = await api.post<ApiResponse<UserResponse>>(
+      "/auth/google",
+      loginRequest,
+    );
+
     return toUserResponse(response.data.data);
   }
 
