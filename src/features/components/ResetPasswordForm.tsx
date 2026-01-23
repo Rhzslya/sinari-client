@@ -25,7 +25,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { CheckEmailCard } from "./fragments/CheckEmailCard";
 
-// Gunakan Tipe Data Asli dari Schema (Ada tokennya)
 type ResetPasswordRequest = z.infer<typeof UserValidation.RESET_PASSWORD>;
 
 export function ResetPasswordForm() {
@@ -42,17 +41,15 @@ export function ResetPasswordForm() {
 
   const form = useForm<ResetPasswordRequest>({
     resolver: zodResolver(UserValidation.RESET_PASSWORD),
-    // 2. MASUKKAN TOKEN KE DEFAULT VALUES
     mode: "onChange",
     defaultValues: {
-      token: token ?? "", // Jika null, isi string kosong (nanti kena validasi error di bawah)
+      token: token ?? "",
       new_password: "",
       confirm_new_password: "",
     },
   });
 
   async function onSubmit(data: ResetPasswordRequest) {
-    // Safety check: Kalau token ga ada di URL, jangan lanjut
     if (!data.token) {
       setGlobalError("Invalid link. Token is missing.");
       return;
@@ -62,7 +59,6 @@ export function ResetPasswordForm() {
     setGlobalError(null);
 
     try {
-      // 3. KIRIM DATA KE SERVICE (Data sudah berisi token + password baru)
       await AuthServices.resetPassword(data);
       setIsSuccess(true);
     } catch (error) {
@@ -73,27 +69,31 @@ export function ResetPasswordForm() {
     }
   }
 
-  // --- JIKA TOKEN TIDAK ADA DI URL (Langsung Block) ---
+  // --- JIKA TOKEN TIDAK ADA DI URL ---
   if (!token) {
     return (
-      <Card className="bg-destructive/10 border-destructive border text-center shadow-none">
-        <CardContent className="pt-6 pb-6 flex flex-col items-center gap-4">
-          <AlertCircle className="size-12 text-destructive" />
-          <div className="space-y-2">
-            <h3 className="font-bold text-lg text-destructive">Invalid Link</h3>
-            <p className="text-muted-foreground text-sm">
-              The password reset link is invalid or missing. Please request a
-              new one.
-            </p>
-          </div>
-          <Button
-            variant="destructive"
-            onClick={() => navigate("/forgot-password")}
-          >
-            Back to Forgot Password
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="w-full max-w-md mx-auto">
+        <Card className="bg-destructive/10 border-destructive border text-center shadow-none">
+          <CardContent className="pt-6 pb-6 flex flex-col items-center gap-4">
+            <AlertCircle className="size-12 text-destructive" />
+            <div className="space-y-2">
+              <h3 className="font-bold text-lg text-destructive">
+                Invalid Link
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                The password reset link is invalid or missing. Please request a
+                new one.
+              </p>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={() => navigate("/forgot-password")}
+            >
+              Back to Forgot Password
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -109,17 +109,19 @@ export function ResetPasswordForm() {
             You can now login with your new password.
           </>
         }
-        buttonResend="Resend Password Reset Email"
+        buttonResend="Resend Password Reset Email" // Tombol ini tidak akan aktif karena sukses
         buttonNavigate="Go to Login"
         onActionNavigate={() => navigate("/login")}
+        isDisabled={true} // Disable resend karena sudah sukses
       />
     );
   }
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
-      <Card className="bg-card border-none shadow-xl shadow-black/5">
-        <CardHeader className="space-y-1">
+      {/* UPDATE 1: Background Transparan (Style Register) */}
+      <Card className="bg-transparent border-none shadow-none text-foreground">
+        <CardHeader>
           <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
             Sinari Cell
           </CardTitle>
@@ -127,38 +129,41 @@ export function ResetPasswordForm() {
             Create New Password
           </CardDescription>
         </CardHeader>
-        <CardContent className="relative mt-2">
+
+        <CardContent className="relative mt-6">
+          {/* UPDATE 2: Global Error Floating Top */}
           {globalError && (
-            <div className="mb-6 animate-in fade-in slide-in-from-top-1">
-              <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-md flex items-center gap-2 text-destructive text-sm font-medium">
-                <AlertCircle className="size-4 shrink-0" />
-                <span>{globalError}</span>
+            <div className="absolute -top-10 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="bg-destructive/20 w-full px-4 py-2 rounded-md text-destructive flex items-center justify-center gap-2 border border-destructive/20 shadow-sm">
+                <AlertCircle className="size-4" />
+                <span className="text-sm font-medium">{globalError}</span>
               </div>
             </div>
           )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Kita tidak perlu menampilkan Field Token, tapi dia ada di 'background' state form */}
-
               <FormField
                 control={form.control}
                 name="new_password"
                 render={({ field }) => (
-                  <FormItem>
+                  // UPDATE 3: Relative Form Item + Margin Bottom
+                  <FormItem className="relative mb-8">
                     <FormControl>
                       <div className="relative">
+                        {/* UPDATE 4: Input Style (bg-input/50 + border-border) */}
                         <Input
+                          autoComplete="off"
                           type={showPassword ? "text" : "password"}
                           placeholder="New Password"
                           {...field}
                           disabled={isLoading}
-                          className="bg-muted/30 border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary h-11 pr-10"
+                          className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors outline-none"
+                          className="absolute right-3 top-2.5 text-muted-foreground hover:text-primary transition-colors outline-none"
                           tabIndex={-1}
                         >
                           {showPassword ? (
@@ -169,7 +174,8 @@ export function ResetPasswordForm() {
                         </button>
                       </div>
                     </FormControl>
-                    <FormMessage className="text-xs" />
+                    {/* UPDATE 5: Absolute Error Message */}
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />
@@ -178,22 +184,23 @@ export function ResetPasswordForm() {
                 control={form.control}
                 name="confirm_new_password"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="relative mb-8">
                     <FormControl>
                       <div className="relative">
                         <Input
+                          autoComplete="off"
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirm New Password"
                           {...field}
                           disabled={isLoading}
-                          className="bg-muted/30 border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary h-11 pr-10"
+                          className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
                         />
                         <button
                           type="button"
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
-                          className="absolute right-3 top-3 text-muted-foreground hover:text-primary transition-colors outline-none"
+                          className="absolute right-3 top-2.5 text-muted-foreground hover:text-primary transition-colors outline-none"
                           tabIndex={-1}
                         >
                           {showConfirmPassword ? (
@@ -204,13 +211,13 @@ export function ResetPasswordForm() {
                         </button>
                       </div>
                     </FormControl>
-                    <FormMessage className="text-xs" />
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />
 
               <Button
-                className="w-full h-11 mt-2 text-base font-semibold shadow-lg shadow-primary/20"
+                className="w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20"
                 type="submit"
                 disabled={!form.formState.isValid || isLoading}
               >
@@ -225,8 +232,6 @@ export function ResetPasswordForm() {
               </Button>
             </form>
           </Form>
-
-          {/* ... Footer link ... */}
         </CardContent>
       </Card>
     </div>

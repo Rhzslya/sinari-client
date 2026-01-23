@@ -2,7 +2,7 @@ import { ForgotPasswordForm } from "@/features/components/ForgotPasswordForm";
 
 const ForgotPasswordPage = () => {
   return (
-    <div className="relative min-h-svh flex items-center justify-center bg-background p-4">
+    <div className="relative min-h-svh flex items-center justify-center bg-secondary-foreground p-4">
       <div className="w-full max-w-md space-y-4 z-10">
         <ForgotPasswordForm />
       </div>

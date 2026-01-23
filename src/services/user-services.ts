@@ -71,6 +71,12 @@ export class AuthServices {
     return toUserResponse(response.data.data);
   }
 
+  static async get(): Promise<UserResponse> {
+    const response = await api.get<ApiResponse<UserResponse>>("/users/current");
+
+    return toUserResponse(response.data.data);
+  }
+
   static async logout(): Promise<boolean> {
     try {
       await api.delete("/users/logout");

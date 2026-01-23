@@ -6,12 +6,22 @@ import VerifyPage from "./pages/auth/VerifyPage";
 import HomePage from "./pages/HomePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
+import ProductPage from "./pages/ProductPage";
+import MainLayout from "./components/layout/MainLayout";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route element={<MainLayout />}>
+          {/* Halaman yang dibungkus MainLayout */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductPage />} />
+
+          {/* Services (jika ada nanti) */}
+          {/* <Route path="/services" element={<ServicePage />} /> */}
+        </Route>
+
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

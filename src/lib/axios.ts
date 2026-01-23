@@ -11,13 +11,13 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
 
-    const publicEndpoints = ["/login", "/register", "/auth/verify"];
+    // const publicEndpoints = ["/login", "/register", "/auth/verify"];
 
-    const isPublic = publicEndpoints.some((endpoint) =>
-      config.url?.includes(endpoint),
-    );
+    // const isPublic = publicEndpoints.some((endpoint) =>
+    //   config.url?.includes(endpoint),
+    // );
 
-    if (token && !isPublic) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 

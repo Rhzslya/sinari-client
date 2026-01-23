@@ -1,22 +1,39 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface GoogleSignInFragmentsProps {
   onClick: () => void;
   isLoading?: boolean;
+  variant?: "default" | "light";
 }
 
 export function GoogleSignInFragments({
   onClick,
   isLoading = false,
+  variant = "default",
 }: GoogleSignInFragmentsProps) {
+  const isLight = variant === "light";
+
   return (
     <div className="w-full">
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+          <span
+            className={cn(
+              "w-full border-t",
+              isLight ? "border-gray-300" : "border-border",
+            )}
+          />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
+          <span
+            className={cn(
+              "px-2 transition-colors",
+              isLight
+                ? "bg-card-foreground text-gray-500"
+                : "bg-background text-muted-foreground",
+            )}
+          >
             Or continue with
           </span>
         </div>
@@ -25,12 +42,30 @@ export function GoogleSignInFragments({
       <Button
         variant="outline"
         type="button"
-        className="w-full group cursor-pointer duration-200"
+        className={cn(
+          "w-full group cursor-pointer duration-200 gap-2 border",
+
+          isLight
+            ? [
+                "bg-card-foreground",
+                "text-gray-700",
+                "border-gray-300",
+                "hover:bg-(--button-hover-light)",
+                "hover:text-black",
+              ]
+            : [
+                "bg-transparent",
+                "text-foreground",
+                "border-input",
+                "hover:bg-(--button-hover-dark)",
+                "hover:text-foreground",
+              ],
+        )}
         onClick={onClick}
         disabled={isLoading}
       >
         <svg
-          className="mr-2 h-4 w-4 grayscale group-hover:grayscale-0 transition-all duration-300"
+          className="h-4 w-4 grayscale group-hover:grayscale-0 transition-all duration-300"
           aria-hidden="true"
           focusable="false"
           viewBox="0 0 24 24"

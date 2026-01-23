@@ -1,5 +1,17 @@
 import { cva } from "class-variance-authority";
 
 export const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50 focus-visible:ring-ring/50 outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1",
+  // 1. Layout & Base (TETAP)
+  "cursor-pointer group inline-flex h-9 w-max items-center justify-center rounded-none bg-transparent px-4 py-2 text-sm font-bold relative " +
+    // 2. Typography Colors & Transition (TETAP)
+    // Base color
+    "text-secondary-foreground transition-colors duration-400 " +
+    // Hover/Focus/Open colors
+    "hover:text-popover-foreground focus:text-popover-foreground data-[active]:text-popover-foreground data-[state=open]:text-popover-foreground " +
+    // 3. Force Background Transparent (TETAP)
+    "hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent " +
+    // --- BAGIAN GARIS (after:...) SUDAH SAYA HAPUS DISINI ---
+
+    // 4. Reset Utils (TETAP)
+    "disabled:pointer-events-none disabled:opacity-50 focus:outline-none",
 );

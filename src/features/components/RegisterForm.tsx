@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckEmailCard } from "./fragments/CheckEmailCard";
-import { GoogleSignInFragments } from "./fragments/GoogleSignInFragments";
+import { GoogleSignInFragments } from "./fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
 
 export function RegisterForm() {

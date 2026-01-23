@@ -162,14 +162,13 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    // ... (kode form input bawah tetap sama)
     <div className="w-full max-w-md mx-auto space-y-6">
-      <Card className="bg-card border-none shadow-xl shadow-black/5">
+      <Card className="bg-card-foreground border-none shadow-xl shadow-black/5">
         <CardHeader className="space-y-1">
           <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
             Sinari Cell
           </CardTitle>
-          <CardDescription className="text-center text-muted-foreground text-base">
+          <CardDescription className="text-center text-muted text-base">
             Forgot your password?
             <br />
             Enter your email or username below.
@@ -180,7 +179,7 @@ export function ForgotPasswordForm() {
             <div className="absolute -top-10 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="bg-destructive/20 w-full px-4 py-2 rounded-md text-destructive flex items-center justify-center gap-2 border border-destructive/20 shadow-sm">
                 <AlertCircle className="size-4" />
-                <span className="text-sm font-medium">{globalError}</span>
+                <span className="text-xs font-medium">{globalError}</span>
               </div>
             </div>
           )}
@@ -198,7 +197,7 @@ export function ForgotPasswordForm() {
                         placeholder="Email or Username"
                         {...field}
                         disabled={isLoading}
-                        className="bg-muted/30 border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
+                        className="bg-card-foreground border-primary text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -207,7 +206,7 @@ export function ForgotPasswordForm() {
               />
 
               <Button
-                className="w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20"
+                className="w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20 text-secondary-foreground cursor-pointer"
                 type="submit"
                 disabled={!form.formState.isValid || isLoading || isDailyLimit}
               >
@@ -226,7 +225,7 @@ export function ForgotPasswordForm() {
           <div className="mt-6 text-center">
             <button
               type="button"
-              className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2 mx-auto cursor-pointer"
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2 mx-auto cursor-pointer"
               onClick={handleBackToLogin}
             >
               <ArrowLeft className="size-4" />
