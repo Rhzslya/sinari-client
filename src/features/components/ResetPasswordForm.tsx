@@ -69,7 +69,6 @@ export function ResetPasswordForm() {
     }
   }
 
-  // --- JIKA TOKEN TIDAK ADA DI URL ---
   if (!token) {
     return (
       <div className="w-full max-w-md mx-auto">
@@ -97,11 +96,11 @@ export function ResetPasswordForm() {
     );
   }
 
-  // --- TAMPILAN SUKSES ---
   if (isSuccess) {
     return (
       <CheckEmailCard
         title="Password Reset!"
+        variant="default"
         message={
           <>
             Your password has been successfully updated.
@@ -109,31 +108,29 @@ export function ResetPasswordForm() {
             You can now login with your new password.
           </>
         }
-        buttonResend="Resend Password Reset Email" // Tombol ini tidak akan aktif karena sukses
+        buttonResend="Resend Password Reset Email"
         buttonNavigate="Go to Login"
         onActionNavigate={() => navigate("/login")}
-        isDisabled={true} // Disable resend karena sudah sukses
+        isDisabled={true}
       />
     );
   }
 
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
-      {/* UPDATE 1: Background Transparan (Style Register) */}
       <Card className="bg-transparent border-none shadow-none text-foreground">
         <CardHeader>
           <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
             Sinari Cell
           </CardTitle>
-          <CardDescription className="text-center text-muted-foreground text-base">
+          <CardDescription className="text-center text-muted text-base">
             Create New Password
           </CardDescription>
         </CardHeader>
 
         <CardContent className="relative mt-6">
-          {/* UPDATE 2: Global Error Floating Top */}
           {globalError && (
-            <div className="absolute -top-10 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
+            <div className="absolute -top-12 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="bg-destructive/20 w-full px-4 py-2 rounded-md text-destructive flex items-center justify-center gap-2 border border-destructive/20 shadow-sm">
                 <AlertCircle className="size-4" />
                 <span className="text-sm font-medium">{globalError}</span>
@@ -147,18 +144,16 @@ export function ResetPasswordForm() {
                 control={form.control}
                 name="new_password"
                 render={({ field }) => (
-                  // UPDATE 3: Relative Form Item + Margin Bottom
                   <FormItem className="relative mb-8">
                     <FormControl>
                       <div className="relative">
-                        {/* UPDATE 4: Input Style (bg-input/50 + border-border) */}
                         <Input
                           autoComplete="off"
                           type={showPassword ? "text" : "password"}
                           placeholder="New Password"
                           {...field}
                           disabled={isLoading}
-                          className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
+                          className="bg-foreground border-muted-foreground text-muted placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
                         />
                         <button
                           type="button"
@@ -174,7 +169,6 @@ export function ResetPasswordForm() {
                         </button>
                       </div>
                     </FormControl>
-                    {/* UPDATE 5: Absolute Error Message */}
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
@@ -193,7 +187,7 @@ export function ResetPasswordForm() {
                           placeholder="Confirm New Password"
                           {...field}
                           disabled={isLoading}
-                          className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
+                          className="bg-foreground border-muted-foreground text-muted placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
                         />
                         <button
                           type="button"
@@ -217,14 +211,13 @@ export function ResetPasswordForm() {
               />
 
               <Button
-                className="w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20"
+                className="w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 text-foreground"
                 type="submit"
                 disabled={!form.formState.isValid || isLoading}
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Resetting Password...
                   </>
                 ) : (
                   "Reset Password"

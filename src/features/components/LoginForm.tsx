@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckEmailCard } from "./fragments/CheckEmailCard";
 import { GoogleSignInFragments } from "./fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useCooldown } from "@/hooks/use-cooldown";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -39,7 +40,8 @@ export function LoginForm() {
 
   const [resendLoading, setResendLoading] = useState(false);
   const [identifier, setIdentifier] = useState("");
-  const [cooldown, setCooldown] = useState(0);
+
+  const { cooldown, startCooldown, setCooldown } = useCooldown(identifier);
 
   const [email, setEmail] = useState<string | null>(null);
   const [cardError, setCardError] = useState<string | null>(null);
@@ -48,13 +50,13 @@ export function LoginForm() {
 
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = setInterval(() => {
-      setCooldown((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [cooldown]);
+  // useEffect(() => {
+  //   if (cooldown <= 0) return;
+  //   const timer = setInterval(() => {
+  //     setCooldown((prev) => prev - 1);
+  //   }, 1000);
+  //   return () => clearInterval(timer);
+  // }, [cooldown]);
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(UserValidation.LOGIN),
@@ -112,6 +114,42 @@ export function LoginForm() {
 
       if (rawMessage.toLowerCase().includes("not verified")) {
         setShowUnverifiedCard(true);
+
+        const currentId = data.identifier.toLowerCase();
+
+        let targetTime = localStorage.getItem(`resend_verif_${currentId}`);
+        let emailFound = null;
+
+        if (!targetTime) {
+          const cacheKey = `verif_email_cache_${currentId}`;
+          const cachedEmail = localStorage.getItem(cacheKey);
+
+          console.log("Checking Cache for:", currentId, "Found:", cachedEmail);
+
+          if (cachedEmail) {
+            emailFound = cachedEmail;
+            targetTime = localStorage.getItem(
+              `resend_verif_${cachedEmail.toLowerCase()}`,
+            );
+          }
+        } else {
+          emailFound = currentId.includes("@") ? currentId : null;
+        }
+
+        if (targetTime) {
+          const remaining = Math.ceil(
+            (parseInt(targetTime) - Date.now()) / 1000,
+          );
+
+          if (remaining > 0) {
+            startCooldown(remaining, data.identifier);
+            setCooldown(remaining);
+          }
+        }
+
+        if (emailFound) {
+          setEmail(emailFound);
+        }
       } else {
         setGlobalError(rawMessage);
       }
@@ -123,18 +161,21 @@ export function LoginForm() {
   async function handleResend() {
     if (!identifier) return;
     setResendLoading(true);
-    setCardError(null);
     setIsVerifiedNow(false);
-    setEmail(null);
 
     try {
       const response = await AuthServices.resendVerification(identifier);
 
-      if (response) {
+      if (response && response.email) {
         setEmail(response.email);
+
+        const cacheKey = `verif_email_cache_${identifier.toLowerCase()}`;
+        localStorage.setItem(cacheKey, response.email);
+
+        startCooldown(60, response.email);
       }
 
-      setCooldown(60);
+      startCooldown(60, identifier);
     } catch (error) {
       const errorMessage = handleApiError(error);
 
@@ -144,9 +185,12 @@ export function LoginForm() {
       ) {
         const match = errorMessage.match(/(\d+) seconds/);
         if (match && match[1]) {
-          setCooldown(parseInt(match[1], 10));
+          startCooldown(parseInt(match[1], 10));
         }
+
+        setCardError(null);
       } else if (errorMessage.toLowerCase().includes("limit")) {
+        setEmail(null);
         setCardError(errorMessage);
         setIsDailyLimit(true);
       } else if (errorMessage.toLowerCase().includes("already verified")) {
@@ -190,6 +234,7 @@ export function LoginForm() {
   if (showUnverifiedCard) {
     return (
       <CheckEmailCard
+        variant="default"
         title={
           isVerifiedNow
             ? "Account Verified!"
@@ -277,7 +322,7 @@ export function LoginForm() {
                         placeholder="Email or Username"
                         {...field}
                         disabled={isLoading}
-                        className="bg-card-foreground  border-primary text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
+                        className="bg-card-foreground  border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -298,7 +343,7 @@ export function LoginForm() {
                           placeholder="Password"
                           {...field}
                           disabled={isLoading}
-                          className="bg-card-foreground border-primary text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary pr-10 shadow-none"
+                          className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary pr-10 shadow-none"
                         />
                         <button
                           type="button"
@@ -329,14 +374,13 @@ export function LoginForm() {
               />
 
               <Button
-                className={`w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20 cursor-pointer text-secondary-foreground`}
+                className={`w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-secondary-foreground`}
                 type="submit"
                 disabled={!form.formState.isValid || isLoading}
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Logging in...
                   </>
                 ) : (
                   "Sign In"

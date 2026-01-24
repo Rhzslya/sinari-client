@@ -19,13 +19,14 @@ import { type RegisterRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckEmailCard } from "./fragments/CheckEmailCard";
 import { GoogleSignInFragments } from "./fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useCooldown } from "@/hooks/use-cooldown";
 
 export function RegisterForm() {
   const navigate = useNavigate();
@@ -38,20 +39,21 @@ export function RegisterForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+
+  const { cooldown, startCooldown } = useCooldown(registeredEmail);
 
   const [cardError, setCardError] = useState<string | null>(null);
   const [isVerifiedNow, setIsVerifiedNow] = useState(false);
 
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = setInterval(() => {
-      setCooldown((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [cooldown]);
+  // useEffect(() => {
+  //   if (cooldown <= 0) return;
+  //   const timer = setInterval(() => {
+  //     setCooldown((prev) => prev - 1);
+  //   }, 1000);
+  //   return () => clearInterval(timer);
+  // }, [cooldown]);
 
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(UserValidation.REGISTER),
@@ -69,11 +71,22 @@ export function RegisterForm() {
     setGlobalError(null);
     setIsDailyLimit(false);
 
+    const usernameKey = `verif_email_cache_${data.username.toLowerCase()}`;
+    const emailKey = `verif_email_cache_${data.email.toLowerCase()}`;
+
     try {
       await AuthServices.register(data);
       setRegisteredEmail(data.email);
       setIsSuccess(true);
-      setCooldown(60);
+
+      localStorage.setItem(usernameKey, data.email);
+
+      localStorage.setItem(emailKey, data.email);
+
+      console.log("Email Cached:", data.email);
+      console.log("Username Cached:", data.username);
+
+      startCooldown(60, data.email || data.username);
     } catch (error) {
       const errorMessage = handleApiError(error);
       setGlobalError(errorMessage);
@@ -85,12 +98,11 @@ export function RegisterForm() {
   const handleResend = async () => {
     if (!registeredEmail) return;
     setResendLoading(true);
-    setCardError(null);
     setIsVerifiedNow(false);
 
     try {
       await AuthServices.resendVerification(registeredEmail);
-      setCooldown(60);
+      startCooldown(60, registeredEmail);
     } catch (error) {
       const errorMessage = handleApiError(error);
 
@@ -100,8 +112,9 @@ export function RegisterForm() {
       ) {
         const match = errorMessage.match(/(\d+) seconds/);
         if (match && match[1]) {
-          setCooldown(parseInt(match[1], 10));
+          startCooldown(parseInt(match[1], 10));
         }
+        setCardError(null);
       } else if (errorMessage.toLowerCase().includes("limit")) {
         setCardError(errorMessage);
         setIsDailyLimit(true);
@@ -146,6 +159,7 @@ export function RegisterForm() {
   if (isSuccess) {
     return (
       <CheckEmailCard
+        variant="transparent"
         title={
           isVerifiedNow
             ? "Account Verified!"
@@ -156,9 +170,6 @@ export function RegisterForm() {
         message={
           isVerifiedNow ? (
             <div className="text-center">
-              <span className="text-green-600 font-medium text-lg">
-                Successfully Verified!
-              </span>
               <br />
               <span className="text-sm text-muted-foreground mt-2 block">
                 Your account is active. You can now login.
@@ -308,14 +319,13 @@ export function RegisterForm() {
               />
 
               <Button
-                className="w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20"
+                className="w-full mt-2 text-sm text-foreground font-semibold shadow-lg shadow-primary/20"
                 type="submit"
                 disabled={!form.formState.isValid || isLoading}
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Creating account...
                   </>
                 ) : (
                   "Sign Up"

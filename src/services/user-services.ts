@@ -17,6 +17,7 @@ import {
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { Validation } from "@/validation/validation";
+import axios from "axios";
 
 export class AuthServices {
   static async login(request: LoginRequest): Promise<UserResponse> {
@@ -83,7 +84,11 @@ export class AuthServices {
 
       return true;
     } catch (error) {
-      console.warn("Failed to Request Logout, but it's not a problem", error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          return true;
+        }
+      }
 
       return true;
     }

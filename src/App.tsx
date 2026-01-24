@@ -8,6 +8,8 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import ProductPage from "./pages/ProductPage";
 import MainLayout from "./components/layout/MainLayout";
+import DashboardPage from "./pages/DashboardPage";
+import SidebarLayout from "./components/layout/SidebarLayout";
 
 function App() {
   return (
@@ -21,6 +23,14 @@ function App() {
           {/* Services (jika ada nanti) */}
           {/* <Route path="/services" element={<ServicePage />} /> */}
         </Route>
+        <Route
+          path="/dashboard"
+          element={
+            <SidebarLayout>
+              <DashboardPage />
+            </SidebarLayout>
+          }
+        />
 
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />

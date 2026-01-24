@@ -19,11 +19,12 @@ import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CheckEmailCard } from "./fragments/CheckEmailCard";
 import type { ForgotPasswordRequest } from "@/model/user-model";
+import { useCooldown } from "@/hooks/use-cooldown";
 
 export function ForgotPasswordForm() {
   const navigate = useNavigate();
@@ -37,17 +38,21 @@ export function ForgotPasswordForm() {
 
   const [resendLoading, setResendLoading] = useState(false);
   const [cardError, setCardError] = useState<string | null>(null);
-  const [cooldown, setCooldown] = useState(0);
+
+  const { cooldown, startCooldown, setCooldown } = useCooldown(
+    identifier,
+    "reset_pass_",
+  );
 
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = setInterval(() => {
-      setCooldown((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [cooldown]);
+  // useEffect(() => {
+  //   if (cooldown <= 0) return;
+  //   const timer = setInterval(() => {
+  //     startCooldown((prev) => prev - 1);
+  //   }, 1000);
+  //   return () => clearInterval(timer);
+  // }, [cooldown]);
 
   const form = useForm<ForgotPasswordRequest>({
     resolver: zodResolver(UserValidation.FORGOT_PASSWORD),
@@ -67,10 +72,16 @@ export function ForgotPasswordForm() {
     setIdentifier(data.identifier);
     setIsDailyLimit(false);
 
+    const emailCacheKey = `reset_email_cache_${data.identifier.toLowerCase()}`;
+
     try {
       const response = await AuthServices.forgotPassword(data);
       setEmail(response.email);
       setIsSuccess(true);
+
+      localStorage.setItem(emailCacheKey, response.email);
+
+      startCooldown(60, data.identifier);
       setCooldown(60);
     } catch (error) {
       const errorMessage = handleApiError(error);
@@ -80,9 +91,22 @@ export function ForgotPasswordForm() {
         errorMessage.includes("seconds")
       ) {
         const match = errorMessage.match(/(\d+) seconds/);
-        if (match && match[1]) setCooldown(parseInt(match[1], 10));
+        if (match && match[1]) {
+          const seconds = parseInt(match[1], 10);
 
-        setGlobalError(errorMessage);
+          startCooldown(seconds, data.identifier);
+          setCooldown(seconds);
+
+          const cachedEmail = localStorage.getItem(emailCacheKey);
+
+          if (cachedEmail) {
+            setEmail(cachedEmail);
+          }
+
+          setIsSuccess(true);
+
+          return;
+        }
       } else if (errorMessage.toLowerCase().includes("limit")) {
         setGlobalError(errorMessage);
         setIsDailyLimit(true);
@@ -102,7 +126,7 @@ export function ForgotPasswordForm() {
 
     try {
       await AuthServices.forgotPassword({ identifier });
-      setCooldown(60);
+      startCooldown(60, identifier);
       setIsDailyLimit(false);
     } catch (error) {
       const errorMessage = handleApiError(error);
@@ -113,7 +137,14 @@ export function ForgotPasswordForm() {
       ) {
         const match = errorMessage.match(/(\d+) seconds/);
         if (match && match[1]) {
-          setCooldown(parseInt(match[1], 10));
+          const seconds = parseInt(match[1], 10);
+
+          startCooldown(seconds, identifier);
+          setCooldown(seconds);
+
+          setIsSuccess(true);
+
+          return;
         }
       } else if (errorMessage.toLowerCase().includes("limit")) {
         setCardError(errorMessage);
@@ -143,7 +174,8 @@ export function ForgotPasswordForm() {
               <span>
                 Please check your email address for instructions to reset your
                 password.
-                <br />A reset link has been sent to <strong>{email}</strong>.
+                <br />A reset link has been sent to{" "}
+                <strong>{email || identifier}</strong>.
               </span>
             </div>
           )
@@ -197,7 +229,7 @@ export function ForgotPasswordForm() {
                         placeholder="Email or Username"
                         {...field}
                         disabled={isLoading}
-                        className="bg-card-foreground border-primary text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
+                        className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -206,14 +238,13 @@ export function ForgotPasswordForm() {
               />
 
               <Button
-                className="w-full mt-2 text-base font-semibold shadow-lg shadow-primary/20 text-secondary-foreground cursor-pointer"
+                className="w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 text-secondary-foreground cursor-pointer"
                 type="submit"
                 disabled={!form.formState.isValid || isLoading || isDailyLimit}
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
-                    Sending link...
                   </>
                 ) : (
                   "Send Reset Link"

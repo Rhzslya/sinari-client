@@ -2,7 +2,7 @@ import { ResetPasswordForm } from "@/features/components/ResetPasswordForm";
 
 const ResetPasswordPage = () => {
   return (
-    <div className="relative min-h-svh flex items-center justify-center bg-background p-4">
+    <div className="relative min-h-svh flex items-center justify-center bg-foreground p-4">
       <div className="w-full max-w-md space-y-4 z-10">
         <ResetPasswordForm />
       </div>

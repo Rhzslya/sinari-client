@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
   Check,
   CheckCircle2,
-  CircleX,
   Loader2,
   Mail,
   Timer,
+  X,
 } from "lucide-react";
 
 interface CheckEmailCardProps {
@@ -20,6 +21,7 @@ interface CheckEmailCardProps {
   isLoading?: boolean;
   cooldown?: number;
   isDisabled?: boolean;
+  variant?: "default" | "transparent";
 }
 
 export function CheckEmailCard({
@@ -32,9 +34,12 @@ export function CheckEmailCard({
   isLoading = false,
   cooldown = 0,
   isDisabled = false,
+  variant = "default",
 }: CheckEmailCardProps) {
   const isSuccessTitle =
-    title === "Account Verified!" || title === "Registration Success";
+    title === "Account Verified!" ||
+    title === "Registration Success" ||
+    title === "Password Reset!";
 
   const isErrorTitle =
     title === "Account Not Verified" || title === "Failed to Send";
@@ -46,12 +51,17 @@ export function CheckEmailCard({
   else if (isErrorTitle) titleColor = "text-destructive";
   else if (isMailSent) titleColor = "text-primary";
 
+  const cardStyles =
+    variant === "transparent"
+      ? "bg-transparent border-none shadow-none text-foreground"
+      : "bg-card-foreground border-none shadow-xl shadow-black/5";
+
   return (
     <div className="w-full max-w-md mx-auto">
-      <Card className="shadow-xl border-none shadow-black/5 bg-card-foreground">
-        <CardHeader className="pb-2">
+      <Card className={cn("transition-all duration-300", cardStyles)}>
+        <CardHeader className="pb-1">
           <CardTitle
-            className={`text-center flex flex-col items-center gap-6 text-2xl font-bold tracking-tight ${titleColor}`}
+            className={`text-center flex flex-col items-center gap-2 text-2xl font-bold tracking-tight ${titleColor}`}
           >
             {isSuccessTitle && (
               <div className="p-3 bg-green-50 rounded-full">
@@ -60,8 +70,8 @@ export function CheckEmailCard({
             )}
 
             {isErrorTitle && (
-              <div className="p-3 bg-red-50 rounded-full">
-                <CircleX className="size-12 text-destructive" strokeWidth={2} />
+              <div className="p-3 bg-destructive/10 rounded-full">
+                <X className="size-12 text-destructive" strokeWidth={2} />
               </div>
             )}
 
@@ -84,19 +94,27 @@ export function CheckEmailCard({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="text-center space-y-6 pt-4">
-          <div className="text-muted text-sm leading-relaxed">{message}</div>
+        <CardContent className="text-center space-y-6">
+          <div
+            className={cn(
+              "text-sm leading-relaxed",
+              variant === "transparent"
+                ? "text-muted-foreground"
+                : "text-muted",
+            )}
+          >
+            {message}
+          </div>
 
           {onActionResend && (
             <Button
-              className="w-full h-10 font-semibold shadow-lg shadow-primary/20 transition-all text-secondary-foreground cursor-pointer"
+              className="w-full h-10 text-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all cursor-pointer"
               onClick={onActionResend}
               disabled={isLoading || cooldown > 0 || isDisabled}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 size-4 animate-spin" />
-                  Sending...
                 </>
               ) : cooldown > 0 ? (
                 <span className="flex items-center gap-2">

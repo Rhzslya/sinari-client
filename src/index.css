@@ -65,8 +65,9 @@
   --popover-foreground: oklch(0.95 0.01 260);
 
   /* Primary: Tetap Emas/Oranye Sinari */
-  --primary: oklch(0.72 0.16 55);
+  --primary: #ef473a;
   --primary-foreground: oklch(0.5324 0.0493 55);
+  --gradient-primary: oklch(0.5542 0.1928 21);
 
   --secondary: oklch(0.1475 0.0083 247.26);
   --secondary-foreground: oklch(0.95 0.01 260);
@@ -91,8 +92,7 @@
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
 
-  /* Sidebar Colors (Bawaan Shadcn - Dark Mode) */
-  --sidebar: oklch(0.13 0.02 260);
+  --sidebar: oklch(0.1475 0.0083 247.26);
   --sidebar-foreground: oklch(0.95 0.01 260);
   --sidebar-primary: oklch(0.72 0.16 55);
   --sidebar-primary-foreground: oklch(0.95 0.01 260);
@@ -125,4 +125,15 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }

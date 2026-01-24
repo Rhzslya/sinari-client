@@ -96,11 +96,11 @@ const NavigationBar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-linear-to-l from-primary from-70% to-(--gradient-primary)">
+    <header className="sticky top-0 z-50 w-full border-b bg-linear-to-l from-primary from-30% to-(--gradient-primary)">
       {" "}
       <div className="container mx-auto px-4 h-16 flex items-center justify-between ">
         <div
-          className="font-bold text-xl text-secondary tracking-tight cursor-pointer"
+          className="font-bold text-xl text-foreground tracking-tight cursor-pointer"
           onClick={() => navigate("/")}
         >
           Sinari Cell
@@ -128,6 +128,16 @@ const NavigationBar = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle()}
+                active={isActive("/dashboard")}
+                onClick={() => navigate("/dashboard")}
+              >
+                Dashboard
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
             {user?.role === "admin" && (
               <NavigationMenuItem>
                 <NavigationMenuLink
@@ -143,7 +153,6 @@ const NavigationBar = () => {
         </NavigationMenu>
 
         <div className="flex items-center gap-4">
-          {/* ... (Sisa kode User Profile / Auth sama seperti sebelumnya) ... */}
           {isLoggedIn ? (
             isLoadingUser ? (
               <Loader2 className="animate-spin text-muted-foreground size-10" />
@@ -204,10 +213,18 @@ const NavigationBar = () => {
             )
           ) : (
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => navigate("/login")}>
+              <Button
+                onClick={() => navigate("/login")}
+                className="cursor-pointer bg-muted hover:bg-foreground hover:text-muted text-foreground"
+              >
                 Log in
               </Button>
-              <Button onClick={() => navigate("/register")}>Sign Up</Button>
+              <Button
+                className="cursor-pointer text-muted hover:text-foreground"
+                onClick={() => navigate("/register")}
+              >
+                Sign Up
+              </Button>
             </div>
           )}
         </div>
