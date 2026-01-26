@@ -26,12 +26,10 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-// 1. IMPORT useLocation
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom"; // 1. Import Link
 
 const NavigationBar = () => {
   const navigate = useNavigate();
-  // 2. GUNAKAN useLocation untuk mengambil path saat ini
   const location = useLocation();
 
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
@@ -43,14 +41,18 @@ const NavigationBar = () => {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const hasFetched = useRef(false);
 
-  // Helper function untuk cek apakah link aktif (Opsional, biar kode lebih rapi)
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
 
   const handleLogout = useCallback(async () => {
     try {
       await AuthServices.logout();
     } catch {
-      // Ignore error logout
+      // Ignore error
     }
     localStorage.removeItem("token");
     setIsLoggedIn(false);
@@ -62,27 +64,28 @@ const NavigationBar = () => {
       if (hasFetched.current) return;
       if (!isLoggedIn) return;
       hasFetched.current = true;
-      if (isLoggedIn) {
-        setIsLoadingUser(true);
-        try {
-          const user = await AuthServices.get();
-          setUser(user);
-          setIsLoadingUser(false);
-        } catch (error) {
-          const message = handleApiError(error);
-          setFetchError(message);
-          if (
-            message.toLowerCase().includes("unauthorized") ||
-            message.toLowerCase().includes("session")
-          ) {
-            handleLogout();
-          }
-        } finally {
-          setIsLoadingUser(false);
+
+      setIsLoadingUser(true);
+      try {
+        const user = await AuthServices.get();
+        setUser(user);
+      } catch (error) {
+        const message = handleApiError(error);
+        setFetchError(message);
+        if (
+          message.toLowerCase().includes("unauthorized") ||
+          message.toLowerCase().includes("session")
+        ) {
+          handleLogout();
         }
+      } finally {
+        setIsLoadingUser(false);
       }
     };
-    fetchUser();
+
+    if (isLoggedIn) {
+      fetchUser();
+    }
   }, [isLoggedIn, handleLogout]);
 
   const getInitials = (name?: string) => {
@@ -97,55 +100,55 @@ const NavigationBar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-linear-to-l from-primary from-30% to-(--gradient-primary)">
-      {" "}
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between ">
-        <div
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <Link
+          to="/"
           className="font-bold text-xl text-foreground tracking-tight cursor-pointer"
-          onClick={() => navigate("/")}
         >
           Sinari Cell
-        </div>
+        </Link>
 
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
+            {/* HOME */}
             <NavigationMenuItem>
               <NavigationMenuLink
+                asChild // 3. Render sebagai Child (Link)
                 className={navigationMenuTriggerStyle()}
                 active={isActive("/")}
-                onClick={() => navigate("/")}
               >
-                Home
+                <Link to="/">Home</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink
+                asChild
                 className={navigationMenuTriggerStyle()}
                 active={isActive("/products")}
-                onClick={() => navigate("/products")}
               >
-                Products
+                <Link to="/products">Products</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
               <NavigationMenuLink
+                asChild
                 className={navigationMenuTriggerStyle()}
                 active={isActive("/dashboard")}
-                onClick={() => navigate("/dashboard")}
               >
-                Dashboard
+                <Link to="/dashboard">Dashboard</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             {user?.role === "admin" && (
               <NavigationMenuItem>
                 <NavigationMenuLink
+                  asChild
                   className={navigationMenuTriggerStyle()}
                   active={isActive("/services")}
-                  onClick={() => navigate("/services")}
                 >
-                  Services
+                  <Link to="/services">Services</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )}
@@ -187,7 +190,7 @@ const NavigationBar = () => {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/dashboard")}
                     className="cursor-pointer"
                   >
                     <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -214,16 +217,16 @@ const NavigationBar = () => {
           ) : (
             <div className="flex gap-2">
               <Button
-                onClick={() => navigate("/login")}
+                asChild
                 className="cursor-pointer bg-muted hover:bg-foreground hover:text-muted text-foreground"
               >
-                Log in
+                <Link to="/login">Log in</Link>
               </Button>
               <Button
+                asChild
                 className="cursor-pointer text-muted hover:text-foreground"
-                onClick={() => navigate("/register")}
               >
-                Sign Up
+                <Link to="/register">Sign Up</Link>
               </Button>
             </div>
           )}

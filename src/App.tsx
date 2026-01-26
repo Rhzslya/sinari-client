@@ -1,4 +1,10 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import { GuestRoute, ProtectedRoute } from "./components/layout/AuthGuard";
 import RegisterPage from "./pages/RegisterPage";
@@ -10,6 +16,8 @@ import ProductPage from "./pages/ProductPage";
 import MainLayout from "./components/layout/MainLayout";
 import DashboardPage from "./pages/DashboardPage";
 import SidebarLayout from "./components/layout/SidebarLayout";
+import DashboardProductPage from "./pages/DashboardProductPage";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
   return (
@@ -24,13 +32,19 @@ function App() {
           {/* <Route path="/services" element={<ServicePage />} /> */}
         </Route>
         <Route
-          path="/dashboard"
           element={
             <SidebarLayout>
-              <DashboardPage />
+              <Outlet />
             </SidebarLayout>
           }
-        />
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+
+          <Route
+            path="/dashboard/products"
+            element={<DashboardProductPage />}
+          />
+        </Route>
 
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
@@ -45,6 +59,7 @@ function App() {
         {/* Redirect default */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Toaster position="top-center" richColors />
     </BrowserRouter>
   );
 }

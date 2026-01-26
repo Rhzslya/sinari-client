@@ -7,3 +7,13 @@ export type SidebarContextProps = {
   isMobile: boolean;
   toggleSidebar: () => void;
 };
+
+export interface NumberStepperProps {
+  value: number;
+  onChange: (val: number) => void;
+  step?: number;
+  min?: number;
+  disabled?: boolean;
+  prefix?: string;
+  placeholder?: string;
+}
