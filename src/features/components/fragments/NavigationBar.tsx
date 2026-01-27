@@ -131,24 +131,14 @@ const NavigationBar = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className={navigationMenuTriggerStyle()}
-                active={isActive("/dashboard")}
-              >
-                <Link to="/dashboard">Dashboard</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
             {user?.role === "admin" && (
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild
                   className={navigationMenuTriggerStyle()}
-                  active={isActive("/services")}
+                  active={isActive("/dashboard")}
                 >
-                  <Link to="/services">Services</Link>
+                  <Link to="/dashboard">Dashboard</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )}

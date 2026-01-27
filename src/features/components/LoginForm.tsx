@@ -299,7 +299,6 @@ export function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="relative mt-6">
-          {/* Global Error Alert */}
           {globalError && (
             <div className="absolute -top-10 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="bg-destructive/20 w-full px-4 py-2 rounded-md text-destructive flex items-center justify-center gap-2 border border-destructive/20 shadow-sm">

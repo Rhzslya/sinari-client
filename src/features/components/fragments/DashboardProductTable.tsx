@@ -23,9 +23,10 @@ import {
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import type { ProductResponse } from "@/model/product-model";
 import { ProductServices } from "@/services/product-services";
-import { Loader2, MoreHorizontalIcon } from "lucide-react";
+import { MoreHorizontalIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { SkeletonTable } from "./Skeleton";
 
 export function DashboardProductTable() {
   const [products, setProducts] = useState<ProductResponse[]>([]);
@@ -73,12 +74,7 @@ export function DashboardProductTable() {
   }, [fetchProducts]);
 
   if (isLoading) {
-    return (
-      <div className="flex h-64 w-full items-center justify-center border rounded-md bg-card">
-        <Loader2 className="size-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">Loading products...</span>
-      </div>
-    );
+    return <SkeletonTable />;
   }
   return (
     <TooltipProvider>
