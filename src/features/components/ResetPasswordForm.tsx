@@ -23,7 +23,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
-import { CheckEmailCard } from "./fragments/CheckEmailCard";
+import { CheckEmailCard } from "../fragments/CheckEmailCard";
 
 type ResetPasswordRequest = z.infer<typeof UserValidation.RESET_PASSWORD>;
 

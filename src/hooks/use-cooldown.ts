@@ -7,66 +7,74 @@ export function useCooldown(
   keyPrefix: string = DEFAULT_PREFIX,
 ) {
   const normalizedKey = keyId.toLowerCase();
-  const storageKey = normalizedKey
-    ? `${keyPrefix}${normalizedKey}`
-    : `${keyPrefix}global`;
 
-  const getSavedCooldown = useCallback(() => {
-    if (typeof window === "undefined") return 0;
+  const storageKey = normalizedKey ? `${keyPrefix}${normalizedKey}` : null;
 
-    const targetTime = localStorage.getItem(storageKey);
-    if (!targetTime) return 0;
+  const getRemainingTime = useCallback(() => {
+    if (typeof window === "undefined" || !storageKey) return 0;
 
-    const diff = Math.ceil((parseInt(targetTime) - Date.now()) / 1000);
+    const targetTimeStr = localStorage.getItem(storageKey);
+    if (!targetTimeStr) return 0;
+
+    const targetTime = parseInt(targetTimeStr);
+    const now = Date.now();
+
+    const diff = Math.ceil((targetTime - now) / 1000);
     return diff > 0 ? diff : 0;
   }, [storageKey]);
 
-  const [cooldown, setCooldown] = useState(getSavedCooldown);
+  const [cooldown, setCooldown] = useState(getRemainingTime);
 
   useEffect(() => {
-    setCooldown(getSavedCooldown());
-  }, [getSavedCooldown]);
+    setCooldown(getRemainingTime());
+  }, [getRemainingTime]);
 
   useEffect(() => {
-    if (cooldown <= 0) return;
+    const sync = () => {
+      setCooldown(getRemainingTime());
+    };
 
-    const interval = setInterval(() => {
-      const currentKey = normalizedKey
-        ? `${keyPrefix}${normalizedKey}`
-        : `${keyPrefix}global`;
+    const interval = window.setInterval(sync, 1000);
 
-      const targetTime = localStorage.getItem(currentKey);
-
-      if (!targetTime) {
-        setCooldown(0);
-        return;
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === storageKey) {
+        sync();
       }
+    };
 
-      const remaining = Math.ceil((parseInt(targetTime) - Date.now()) / 1000);
+    window.addEventListener("storage", handleStorageChange);
 
-      if (remaining <= 0) {
-        setCooldown(0);
-        localStorage.removeItem(currentKey);
-        clearInterval(interval);
-      } else {
-        setCooldown(remaining);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [cooldown, getSavedCooldown, storageKey, keyId, normalizedKey, keyPrefix]);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [getRemainingTime, storageKey]);
 
   const startCooldown = (seconds: number = 60, overrideId?: string) => {
     const finalId = overrideId ? overrideId.toLowerCase() : normalizedKey;
-
     const keyToUse = finalId ? `${keyPrefix}${finalId}` : storageKey;
 
-    const targetTime = Date.now() + seconds * 1000;
+    if (!keyToUse) return;
+
+    const now = Date.now();
+    let targetTime = now + seconds * 1000;
+
+    const existingTimeStr = localStorage.getItem(keyToUse);
+    if (existingTimeStr) {
+      const existingTime = parseInt(existingTimeStr);
+      if (existingTime > now) {
+        targetTime = existingTime;
+      }
+    }
 
     localStorage.setItem(keyToUse, targetTime.toString());
+
     if (!overrideId || finalId === normalizedKey) {
-      setCooldown(seconds);
+      const remaining = Math.ceil((targetTime - now) / 1000);
+      setCooldown(remaining);
     }
+
+    window.dispatchEvent(new Event("storage"));
   };
 
   return { cooldown, startCooldown, setCooldown };

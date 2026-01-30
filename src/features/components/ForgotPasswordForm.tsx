@@ -22,7 +22,7 @@ import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { CheckEmailCard } from "./fragments/CheckEmailCard";
+import { CheckEmailCard } from "../fragments/CheckEmailCard";
 import type { ForgotPasswordRequest } from "@/model/user-model";
 import { useCooldown } from "@/hooks/use-cooldown";
 

@@ -19,12 +19,12 @@ import { type RegisterRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckEmailCard } from "./fragments/CheckEmailCard";
-import { GoogleSignInFragments } from "./fragments/GoogleSignIn";
+import { CheckEmailCard } from "../fragments/CheckEmailCard";
+import { GoogleSignInFragments } from "../fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useCooldown } from "@/hooks/use-cooldown";
 
@@ -38,22 +38,35 @@ export function RegisterForm() {
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const [registeredUsername, setRegisteredUsername] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
 
   const { cooldown, startCooldown } = useCooldown(registeredEmail);
 
   const [cardError, setCardError] = useState<string | null>(null);
   const [isVerifiedNow, setIsVerifiedNow] = useState(false);
-
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
-  // useEffect(() => {
-  //   if (cooldown <= 0) return;
-  //   const timer = setInterval(() => {
-  //     setCooldown((prev) => prev - 1);
-  //   }, 1000);
-  //   return () => clearInterval(timer);
-  // }, [cooldown]);
+  useEffect(() => {
+    if (!registeredUsername || !registeredEmail) return;
+
+    const usernameKey = `resend_verif_${registeredUsername.toLowerCase()}`;
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === usernameKey && e.newValue) {
+        const targetTime = parseInt(e.newValue);
+        const now = Date.now();
+        const remaining = Math.ceil((targetTime - now) / 1000);
+
+        if (remaining > 0) {
+          startCooldown(remaining, registeredEmail);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [registeredUsername, registeredEmail, startCooldown]);
 
   const form = useForm<RegisterRequest>({
     resolver: zodResolver(UserValidation.REGISTER),
@@ -77,16 +90,14 @@ export function RegisterForm() {
     try {
       await AuthServices.register(data);
       setRegisteredEmail(data.email);
+      setRegisteredUsername(data.username);
       setIsSuccess(true);
 
       localStorage.setItem(usernameKey, data.email);
-
       localStorage.setItem(emailKey, data.email);
 
-      console.log("Email Cached:", data.email);
-      console.log("Username Cached:", data.username);
-
-      startCooldown(60, data.email || data.username);
+      startCooldown(60, data.email);
+      startCooldown(60, data.username);
     } catch (error) {
       const errorMessage = handleApiError(error);
       setGlobalError(errorMessage);
@@ -102,7 +113,11 @@ export function RegisterForm() {
 
     try {
       await AuthServices.resendVerification(registeredEmail);
+
       startCooldown(60, registeredEmail);
+      if (registeredUsername) {
+        startCooldown(60, registeredUsername);
+      }
     } catch (error) {
       const errorMessage = handleApiError(error);
 
@@ -131,27 +146,22 @@ export function RegisterForm() {
 
   const handleGoogleLogin = useGoogleLogin({
     flow: "auth-code",
-
     onSuccess: async (codeResponse) => {
       setIsGoogleLoading(true);
       setGlobalError(null);
-
       try {
         const result = await AuthServices.googleLogin({
           token: codeResponse.code,
         });
-
         localStorage.setItem("token", result.token!);
         navigate("/");
       } catch (error) {
-        console.error("Backend Google Login Failed", error);
         setGlobalError(handleApiError(error));
       } finally {
         setIsGoogleLoading(false);
       }
     },
     onError: () => {
-      console.error("Google Login Failed from Provider");
       setGlobalError("Failed to connect to Google.");
     },
   });

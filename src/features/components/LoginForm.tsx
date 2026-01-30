@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { handleApiError } from "@/lib/utils";
-import { type LoginRequest } from "@/model/user-model";
+import { maskEmail, type LoginRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -23,10 +23,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckEmailCard } from "./fragments/CheckEmailCard";
-import { GoogleSignInFragments } from "./fragments/GoogleSignIn";
+import { CheckEmailCard } from "../fragments/CheckEmailCard";
+import { GoogleSignInFragments } from "../fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useCooldown } from "@/hooks/use-cooldown";
+import { clearAuthCache } from "@/components/utils/clearAuthCache";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -41,22 +42,15 @@ export function LoginForm() {
   const [resendLoading, setResendLoading] = useState(false);
   const [identifier, setIdentifier] = useState("");
 
-  const { cooldown, startCooldown, setCooldown } = useCooldown(identifier);
-
   const [email, setEmail] = useState<string | null>(null);
+  const [isMailSent, setIsMailSent] = useState(false);
   const [cardError, setCardError] = useState<string | null>(null);
 
+  // Hook memantau Email (jika ada) atau Identifier
+  const { cooldown, startCooldown } = useCooldown(email || identifier);
+
   const [isVerifiedNow, setIsVerifiedNow] = useState(false);
-
   const [isDailyLimit, setIsDailyLimit] = useState(false);
-
-  // useEffect(() => {
-  //   if (cooldown <= 0) return;
-  //   const timer = setInterval(() => {
-  //     setCooldown((prev) => prev - 1);
-  //   }, 1000);
-  //   return () => clearInterval(timer);
-  // }, [cooldown]);
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(UserValidation.LOGIN),
@@ -77,6 +71,7 @@ export function LoginForm() {
     setEmail(null);
     setCardError(null);
     setIsVerifiedNow(false);
+    setIsMailSent(false); // Reset status kirim
   };
 
   async function onSubmit(data: LoginRequest) {
@@ -86,12 +81,17 @@ export function LoginForm() {
     setEmail(null);
     setCardError(null);
     setIsDailyLimit(false);
+    setIsMailSent(false);
 
     try {
       setIdentifier(data.identifier);
 
       const result = await AuthServices.login(data);
       localStorage.setItem("token", result.token!);
+      localStorage.setItem("role", result.role);
+
+      clearAuthCache(data.identifier);
+
       navigate("/");
     } catch (error) {
       const rawMessage = handleApiError(error);
@@ -117,24 +117,18 @@ export function LoginForm() {
 
         const currentId = data.identifier.toLowerCase();
 
-        let targetTime = localStorage.getItem(`resend_verif_${currentId}`);
-        let emailFound = null;
+        const cacheKey = `verif_email_cache_${currentId}`;
+        const cachedEmail = localStorage.getItem(cacheKey);
 
-        if (!targetTime) {
-          const cacheKey = `verif_email_cache_${currentId}`;
-          const cachedEmail = localStorage.getItem(cacheKey);
+        const effectiveEmail =
+          cachedEmail || (currentId.includes("@") ? currentId : null);
 
-          console.log("Checking Cache for:", currentId, "Found:", cachedEmail);
-
-          if (cachedEmail) {
-            emailFound = cachedEmail;
-            targetTime = localStorage.getItem(
-              `resend_verif_${cachedEmail.toLowerCase()}`,
-            );
-          }
-        } else {
-          emailFound = currentId.includes("@") ? currentId : null;
+        if (effectiveEmail) {
+          setEmail(effectiveEmail);
         }
+
+        const targetId = effectiveEmail || currentId;
+        const targetTime = localStorage.getItem(`resend_verif_${targetId}`);
 
         if (targetTime) {
           const remaining = Math.ceil(
@@ -142,13 +136,8 @@ export function LoginForm() {
           );
 
           if (remaining > 0) {
-            startCooldown(remaining, data.identifier);
-            setCooldown(remaining);
+            startCooldown(remaining, targetId);
           }
-        }
-
-        if (emailFound) {
-          setEmail(emailFound);
         }
       } else {
         setGlobalError(rawMessage);
@@ -162,6 +151,7 @@ export function LoginForm() {
     if (!identifier) return;
     setResendLoading(true);
     setIsVerifiedNow(false);
+    setCardError(null);
 
     try {
       const response = await AuthServices.resendVerification(identifier);
@@ -169,11 +159,10 @@ export function LoginForm() {
       if (response && response.email) {
         setEmail(response.email);
 
-        const cacheKey = `verif_email_cache_${identifier.toLowerCase()}`;
-        localStorage.setItem(cacheKey, response.email);
-
         startCooldown(60, response.email);
       }
+
+      setIsMailSent(true);
 
       startCooldown(60, identifier);
     } catch (error) {
@@ -187,7 +176,6 @@ export function LoginForm() {
         if (match && match[1]) {
           startCooldown(parseInt(match[1], 10));
         }
-
         setCardError(null);
       } else if (errorMessage.toLowerCase().includes("limit")) {
         setEmail(null);
@@ -206,39 +194,36 @@ export function LoginForm() {
 
   const handleGoogleLogin = useGoogleLogin({
     flow: "auth-code",
-
     onSuccess: async (codeResponse) => {
       setIsGoogleLoading(true);
       setGlobalError(null);
-
       try {
         const result = await AuthServices.googleLogin({
           token: codeResponse.code,
         });
-
         localStorage.setItem("token", result.token!);
         navigate("/");
       } catch (error) {
-        console.error("Backend Google Login Failed", error);
         setGlobalError(handleApiError(error));
       } finally {
         setIsGoogleLoading(false);
       }
     },
     onError: () => {
-      console.error("Google Login Failed from Provider");
       setGlobalError("Failed to connect to Google.");
     },
   });
 
   if (showUnverifiedCard) {
+    const showCheckEmailState = isMailSent || (cooldown > 0 && !!email);
+
     return (
       <CheckEmailCard
         variant="default"
         title={
           isVerifiedNow
             ? "Account Verified!"
-            : email
+            : showCheckEmailState
               ? "Check Your Email"
               : cardError
                 ? "Failed to Send"
@@ -251,12 +236,12 @@ export function LoginForm() {
                 Your account is active. Please login to continue.
               </span>
             </div>
-          ) : email ? (
+          ) : showCheckEmailState ? (
             <div className="text-center">
               <span>
                 Please check your email to verify your account.
                 <br />A verification link has been sent to{" "}
-                <strong>{email}</strong>.
+                <strong>{maskEmail(email!)}</strong>.
               </span>
             </div>
           ) : cardError ? (
@@ -270,6 +255,12 @@ export function LoginForm() {
           ) : (
             <>
               Your account <strong>{identifier}</strong> is not verified yet.
+              {email && (
+                <>
+                  <br />
+                  Linked email: <strong>{maskEmail(email)}</strong>
+                </>
+              )}
               <br />
               Please check your inbox or click the button below to resend the
               link.
