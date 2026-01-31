@@ -9,6 +9,7 @@ export type ProductResponse = {
   price: number;
   cost_price: number;
   stock: number;
+  image_url?: string;
   created_at: Date;
   updated_at: Date;
 };
@@ -21,6 +22,7 @@ export type CreateProductRequest = {
   cost_price: number;
   category: Category;
   stock: number;
+  image?: File;
 };
 
 export type ApiResponse<T> = {
@@ -47,17 +49,18 @@ export type SearchProductRequest = {
   sort_order?: "asc" | "desc";
 };
 
-export function toProductResponse(data: ProductResponse): ProductResponse {
+export function toProductResponse(product: ProductResponse): ProductResponse {
   return {
-    id: data.id,
-    name: data.name,
-    brand: data.brand,
-    manufacturer: data.manufacturer,
-    category: data.category,
-    price: data.price,
-    cost_price: data.cost_price,
-    stock: data.stock,
-    created_at: data.created_at,
-    updated_at: data.updated_at,
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    manufacturer: product.manufacturer,
+    category: product.category,
+    price: product.price,
+    cost_price: product.cost_price,
+    stock: product.stock,
+    image_url: product.image_url,
+    created_at: product.created_at,
+    updated_at: product.updated_at,
   };
 }

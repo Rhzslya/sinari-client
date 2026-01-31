@@ -101,3 +101,17 @@ export function toResetPasswordResponse(data: ResetPasswordResponse) {
     message: data.message,
   };
 }
+
+export function maskEmail(email: string): string {
+  if (!email || !email.includes("@")) return email;
+
+  const [localPart, domain] = email.split("@");
+
+  if (localPart.length <= 2) {
+    return `${localPart}*****@${domain}`;
+  }
+
+  const maskedLocal = localPart.substring(0, 3) + "*".repeat(5);
+
+  return `${maskedLocal}@${domain}`;
+}

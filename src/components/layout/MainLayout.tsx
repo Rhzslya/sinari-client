@@ -1,4 +1,4 @@
-import NavigationBar from "@/features/components/fragments/NavigationBar";
+import NavigationBar from "@/features/fragments/NavigationBar";
 import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {

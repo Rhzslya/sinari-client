@@ -1,3 +1,4 @@
+import { objectToFormData } from "@/components/utils/form-helper";
 import { api } from "@/lib/axios";
 import {
   toProductResponse,
@@ -11,14 +12,16 @@ import { Validation } from "@/validation/validation";
 
 export class ProductServices {
   static async create(request: CreateProductRequest): Promise<ProductResponse> {
-    const CreateProductRequest = Validation.validate(
+    const createProductRequest = Validation.validate(
       ProductValidation.CREATE,
       request,
     );
 
+    const formData = objectToFormData(createProductRequest);
+
     const response = await api.post<ApiResponse<ProductResponse>>(
       "/products",
-      CreateProductRequest,
+      formData,
     );
 
     return toProductResponse(response.data.data);
@@ -35,5 +38,17 @@ export class ProductServices {
     );
 
     return response.data;
+  }
+
+  static async get(id: number): Promise<ProductResponse> {
+    if (isNaN(id)) {
+      throw new Error("Invalid product ID");
+    }
+
+    const response = await api.get<ApiResponse<ProductResponse>>(
+      `/products/${id}`,
+    );
+
+    return response.data.data;
   }
 }

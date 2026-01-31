@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DashboardHeader } from "@/features/components/fragments/DashboardHeader";
+import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import { Download } from "lucide-react";
 
 const DashboardPage = () => {

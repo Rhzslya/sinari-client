@@ -16,17 +16,20 @@ import {
 } from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { formatRupiah } from "@/components/utils/formatRupiah";
-import { MoreHorizontalIcon } from "lucide-react";
+import { Eye, EyeOff, MoreHorizontalIcon } from "lucide-react";
 import { SkeletonTable } from "./Skeleton";
 import type { DashboardProductTableProps } from "@/types/type";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export function DashboardProductTable({
   products,
   isLoading,
 }: DashboardProductTableProps) {
   const navigate = useNavigate();
+
+  const [showCost, setShowCost] = useState(false);
 
   if (isLoading) {
     return <SkeletonTable />;
@@ -52,7 +55,24 @@ export function DashboardProductTable({
               <TableHead className="w-37.5 font-bold">Brand</TableHead>
               <TableHead className="w-37.5 font-bold">Category</TableHead>
               <TableHead className="w-25 font-bold">Stock</TableHead>
-              <TableHead className="w-37.5 font-bold">Cost</TableHead>
+              <TableHead className="w-37.5 font-bold">
+                <div className="flex items-center gap-2">
+                  <span>Cost</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                    onClick={() => setShowCost(!showCost)}
+                    title={showCost ? "Hide Cost" : "Show Cost"}
+                  >
+                    {showCost ? (
+                      <Eye className="size-3.5" />
+                    ) : (
+                      <EyeOff className="size-3.5" />
+                    )}
+                  </Button>
+                </div>
+              </TableHead>
               <TableHead className="w-37.5 font-bold">Price</TableHead>
               <TableHead className="w-12.5 text-right font-bold">
                 Actions
@@ -68,7 +88,7 @@ export function DashboardProductTable({
                   </span>
                 </TableCell>
 
-                <TableCell className="pl-4">
+                <TableCell>
                   <div className="flex flex-col gap-0.5">
                     <TruncatedTooltip
                       text={product.name}
@@ -105,7 +125,13 @@ export function DashboardProductTable({
                 </TableCell>
 
                 <TableCell className="text-muted-foreground font-mono text-sm truncate">
-                  {formatRupiah(product.cost_price)}
+                  {showCost ? (
+                    formatRupiah(product.cost_price)
+                  ) : (
+                    <span className="tracking-widest text-muted-foreground/50 select-none">
+                      •••••••
+                    </span>
+                  )}
                 </TableCell>
 
                 <TableCell className="font-medium font-mono text-sm truncate">

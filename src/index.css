@@ -17,7 +17,6 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Mapping Color Variable */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -34,6 +33,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -52,11 +52,9 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* --- TEMA TERANG (LOGIN) - Elegant White --- */
 :root {
-  /* Background: Hitam Arang (Dark Charcoal) */
   --background: oklch(0.1934 0.0144 253.18);
-  --foreground: oklch(0.95 0.01 260); /* Putih Gading */
+  --foreground: oklch(0.95 0.01 260);
 
   --card: oklch(0.13 0.02 260);
   --card-foreground: oklch(0.95 0.01 260);
@@ -64,7 +62,6 @@
   --popover: oklch(0.13 0.02 260);
   --popover-foreground: oklch(0.95 0.01 260);
 
-  /* Primary: Tetap Emas/Oranye Sinari */
   --primary: #ef473a;
   --primary-foreground: oklch(0.5324 0.0493 55);
   --gradient-primary: oklch(0.5542 0.1928 21);
@@ -80,12 +77,12 @@
 
   --destructive: oklch(0.5652 0.1511 11.4);
   --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.6235 0.1702 142.46);
 
   --border: oklch(0.3 0.02 260);
   --input: oklch(0.25 0.02 260);
   --ring: var(--primary);
 
-  /* Chart Colors (Bawaan Shadcn - Dark Mode) */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -108,7 +105,6 @@
   --button-hover-light: oklch(0.92 0.005 260);
 }
 
-/* CSS HACK: Matikan background putih Autofill Chrome */
 @layer base {
   input:-webkit-autofill,
   input:-webkit-autofill:hover,

@@ -6,7 +6,11 @@ import {
   Routes,
 } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import { GuestRoute, ProtectedRoute } from "./components/layout/AuthGuard";
+import {
+  AdminRoute,
+  GuestRoute,
+  ProtectedRoute,
+} from "./components/layout/AuthGuard";
 import RegisterPage from "./pages/RegisterPage";
 import VerifyPage from "./pages/auth/VerifyPage";
 import HomePage from "./pages/HomePage";
@@ -18,6 +22,7 @@ import DashboardPage from "./pages/DashboardPage";
 import SidebarLayout from "./components/layout/SidebarLayout";
 import DashboardProductPage from "./pages/DashboardProductPage";
 import { Toaster } from "./components/ui/sonner";
+import DetailProductPage from "./pages/DetailProductPage";
 
 function App() {
   return (
@@ -31,20 +36,6 @@ function App() {
           {/* Services (jika ada nanti) */}
           {/* <Route path="/services" element={<ServicePage />} /> */}
         </Route>
-        <Route
-          element={
-            <SidebarLayout>
-              <Outlet />
-            </SidebarLayout>
-          }
-        >
-          <Route path="/dashboard" element={<DashboardPage />} />
-
-          <Route
-            path="/dashboard/products"
-            element={<DashboardProductPage />}
-          />
-        </Route>
 
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
@@ -55,6 +46,28 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute />}></Route>
+
+        <Route element={<AdminRoute />}>
+          <Route
+            element={
+              <SidebarLayout>
+                <Outlet />
+              </SidebarLayout>
+            }
+          >
+            <Route path="/dashboard" element={<DashboardPage />} />
+
+            <Route
+              path="/dashboard/products"
+              element={<DashboardProductPage />}
+            />
+
+            <Route
+              path="/dashboard/products/detail/:productId"
+              element={<DetailProductPage />}
+            />
+          </Route>
+        </Route>
 
         {/* Redirect default */}
         <Route path="*" element={<Navigate to="/" replace />} />

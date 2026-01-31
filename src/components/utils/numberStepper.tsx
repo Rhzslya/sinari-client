@@ -11,7 +11,11 @@ export function NumberStepper({
   disabled,
   prefix,
   placeholder,
+  onBlur,
+  onKeyDown,
 }: NumberStepperProps) {
+  const safeValue = value ?? 0;
+
   const handleDecrement = () => {
     if (disabled) return;
     const newValue = Math.max(min, Number(value || 0) - step);
@@ -24,6 +28,19 @@ export function NumberStepper({
     onChange(newValue);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (inputValue === "") {
+      onChange(undefined);
+      return;
+    }
+
+    const parsedValue = Number(inputValue);
+    if (!isNaN(parsedValue)) {
+      onChange(parsedValue);
+    }
+  };
+
   return (
     <div className="flex items-center gap-1">
       <Button
@@ -32,7 +49,7 @@ export function NumberStepper({
         size="icon"
         className="h-6 w-6 shrink-0 rounded-r-none border-r-0"
         onClick={handleDecrement}
-        disabled={disabled || value <= min}
+        disabled={disabled || safeValue <= min}
       >
         <Minus className="size-3" />
       </Button>
@@ -49,9 +66,11 @@ export function NumberStepper({
             prefix ? "pl-8" : "px-2"
           }`}
           placeholder={placeholder}
-          value={value === 0 ? "" : value}
-          onChange={(e) => onChange(Number(e.target.value))}
+          value={value === undefined ? "" : value}
+          onChange={handleInputChange}
           disabled={disabled}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
         />
       </div>
 

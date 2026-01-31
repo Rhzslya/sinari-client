@@ -1,6 +1,6 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "../ui/app-sidebar";
-import NavigationBar from "@/features/components/fragments/NavigationBar";
+import NavigationBar from "@/features/fragments/NavigationBar";
 
 export default function SidebarLayout({
   children,
