@@ -21,11 +21,14 @@ export interface NumberStepperProps {
   placeholder?: string;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
+  onFocus?: React.FocusEventHandler<HTMLInputElement>;
 }
 
 export interface DashboardProductTableProps {
   products: ProductResponse[];
   isLoading: boolean;
+  onRefresh?: () => void;
+  onSuccess?: () => void;
 }
 
 export interface JwtPayload {

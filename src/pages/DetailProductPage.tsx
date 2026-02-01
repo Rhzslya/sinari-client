@@ -123,9 +123,7 @@ const DetailProductPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* HERO SECTION: Image + Key Status */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-background rounded-xl border shadow-sm overflow-hidden">
-          {/* Image Area (40%) */}
           <div className="lg:col-span-1 bg-white dark:bg-muted/5 p-8 flex items-center justify-center border-b lg:border-b-0 lg:border-r relative group">
             {product.image_url ? (
               <>
@@ -150,7 +148,6 @@ const DetailProductPage = () => {
             )}
           </div>
 
-          {/* Key Metrics Area (60%) */}
           <div className="lg:col-span-2 p-8 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start mb-6">
@@ -209,7 +206,6 @@ const DetailProductPage = () => {
               </div>
             </div>
 
-            {/* Stock Health Visualizer */}
             <div className="mt-8">
               <div className="flex justify-between text-xs mb-2">
                 <span className="font-medium">Inventory Health Score</span>
@@ -230,9 +226,7 @@ const DetailProductPage = () => {
           </div>
         </div>
 
-        {/* DETAILED METRICS GRIDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Financial Breakdown Card */}
           <Card>
             <CardHeader className="border-b py-4 bg-muted/10">
               <CardTitle className="text-base flex items-center gap-2">
@@ -280,7 +274,6 @@ const DetailProductPage = () => {
             </CardContent>
           </Card>
 
-          {/* Inventory & Meta Info Card */}
           <Card>
             <CardHeader className="border-b py-4 bg-muted/10">
               <CardTitle className="text-base flex items-center gap-2">
@@ -295,7 +288,6 @@ const DetailProductPage = () => {
                   </span>
                   <span className="text-xl font-bold">{product.stock}</span>
                 </div>
-                {/* Contoh jika ada data lain (misal stok dipesan) */}
                 <div className="flex justify-between items-center p-3 border rounded-md bg-muted/30 text-muted-foreground">
                   <span className="text-sm flex items-center gap-2">
                     <Package className="size-4" /> Committed / Reserved

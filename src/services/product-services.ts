@@ -6,6 +6,7 @@ import {
   type CreateProductRequest,
   type ProductResponse,
   type SearchProductRequest,
+  type UpdateProductRequest,
 } from "@/model/product-model";
 import { ProductValidation } from "@/validation/product-validation";
 import { Validation } from "@/validation/validation";
@@ -50,5 +51,24 @@ export class ProductServices {
     );
 
     return response.data.data;
+  }
+
+  static async update(request: UpdateProductRequest): Promise<ProductResponse> {
+    const updateProductRequest = Validation.validate(
+      ProductValidation.UPDATE,
+      request,
+    );
+
+    const formData = objectToFormData({
+      ...updateProductRequest,
+      delete_image: updateProductRequest.delete_image ? "true" : "false",
+    });
+
+    const response = await api.patch<ApiResponse<ProductResponse>>(
+      `/products/${request.id}`,
+      formData,
+    );
+
+    return toProductResponse(response.data.data);
   }
 }

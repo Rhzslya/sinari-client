@@ -16,20 +16,43 @@ import {
 } from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { formatRupiah } from "@/components/utils/formatRupiah";
-import { Eye, EyeOff, MoreHorizontalIcon } from "lucide-react";
+import { Eye, EyeOff, MoreHorizontalIcon, PlusCircle } from "lucide-react";
 import { SkeletonTable } from "./Skeleton";
 import type { DashboardProductTableProps } from "@/types/type";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import type { ProductResponse } from "@/model/product-model";
+import UpdateStockForm from "./UpdateStockForm";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { EditProductForm } from "../components/EditProductForm";
 
 export function DashboardProductTable({
   products,
   isLoading,
+  onSuccess,
 }: DashboardProductTableProps) {
   const navigate = useNavigate();
 
   const [showCost, setShowCost] = useState(false);
+
+  const [isUpdateStockOpen, setIsUpdateStockOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductResponse | null>(null);
+
+  const [isEditProductOpen, setIsEditProductOpen] = useState(false);
+
+  const handleUpdateStockOpen = (product: ProductResponse) => {
+    setSelectedProduct(product);
+    setIsUpdateStockOpen(true);
+  };
 
   if (isLoading) {
     return <SkeletonTable />;
@@ -42,6 +65,12 @@ export function DashboardProductTable({
       </div>
     );
   }
+
+  const handleEditProductOpen = (product: ProductResponse) => {
+    setSelectedProduct(product);
+    setIsEditProductOpen(true);
+  };
+
   return (
     <TooltipProvider>
       <div className="rounded-md border bg-card">
@@ -155,8 +184,18 @@ export function DashboardProductTable({
                       >
                         View Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem>Update Stock</DropdownMenuItem>
-                      <DropdownMenuItem>Edit Product</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleUpdateStockOpen(product)}
+                      >
+                        Update Stock
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        onSelect={() => handleEditProductOpen(product)}
+                      >
+                        {" "}
+                        Edit Product
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive focus:text-destructive">
                         Delete Product
@@ -169,6 +208,59 @@ export function DashboardProductTable({
           </TableBody>
         </Table>
       </div>
+      <UpdateStockForm
+        key={selectedProduct ? selectedProduct.id : "reset"}
+        open={isUpdateStockOpen}
+        onOpenChange={setIsUpdateStockOpen}
+        product={selectedProduct}
+        onSuccess={() => {
+          setIsUpdateStockOpen(false);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }}
+      />
+      <Sheet open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-1 cursor-pointer"
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+              Add Product
+            </span>
+          </Button>
+        </SheetTrigger>
+
+        <SheetContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
+        >
+          <SheetHeader className="px-6 py-4 border-b">
+            <SheetTitle className="text-xl text-primary">
+              Edit Product
+            </SheetTitle>
+          </SheetHeader>
+          <SheetDescription className="sr-only">
+            Form to add a new product
+          </SheetDescription>
+
+          <div className="flex-1 overflow-hidden">
+            {selectedProduct && (
+              <EditProductForm
+                product={selectedProduct}
+                onSuccess={() => {
+                  setIsEditProductOpen(false);
+                  if (onSuccess) onSuccess();
+                }}
+                onCancel={() => setIsEditProductOpen(false)}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </TooltipProvider>
   );
 }

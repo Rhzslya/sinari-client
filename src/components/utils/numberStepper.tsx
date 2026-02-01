@@ -13,6 +13,7 @@ export function NumberStepper({
   placeholder,
   onBlur,
   onKeyDown,
+  onFocus,
 }: NumberStepperProps) {
   const safeValue = value ?? 0;
 
@@ -66,11 +67,12 @@ export function NumberStepper({
             prefix ? "pl-8" : "px-2"
           }`}
           placeholder={placeholder}
-          value={value === undefined ? "" : value}
+          value={value === 0 && placeholder ? "" : value}
           onChange={handleInputChange}
           disabled={disabled}
           onBlur={onBlur}
           onKeyDown={onKeyDown}
+          onFocus={onFocus}
         />
       </div>
 

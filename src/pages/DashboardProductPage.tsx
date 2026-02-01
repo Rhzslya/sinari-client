@@ -19,7 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ProductForm } from "@/features/components/ProductForm";
+import { CreateProductForm } from "@/features/components/CreateProductForm";
 import { PaginationComponent } from "@/features/fragments/Pagination";
 import { useCallback, useEffect, useState } from "react";
 import type { ProductResponse } from "@/model/product-model";
@@ -523,7 +523,10 @@ const DashboardProductPage = () => {
             </Button>
           </SheetTrigger>
 
-          <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
+          <SheetContent
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
+          >
             <SheetHeader className="px-6 py-4 border-b">
               <SheetTitle className="text-xl text-primary">
                 Add New Product
@@ -534,14 +537,18 @@ const DashboardProductPage = () => {
             </SheetDescription>
 
             <div className="flex-1 overflow-hidden">
-              <ProductForm onSuccess={handleCreateSuccess} />
+              <CreateProductForm onSuccess={handleCreateSuccess} />
             </div>
           </SheetContent>
         </Sheet>
       </DashboardHeader>
 
       <div className="flex-1 overflow-auto">
-        <DashboardProductTable products={products} isLoading={isLoading} />
+        <DashboardProductTable
+          products={products}
+          isLoading={isLoading}
+          onSuccess={fetchProducts}
+        />
       </div>
       <PaginationComponent
         currentPage={page}

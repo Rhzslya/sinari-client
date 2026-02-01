@@ -49,6 +49,19 @@ export type SearchProductRequest = {
   sort_order?: "asc" | "desc";
 };
 
+export type UpdateProductRequest = {
+  id: number;
+  name?: string;
+  brand?: Brand;
+  manufacturer?: string;
+  price?: number;
+  cost_price?: number;
+  category?: Category;
+  stock?: number;
+  image?: File;
+  delete_image?: boolean;
+};
+
 export function toProductResponse(product: ProductResponse): ProductResponse {
   return {
     id: product.id,

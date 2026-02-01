@@ -36,12 +36,12 @@ interface ProductFormProps {
   onSuccess?: () => void;
 }
 
-export function ProductForm({ onSuccess }: ProductFormProps) {
+export function CreateProductForm({ onSuccess }: ProductFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<CreateProductRequest>({
+  const formCreate = useForm<CreateProductRequest>({
     resolver: zodResolver(
       ProductValidation.CREATE,
     ) as Resolver<CreateProductRequest>,
@@ -58,11 +58,11 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
     },
   });
 
-  const { isSubmitting } = form.formState;
-  const nameValue = form.watch("name");
-  const priceValue = form.watch("price");
-  const costPriceValue = form.watch("cost_price");
-  const imageValue = form.watch("image");
+  const { isSubmitting } = formCreate.formState;
+  const nameValue = formCreate.watch("name");
+  const priceValue = formCreate.watch("price");
+  const costPriceValue = formCreate.watch("cost_price");
+  const imageValue = formCreate.watch("image");
 
   const isImageOversized =
     imageValue instanceof File && imageValue.size > MAX_FILE_SIZE;
@@ -83,7 +83,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
         description: `${data.name} has been added to inventory.`,
       });
 
-      form.reset();
+      formCreate.reset();
       setPreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
 
@@ -150,9 +150,9 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
     "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
 
   return (
-    <Form {...form}>
+    <Form {...formCreate}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={formCreate.handleSubmit(onSubmit)}
         className="flex flex-col h-full"
       >
         <div
@@ -181,7 +181,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
             </div>
 
             <FormField
-              control={form.control}
+              control={formCreate.control}
               name="name"
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0">
@@ -202,7 +202,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={formCreate.control}
                 name="brand"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0 py-0">
@@ -231,7 +231,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
               />
 
               <FormField
-                control={form.control}
+                control={formCreate.control}
                 name="category"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
@@ -261,7 +261,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
             </div>
 
             <FormField
-              control={form.control}
+              control={formCreate.control}
               name="image"
               render={({ field }) => (
                 <FormItem className="grid gap-1">
@@ -410,7 +410,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
-                control={form.control}
+                control={formCreate.control}
                 name="price"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
@@ -431,7 +431,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
               />
 
               <FormField
-                control={form.control}
+                control={formCreate.control}
                 name="cost_price"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
@@ -452,7 +452,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
               />
 
               <FormField
-                control={form.control}
+                control={formCreate.control}
                 name="stock"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
@@ -472,7 +472,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
               />
 
               <FormField
-                control={form.control}
+                control={formCreate.control}
                 name="manufacturer"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
@@ -501,7 +501,7 @@ export function ProductForm({ onSuccess }: ProductFormProps) {
             type="button"
             className="text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
             onClick={() => {
-              form.reset();
+              formCreate.reset();
               setPreview(null);
               if (fileInputRef.current) fileInputRef.current.value = "";
             }}

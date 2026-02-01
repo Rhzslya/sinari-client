@@ -62,4 +62,70 @@ export class ProductValidation {
     sort_by: z.enum(["price", "stock", "created_at"]).optional(),
     sort_order: z.enum(["asc", "desc"]).optional(),
   });
+
+  static readonly UPDATE = z.object({
+    name: z
+      .string()
+      .min(1, { message: "Product name cannot be empty" })
+      .max(100, { message: "Product name cannot exceed 100 characters" })
+      .optional(),
+
+    brand: z
+      .enum(BRAND_VALUES, {
+        message: "Please select a valid brand",
+      })
+      .optional(),
+
+    manufacturer: z
+      .string()
+      .min(1, { message: "Manufacturer cannot be empty" })
+      .max(100, { message: "Manufacturer cannot exceed 100 characters" })
+      .optional(),
+
+    price: z.coerce
+      .number({ message: "Price must be a number" })
+      .min(0, { message: "Price cannot be negative" })
+      .optional(),
+
+    cost_price: z.coerce
+      .number({ message: "Cost price must be a number" })
+      .min(0, { message: "Cost price cannot be negative" })
+      .optional(),
+
+    category: z
+      .enum(CATEGORY_VALUES, {
+        message: "Please select a valid category",
+      })
+      .optional(),
+
+    stock: z.coerce
+      .number({ message: "Stock must be a number" })
+      .min(0, { message: "Stock cannot be negative" })
+      .optional(),
+
+    image: z
+      .custom<File>((v) => v instanceof File)
+      .refine((file) => file?.size <= MAX_FILE_SIZE, {
+        message: "Max image size is 5MB",
+      })
+      .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file?.type), {
+        message: "Only .jpg, .jpeg, .png and .webp formats are supported",
+      })
+      .optional(),
+
+    delete_image: z.preprocess(
+      (val) => val === "true" || val === true,
+      z.boolean().optional(),
+    ),
+  });
+
+  static readonly UPDATE_STOCK = z.object({
+    stock: z.coerce
+      .number({ message: "Stock must be a number" })
+      .min(0, { message: "Stock cannot be negative" }),
+  });
 }
+
+export type UpdateStockFormValues = z.infer<
+  typeof ProductValidation.UPDATE_STOCK
+>;
