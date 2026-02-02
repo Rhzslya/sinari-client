@@ -111,18 +111,7 @@ const UpdateStockForm = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        onOpenAutoFocus={(e) => {
-          e.preventDefault();
-          const input = document.querySelector(
-            "input[name='stock']",
-          ) as HTMLInputElement;
-          if (input) {
-            setTimeout(() => {
-              input.focus();
-              input.select();
-            }, 0);
-          }
-        }}
+        onOpenAutoFocus={(e) => e.preventDefault()}
         className="sm:max-w-106.25"
       >
         <DialogHeader>
@@ -149,6 +138,7 @@ const UpdateStockForm = ({
                     <FormLabel>Current Stock</FormLabel>
                     <FormControl>
                       <NumberStepper
+                        placeholder="0"
                         value={field.value}
                         onChange={(val) => field.onChange(val ?? 0)}
                         min={0}

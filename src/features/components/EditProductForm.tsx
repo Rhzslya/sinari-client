@@ -342,7 +342,7 @@ export function EditProductForm({
                     Product Image (Optional)
                   </FormLabel>
                   <FormControl>
-                    <>
+                    <div key={product.id}>
                       <Input
                         type="file"
                         className="hidden"
@@ -455,7 +455,7 @@ export function EditProductForm({
                           </div>
                         </div>
                       )}
-                    </>
+                    </div>
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>
@@ -559,29 +559,32 @@ export function EditProductForm({
         </div>
 
         <div className="flex items-center justify-end gap-3 p-4 border-t bg-background mt-auto">
-          {onCancel ? (
+          {isDirty || isImageDeleted ? (
             <Button
+              size="sm"
               variant="ghost"
               type="button"
-              className="text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
-              onClick={onCancel}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              type="button"
-              className="text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={handleResetToOriginal}
               disabled={isSubmitting}
             >
               Reset
             </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="ghost"
+              type="button"
+              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
           )}
 
           <Button
+            size="sm"
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
             disabled={

@@ -4,6 +4,7 @@ import {
   toProductResponse,
   type ApiResponse,
   type CreateProductRequest,
+  type DeleteProductResponse,
   type ProductResponse,
   type SearchProductRequest,
   type UpdateProductRequest,
@@ -50,7 +51,7 @@ export class ProductServices {
       `/products/${id}`,
     );
 
-    return response.data.data;
+    return toProductResponse(response.data.data);
   }
 
   static async update(request: UpdateProductRequest): Promise<ProductResponse> {
@@ -70,5 +71,14 @@ export class ProductServices {
     );
 
     return toProductResponse(response.data.data);
+  }
+
+  static async remove(id: number): Promise<DeleteProductResponse> {
+    const response = await api.delete(`/products/${id}`);
+
+    return {
+      data: toProductResponse(response.data.data),
+      message: response.data.message,
+    };
   }
 }

@@ -2,6 +2,7 @@ import type { NumberStepperProps } from "@/types/type";
 import { Button } from "../ui/button";
 import { Minus, Plus } from "lucide-react";
 import { Input } from "../ui/input";
+import { cn } from "@/lib/utils";
 
 export function NumberStepper({
   value,
@@ -10,12 +11,14 @@ export function NumberStepper({
   min = 0,
   disabled,
   prefix,
+  suffix,
   placeholder,
   onBlur,
   onKeyDown,
   onFocus,
 }: NumberStepperProps) {
   const safeValue = value ?? 0;
+  const displayValue = safeValue === 0 ? "" : safeValue;
 
   const handleDecrement = () => {
     if (disabled) return;
@@ -57,23 +60,31 @@ export function NumberStepper({
 
       <div className="relative flex-1">
         {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">
             {prefix}
           </span>
         )}
+
         <Input
           type="number"
-          className={`h-8 rounded-none bg-input/50 border-border text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary ${
-            prefix ? "pl-8" : "px-2"
-          }`}
+          className={cn(
+            "h-8 rounded-none bg-input/50 border-border text-center",
+            "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none", // Hapus panah bawaan browser
+            "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
+          )}
           placeholder={placeholder}
-          value={value === 0 && placeholder ? "" : value}
+          value={displayValue}
           onChange={handleInputChange}
           disabled={disabled}
           onBlur={onBlur}
           onKeyDown={onKeyDown}
           onFocus={onFocus}
         />
+        {suffix && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none select-none">
+            {suffix}
+          </div>
+        )}
       </div>
 
       <Button

@@ -499,7 +499,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
           <Button
             variant="ghost"
             type="button"
-            className="text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+            className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
             onClick={() => {
               formCreate.reset();
               setPreview(null);

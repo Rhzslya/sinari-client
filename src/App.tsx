@@ -23,6 +23,7 @@ import SidebarLayout from "./components/layout/SidebarLayout";
 import DashboardProductPage from "./pages/DashboardProductPage";
 import { Toaster } from "./components/ui/sonner";
 import DetailProductPage from "./pages/DetailProductPage";
+import DashboardServicePage from "./pages/DashboardServicePage";
 
 function App() {
   return (
@@ -65,6 +66,11 @@ function App() {
             <Route
               path="/dashboard/products/detail/:productId"
               element={<DetailProductPage />}
+            />
+
+            <Route
+              path="/dashboard/services"
+              element={<DashboardServicePage />}
             />
           </Route>
         </Route>

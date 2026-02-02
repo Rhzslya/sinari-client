@@ -1,4 +1,5 @@
 import type { ProductResponse } from "@/model/product-model";
+import type { ServiceResponse } from "@/model/repair-model";
 
 export type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -18,14 +19,23 @@ export interface NumberStepperProps {
   max?: number;
   disabled?: boolean;
   prefix?: string;
+  suffix?: string;
   placeholder?: string;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  className?: string;
 }
 
 export interface DashboardProductTableProps {
   products: ProductResponse[];
+  isLoading: boolean;
+  onRefresh?: () => void;
+  onSuccess?: () => void;
+}
+
+export interface DashboardServiceTableProps {
+  services: ServiceResponse[];
   isLoading: boolean;
   onRefresh?: () => void;
   onSuccess?: () => void;

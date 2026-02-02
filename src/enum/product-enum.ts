@@ -36,6 +36,16 @@ export const Category = {
 
 export type Category = (typeof Category)[keyof typeof Category];
 
+export type ServiceStatus = (typeof ServiceStatus)[keyof typeof ServiceStatus];
+
+export const ServiceStatus = {
+  PENDING: "PENDING",
+  PROCESS: "PROCESS",
+  FINISHED: "FINISHED",
+  CANCELLED: "CANCELLED",
+  TAKEN: "TAKEN",
+};
+
 export const BRAND_OPTIONS = Object.values(Brand).map((value) => ({
   value: value,
   label: value.charAt(0) + value.slice(1).toLowerCase(),
@@ -45,3 +55,10 @@ export const CATEGORY_OPTIONS = Object.values(Category).map((value) => ({
   value: value,
   label: value.charAt(0) + value.slice(1).toLowerCase(),
 }));
+
+export const SERVICE_STATUS_OPTIONS = Object.values(ServiceStatus).map(
+  (value) => ({
+    value: value,
+    label: value.charAt(0) + value.slice(1).toLowerCase(),
+  }),
+);

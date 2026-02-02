@@ -12,6 +12,12 @@ export type ProductResponse = {
   image_url?: string;
   created_at: Date;
   updated_at: Date;
+  message?: string;
+};
+
+export type DeleteProductResponse = {
+  data: ProductResponse;
+  message: string;
 };
 
 export type CreateProductRequest = {
@@ -61,6 +67,8 @@ export type UpdateProductRequest = {
   image?: File;
   delete_image?: boolean;
 };
+
+export type DeleteProductRequest = Pick<UpdateProductRequest, "id">;
 
 export function toProductResponse(product: ProductResponse): ProductResponse {
   return {
