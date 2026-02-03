@@ -6,6 +6,7 @@ const SERVICE_STATUS_VALUES = Object.values(ServiceStatus) as [
   string,
   ...string[],
 ];
+const INDONESIAN_PHONE_REGEX = /^(\+62|62|0)8[1-9][0-9]{6,10}$/;
 
 export class RepairValidation {
   static readonly CREATE = z.object({
@@ -25,8 +26,11 @@ export class RepairValidation {
 
     phone_number: z
       .string()
-      .min(1, { message: "Phone number is required" })
-      .max(100, { message: "Phone number cannot exceed 100 characters" }),
+      .min(9, { message: "Min 9 digits" })
+      .max(15, { message: "Max 15 digits" })
+      .regex(INDONESIAN_PHONE_REGEX, {
+        message: "Wrong Format",
+      }),
 
     description: z
       .string()
@@ -70,8 +74,11 @@ export class RepairValidation {
 
     phone_number: z
       .string()
-      .min(1, { message: "Phone number is required" })
-      .max(20, { message: "Phone number cannot exceed 100 characters" })
+      .min(9, { message: "Min 9 digits" })
+      .max(15, { message: "Max 15 digits" })
+      .regex(INDONESIAN_PHONE_REGEX, {
+        message: "Wrong Format",
+      })
       .optional(),
 
     model: z

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatRupiah } from "@/components/utils/formatRupiah";
+import { handleApiError } from "@/lib/utils";
 import type { ProductResponse } from "@/model/product-model";
 import { ProductServices } from "@/services/product-services";
 import {
@@ -23,6 +24,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import NotFoundPage from "./NotFoundPage";
 
 const DetailProductPage = () => {
   const { productId } = useParams();
@@ -32,6 +34,8 @@ const DetailProductPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showCost, setShowCost] = useState(false);
 
+  const [isNotFound, setIsNotFound] = useState(false);
+
   useEffect(() => {
     const fetchDetail = async () => {
       setIsLoading(true);
@@ -40,7 +44,15 @@ const DetailProductPage = () => {
         const product = await ProductServices.get(Number(productId));
         setProduct(product);
       } catch (error) {
+        const rawMessage = handleApiError(error);
+
         console.error("Failed to load product", error);
+
+        if (rawMessage.includes("Product not found")) {
+          setIsNotFound(true);
+          return;
+        }
+
         toast.error("Gagal memuat detail produk");
         navigate("/dashboard/products");
       } finally {
@@ -71,6 +83,16 @@ const DetailProductPage = () => {
           </div>
         </div>
       </div>
+    );
+  }
+
+  if (isNotFound) {
+    return (
+      <NotFoundPage
+        id={productId}
+        entityName="Product"
+        backUrl="/dashboard/products"
+      />
     );
   }
 

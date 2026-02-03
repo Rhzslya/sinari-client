@@ -16,7 +16,6 @@ export type ProductResponse = {
 };
 
 export type DeleteProductResponse = {
-  data: ProductResponse;
   message: string;
 };
 
@@ -67,8 +66,6 @@ export type UpdateProductRequest = {
   image?: File;
   delete_image?: boolean;
 };
-
-export type DeleteProductRequest = Pick<UpdateProductRequest, "id">;
 
 export function toProductResponse(product: ProductResponse): ProductResponse {
   return {

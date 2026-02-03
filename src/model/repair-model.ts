@@ -46,11 +46,21 @@ export type PublicServiceResponse = {
 export type ApiResponse<T> = {
   data: T;
   errors?: string;
+  meta?: ServiceResponseMeta;
   paging?: {
     current_page: number;
     total_page: number;
     size: number;
   };
+};
+
+export type ServiceResponseMeta = {
+  wa_status?: string;
+  message?: string;
+};
+
+export type DeleteServiceResponse = {
+  message: string;
 };
 
 export type ServiceItem = {
@@ -120,14 +130,14 @@ export function toServiceResponse(
     description: service.description,
     technician_note: service.technician_note,
     status: service.status,
-    service_list: service.service_list.map((item) => {
+    service_list: (service.service_list || []).map((item) => {
       return {
         id: item.id,
         name: item.name,
         price: item.price,
       };
     }),
-    total_items: service.service_list.length,
+    total_items: service.service_list?.length || 0,
     discount: service.discount,
     total_price: service.total_price,
     created_at: service.created_at,
@@ -159,6 +169,15 @@ export function toPublicServiceResponse(
     total_price: service.total_price,
     created_at: service.created_at,
     updated_at: service.updated_at,
+  };
+}
+
+export function toServiceResponseMeta(
+  meta: ServiceResponseMeta,
+): ServiceResponseMeta {
+  return {
+    wa_status: meta.wa_status,
+    message: meta.message,
   };
 }
 

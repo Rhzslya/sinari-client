@@ -77,7 +77,6 @@ export class ProductServices {
     const response = await api.delete(`/products/${id}`);
 
     return {
-      data: toProductResponse(response.data.data),
       message: response.data.message,
     };
   }

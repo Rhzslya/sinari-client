@@ -24,6 +24,7 @@ import DashboardProductPage from "./pages/DashboardProductPage";
 import { Toaster } from "./components/ui/sonner";
 import DetailProductPage from "./pages/DetailProductPage";
 import DashboardServicePage from "./pages/DashboardServicePage";
+import DetailServicePage from "./pages/DetailServicePage";
 
 function App() {
   return (
@@ -71,6 +72,11 @@ function App() {
             <Route
               path="/dashboard/services"
               element={<DashboardServicePage />}
+            />
+
+            <Route
+              path="/dashboard/services/detail/:serviceId"
+              element={<DetailServicePage />}
             />
           </Route>
         </Route>

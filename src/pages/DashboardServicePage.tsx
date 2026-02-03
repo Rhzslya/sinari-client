@@ -17,11 +17,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-// import { CreateServiceForm } from "@/features/components/CreateServiceForm"; // TODO: Buat ini nanti
 import { PaginationComponent } from "@/features/fragments/Pagination";
 import { useCallback, useEffect, useState } from "react";
 import type { ServiceResponse } from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services"; // Pastikan import ini benar
+import { RepairServices } from "@/services/repair-services";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import { Brand, ServiceStatus } from "@/enum/product-enum";
@@ -458,16 +457,9 @@ const DashboardServicePage = () => {
             </Button>
           </SheetTrigger>
 
-          <SheetContent
-            onOpenAutoFocus={(e) => {
-              e.preventDefault();
-              document.getElementById("create-service-title")?.focus();
-            }}
-            className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
-          >
+          <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
             <SheetHeader className="px-6 py-4 border-b">
               <SheetTitle
-                id="create-service-title"
                 tabIndex={-1}
                 className="text-xl text-primary outline-none"
               >

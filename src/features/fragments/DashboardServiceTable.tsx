@@ -27,9 +27,7 @@ import { ServiceActionMenu } from "./ServiceActionMenu";
 import DeleteServiceForm from "./DeleteServiceForm";
 import { EditServiceForm } from "../components/EditServiceForm";
 import type { DashboardServiceTableProps } from "@/types/type";
-
-// TODO: Import EditServiceForm jika sudah dibuat
-// import { EditServiceForm } from "../components/EditServiceForm";
+import { UpdateStatusDialog } from "./UpdateStatusForm";
 
 const DashboardServiceTable = ({
   services,
@@ -38,13 +36,12 @@ const DashboardServiceTable = ({
 }: DashboardServiceTableProps) => {
   const navigate = useNavigate();
 
-  // --- State Management (Mirip Product) ---
   const [selectedService, setSelectedService] =
     useState<ServiceResponse | null>(null);
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
   const [isDeleteServiceOpen, setIsDeleteServiceOpen] = useState(false);
+  const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false);
 
-  // --- Handlers ---
   const handleViewDetail = (service: ServiceResponse) => {
     navigate(`/dashboard/services/detail/${service.id}`);
   };
@@ -52,6 +49,11 @@ const DashboardServiceTable = ({
   const handleEditServiceOpen = (service: ServiceResponse) => {
     setSelectedService(service);
     setIsEditServiceOpen(true);
+  };
+
+  const handleUpdateStatusOpen = (service: ServiceResponse) => {
+    setSelectedService(service);
+    setIsUpdateStatusOpen(true);
   };
 
   const handleDeleteServiceOpen = (service: ServiceResponse) => {
@@ -175,6 +177,7 @@ const DashboardServiceTable = ({
                       service={service}
                       onViewDetails={() => handleViewDetail(service)}
                       onEditService={() => handleEditServiceOpen(service)}
+                      onUpdateStatus={() => handleUpdateStatusOpen(service)}
                       onDeleteService={() => handleDeleteServiceOpen(service)}
                     />
                   </TableCell>
@@ -214,7 +217,18 @@ const DashboardServiceTable = ({
         </SheetContent>
       </Sheet>
 
-      {/* --- DIALOG DELETE SERVICE --- */}
+      <UpdateStatusDialog
+        service={selectedService}
+        open={isUpdateStatusOpen}
+        onOpenChange={setIsUpdateStatusOpen}
+        onSuccess={() => {
+          setIsUpdateStatusOpen(false);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }}
+      />
+
       <DeleteServiceForm
         open={isDeleteServiceOpen}
         onOpenChange={setIsDeleteServiceOpen}

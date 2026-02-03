@@ -34,11 +34,11 @@ const DeleteServiceForm = ({
     setIsLoading(true);
 
     try {
-      // Asumsi ada method remove di RepairServices
-      await RepairServices.remove(service.id);
+      const response = await RepairServices.remove(service.id);
+      const successMessage = response.message || "Service deleted successfully";
 
       toast.success("Service deleted successfully", {
-        description: `Service ${service.service_id} has been removed.`,
+        description: successMessage,
       });
 
       onSuccess();
@@ -57,44 +57,45 @@ const DeleteServiceForm = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-100 gap-6"
+        className="sm:max-w-106.25"
       >
-        <DialogHeader className="flex flex-col items-center gap-2 sm:text-center">
-          <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 mb-2">
-            <Trash2 className="size-7 text-red-600 dark:text-red-400" />
+        <DialogHeader>
+          <div className="flex mx-auto size-16 shrink-0 items-center border-2 border-destructive justify-center rounded-full bg-foreground/10 mb-4">
+            <Trash2 className="size-8 text-destructive" />
           </div>
 
-          <DialogTitle className="text-xl font-semibold text-foreground">
-            Delete Service?
-          </DialogTitle>
-
-          <DialogDescription className="text-center text-muted-foreground">
-            Are you sure you want to delete service{" "}
-            <span className="font-medium text-foreground block mt-1 text-base">
-              "{service?.service_id}"
-            </span>
-            This action cannot be undone.
-          </DialogDescription>
+          <div className="space-y-4 text-center">
+            <DialogTitle>Delete Product?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to deleted{" "}
+              <span className="font-semibold text-foreground">
+                {service?.service_id}
+              </span>
+              ? This action cannot be undone.
+            </DialogDescription>
+          </div>
         </DialogHeader>
 
-        <DialogFooter className="grid grid-cols-2 gap-3 sm:gap-0 sm:flex sm:justify-between w-full">
+        <DialogFooter className="w-full sm:justify-between mt-4">
           <Button
+            size="sm"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="w-full sm:w-auto"
+            className="w-1/3 cursor-pointer duration-300"
           >
             Cancel
           </Button>
 
           <Button
+            size="sm"
             variant="destructive"
             onClick={handleDelete}
             disabled={isLoading}
-            className="w-full sm:w-auto gap-2"
+            className="w-1/3 cursor-pointer duration-300"
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isLoading ? "Deleting..." : "Confirm Delete"}
+            Delete
           </Button>
         </DialogFooter>
       </DialogContent>

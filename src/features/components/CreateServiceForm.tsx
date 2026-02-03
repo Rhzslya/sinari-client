@@ -174,6 +174,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                     <FormLabel className={labelStyle}>Customer Name</FormLabel>
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="John Doe"
                         className={inputStyle}
                         {...field}
@@ -192,6 +193,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                     <FormLabel className={labelStyle}>Phone Number</FormLabel>
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="0812xxxxxxx"
                         className={inputStyle}
                         {...field}
@@ -244,6 +246,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                     <FormLabel className={labelStyle}>Model / Type</FormLabel>
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="e.g. A51, iPhone 11"
                         className={inputStyle}
                         {...field}
@@ -364,6 +367,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         </div>
                         <FormControl>
                           <Input
+                            autoComplete="off"
                             placeholder="e.g. Ganti LCD Samsung A51"
                             className={inputStyle}
                             {...field}

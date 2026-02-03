@@ -523,10 +523,7 @@ const DashboardProductPage = () => {
             </Button>
           </SheetTrigger>
 
-          <SheetContent
-            onOpenAutoFocus={(e) => e.preventDefault()}
-            className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
-          >
+          <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
             <SheetHeader className="px-6 py-4 border-b">
               <SheetTitle className="text-xl text-primary">
                 Add New Product

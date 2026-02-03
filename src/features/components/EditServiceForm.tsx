@@ -142,7 +142,7 @@ export function EditServiceForm({
   const onSubmit = async (data: EditFormValues) => {
     setIsLoading(true);
     try {
-      await RepairServices.update({
+      const result = await RepairServices.update({
         id: service.id,
         ...data,
       });
@@ -150,6 +150,18 @@ export function EditServiceForm({
       toast.success("Service updated successfully", {
         description: `Service ${service.service_id} has been updated.`,
       });
+
+      const { meta } = result;
+
+      if (meta.wa_status === "failed" || meta.wa_status === "skipped") {
+        setTimeout(() => {
+          toast.warning("WhatsApp Notification Failed", {
+            description:
+              meta.message || "Failed to send message to customer number",
+            duration: 3000,
+          });
+        }, 1500);
+      }
 
       formUpdate.reset(data);
 
@@ -175,6 +187,8 @@ export function EditServiceForm({
       }
 
       toast.error("Failed to update service", { description: rawMessage });
+
+      console.error("ERROR ASLI:", error);
     } finally {
       setIsLoading(false);
     }
@@ -220,6 +234,7 @@ export function EditServiceForm({
                     <FormLabel className={labelStyle}>Customer Name</FormLabel>
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="John Doe"
                         className={inputStyle}
                         {...field}
@@ -239,6 +254,7 @@ export function EditServiceForm({
                     <FormLabel className={labelStyle}>Phone Number</FormLabel>
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="0812..."
                         className={inputStyle}
                         {...field}
@@ -292,6 +308,7 @@ export function EditServiceForm({
                     <FormLabel className={labelStyle}>Model / Type</FormLabel>
                     <FormControl>
                       <Input
+                        autoComplete="off"
                         placeholder="e.g. A51"
                         className={inputStyle}
                         {...field}
@@ -445,6 +462,7 @@ export function EditServiceForm({
                         </div>
                         <FormControl>
                           <Input
+                            autoComplete="off"
                             placeholder="e.g. Ganti LCD Samsung A51"
                             className={inputStyle}
                             {...field}

@@ -37,7 +37,9 @@ const DeleteProductForm = ({
       const response = await ProductServices.remove(product.id);
       const successMessage = response.message || "Product deleted successfully";
 
-      toast.success(successMessage);
+      toast.success("Product deleted successfully", {
+        description: successMessage,
+      });
 
       onSuccess();
       onOpenChange(false);
