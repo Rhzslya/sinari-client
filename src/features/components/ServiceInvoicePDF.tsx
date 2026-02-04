@@ -1,188 +1,231 @@
 import { formatRupiah } from "@/components/utils/formatRupiah";
+import { ServiceStatus } from "@/enum/product-enum";
 import type { ServiceResponse } from "@/model/repair-model";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
+const COLORS = {
+  primary: "#ef473acd",
+  dark: "#1e293b",
+  lightGray: "#f1f5f9",
+  white: "#ffffff",
+  textMain: "#0f172a",
+  textMuted: "#64748b",
+  danger: "#dc2626",
+  warningBg: "#fef2f2",
+  warningBorder: "#fecaca",
+};
+
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
-    fontSize: 9,
+    padding: 0,
+    fontSize: 7,
     fontFamily: "Helvetica",
-    color: "#1e293b",
-    backgroundColor: "#ffffff",
+    color: COLORS.textMain,
+    backgroundColor: COLORS.white,
     flexDirection: "column",
   },
 
-  headerContainer: {
+  contentWrapper: {
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
+    flex: 1,
+  },
+
+  headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 15,
-    borderBottomWidth: 1.5,
-    borderBottomColor: "#0f172a",
-    paddingBottom: 10,
-
     alignItems: "flex-start",
+    marginBottom: 3,
   },
-  brandColumn: {
-    flexDirection: "column",
-    width: "60%",
-  },
-  brandName: {
-    fontSize: 16,
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  brandInfo: {
-    fontSize: 8,
-    color: "#64748b",
-    marginBottom: 1,
-    lineHeight: 1.3,
-  },
-  invoiceColumn: {
-    width: "35%",
-    alignItems: "flex-end",
-  },
-  invoiceTitle: {
+  logoSection: { flexDirection: "column" },
+  logoText: {
     fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#0f172a",
-    marginBottom: 4,
-  },
-  invoiceDetail: {
-    fontSize: 8,
-    color: "#64748b",
+    color: COLORS.dark,
     marginBottom: 1,
   },
+  logoSub: {
+    fontSize: 5,
+    color: COLORS.textMuted,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
 
-  gridContainer: {
+  accentBar: {
     flexDirection: "row",
-    marginBottom: 15,
-    gap: 10,
+    alignItems: "center",
+    marginBottom: 5,
   },
-  gridColumn: {
+  primaryStrip: {
+    backgroundColor: COLORS.primary,
+    height: 15,
     flex: 1,
-    backgroundColor: "#f8fafc",
-    padding: 8,
-    borderRadius: 4,
+    marginRight: 10,
   },
-  sectionLabel: {
+  invoiceTitleLarge: {
+    fontSize: 16,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.dark,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+
+  infoContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 3,
+  },
+  infoColLeft: { width: "60%" },
+  infoColRight: { width: "35%" },
+
+  labelBold: {
     fontSize: 7,
     fontFamily: "Helvetica-Bold",
-    color: "#94a3b8",
-    textTransform: "uppercase",
-    marginBottom: 4,
-    letterSpacing: 0.5,
+    marginBottom: 2,
+    color: COLORS.dark,
   },
-  infoText: {
-    fontSize: 9,
-    fontFamily: "Helvetica-Bold",
+  textNormal: {
+    fontSize: 7,
     marginBottom: 1,
-    color: "#334155",
+    color: COLORS.textMain,
+    lineHeight: 1.2,
   },
-  infoSubText: {
-    fontSize: 8,
-    color: "#64748b",
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 2,
   },
+  metaLabel: { fontFamily: "Helvetica-Bold", width: "40%" },
+  metaValue: { width: "60%", textAlign: "right" },
 
-  tableContainer: {
-    marginTop: 5,
-    marginBottom: 15,
-  },
+  tableContainer: { marginBottom: 5 },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#e2e8f0",
-    paddingVertical: 6,
+    backgroundColor: COLORS.dark,
+    paddingVertical: 4,
     paddingHorizontal: 4,
-    marginBottom: 2,
-    borderRadius: 2,
+    alignItems: "center",
   },
-  tableHeaderLabel: {
-    fontSize: 7,
+  tableHeaderText: {
+    color: COLORS.white,
     fontFamily: "Helvetica-Bold",
-    color: "#475569",
+    fontSize: 6,
     textTransform: "uppercase",
   },
   tableRow: {
     flexDirection: "row",
-    paddingVertical: 6,
+    paddingVertical: 2,
     paddingHorizontal: 4,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: "#cbd5e1",
+    alignItems: "center",
   },
-  colDesc: { flex: 1, paddingRight: 10 },
-  colPrice: { width: "35%", textAlign: "right" },
-  itemText: { fontSize: 9, color: "#334155" },
+  tableRowAlt: { backgroundColor: COLORS.lightGray },
 
-  totalContainer: {
-    flexDirection: "column",
-    alignItems: "flex-end",
-    marginTop: 5,
+  colSL: { width: "10%", textAlign: "center" },
+  colDesc: {
+    width: "50%",
   },
-  totalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "60%",
-    marginBottom: 3,
-  },
-  totalLabel: {
-    fontSize: 8,
-    color: "#64748b",
-  },
-  totalValue: {
-    fontSize: 9,
-    fontFamily: "Helvetica",
-    color: "#334155",
-  },
-  grandTotalRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "60%",
-    marginTop: 5,
-    paddingTop: 5,
-    borderTopWidth: 1,
-    borderTopColor: "#0f172a",
-  },
-  grandTotalLabel: {
-    fontSize: 10,
-    fontFamily: "Helvetica-Bold",
-    color: "#0f172a",
-  },
-  grandTotalValue: {
-    fontSize: 12,
-    fontFamily: "Helvetica-Bold",
-    color: "#0f172a",
+  colPrice: { width: "20%", textAlign: "right" },
+  colTotal: { width: "20%", textAlign: "right" },
+
+  strikethrough: {
+    textDecoration: "line-through",
+    color: COLORS.textMuted,
   },
 
-  footer: {
-    marginTop: "auto",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-    paddingTop: 10,
+  bottomContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 1,
   },
-  termsTitle: {
+  bottomLeft: { width: "50%" },
+  bottomRight: { width: "45%" },
+
+  sectionTitle: {
     fontSize: 7,
     fontFamily: "Helvetica-Bold",
     marginBottom: 2,
+    marginTop: 8,
   },
-  termsText: {
-    fontSize: 6,
-    color: "#94a3b8",
-    lineHeight: 1.4,
-    marginBottom: 8,
+  smallText: {
+    fontSize: 5,
+    color: COLORS.textMuted,
+    lineHeight: 1.2,
   },
-  thankYou: {
-    textAlign: "center",
-    fontSize: 8,
+
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 4,
+    paddingHorizontal: 2,
+  },
+  grandTotalBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: COLORS.primary,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+    marginTop: 4,
+  },
+  grandTotalText: {
+    fontSize: 9,
     fontFamily: "Helvetica-Bold",
-    color: "#334155",
+    color: COLORS.dark,
   },
-  printMeta: {
-    marginTop: 5,
-    textAlign: "center",
+
+  refundBox: {
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: COLORS.danger,
+    borderStyle: "dashed",
+    backgroundColor: COLORS.warningBg,
+    padding: 4,
+  },
+  refundTitle: {
     fontSize: 6,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.danger,
+    marginBottom: 2,
+    textTransform: "uppercase",
+  },
+  refundText: {
+    fontSize: 5,
+    color: COLORS.danger,
+    lineHeight: 1.2,
+  },
+
+  footerStrip: {
+    marginTop: "auto",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: COLORS.dark,
+    paddingTop: 5,
+    marginBottom: 5,
+  },
+  signArea: {
+    marginTop: 6,
+    borderBottomWidth: 0.5,
+    borderTopColor: COLORS.dark,
+    width: "80%",
+    alignSelf: "flex-end",
+    textAlign: "center",
+    paddingBottom: 2,
+    fontSize: 6,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  printMeta: {
+    textAlign: "left",
+    borderTopWidth: 0.5,
+    borderTopColor: COLORS.dark,
+    fontSize: 4.5,
     color: "#cbd5e1",
+    marginTop: 3,
   },
 });
 
@@ -191,100 +234,239 @@ interface InvoiceProps {
 }
 
 export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
-  const discount = service.discount || 0;
-  const subTotal = service.total_price + discount;
+  const isCancelled = service.status === ServiceStatus.CANCELLED;
+
+  const subTotal = service.service_list.reduce(
+    (acc, item) => acc + item.price,
+    0,
+  );
+  const discountPercent = service.discount || 0;
+  const discountAmount = (subTotal * discountPercent) / 100;
+  const downPayment = service.down_payment || 0;
+  const grandTotal = isCancelled ? 0 : subTotal - discountAmount - downPayment;
   const printedAt = format(new Date(), "dd/MM/yyyy HH:mm");
 
+  const truncate = (str: string, max: number) => {
+    return str.length > max ? str.substring(0, max) + "..." : str;
+  };
   return (
     <Document>
       <Page size="A6" style={styles.page}>
-        <View style={styles.headerContainer}>
-          <View style={styles.brandColumn}>
-            <Text style={styles.brandName}>SINARI CELL</Text>
-            <Text style={styles.brandInfo}>
-              Jl. Guru Kojar, Kp. Pondok Belimbing, RT.03/04, Jurang Mangu
-              Barat, Pondok Aren, Tangerang Selatan
-            </Text>
-            <Text style={styles.brandInfo}>WhatsApp: 0812-3456-7890</Text>
-          </View>
-          <View style={styles.invoiceColumn}>
-            <Text style={styles.invoiceTitle}>INVOICE</Text>
-            <Text style={styles.invoiceDetail}>#{service.service_id}</Text>
-            <Text style={styles.invoiceDetail}>
-              {format(new Date(service.created_at), "dd MMM yyyy")}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.gridContainer}>
-          <View style={styles.gridColumn}>
-            <Text style={styles.sectionLabel}>BILL TO</Text>
-            <Text style={styles.infoText}>{service.customer_name}</Text>
-            <Text style={styles.infoSubText}>{service.phone_number}</Text>
+        <View style={styles.contentWrapper}>
+          <View style={styles.headerTop}>
+            <View style={styles.logoSection}>
+              <Text style={styles.logoText}>SINARI CELL</Text>
+              <Text style={styles.logoSub}>Professional Repair Service</Text>
+            </View>
           </View>
 
-          <View style={styles.gridColumn}>
-            <Text style={styles.sectionLabel}>DEVICE INFO</Text>
-            <Text style={styles.infoText}>
-              {service.brand} {service.model}
-            </Text>
-            <Text style={styles.infoSubText}>{service.status}</Text>
+          <View style={styles.accentBar}>
+            <View style={styles.primaryStrip} />
+            <Text style={styles.invoiceTitleLarge}>INVOICE</Text>
+            <View
+              style={[
+                styles.primaryStrip,
+                { flex: 0, width: 10, marginLeft: 10 },
+              ]}
+            />
           </View>
-        </View>
 
-        <View style={styles.tableHeader}>
-          <Text style={[styles.tableHeaderLabel, styles.colDesc]}>
-            DESCRIPTION
-          </Text>
-          <Text style={[styles.tableHeaderLabel, styles.colPrice]}>AMOUNT</Text>
-        </View>
-
-        <View style={styles.tableContainer}>
-          {service.service_list.map((item, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={[styles.itemText, styles.colDesc]}>{item.name}</Text>
-              <Text style={[styles.itemText, styles.colPrice]}>
-                {formatRupiah(item.price)}
+          <View style={styles.infoContainer}>
+            <View style={styles.infoColLeft}>
+              <Text style={styles.labelBold}>Invoice to:</Text>
+              <Text
+                style={[styles.textNormal, { fontFamily: "Helvetica-Bold" }]}
+              >
+                {truncate(service.customer_name, 35)}
+              </Text>
+              <Text style={styles.textNormal}>{service.phone_number}</Text>
+              <Text style={styles.textNormal}>
+                {service.brand} - {service.model}
               </Text>
             </View>
-          ))}
-        </View>
 
-        <View style={styles.totalContainer} wrap={false}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>{formatRupiah(subTotal)}</Text>
+            <View style={styles.infoColRight}>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Inv#</Text>
+                <Text style={styles.metaValue}>{service.service_id}</Text>
+              </View>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Date</Text>
+                <Text style={styles.metaValue}>
+                  {format(new Date(service.created_at), "dd/MM/yy")}
+                </Text>
+              </View>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>Status</Text>
+                <Text style={styles.metaValue}>{service.status}</Text>
+              </View>
+            </View>
           </View>
 
-          {discount > 0 && (
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Discount</Text>
-              <Text style={[styles.totalValue, { color: "#ef4444" }]}>
-                {discount} %
+          <View style={styles.tableContainer}>
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, styles.colSL]}>No.</Text>
+              <Text style={[styles.tableHeaderText, styles.colDesc]}>
+                DESCRIPTION
+              </Text>
+              <Text style={[styles.tableHeaderText, styles.colPrice]}>
+                PRICE
+              </Text>
+              <Text style={[styles.tableHeaderText, styles.colTotal]}>
+                TOTAL
               </Text>
             </View>
-          )}
 
-          <View style={styles.grandTotalRow}>
-            <Text style={styles.grandTotalLabel}>TOTAL</Text>
-            <Text style={styles.grandTotalValue}>
-              {formatRupiah(service.total_price)}
+            {service.service_list.map((item, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.tableRow,
+                  index % 2 !== 0 ? styles.tableRowAlt : {},
+                ]}
+              >
+                <Text
+                  style={[styles.textNormal, styles.colSL, { marginBottom: 0 }]}
+                >
+                  {index + 1}
+                </Text>
+                <Text
+                  style={[
+                    styles.textNormal,
+                    styles.colDesc,
+                    { marginBottom: 0 },
+                    isCancelled ? styles.strikethrough : {},
+                  ]}
+                >
+                  {truncate(item.name, 35)}
+                </Text>
+                <Text
+                  style={[
+                    styles.textNormal,
+                    styles.colPrice,
+                    { marginBottom: 0 },
+                  ]}
+                >
+                  {formatRupiah(item.price)}
+                </Text>
+                <Text
+                  style={[
+                    styles.textNormal,
+                    styles.colTotal,
+                    { marginBottom: 0, fontFamily: "Helvetica-Bold" },
+                  ]}
+                >
+                  {formatRupiah(item.price)}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.bottomContainer}>
+            <View style={styles.bottomLeft}>
+              <Text style={styles.sectionTitle}>Terms & Conditions:</Text>
+              <Text style={styles.smallText}>
+                1. Garansi 7 hari berlaku untuk kerusakan/part yang sama.{"\n"}
+                2. Wajib membawa nota ini saat klaim garansi.{"\n"}
+                3. Unit yang tidak diambil &gt; 30 hari di luar tanggung jawab
+                kami.{"\n"}
+                4. Garansi hangus jika segel rusak, kena air, atau terjatuh.
+              </Text>
+
+              <Text style={[styles.sectionTitle, { marginTop: 6 }]}>
+                Payment:
+              </Text>
+              <Text style={styles.smallText}>
+                BCA: 1234 5678 90 (Sinari){"\n"}
+                Mandiri: 0987 6543 21 (Sinari)
+              </Text>
+
+              <View style={styles.printMeta}>
+                <Text
+                  style={{
+                    marginTop: 3,
+                  }}
+                >
+                  Printed on {printedAt}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.bottomRight}>
+              <View style={styles.totalRow}>
+                <Text style={styles.labelBold}>Sub Total</Text>
+                <Text
+                  style={[
+                    styles.textNormal,
+                    isCancelled ? styles.strikethrough : {},
+                  ]}
+                >
+                  {formatRupiah(subTotal)}
+                </Text>
+              </View>
+
+              {!isCancelled && discountPercent > 0 && (
+                <View style={styles.totalRow}>
+                  <Text style={styles.labelBold}>
+                    Disc. ({discountPercent}%)
+                  </Text>
+                  <Text style={[styles.textNormal, { color: COLORS.danger }]}>
+                    -{formatRupiah(discountAmount)}
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.totalRow}>
+                <Text style={styles.labelBold}>Down Payment</Text>
+                <Text style={styles.textNormal}>
+                  {formatRupiah(downPayment)}
+                </Text>
+              </View>
+
+              <View
+                style={[
+                  styles.grandTotalBox,
+                  isCancelled ? { backgroundColor: COLORS.lightGray } : {},
+                ]}
+              >
+                <Text style={styles.grandTotalText}>
+                  {isCancelled ? "AMOUNT DUE" : "TOTAL"}
+                </Text>
+                <Text style={styles.grandTotalText}>
+                  {formatRupiah(grandTotal)}
+                </Text>
+              </View>
+
+              {isCancelled && downPayment > 0 && (
+                <View style={styles.refundBox}>
+                  <Text style={styles.refundTitle}>REFUND NOTICE</Text>
+                  <Text style={styles.refundText}>
+                    Layanan dibatalkan. Harap tunjukkan nota ini untuk
+                    pengembalian DP sebesar {formatRupiah(downPayment)}.
+                  </Text>
+                </View>
+              )}
+
+              <View style={{ marginBottom: 1 }}>
+                <Text style={styles.signArea}>Technician Name</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.footerStrip}>
+            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>
+              0812-3456-7890
+            </Text>
+            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>|</Text>
+            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>
+              Website
+            </Text>
+            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>|</Text>
+            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>
+              Jl. Guru Kojar, Kp. Pondok Belimbing, Jurang Mangu Barat,
+              Tangerang Selatan
             </Text>
           </View>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.termsTitle}>TERMS & CONDITIONS</Text>
-          <Text style={styles.termsText}>
-            1. Garansi service berlaku selama 7 hari untuk kerusakan yang sama.
-            {"\n"}
-            2. Nota ini adalah bukti garansi yang sah, harap disimpan.{"\n"}
-            3. Barang yang tidak diambil lebih dari 1 bulan bukan tanggung jawab
-            kami.
-          </Text>
-
-          <Text style={styles.thankYou}>TERIMA KASIH ATAS KUNJUNGAN ANDA</Text>
-          <Text style={styles.printMeta}>Printed on {printedAt}</Text>
         </View>
       </Page>
     </Document>

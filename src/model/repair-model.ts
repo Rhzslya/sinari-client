@@ -17,6 +17,7 @@ export type ServiceResponse = {
   }[];
   total_items: number;
   discount?: number;
+  down_payment?: number;
   total_price: number;
   created_at: Date;
   updated_at?: Date;
@@ -24,6 +25,7 @@ export type ServiceResponse = {
 };
 
 export type PublicServiceResponse = {
+  service_id: string;
   brand: Brand;
   model: string;
   customer_name: string;
@@ -38,6 +40,7 @@ export type PublicServiceResponse = {
   }[];
   total_items: number;
   discount?: number;
+  down_payment?: number;
   total_price: number;
   created_at: Date;
   updated_at?: Date;
@@ -88,6 +91,7 @@ export type CreateServiceRequest = {
   technician_note?: string;
   service_list: CreateServiceItemRequest[];
   discount?: number;
+  down_payment?: number;
 };
 
 export type SearchServiceRequest = {
@@ -114,6 +118,7 @@ export type UpdateServiceRequest = {
   technician_note?: string;
   service_list?: UpdateServiceItemRequest[];
   discount?: number;
+  down_payment?: number;
   brand?: Brand;
 };
 
@@ -139,6 +144,7 @@ export function toServiceResponse(
     }),
     total_items: service.service_list?.length || 0,
     discount: service.discount,
+    down_payment: service.down_payment,
     total_price: service.total_price,
     created_at: service.created_at,
     updated_at: service.updated_at,
@@ -147,9 +153,10 @@ export function toServiceResponse(
 }
 
 export function toPublicServiceResponse(
-  service: ServiceResponse & { service_list: ServiceItem[] },
+  service: PublicServiceResponse & { service_list: ServiceItem[] },
 ): PublicServiceResponse {
   return {
+    service_id: service.service_id,
     brand: service.brand,
     model: service.model,
     customer_name: service.customer_name,
@@ -166,6 +173,7 @@ export function toPublicServiceResponse(
     }),
     total_items: service.service_list?.length || 0,
     discount: service.discount,
+    down_payment: service.down_payment,
     total_price: service.total_price,
     created_at: service.created_at,
     updated_at: service.updated_at,

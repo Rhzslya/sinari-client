@@ -31,6 +31,7 @@ import { useFieldArray, useForm, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
 const BRAND_OPTIONS = Object.values(Brand);
+const MAX_SERVICE_ITEMS = 10;
 
 interface ServiceFormProps {
   onSuccess?: () => void;
@@ -53,6 +54,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
       technician_note: "",
       service_list: [{ name: "", price: 0 }],
       discount: 0,
+      down_payment: 0,
     },
   });
 
@@ -80,13 +82,18 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
     hasInvalidServiceItem;
 
   const discountPercent = formCreate.watch("discount") || 0;
+  const downPayment = formCreate.watch("down_payment") || 0;
 
   const subTotal = serviceList.reduce(
     (acc, curr) => acc + (Number(curr.price) || 0),
     0,
   );
   const discountAmount = (subTotal * discountPercent) / 100;
-  const grandTotal = subTotal - discountAmount;
+  const grandTotal = subTotal - discountAmount - downPayment;
+
+  const maxDownPayment = subTotal - discountAmount;
+
+  const isBillingDisabled = subTotal <= 0;
 
   const onSubmit = async (data: CreateServiceRequest) => {
     setIsLoading(true);
@@ -106,6 +113,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
         technician_note: "",
         service_list: [{ name: "", price: 0 }],
         discount: 0,
+        down_payment: 0,
       });
 
       if (onSuccess) onSuccess();
@@ -330,9 +338,12 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 variant="outline"
                 className="h-7 text-xs gap-1"
                 onClick={() => append({ name: "", price: 0 })}
-                disabled={isSubmitting}
+                disabled={isSubmitting || fields.length >= MAX_SERVICE_ITEMS}
               >
                 <Plus className="w-3 h-3" /> Add Item
+                <span className="ml-1 text-[10px] text-muted-foreground">
+                  ({fields.length}/{MAX_SERVICE_ITEMS})
+                </span>
               </Button>
             </div>
 
@@ -414,7 +425,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
 
               <div className="flex items-center justify-between text-sm gap-4">
                 <span className="text-muted-foreground">Discount (%)</span>
-                <div className="w-30">
+                <div className="w-48">
                   <FormField
                     control={formCreate.control}
                     name="discount"
@@ -423,13 +434,73 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         <FormControl>
                           <NumberStepper
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(value) => {
+                              let newDiscount = value || 0;
+
+                              if (newDiscount > 100) newDiscount = 100;
+                              if (newDiscount < 0) newDiscount = 0;
+
+                              field.onChange(newDiscount);
+
+                              const newDiscountAmount =
+                                (subTotal * newDiscount) / 100;
+                              const newMaxDP = subTotal - newDiscountAmount;
+
+                              const currentDP =
+                                formCreate.getValues("down_payment") || 0;
+
+                              if (currentDP > newMaxDP) {
+                                formCreate.setValue("down_payment", newMaxDP, {
+                                  shouldValidate: true,
+                                });
+                              }
+                            }}
                             max={100}
                             min={0}
                             placeholder="0"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isBillingDisabled}
                           />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-sm gap-4">
+                <span className="text-muted-foreground">Down Payment</span>
+                <div className="w-48">
+                  <FormField
+                    control={formCreate.control}
+                    name="down_payment"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <NumberStepper
+                            value={field.value}
+                            onChange={(value) => {
+                              const inputDP = value || 0;
+
+                              if (inputDP > maxDownPayment) {
+                                field.onChange(maxDownPayment);
+                              } else {
+                                field.onChange(inputDP);
+                              }
+                            }}
+                            step={10000}
+                            min={0}
+                            max={maxDownPayment}
+                            prefix="Rp"
+                            placeholder="0"
+                            disabled={isSubmitting || isBillingDisabled}
+                            className="text-right"
+                          />
+                        </FormControl>
+                        {downPayment > maxDownPayment && (
+                          <span className="text-[10px] text-destructive absolute right-0 -bottom-4">
+                            Max DP: {formatRupiah(maxDownPayment)}
+                          </span>
+                        )}
                       </FormItem>
                     )}
                   />

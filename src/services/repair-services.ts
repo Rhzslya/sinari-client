@@ -1,10 +1,12 @@
 import { api } from "@/lib/axios";
 import {
+  toPublicServiceResponse,
   toServiceResponse,
   toServiceResponseMeta,
   type ApiResponse,
   type CreateServiceRequest,
   type DeleteServiceResponse,
+  type PublicServiceResponse,
   type SearchServiceRequest,
   type ServiceResponse,
   type ServiceResponseMeta,
@@ -75,5 +77,15 @@ export class RepairServices {
       data: toServiceResponse(response.data.data),
       meta: toServiceResponseMeta(safeMeta),
     };
+  }
+
+  static async trackService(
+    identifier: string,
+  ): Promise<PublicServiceResponse> {
+    const response = await api.get<ApiResponse<PublicServiceResponse>>(
+      `/public/services/track/${identifier}`,
+    );
+
+    return toPublicServiceResponse(response.data.data);
   }
 }

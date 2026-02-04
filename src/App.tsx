@@ -25,18 +25,20 @@ import { Toaster } from "./components/ui/sonner";
 import DetailProductPage from "./pages/DetailProductPage";
 import DashboardServicePage from "./pages/DashboardServicePage";
 import DetailServicePage from "./pages/DetailServicePage";
+import TrackServicePage from "./pages/TrackServicePage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path="/services/track/:identifier"
+          element={<TrackServicePage />}
+        />
+
         <Route element={<MainLayout />}>
-          {/* Halaman yang dibungkus MainLayout */}
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductPage />} />
-
-          {/* Services (jika ada nanti) */}
-          {/* <Route path="/services" element={<ServicePage />} /> */}
         </Route>
 
         <Route element={<GuestRoute />}>

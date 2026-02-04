@@ -35,6 +35,7 @@ import { toast } from "sonner";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const STATUS_OPTIONS = Object.values(ServiceStatus);
+const MAX_SERVICE_ITEMS = 10;
 
 interface ServiceFormProps {
   service: ServiceResponse;
@@ -79,6 +80,7 @@ export function EditServiceForm({
 
   const serviceList = formUpdate.watch("service_list");
   const discountPercent = formUpdate.watch("discount") || 0;
+  const downPayment = formUpdate.watch("down_payment") || 0;
 
   const customerNameValue = formUpdate.watch("customer_name");
   const phoneNumberValue = formUpdate.watch("phone_number");
@@ -101,7 +103,11 @@ export function EditServiceForm({
   const subTotal =
     serviceList?.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0) || 0;
   const discountAmount = (subTotal * discountPercent) / 100;
-  const grandTotal = subTotal - discountAmount;
+  const grandTotal = subTotal - discountAmount - downPayment;
+
+  const maxDownPayment = subTotal - discountAmount;
+
+  const isBillingDisabled = subTotal <= 0;
 
   useEffect(() => {
     if (service) {
@@ -118,6 +124,7 @@ export function EditServiceForm({
           price: item.price,
         })),
         discount: service.discount || 0,
+        down_payment: service.down_payment || 0,
       });
     }
   }, [service, formUpdate]);
@@ -136,6 +143,7 @@ export function EditServiceForm({
         price: item.price,
       })),
       discount: service.discount || 0,
+      down_payment: service.down_payment || 0,
     });
   };
 
@@ -153,7 +161,7 @@ export function EditServiceForm({
 
       const { meta } = result;
 
-      if (meta.wa_status === "failed" || meta.wa_status === "skipped") {
+      if (meta.wa_status === "failed") {
         setTimeout(() => {
           toast.warning("WhatsApp Notification Failed", {
             description:
@@ -425,9 +433,12 @@ export function EditServiceForm({
                 variant="outline"
                 className="h-7 text-xs gap-1"
                 onClick={() => append({ name: "", price: 0 })}
-                disabled={isSubmitting}
+                disabled={isSubmitting || fields.length >= MAX_SERVICE_ITEMS}
               >
                 <Plus className="w-3 h-3" /> Add Item
+                <span className="ml-1 text-[10px] text-muted-foreground">
+                  ({fields.length}/{MAX_SERVICE_ITEMS})
+                </span>
               </Button>
             </div>
 
@@ -510,7 +521,7 @@ export function EditServiceForm({
 
               <div className="flex items-center justify-between text-sm gap-4">
                 <span className="text-muted-foreground">Discount (%)</span>
-                <div className="w-30">
+                <div className="w-48">
                   <FormField
                     control={formUpdate.control}
                     name="discount"
@@ -519,13 +530,79 @@ export function EditServiceForm({
                         <FormControl>
                           <NumberStepper
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(value) => {
+                              // 1. Clamping Nilai Diskon (0-100)
+                              let newDiscount = value || 0;
+                              if (newDiscount > 100) newDiscount = 100;
+                              if (newDiscount < 0) newDiscount = 0;
+
+                              field.onChange(newDiscount);
+
+                              // 2. Hitung ulang Max DP
+                              const newDiscountAmount =
+                                (subTotal * newDiscount) / 100;
+                              const newMaxDP = subTotal - newDiscountAmount;
+
+                              // 3. Cek apakah DP saat ini melebihi batas baru?
+                              const currentDP =
+                                formUpdate.getValues("down_payment") || 0;
+
+                              if (currentDP > newMaxDP) {
+                                // 4. Turunkan DP otomatis
+                                formUpdate.setValue("down_payment", newMaxDP, {
+                                  shouldValidate: true,
+                                });
+                              }
+                            }}
                             max={100}
                             min={0}
                             placeholder="0"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isBillingDisabled}
                           />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* DOWN PAYMENT FIELD */}
+              <div className="flex items-center justify-between text-sm gap-4">
+                <span className="text-muted-foreground">Down Payment</span>
+                <div className="w-48">
+                  <FormField
+                    control={formUpdate.control}
+                    name="down_payment"
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <NumberStepper
+                            value={field.value}
+                            onChange={(value) => {
+                              const inputDP = value || 0;
+
+                              // Clamping Nilai DP agar tidak melebihi total tagihan
+                              if (inputDP > maxDownPayment) {
+                                field.onChange(maxDownPayment);
+                              } else {
+                                field.onChange(inputDP);
+                              }
+                            }}
+                            step={10000}
+                            min={0}
+                            max={maxDownPayment}
+                            prefix="Rp"
+                            placeholder="0"
+                            disabled={isSubmitting || isBillingDisabled}
+                            className="text-right"
+                          />
+                        </FormControl>
+                        {/* Error Message visual jika entah bagaimana DP melebihi batas */}
+                        {downPayment > maxDownPayment && (
+                          <span className="text-[10px] text-destructive absolute right-0 -bottom-4">
+                            Max DP: {formatRupiah(maxDownPayment)}
+                          </span>
+                        )}
                       </FormItem>
                     )}
                   />

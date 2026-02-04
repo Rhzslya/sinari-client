@@ -63,6 +63,12 @@ export class RepairValidation {
       .max(100, { message: "Discount cannot be more than 100%" })
       .optional()
       .default(0),
+
+    down_payment: z.coerce
+      .number({ message: "Down Payment must be a number" })
+      .min(0, { message: "Down Payment cannot be less than 0" })
+      .optional()
+      .default(0),
   });
 
   static readonly UPDATE = z.object({
@@ -123,6 +129,11 @@ export class RepairValidation {
       .number({ message: "Discount must be a number" })
       .min(0, { message: "Discount cannot be less than 0%" })
       .max(100, { message: "Discount cannot be more than 100%" })
+      .optional(),
+
+    down_payment: z.coerce
+      .number({ message: "Down Payment must be a number" })
+      .min(0, { message: "Down Payment cannot be less than 0" })
       .optional(),
 
     brand: z
