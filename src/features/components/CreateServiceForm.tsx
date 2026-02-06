@@ -23,10 +23,11 @@ import { Brand } from "@/enum/product-enum";
 import { handleApiError } from "@/lib/utils";
 import type { CreateServiceRequest } from "@/model/repair-model";
 import { RepairServices } from "@/services/repair-services";
+import { TechnicianServices } from "@/services/technician-services";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -37,8 +38,49 @@ interface ServiceFormProps {
   onSuccess?: () => void;
 }
 
+interface TechnicianOption {
+  id: number;
+  name: string;
+}
+
 export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [technicians, setTechnicians] = useState<TechnicianOption[]>([]);
+  const [isFetchingTechs, setIsFetchingTechs] = useState(false);
+
+  useEffect(() => {
+    const fetchTechnicians = async () => {
+      setIsFetchingTechs(true);
+      try {
+        const data = await TechnicianServices.listActive();
+        console.log(data);
+
+        setTechnicians(data);
+      } catch (error) {
+        const rawMessage = handleApiError(error);
+        try {
+          if (rawMessage.includes("ZodError")) {
+            const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
+            const errorObj = JSON.parse(jsonString);
+            if (errorObj.name === "ZodError" && errorObj.message) {
+              const issues = JSON.parse(errorObj.message);
+              if (issues.length > 0) {
+                toast.error("Validation Error", {
+                  description: issues[0].message,
+                });
+                return;
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Gagal parsing error validation:", e);
+        }
+      } finally {
+        setIsFetchingTechs(false);
+      }
+    };
+    fetchTechnicians();
+  }, []);
 
   const formCreate = useForm<CreateServiceRequest>({
     resolver: zodResolver(
@@ -55,6 +97,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
       service_list: [{ name: "", price: 0 }],
       discount: 0,
       down_payment: 0,
+      technician_id: undefined,
     },
   });
 
@@ -273,11 +316,62 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 Service Details
               </h3>
               <p className="text-xs text-muted-foreground">
-                Problem description and technical notes.
+                Problem description and technician assignment.
               </p>
             </div>
 
             <div className="grid gap-4">
+              {/* TECHNICIAN SELECT */}
+              <FormField
+                control={formCreate.control}
+                name="technician_id"
+                render={({ field }) => (
+                  <FormItem className="relative grid gap-1 space-y-0">
+                    <FormLabel className={labelStyle}>
+                      Assign Technician
+                    </FormLabel>
+                    <Select
+                      // 1. Handle perubahan value (UI String -> Form Number)
+                      onValueChange={(value) => {
+                        if (value) {
+                          field.onChange(Number(value));
+                        }
+                      }}
+                      // 2. SOLUSI UTAMA: Gunakan String Kosong "" jika value null/undefined/0
+                      // Ini memaksa komponen selalu dalam mode "Controlled" sejak awal
+                      value={field.value ? field.value.toString() : ""}
+                      disabled={isSubmitting || isFetchingTechs}
+                    >
+                      <FormControl>
+                        {/* 3. Placeholder akan muncul otomatis jika value adalah "" */}
+                        <SelectTrigger size="sm" className={inputStyle}>
+                          <SelectValue
+                            placeholder={
+                              isFetchingTechs
+                                ? "Loading..."
+                                : "Select Technician"
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {technicians?.map((tech) => (
+                          <SelectItem key={tech.id} value={tech.id.toString()}>
+                            {tech.name}
+                          </SelectItem>
+                        ))}
+                        {technicians?.length === 0 && !isFetchingTechs && (
+                          <div className="p-2 text-xs text-muted-foreground text-center">
+                            No technicians found.
+                          </div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={formCreate.control}
                 name="description"
@@ -310,7 +404,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                     <FormControl>
                       <Textarea
                         placeholder="e.g. Casing agak bengkok..."
-                        className="resize-none min-h-15text-sm bg-input/50"
+                        className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
                         disabled={isSubmitting}
                       />

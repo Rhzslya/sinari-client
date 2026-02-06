@@ -1,0 +1,437 @@
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { CreateTechnicianForm } from "@/features/components/CreateTechnicianForm";
+import { DashboardHeader } from "@/features/fragments/DashboardHeader";
+import DashboardTechnicianTable from "@/features/fragments/DashboardTechnicianTable";
+import { PaginationComponent } from "@/features/fragments/Pagination";
+import type { TechnicianResponse } from "@/model/technician-model";
+import { TechnicianServices } from "@/services/technician-services";
+import {
+  ArrowUpDown,
+  Check,
+  Filter,
+  PlusCircle,
+  Search,
+  X,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+
+const DashboardTechnicianPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [technicians, setTechnicians] = useState<TechnicianResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // --- QUERY PARAMS ---
+  const page = Number(searchParams.get("page")) || 1;
+  const size = Number(searchParams.get("size")) || 10;
+
+  const nameParam = searchParams.get("name") || "";
+  // Logic Active: jika "true" -> true, "false" -> false, selain itu undefined (ALL)
+  const isActiveParam =
+    searchParams.get("is_active") === "true"
+      ? true
+      : searchParams.get("is_active") === "false"
+        ? false
+        : undefined;
+
+  const sortByParam = searchParams.get("sort_by") || "created_at";
+  const sortOrderParam = searchParams.get("sort_order") || "desc";
+
+  // --- LOCAL STATE FOR FILTERS ---
+  const [tempActive, setTempActive] = useState<string | undefined>(
+    isActiveParam === true
+      ? "true"
+      : isActiveParam === false
+        ? "false"
+        : undefined,
+  );
+
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [totalPage, setTotalPage] = useState(0);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(nameParam);
+
+  const isSearching = !!nameParam;
+
+  // --- FETCH DATA ---
+  const fetchTechnicians = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await TechnicianServices.search({
+        page: page,
+        size: size,
+        name: nameParam || undefined,
+        is_active: isActiveParam, // Pass boolean or undefined directly
+        sort_by: sortByParam as "created_at" | "is_active",
+        sort_order: sortOrderParam as "asc" | "desc",
+      });
+
+      if (response.data) {
+        setTechnicians(response.data);
+      }
+
+      if (response.paging) {
+        setTotalPage(response.paging.total_page);
+      }
+    } catch (error) {
+      console.error("Failed to load technicians", error);
+      toast.error("Failed to load technicians");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, size, nameParam, isActiveParam, sortByParam, sortOrderParam]);
+
+  useEffect(() => {
+    fetchTechnicians();
+  }, [fetchTechnicians]);
+
+  // Sync Search Input with URL
+  useEffect(() => {
+    setSearchTerm(nameParam);
+  }, [nameParam]);
+
+  // Sync Filter State when Popover Open
+  useEffect(() => {
+    if (isFilterOpen) {
+      setTempActive(
+        isActiveParam === true
+          ? "true"
+          : isActiveParam === false
+            ? "false"
+            : "ALL",
+      );
+    }
+  }, [isFilterOpen, isActiveParam]);
+
+  // --- HANDLERS ---
+  const handlePageChange = (newPage: number) => {
+    setSearchParams((prev) => {
+      prev.set("page", String(newPage));
+      return prev;
+    });
+  };
+
+  const handleCreateSuccess = () => {
+    setIsSheetOpen(false);
+    setSearchParams((prev) => {
+      prev.set("page", "1");
+      return prev;
+    });
+    if (page === 1) {
+      fetchTechnicians();
+    }
+  };
+
+  const applyFilters = () => {
+    setSearchParams((prev) => {
+      if (tempActive && tempActive !== "ALL") {
+        prev.set("is_active", tempActive);
+      } else {
+        prev.delete("is_active");
+      }
+      prev.set("page", "1");
+      return prev;
+    });
+    setIsFilterOpen(false);
+  };
+
+  const handleSearch = () => {
+    setSearchParams((prev) => {
+      if (searchTerm) {
+        prev.set("name", searchTerm);
+      } else {
+        prev.delete("name");
+      }
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    if (nameParam) {
+      setSearchParams((prev) => {
+        prev.delete("name");
+        prev.set("page", "1");
+        return prev;
+      });
+    }
+  };
+
+  const handleSortChange = (
+    sortBy: "created_at" | "is_active",
+    sortOrder: "asc" | "desc",
+  ) => {
+    setSearchParams((prev) => {
+      prev.set("sort_by", sortBy);
+      prev.set("sort_order", sortOrder);
+      return prev;
+    });
+  };
+
+  const clearFilters = () => {
+    setSearchParams((prev) => {
+      prev.delete("is_active");
+      prev.set("page", "1");
+      return prev;
+    });
+    setTempActive("ALL");
+    setIsFilterOpen(false);
+  };
+
+  // --- HELPERS ---
+  const activeFiltersCount = [isActiveParam !== undefined].filter(
+    Boolean,
+  ).length;
+  const isFiltering = activeFiltersCount > 0;
+  const isDatabaseEmpty =
+    technicians.length === 0 && !isFiltering && !isSearching;
+
+  const isSortActive = (by: string, order: string) => {
+    return sortByParam === by && sortOrderParam === order;
+  };
+
+  //   const hasChanges =
+  //     (tempActive === "ALL" ? undefined : tempActive === "true") !==
+  //     isActiveParam;
+
+  return (
+    <div className="flex flex-col h-full">
+      <DashboardHeader title="Technicians Management">
+        {/* SEARCH BAR */}
+        <div className="relative w-48 md:w-64 hidden md:block">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search technician..."
+            className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            onBlur={handleSearch}
+            disabled={isLoading || isDatabaseEmpty}
+          />
+          {searchTerm && (
+            <button
+              onClick={handleClearSearch}
+              onMouseDown={(e) => e.preventDefault()}
+              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* SORT MENU */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1"
+              disabled={technicians.length === 0}
+            >
+              <ArrowUpDown className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Sort
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <div className="p-2 text-xs font-semibold text-muted-foreground">
+              Sort By
+            </div>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("created_at", "desc")}
+            >
+              Newest Added
+              {isSortActive("created_at", "desc") && (
+                <Check className="ml-auto h-4 w-4" />
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("created_at", "asc")}
+            >
+              Oldest Added
+              {isSortActive("created_at", "asc") && (
+                <Check className="ml-auto h-4 w-4" />
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => handleSortChange("is_active", "desc")}
+            >
+              Active First
+              {isSortActive("is_active", "desc") && (
+                <Check className="ml-auto h-4 w-4" />
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleSortChange("is_active", "asc")}
+            >
+              Inactive First
+              {isSortActive("is_active", "asc") && (
+                <Check className="ml-auto h-4 w-4" />
+              )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* FILTER POPOVER */}
+        <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1"
+              disabled={isDatabaseEmpty}
+            >
+              <Filter className="h-3.5 w-3.5" />
+              <span>Filter</span>
+              {activeFiltersCount > 0 && (
+                <span className="ml-1 rounded-sm bg-success px-1 font-normal text-foreground text-xs">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80" align="end">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Filters</h4>
+                <p className="text-sm text-muted-foreground">
+                  Refine the technician list.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 items-center">
+                <Label htmlFor="status">Status</Label>
+                <div className="col-span-2">
+                  <Select
+                    value={tempActive || "ALL"}
+                    onValueChange={setTempActive}
+                  >
+                    <SelectTrigger className="h-8 w-full">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">All Status</SelectItem>
+                      <SelectItem value="true">Active</SelectItem>
+                      <SelectItem value="false">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2 border-t mt-2">
+                <Button
+                  size="sm"
+                  onClick={applyFilters}
+                  className="w-1/2 text-foreground text-sm bg-success hover:bg-success/80 cursor-pointer"
+                  disabled={
+                    tempActive ===
+                    (isActiveParam === undefined
+                      ? "ALL"
+                      : String(isActiveParam))
+                  }
+                >
+                  Apply Filters
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="w-1/2 text-sm text-destructive hover:text-destructive cursor-pointer"
+                  disabled={activeFiltersCount === 0}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* ADD TECHNICIAN SHEET */}
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9 gap-1 cursor-pointer"
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                Add Technician
+              </span>
+            </Button>
+          </SheetTrigger>
+
+          <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
+            <SheetHeader className="px-6 py-4 border-b">
+              <SheetTitle className="text-xl text-primary">
+                Add New Technician
+              </SheetTitle>
+            </SheetHeader>
+            <SheetDescription className="sr-only">
+              Form to add a new technician
+            </SheetDescription>
+
+            <div className="flex-1 overflow-hidden">
+              <CreateTechnicianForm onSuccess={handleCreateSuccess} />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </DashboardHeader>
+
+      {/* TABLE CONTENT */}
+      <div className="flex-1 overflow-auto">
+        <DashboardTechnicianTable
+          technicians={technicians}
+          isLoading={isLoading}
+          onSuccess={fetchTechnicians}
+        />
+      </div>
+
+      {/* PAGINATION */}
+      <PaginationComponent
+        currentPage={page}
+        totalPages={totalPage}
+        onPageChange={handlePageChange}
+      />
+    </div>
+  );
+};
+
+export default DashboardTechnicianPage;

@@ -1,5 +1,7 @@
 import type { ProductResponse } from "@/model/product-model";
 import type { ServiceResponse } from "@/model/repair-model";
+import type { TechnicianResponse } from "@/model/technician-model";
+import type { ListUserResponse } from "@/model/user-model";
 
 export type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -41,12 +43,31 @@ export interface DashboardServiceTableProps {
   onSuccess?: () => void;
 }
 
+export interface DashboardTechnicianTableProps {
+  technicians: TechnicianResponse[];
+  isLoading: boolean;
+  onRefresh?: () => void;
+  onSuccess?: () => void;
+}
+
+export interface DashboardUserTableProps {
+  users: ListUserResponse[];
+  isLoading: boolean;
+  onRefresh?: () => void;
+  onSuccess?: () => void;
+}
+
+export interface ExtendedTableProps extends DashboardUserTableProps {
+  currentUserId?: number;
+}
+
 export interface JwtPayload {
   role: string;
   exp: number;
 }
 
 export const MAX_FILE_SIZE = 5000000;
+export const MAX_SIGNATURE_SIZE = 2000000;
 export const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",

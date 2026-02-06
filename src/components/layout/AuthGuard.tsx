@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "@/types/type";
 import { useEffect, useState } from "react";
+import { UserRole } from "@/enum/product-enum";
 
 export const GuestRoute = () => {
   const token = localStorage.getItem("token");
@@ -31,11 +32,12 @@ export const AdminRoute = () => {
 
     try {
       const decoded = jwtDecode<JwtPayload>(token);
-      const isAdmin = decoded.role === "admin";
+      const isNotCustomer =
+        decoded.role === UserRole.ADMIN || decoded.role === UserRole.OWNER;
 
       const isTokenValid = decoded.exp * 1000 > Date.now();
 
-      return isAdmin && isTokenValid;
+      return isNotCustomer && isTokenValid;
     } catch (error) {
       console.error("Failed to decode token", error);
       return false;

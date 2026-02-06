@@ -1,10 +1,4 @@
-import {
-  BrowserRouter,
-  Navigate,
-  Outlet,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import {
   AdminRoute,
@@ -26,6 +20,9 @@ import DetailProductPage from "./pages/DetailProductPage";
 import DashboardServicePage from "./pages/DashboardServicePage";
 import DetailServicePage from "./pages/DetailServicePage";
 import TrackServicePage from "./pages/TrackServicePage";
+import DashboardUserPage from "./pages/DashboardUserPage";
+import DashboardTechnicianPage from "./pages/DashboardTechnicianPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
@@ -80,11 +77,37 @@ function App() {
               path="/dashboard/services/detail/:serviceId"
               element={<DetailServicePage />}
             />
+
+            <Route path="/dashboard/users" element={<DashboardUserPage />} />
+
+            <Route
+              path="/dashboard/technicians"
+              element={<DashboardTechnicianPage />}
+            />
+
+            <Route
+              path="*"
+              element={
+                <NotFoundPage
+                  variant="glass"
+                  entityName="Page"
+                  isDashboard={true}
+                />
+              }
+            />
           </Route>
         </Route>
 
-        {/* Redirect default */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={
+            <NotFoundPage
+              variant="minimal"
+              entityName="Page"
+              isDashboard={false}
+            />
+          }
+        />
       </Routes>
       <Toaster position="top-center" richColors />
     </BrowserRouter>

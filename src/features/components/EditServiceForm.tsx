@@ -26,6 +26,7 @@ import type {
   UpdateServiceRequest,
 } from "@/model/repair-model";
 import { RepairServices } from "@/services/repair-services";
+import { TechnicianServices } from "@/services/technician-services";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Trash2 } from "lucide-react";
@@ -43,14 +44,55 @@ interface ServiceFormProps {
   onCancel?: () => void;
 }
 
+interface TechnicianOption {
+  id: number;
+  name: string;
+}
+
 export function EditServiceForm({
   service,
   onSuccess,
   onCancel,
 }: ServiceFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [technicians, setTechnicians] = useState<TechnicianOption[]>([]);
+  const [isFetchingTechs, setIsFetchingTechs] = useState(false);
 
   type EditFormValues = Omit<UpdateServiceRequest, "id">;
+
+  useEffect(() => {
+    const fetchTechnicians = async () => {
+      setIsFetchingTechs(true);
+      try {
+        const data = await TechnicianServices.listActive();
+        console.log(data);
+
+        setTechnicians(data);
+      } catch (error) {
+        const rawMessage = handleApiError(error);
+        try {
+          if (rawMessage.includes("ZodError")) {
+            const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
+            const errorObj = JSON.parse(jsonString);
+            if (errorObj.name === "ZodError" && errorObj.message) {
+              const issues = JSON.parse(errorObj.message);
+              if (issues.length > 0) {
+                toast.error("Validation Error", {
+                  description: issues[0].message,
+                });
+                return;
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Gagal parsing error validation:", e);
+        }
+      } finally {
+        setIsFetchingTechs(false);
+      }
+    };
+    fetchTechnicians();
+  }, []);
 
   const formUpdate = useForm<EditFormValues>({
     resolver: zodResolver(RepairValidation.UPDATE) as Resolver<EditFormValues>,
@@ -68,6 +110,8 @@ export function EditServiceForm({
         price: item.price,
       })),
       discount: service.discount || 0,
+      down_payment: service.down_payment || 0,
+      technician_id: service.technician.id || undefined,
     },
   });
 
@@ -125,6 +169,7 @@ export function EditServiceForm({
         })),
         discount: service.discount || 0,
         down_payment: service.down_payment || 0,
+        technician_id: service.technician.id || undefined,
       });
     }
   }, [service, formUpdate]);
@@ -144,6 +189,7 @@ export function EditServiceForm({
       })),
       discount: service.discount || 0,
       down_payment: service.down_payment || 0,
+      technician_id: service.technician.id || undefined,
     });
   };
 
@@ -361,17 +407,62 @@ export function EditServiceForm({
 
             <Separator />
 
-            {/* SECTION 2: SERVICE DETAILS */}
             <div>
               <h3 className="text-base font-semibold tracking-tight">
                 Service Details
               </h3>
               <p className="text-xs text-muted-foreground">
-                Problem description and notes.
+                Edit Problem description and technician assignment.
               </p>
             </div>
 
             <div className="grid gap-4">
+              <FormField
+                control={formUpdate.control}
+                name="technician_id"
+                render={({ field }) => (
+                  <FormItem className="relative grid gap-1 space-y-0">
+                    <FormLabel className={labelStyle}>
+                      Assign Technician
+                    </FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        if (value) {
+                          field.onChange(Number(value));
+                        }
+                      }}
+                      value={field.value ? field.value.toString() : ""}
+                      disabled={isSubmitting || isFetchingTechs}
+                    >
+                      <FormControl>
+                        <SelectTrigger size="sm" className={inputStyle}>
+                          <SelectValue
+                            placeholder={
+                              isFetchingTechs
+                                ? "Loading..."
+                                : "Select Technician"
+                            }
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {technicians?.map((tech) => (
+                          <SelectItem key={tech.id} value={tech.id.toString()}>
+                            {tech.name}
+                          </SelectItem>
+                        ))}
+                        {technicians?.length === 0 && !isFetchingTechs && (
+                          <div className="p-2 text-xs text-muted-foreground text-center">
+                            No technicians found.
+                          </div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={formUpdate.control}
                 name="description"
@@ -382,7 +473,7 @@ export function EditServiceForm({
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe the issue..."
+                        placeholder="e.g. LCD Pecah, Touchscreen error..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
                         disabled={isSubmitting}
@@ -399,11 +490,11 @@ export function EditServiceForm({
                 render={({ field }) => (
                   <FormItem className="relative grid gap-1 space-y-0">
                     <FormLabel className={labelStyle}>
-                      Technician Note
+                      Technician Note (Internal)
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Internal notes..."
+                        placeholder="e.g. Casing agak bengkok..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
                         disabled={isSubmitting}

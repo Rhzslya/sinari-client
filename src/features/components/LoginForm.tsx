@@ -241,7 +241,8 @@ export function LoginForm() {
               <span>
                 Please check your email to verify your account.
                 <br />A verification link has been sent to{" "}
-                <strong>{maskEmail(email!)}</strong>.
+                <br className="sm:hidden" />
+                <strong className="break-all">{maskEmail(email!)}</strong>.
               </span>
             </div>
           ) : cardError ? (
@@ -253,18 +254,24 @@ export function LoginForm() {
               <br />
             </div>
           ) : (
-            <>
-              Your account <strong>{identifier}</strong> is not verified yet.
+            <div className="text-center px-1">
+              <span>
+                Your account <strong className="break-all">{identifier}</strong>{" "}
+                is not verified yet.
+              </span>
+
               {email && (
-                <>
-                  <br />
-                  Linked email: <strong>{maskEmail(email)}</strong>
-                </>
+                <div className="mt-1">
+                  Linked email:
+                  <strong className="break-all">{maskEmail(email)}</strong>
+                </div>
               )}
-              <br />
-              Please check your inbox or click the button below to resend the
-              link.
-            </>
+
+              <p className="mt-2 text-sm text-muted-foreground">
+                Please check your inbox or click the button below to resend the
+                link.
+              </p>
+            </div>
           )
         }
         buttonResend={isVerifiedNow ? "Login Now" : "Resend Verification Email"}

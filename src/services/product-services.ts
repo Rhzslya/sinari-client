@@ -74,6 +74,10 @@ export class ProductServices {
   }
 
   static async remove(id: number): Promise<DeleteProductResponse> {
+    if (isNaN(id)) {
+      throw new Error("Invalid technician ID");
+    }
+
     const response = await api.delete(`/products/${id}`);
 
     return {

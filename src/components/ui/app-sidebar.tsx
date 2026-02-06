@@ -4,6 +4,7 @@ import {
   Package,
   Wrench,
   Settings,
+  UserCog,
 } from "lucide-react";
 
 import {
@@ -28,6 +29,11 @@ const items = [
     title: "Users",
     url: "/dashboard/users",
     icon: Users,
+  },
+  {
+    title: "Technicians",
+    url: "/dashboard/technicians",
+    icon: UserCog,
   },
   {
     title: "Products",

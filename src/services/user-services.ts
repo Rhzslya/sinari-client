@@ -1,18 +1,23 @@
 import { api } from "@/lib/axios";
 import {
   toForgotPasswordResponse,
+  toListUserResponse,
   toResendVerificationResponse,
   toResetPasswordResponse,
   toUserResponse,
   type ApiResponse,
+  type DeleteUserResponse,
   type ForgotPasswordRequest,
   type ForgotPasswordResponse,
   type GoogleLoginRequest,
+  type ListUserResponse,
   type LoginRequest,
   type RegisterRequest,
   type ResendVerificationResponse,
   type ResetPasswordRequest,
   type ResetPasswordResponse,
+  type SearchUserRequest,
+  type UpdateRoleRequest,
   type UserResponse,
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
@@ -72,10 +77,36 @@ export class AuthServices {
     return toUserResponse(response.data.data);
   }
 
+  static async search(
+    request: SearchUserRequest,
+  ): Promise<ApiResponse<ListUserResponse[]>> {
+    const response = await api.get<ApiResponse<ListUserResponse[]>>("/users", {
+      params: request,
+    });
+
+    return response.data;
+  }
+
   static async get(): Promise<UserResponse> {
     const response = await api.get<ApiResponse<UserResponse>>("/users/current");
 
     return toUserResponse(response.data.data);
+  }
+
+  static async updateRole(
+    request: UpdateRoleRequest,
+  ): Promise<ListUserResponse> {
+    const updateRoleRequest = Validation.validate(
+      UserValidation.UPDATE_ROLE,
+      request,
+    );
+
+    const response = await api.patch<ListUserResponse>(
+      `/users/${request.id}`,
+      updateRoleRequest,
+    );
+
+    return toListUserResponse(response.data);
   }
 
   static async logout(): Promise<boolean> {
@@ -92,6 +123,18 @@ export class AuthServices {
 
       return true;
     }
+  }
+
+  static async remove(id: number): Promise<DeleteUserResponse> {
+    if (isNaN(id)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const response = await api.delete(`/users/${id}`);
+
+    return {
+      message: response.data.message,
+    };
   }
 
   static async verify(token: string): Promise<boolean> {

@@ -1,3 +1,11 @@
+export const UserRole = {
+  CUSTOMER: "CUSTOMER",
+  ADMIN: "ADMIN",
+  OWNER: "OWNER",
+};
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
+
 export const Brand = {
   APPLE: "APPLE",
   SAMSUNG: "SAMSUNG",
@@ -45,6 +53,11 @@ export const ServiceStatus = {
   CANCELLED: "CANCELLED",
   TAKEN: "TAKEN",
 };
+
+export const ROLE_OPTIONS = Object.values(UserRole).map((value) => ({
+  value: value,
+  label: value.charAt(0) + value.slice(1).toLowerCase(),
+}));
 
 export const BRAND_OPTIONS = Object.values(Brand).map((value) => ({
   value: value,

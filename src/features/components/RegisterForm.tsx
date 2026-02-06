@@ -198,7 +198,8 @@ export function RegisterForm() {
               <span>
                 Please check your email to verify your account.
                 <br />A verification link has been sent to{" "}
-                <strong>{registeredEmail}</strong>.
+                <br className="sm:hidden" />
+                <strong className="break-all">{registeredEmail}</strong>.
               </span>
             </div>
           )

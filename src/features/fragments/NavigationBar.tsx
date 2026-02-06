@@ -15,6 +15,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { navigationMenuTriggerStyle } from "@/components/utils/navigationMenuTriggerStyle";
+import { UserRole } from "@/enum/product-enum";
 import { handleApiError } from "@/lib/utils";
 import type { UserResponse } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
@@ -114,7 +115,7 @@ const NavigationBar = () => {
             {/* HOME */}
             <NavigationMenuItem>
               <NavigationMenuLink
-                asChild // 3. Render sebagai Child (Link)
+                asChild
                 className={navigationMenuTriggerStyle()}
                 active={isActive("/")}
               >
@@ -132,7 +133,9 @@ const NavigationBar = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            {user?.role === "admin" && (
+            {[UserRole.ADMIN, UserRole.OWNER].includes(
+              user?.role as UserRole,
+            ) && (
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild

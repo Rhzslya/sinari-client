@@ -1,10 +1,25 @@
+import type { UserRole } from "@/enum/product-enum";
+
 export type UserResponse = {
+  id: number;
   username: string;
   email: string;
   name: string;
-  role: string;
+  role: UserRole;
   token?: string | null;
   google_id?: string | null;
+};
+
+export type ListUserResponse = {
+  id: number;
+  username: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  google_id?: string | null;
+  is_online?: boolean;
+  created_at: Date;
+  updated_at?: Date;
 };
 
 export type LoginRequest = {
@@ -17,6 +32,27 @@ export type RegisterRequest = {
   username: string;
   password: string;
   name: string;
+};
+
+export type SearchUserRequest = {
+  username?: string;
+  name?: string;
+  page: number;
+  size: number;
+  sort_by?: "created_at" | "name";
+  sort_order?: "asc" | "desc";
+  is_online?: boolean;
+  role?: UserRole;
+};
+
+export type UpdateUserRequest = {
+  name?: string;
+  email?: string;
+};
+
+export type UpdateRoleRequest = {
+  id: number;
+  role: UserRole;
 };
 
 export type GoogleLoginRequest = {
@@ -57,8 +93,13 @@ export type ResetPasswordResponse = {
   message: string;
 };
 
+export type DeleteUserResponse = {
+  message: string;
+};
+
 export function toUserResponse(data: UserResponse): UserResponse {
   return {
+    id: data.id,
     username: data.username,
     name: data.name,
     email: data.email,
@@ -71,6 +112,20 @@ export function toGoogleUserResponse(data: UserResponse): UserResponse {
   return {
     ...toUserResponse(data),
     google_id: data.google_id,
+  };
+}
+
+export function toListUserResponse(data: ListUserResponse): ListUserResponse {
+  return {
+    id: data.id,
+    username: data.username,
+    email: data.email,
+    name: data.name,
+    role: data.role,
+    google_id: data.google_id,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+    is_online: data.is_online,
   };
 }
 

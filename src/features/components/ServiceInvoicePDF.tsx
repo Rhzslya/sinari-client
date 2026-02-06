@@ -1,7 +1,14 @@
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { ServiceStatus } from "@/enum/product-enum";
 import type { ServiceResponse } from "@/model/repair-model";
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import {
+  Document,
+  Image,
+  Page,
+  StyleSheet,
+  Text,
+  View,
+} from "@react-pdf/renderer";
 import { format } from "date-fns";
 
 const COLORS = {
@@ -208,15 +215,32 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   signArea: {
-    marginTop: 6,
-    borderBottomWidth: 0.5,
-    borderTopColor: COLORS.dark,
+    marginTop: 4,
     width: "80%",
     alignSelf: "flex-end",
-    textAlign: "center",
-    paddingBottom: 2,
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  signLine: {
+    width: "100%",
+    marginBottom: 2,
+    alignItems: "center",
+    height: 25,
+    justifyContent: "flex-end",
+  },
+
+  signatureImage: {
+    height: 22,
+    width: "80%",
+    objectFit: "contain",
+    marginBottom: 1,
+  },
+
+  technicianName: {
     fontSize: 6,
     fontFamily: "Helvetica-Bold",
+    textAlign: "center",
+    color: COLORS.textMain,
   },
 
   printMeta: {
@@ -281,7 +305,7 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
               </Text>
               <Text style={styles.textNormal}>{service.phone_number}</Text>
               <Text style={styles.textNormal}>
-                {service.brand} - {service.model}
+                {service.brand} - {truncate(service.model, 25)}
               </Text>
             </View>
 
@@ -448,7 +472,17 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
               )}
 
               <View style={{ marginBottom: 1 }}>
-                <Text style={styles.signArea}>Technician Name</Text>
+                <View style={styles.signArea}>
+                  <Text style={styles.sectionTitle}>Signed by</Text>
+                  <View style={styles.signLine}>
+                    {service.technician?.signature_url ? (
+                      <Image
+                        src={service.technician.signature_url}
+                        style={styles.signatureImage}
+                      />
+                    ) : null}
+                  </View>
+                </View>
               </View>
             </View>
           </View>

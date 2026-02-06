@@ -4,27 +4,68 @@ import { ServiceStatus } from "@/enum/product-enum";
 import type { PublicServiceResponse } from "@/model/repair-model";
 import { RepairServices } from "@/services/repair-services";
 import { format } from "date-fns";
-import { MapPin, Phone, Printer, RefreshCcw } from "lucide-react";
+import { Loader2, MapPin, Phone, Printer, RefreshCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import NotFoundPage from "./NotFoundPage";
 
-// Warna Konfigurasi (Sekarang benar-benar dipakai)
 const PDF_COLORS = {
-  primary: "#ef473a", // Merah Branding
-  dark: "#1e293b", // Slate 800 (Untuk Text Utama & Header Tabel)
+  primary: "#ef473a",
+  dark: "#1e293b",
   muted: "#64748b",
-  warning: "#f59e0b", // Slate 500 (Untuk Text Secondary)
+  warning: "#f59e0b",
 };
 
 export default function TrackServicePage() {
   const { identifier } = useParams();
+
+  const [isLoading, setIsLoading] = useState(true);
   const [service, setService] = useState<PublicServiceResponse | null>(null);
+  const [isNotFound, setIsNotFound] = useState(false);
 
   useEffect(() => {
-    if (identifier) RepairServices.trackService(identifier).then(setService);
+    const fetchService = async () => {
+      if (!identifier) return;
+      setIsLoading(true);
+      setIsNotFound(false);
+      try {
+        const data = await RepairServices.trackService(identifier);
+        if (data) {
+          setService(data);
+        } else {
+          setIsNotFound(true);
+        }
+      } catch (error) {
+        console.error("Tracking Error:", error);
+        setIsNotFound(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchService();
   }, [identifier]);
 
-  if (!service) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-3">
+        <Loader2 className="w-10 h-10 animate-spin text-slate-400" />
+        <p className="text-sm text-slate-500 font-medium">
+          Tracking Service...
+        </p>
+      </div>
+    );
+  }
+
+  if (isNotFound || !service) {
+    return (
+      <NotFoundPage
+        entityName="Service Tracking"
+        id={identifier}
+        backUrl="/"
+        variant="glass"
+      />
+    );
+  }
 
   const isCancelled = service.status === ServiceStatus.CANCELLED;
 
@@ -35,6 +76,7 @@ export default function TrackServicePage() {
   const discountAmount = (subTotal * (service.discount || 0)) / 100;
   const downPayment = service.down_payment || 0;
   const grandTotal = isCancelled ? 0 : subTotal - discountAmount - downPayment;
+
   return (
     <div className="min-h-screen bg-gray-100 p-4 flex justify-center items-start py-10 font-sans">
       <div className="w-full max-w-lg bg-white shadow-2xl min-h-150 flex flex-col">
@@ -101,9 +143,20 @@ export default function TrackServicePage() {
               <p className="text-xs" style={{ color: PDF_COLORS.muted }}>
                 {service.phone_number}
               </p>
-              <p className="text-xs" style={{ color: PDF_COLORS.muted }}>
-                {service.brand} - {service.model}
-              </p>
+              <div
+                className="flex items-center text-xs w-full"
+                style={{ color: PDF_COLORS.muted }}
+              >
+                <span className="whitespace-nowrap shrink-0 mr-1">
+                  {service.brand} -
+                </span>
+                <div className="min-w-0">
+                  <TruncatedTooltip
+                    text={service.model}
+                    className="truncate text-[#64748b] text-xs block"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="flex-1 space-y-1">
@@ -140,10 +193,10 @@ export default function TrackServicePage() {
                   Technician
                 </span>
                 <span
-                  className="text-xs italic"
+                  className="text-xs font-medium"
                   style={{ color: PDF_COLORS.muted }}
                 >
-                  {service.technician_note ? "Checked" : ""}
+                  {service.technician?.name || "-"}
                 </span>
               </div>
             </div>
@@ -283,17 +336,35 @@ export default function TrackServicePage() {
               </div>
             )}
 
-            <div className="pt-8 text-center">
+            <div className="pt-2 text-center mt-4">
+              <div className="h-12 flex items-end justify-center mb-1">
+                {service.technician?.signature_url ? (
+                  <img
+                    src={service.technician.signature_url}
+                    alt="Signature"
+                    className="max-h-full max-w-[80%] object-contain"
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <div className="h-full w-full"></div>
+                )}
+              </div>
+
               <div
                 className="border-b w-3/4 mx-auto mb-1"
                 style={{ borderColor: PDF_COLORS.dark }}
               ></div>
+
               <p
-                className="text-[10px] font-bold uppercase "
-                style={{ color: PDF_COLORS.muted }}
+                className="text-[10px] font-bold uppercase"
+                style={{ color: PDF_COLORS.dark }}
               >
-                Authorized Sign
+                {service.technician?.name || "Authorized Sign"}
               </p>
+
+              {service.technician?.name && (
+                <p className="text-[8px] text-gray-400 uppercase">Technician</p>
+              )}
             </div>
           </div>
         </div>

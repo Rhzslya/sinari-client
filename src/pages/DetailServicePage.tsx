@@ -135,6 +135,7 @@ const DetailServicePage = () => {
   if (isNotFound) {
     return (
       <NotFoundPage
+        isDashboard={true}
         id={serviceId}
         entityName="Service"
         backUrl="/dashboard/services"

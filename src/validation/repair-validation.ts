@@ -69,6 +69,8 @@ export class RepairValidation {
       .min(0, { message: "Down Payment cannot be less than 0" })
       .optional()
       .default(0),
+
+    technician_id: z.coerce.number().min(1).positive(),
   });
 
   static readonly UPDATE = z.object({
@@ -141,6 +143,8 @@ export class RepairValidation {
         message: "Please select a valid brand",
       })
       .optional(),
+
+    technician_id: z.coerce.number().min(1).positive(),
   });
 
   static readonly SEARCH = z.object({

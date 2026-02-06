@@ -1,4 +1,5 @@
 import type { Brand, ServiceStatus } from "@/enum/product-enum";
+import type { Technician } from "./technician-model";
 
 export type ServiceResponse = {
   id: number;
@@ -22,6 +23,12 @@ export type ServiceResponse = {
   created_at: Date;
   updated_at?: Date;
   tracking_token: string;
+  technician: {
+    id: number;
+    name: string;
+    is_active: boolean;
+    signature_url: string | null;
+  };
 };
 
 export type PublicServiceResponse = {
@@ -44,6 +51,10 @@ export type PublicServiceResponse = {
   total_price: number;
   created_at: Date;
   updated_at?: Date;
+  technician: {
+    name: string;
+    signature_url: string | null;
+  };
 };
 
 export type ApiResponse<T> = {
@@ -120,10 +131,14 @@ export type UpdateServiceRequest = {
   discount?: number;
   down_payment?: number;
   brand?: Brand;
+  technician_id: number;
 };
 
 export function toServiceResponse(
-  service: ServiceResponse & { service_list: ServiceItem[] },
+  service: ServiceResponse & {
+    service_list: ServiceItem[];
+    technician: Technician;
+  },
 ): ServiceResponse {
   return {
     id: service.id,
@@ -149,11 +164,15 @@ export function toServiceResponse(
     created_at: service.created_at,
     updated_at: service.updated_at,
     tracking_token: service.tracking_token,
+    technician: service.technician,
   };
 }
 
 export function toPublicServiceResponse(
-  service: PublicServiceResponse & { service_list: ServiceItem[] },
+  service: PublicServiceResponse & {
+    service_list: ServiceItem[];
+    technician: Omit<Technician, "id" | "is_active">;
+  },
 ): PublicServiceResponse {
   return {
     service_id: service.service_id,
@@ -177,6 +196,7 @@ export function toPublicServiceResponse(
     total_price: service.total_price,
     created_at: service.created_at,
     updated_at: service.updated_at,
+    technician: service.technician,
   };
 }
 
