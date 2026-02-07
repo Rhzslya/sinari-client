@@ -37,7 +37,7 @@ const EmailCell = ({ email }: { email: string }) => {
         </span>
       </div>
 
-      <div className="flex items-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center justify-end w-14 gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="icon"
@@ -51,6 +51,7 @@ const EmailCell = ({ email }: { email: string }) => {
             <Eye className="h-3.5 w-3.5" />
           )}
         </Button>
+
         {isRevealed && (
           <Button
             variant="ghost"

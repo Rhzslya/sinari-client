@@ -3,8 +3,6 @@ import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {
   return (
-    // 1. Pindahkan 'bg-background' kesini agar warnanya FULL SCREEN
-    // 2. Tambahkan 'w-full' untuk memastikan lebar penuh
     <div className="dark min-h-screen flex flex-col w-full bg-background">
       <NavigationBar />
 

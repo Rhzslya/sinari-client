@@ -25,102 +25,74 @@ import {
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import DashboardUserTable from "@/features/fragments/DashboardUserTable";
 import { PaginationComponent } from "@/features/fragments/Pagination";
+import { useUserQueries } from "@/hooks/user-queries";
 import { handleApiError } from "@/lib/utils";
-import type { ListUserResponse, UserResponse } from "@/model/user-model";
-import { AuthServices } from "@/services/user-services";
 import { ArrowUpDown, Check, Filter, Search, X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const DashboardUserPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [currentUser, setCurrentUser] = useState<UserResponse | null>(null);
-
-  const [users, setUsers] = useState<ListUserResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
   // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
   const nameParam = searchParams.get("name") || "";
-
   const isOnlineParam = searchParams.get("is_online") === "true";
-
   const roleParam = searchParams.get("role") || "";
-
   const sortByParam = searchParams.get("sort_by") || "created_at";
   const sortOrderParam = searchParams.get("sort_order") || "desc";
 
+  // --- STATES ---
+  const [searchTerm, setSearchTerm] = useState(nameParam);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
   const [tempOnline, setTempOnline] = useState(isOnlineParam);
   const [tempRole, setTempRole] = useState(roleParam);
 
-  const [totalPage, setTotalPage] = useState(0);
-  const [searchTerm, setSearchTerm] = useState(nameParam);
+  const userQueries = useUserQueries();
 
-  const isSearching = !!nameParam;
-
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const user = await AuthServices.get();
-        setCurrentUser(user);
-      } catch (error) {
-        handleApiError(error);
-      }
-    };
-    fetchCurrentUser();
-  }, []);
-
-  const fetchUsers = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const safeSortOrder =
-        sortOrderParam === "asc" || sortOrderParam === "desc"
-          ? sortOrderParam
-          : "desc";
-
-      const safeSortBy =
-        sortByParam === "name" || sortByParam === "created_at"
-          ? sortByParam
-          : "created_at";
-
-      const response = await AuthServices.search({
-        page: page,
-        size: size,
-        name: nameParam || undefined,
-        sort_by: safeSortBy,
-        is_online: isOnlineParam ? true : undefined,
-        sort_order: safeSortOrder,
-        role: roleParam && roleParam !== "ALL" ? roleParam : undefined,
-      });
-
-      if (response.data) {
-        setUsers(response.data);
-      }
-
-      if (response.paging) {
-        setTotalPage(response.paging.total_page);
-      }
-    } catch (error) {
-      handleApiError(error, "Failed to load users");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
+  const { data, isLoading, isError, error, refetch } = userQueries.useList({
     page,
     size,
-    nameParam,
-    sortByParam,
-    sortOrderParam,
-    isOnlineParam,
-    roleParam,
-  ]);
+    name: nameParam || undefined,
+    sort_by: sortByParam as "created_at" | "name",
+    sort_order: sortOrderParam as "asc" | "desc",
+    is_online: isOnlineParam ? true : undefined,
+    role: roleParam && roleParam !== "ALL" ? roleParam : undefined,
+  });
+
+  const { data: currentUser } = userQueries.useProfile();
+
+  const handleSearch = () => {
+    setSearchParams((prev) => {
+      if (searchTerm) prev.set("name", searchTerm);
+      else prev.delete("name");
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    setSearchTerm(nameParam);
+  }, [nameParam]);
+
+  useEffect(() => {
+    if (isFilterOpen) {
+      setTempOnline(isOnlineParam);
+      setTempRole(roleParam);
+    }
+  }, [isFilterOpen, isOnlineParam, roleParam]);
+
+  useEffect(() => {
+    if (isError) {
+      handleApiError(error, "Failed to load users");
+    }
+  }, [isError, error]);
+
+  const users = data?.data || [];
+  const totalPage = data?.paging?.total_page || 0;
+  const isDatabaseEmpty =
+    users.length === 0 && !nameParam && !isOnlineParam && !roleParam;
 
   useEffect(() => {
     setSearchTerm(nameParam);
@@ -172,18 +144,6 @@ const DashboardUserPage = () => {
     setIsFilterOpen(false);
   };
 
-  const handleSearch = () => {
-    setSearchParams((prev) => {
-      if (searchTerm) {
-        prev.set("name", searchTerm);
-      } else {
-        prev.delete("name");
-      }
-      prev.set("page", "1");
-      return prev;
-    });
-  };
-
   const handleClearSearch = () => {
     setSearchTerm("");
     if (nameParam) {
@@ -211,8 +171,6 @@ const DashboardUserPage = () => {
     isOnlineParam,
     roleParam && roleParam !== "ALL",
   ].filter(Boolean).length;
-  const isFiltering = activeFiltersCount > 0;
-  const isDatabaseEmpty = users.length === 0 && !isFiltering && !isSearching;
 
   const isSortActive = (by: string, order: string) => {
     return sortByParam === by && sortOrderParam === order;
@@ -395,7 +353,7 @@ const DashboardUserPage = () => {
         <DashboardUserTable
           users={users}
           isLoading={isLoading}
-          onSuccess={fetchUsers}
+          onSuccess={() => refetch()}
           currentUserId={currentUser?.id}
         />
       </div>

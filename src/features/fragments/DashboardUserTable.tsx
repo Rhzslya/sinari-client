@@ -9,7 +9,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { Badge } from "@/components/ui/badge";
-import type { ListUserResponse } from "@/model/user-model"; // Ensure this matches your new ListUserResponse type
+import type { NotPublicUserResponse } from "@/model/user-model"; // Ensure this matches your new NotPublicUserResponse type
 import type { ExtendedTableProps } from "@/types/type";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
@@ -20,8 +20,6 @@ import UpdateRoleForm from "./UpdateRoleForm";
 import EmailCell from "./EmailCell";
 import { getRoleBadgeColor } from "@/components/utils/roleBadge";
 import { UserSkeletonTable } from "./Skeleton";
-// import { UserSkeletonTable } from "./Skeleton"; // Assuming you have this
-// import { UserActionMenu } from "./UserActionMenu"; // Uncomment when you have this
 
 const DashboardUserTable = ({
   users,
@@ -31,9 +29,8 @@ const DashboardUserTable = ({
 }: ExtendedTableProps) => {
   const navigate = useNavigate();
 
-  const [selectedUser, setSelectedUser] = useState<ListUserResponse | null>(
-    null,
-  );
+  const [selectedUser, setSelectedUser] =
+    useState<NotPublicUserResponse | null>(null);
   const [isDeleteUserOpen, setIsDeleteUserOpen] = useState(false);
 
   const [isUpdateRoleOpen, setIsUpdateRoleOpen] = useState(false);
@@ -48,16 +45,16 @@ const DashboardUserTable = ({
     });
   }, [users, currentUserId]);
 
-  const handleViewDetail = (user: ListUserResponse) => {
+  const handleViewDetail = (user: NotPublicUserResponse) => {
     navigate(`/dashboard/users/detail/${user.id}`);
   };
 
-  const handleDeleteUserOpen = (user: ListUserResponse) => {
+  const handleDeleteUserOpen = (user: NotPublicUserResponse) => {
     setSelectedUser(user);
     setIsDeleteUserOpen(true);
   };
 
-  const handleUpdateRoleOpen = (user: ListUserResponse) => {
+  const handleUpdateRoleOpen = (user: NotPublicUserResponse) => {
     setSelectedUser(user);
     setIsUpdateRoleOpen(true);
   };

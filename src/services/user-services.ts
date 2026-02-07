@@ -1,7 +1,7 @@
 import { api } from "@/lib/axios";
 import {
   toForgotPasswordResponse,
-  toListUserResponse,
+  toNotPublicUserResponse,
   toResendVerificationResponse,
   toResetPasswordResponse,
   toUserResponse,
@@ -10,7 +10,7 @@ import {
   type ForgotPasswordRequest,
   type ForgotPasswordResponse,
   type GoogleLoginRequest,
-  type ListUserResponse,
+  type NotPublicUserResponse,
   type LoginRequest,
   type RegisterRequest,
   type ResendVerificationResponse,
@@ -19,6 +19,7 @@ import {
   type SearchUserRequest,
   type UpdateRoleRequest,
   type UserResponse,
+  type GetDetailedUserRequest,
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { Validation } from "@/validation/validation";
@@ -79,10 +80,13 @@ export class AuthServices {
 
   static async search(
     request: SearchUserRequest,
-  ): Promise<ApiResponse<ListUserResponse[]>> {
-    const response = await api.get<ApiResponse<ListUserResponse[]>>("/users", {
-      params: request,
-    });
+  ): Promise<ApiResponse<NotPublicUserResponse[]>> {
+    const response = await api.get<ApiResponse<NotPublicUserResponse[]>>(
+      "/users",
+      {
+        params: request,
+      },
+    );
 
     return response.data;
   }
@@ -93,20 +97,30 @@ export class AuthServices {
     return toUserResponse(response.data.data);
   }
 
+  static async getById(
+    request: GetDetailedUserRequest,
+  ): Promise<NotPublicUserResponse> {
+    const response = await api.get<ApiResponse<NotPublicUserResponse>>(
+      `/users/${request.id}`,
+    );
+
+    return toNotPublicUserResponse(response.data.data);
+  }
+
   static async updateRole(
     request: UpdateRoleRequest,
-  ): Promise<ListUserResponse> {
+  ): Promise<NotPublicUserResponse> {
     const updateRoleRequest = Validation.validate(
       UserValidation.UPDATE_ROLE,
       request,
     );
 
-    const response = await api.patch<ListUserResponse>(
+    const response = await api.patch<NotPublicUserResponse>(
       `/users/${request.id}`,
       updateRoleRequest,
     );
 
-    return toListUserResponse(response.data);
+    return toNotPublicUserResponse(response.data);
   }
 
   static async logout(): Promise<boolean> {

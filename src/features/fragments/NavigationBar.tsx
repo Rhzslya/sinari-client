@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { navigationMenuTriggerStyle } from "@/components/utils/navigationMenuTriggerStyle";
 import { UserRole } from "@/enum/product-enum";
-import { handleApiError } from "@/lib/utils";
-import type { UserResponse } from "@/model/user-model";
+import { useUserQueries } from "@/hooks/user-queries";
 import { AuthServices } from "@/services/user-services";
 import {
   AlertCircle,
@@ -26,21 +25,30 @@ import {
   LogOut,
   UserIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+// import { useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom"; // 1. Import Link
 
 const NavigationBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return !!localStorage.getItem("token");
-  });
+  const hasToken = !!localStorage.getItem("token");
 
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const hasFetched = useRef(false);
+  const { useProfile } = useUserQueries();
+  const {
+    data: user,
+    isLoading: isLoadingUser,
+    isError,
+
+    // refetch,
+  } = useProfile();
+
+  // Kick when User multiple login
+  // useEffect(() => {
+  //   if (hasToken) {
+  //     refetch();
+  //   }
+  // }, [location.pathname, hasToken, refetch]);
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -49,46 +57,15 @@ const NavigationBar = () => {
     return location.pathname.startsWith(path);
   };
 
-  const handleLogout = useCallback(async () => {
+  const handleManualLogout = async () => {
     try {
       await AuthServices.logout();
-      localStorage.clear();
     } catch {
-      // Ignore error
+      // Ignore
     }
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    navigate("/login");
-  }, [navigate]);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      if (hasFetched.current) return;
-      if (!isLoggedIn) return;
-      hasFetched.current = true;
-
-      setIsLoadingUser(true);
-      try {
-        const user = await AuthServices.get();
-        setUser(user);
-      } catch (error) {
-        const message = handleApiError(error);
-        setFetchError(message);
-        if (
-          message.toLowerCase().includes("unauthorized") ||
-          message.toLowerCase().includes("session")
-        ) {
-          handleLogout();
-        }
-      } finally {
-        setIsLoadingUser(false);
-      }
-    };
-
-    if (isLoggedIn) {
-      fetchUser();
-    }
-  }, [isLoggedIn, handleLogout]);
+    localStorage.clear();
+    window.location.href = "/login";
+  };
 
   const getInitials = (name?: string) => {
     if (!name) return "SC";
@@ -98,6 +75,81 @@ const NavigationBar = () => {
       .join("")
       .toUpperCase()
       .substring(0, 2);
+  };
+
+  const renderProfileSection = () => {
+    if (isLoadingUser) {
+      return <Loader2 className="animate-spin text-muted-foreground size-6" />;
+    }
+
+    if (isError) {
+      return (
+        <div className="text-destructive" title="Failed to load profile">
+          <AlertCircle className="size-6" />
+        </div>
+      );
+    }
+
+    if (!user) return null; // Should not happen if success
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="relative h-10 w-10 rounded-full cursor-pointer bg-white focus-visible:ring-0 focus-visible:ring-offset-0 border-primary border-2"
+          >
+            <Avatar className="h-9 w-9 border-none transition-opacity hover:opacity-80">
+              <AvatarFallback className="bg-white/10 border-none text-primary text-sm font-bold">
+                {getInitials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none truncate">
+                {user.name}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground truncate">
+                {user.email}
+              </p>
+              <span className="text-[10px] uppercase font-bold text-primary">
+                {user.role}
+              </span>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+
+          {[UserRole.ADMIN, UserRole.OWNER].includes(user.role as UserRole) && (
+            <DropdownMenuItem
+              onClick={() => navigate("/dashboard")}
+              className="cursor-pointer"
+            >
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              <span>Dashboard</span>
+            </DropdownMenuItem>
+          )}
+
+          <DropdownMenuItem
+            onClick={() => navigate("/profile")}
+            className="cursor-pointer"
+          >
+            <UserIcon className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleManualLogout}
+            className="text-destructive focus:text-destructive focus:bg-red-50 cursor-pointer"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Log out</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   };
 
   return (
@@ -110,9 +162,9 @@ const NavigationBar = () => {
           Sinari Cell
         </Link>
 
+        {/* NAVIGATION LINKS */}
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
-            {/* HOME */}
             <NavigationMenuItem>
               <NavigationMenuLink
                 asChild
@@ -133,92 +185,39 @@ const NavigationBar = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            {[UserRole.ADMIN, UserRole.OWNER].includes(
-              user?.role as UserRole,
-            ) && (
-              <NavigationMenuItem>
-                <NavigationMenuLink
-                  asChild
-                  className={navigationMenuTriggerStyle()}
-                  active={isActive("/dashboard")}
-                >
-                  <Link to="/dashboard">Dashboard</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )}
+            {user &&
+              [UserRole.ADMIN, UserRole.OWNER].includes(
+                user.role as UserRole,
+              ) && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    asChild
+                    className={navigationMenuTriggerStyle()}
+                    active={isActive("/dashboard")}
+                  >
+                    <Link to="/dashboard">Dashboard</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
           </NavigationMenuList>
         </NavigationMenu>
 
+        {/* RIGHT SIDE (AUTH) */}
         <div className="flex items-center gap-4">
-          {isLoggedIn ? (
-            isLoadingUser ? (
-              <Loader2 className="animate-spin text-muted-foreground size-10" />
-            ) : fetchError ? (
-              <div className="text-foreground" title={fetchError}>
-                <AlertCircle className="size-6" />
-              </div>
-            ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-10 w-10 rounded-full cursor-pointer bg-white focus-visible:ring-0 focus-visible:ring-offset-0 border-primary border-2"
-                  >
-                    <Avatar className="h-9 w-9 border-none transition-opacity hover:opacity-80">
-                      <AvatarFallback className="bg-white/10 border-none text-primary text-xl font-semibold">
-                        {getInitials(user?.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none truncate">
-                        {user?.name || "User"}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground truncate">
-                        {user?.email || "loading..."}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => navigate("/dashboard")}
-                    className="cursor-pointer"
-                  >
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigate("/profile")}
-                    className="cursor-pointer"
-                  >
-                    <UserIcon className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="text-destructive focus:text-destructive focus:bg-red-50 cursor-pointer"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )
+          {hasToken ? (
+            renderProfileSection()
           ) : (
             <div className="flex gap-2">
               <Button
                 asChild
-                className="cursor-pointer bg-muted hover:bg-foreground hover:text-muted text-foreground"
+                variant="ghost"
+                className="cursor-pointer hover:bg-white/10"
               >
                 <Link to="/login">Log in</Link>
               </Button>
               <Button
                 asChild
-                className="cursor-pointer text-muted hover:text-foreground"
+                className="cursor-pointer bg-white text-primary hover:bg-white/90"
               >
                 <Link to="/register">Sign Up</Link>
               </Button>

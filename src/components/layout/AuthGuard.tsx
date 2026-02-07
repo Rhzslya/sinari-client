@@ -1,8 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import type { JwtPayload } from "@/types/type";
-import { useEffect, useState } from "react";
 import { UserRole } from "@/enum/product-enum";
+import { useUserQueries } from "@/hooks/user-queries";
+import { Loader2 } from "lucide-react";
 
 export const GuestRoute = () => {
   const token = localStorage.getItem("token");
@@ -25,33 +24,23 @@ export const ProtectedRoute = () => {
 };
 
 export const AdminRoute = () => {
-  const [isAuthorized] = useState(() => {
-    const token = localStorage.getItem("token");
+  const { useProfile } = useUserQueries();
 
-    if (!token) return false;
+  const { data: user, isLoading, isError } = useProfile();
 
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
-      const isNotCustomer =
-        decoded.role === UserRole.ADMIN || decoded.role === UserRole.OWNER;
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-      const isTokenValid = decoded.exp * 1000 > Date.now();
+  const isAuthorized =
+    user && (user.role === UserRole.ADMIN || user.role === UserRole.OWNER);
 
-      return isNotCustomer && isTokenValid;
-    } catch (error) {
-      console.error("Failed to decode token", error);
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    if (!isAuthorized) {
-      localStorage.clear();
-    }
-  }, [isAuthorized]);
-
-  if (!isAuthorized) {
-    localStorage.clear();
+  if (isError || !isAuthorized) {
+    // localStorage.clear();
     return <Navigate to="/" replace />;
   }
 

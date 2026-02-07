@@ -10,7 +10,7 @@ export type UserResponse = {
   google_id?: string | null;
 };
 
-export type ListUserResponse = {
+export type NotPublicUserResponse = {
   id: number;
   username: string;
   email: string;
@@ -53,6 +53,10 @@ export type UpdateUserRequest = {
 export type UpdateRoleRequest = {
   id: number;
   role: UserRole;
+};
+
+export type GetDetailedUserRequest = {
+  id: number;
 };
 
 export type GoogleLoginRequest = {
@@ -115,7 +119,9 @@ export function toGoogleUserResponse(data: UserResponse): UserResponse {
   };
 }
 
-export function toListUserResponse(data: ListUserResponse): ListUserResponse {
+export function toNotPublicUserResponse(
+  data: NotPublicUserResponse,
+): NotPublicUserResponse {
   return {
     id: data.id,
     username: data.username,

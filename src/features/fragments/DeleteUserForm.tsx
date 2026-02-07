@@ -7,13 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { handleApiError } from "@/lib/utils";
+import { useUserQueries } from "@/hooks/user-queries";
 import type { ListUserResponse } from "@/model/user-model";
-import { AuthServices } from "@/services/user-services";
-
 import { Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 interface DeleteUserFormProps {
   user: ListUserResponse | null;
@@ -28,27 +24,20 @@ const DeleteUserForm = ({
   onOpenChange,
   onSuccess,
 }: DeleteUserFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { deleteMutation } = useUserQueries();
+
+  const { mutateAsync: deleteUser, isPending } = deleteMutation;
 
   const handleDelete = async () => {
     if (!user) return;
-    setIsLoading(true);
 
     try {
-      const response = await AuthServices.remove(user.id);
-      const successMessage =
-        response.message || "Technician deleted successfully";
+      await deleteUser(user.id);
 
-      toast.success("Technician deleted successfully", {
-        description: successMessage,
-      });
-
-      onSuccess();
+      if (onSuccess) onSuccess();
       onOpenChange(false);
-    } catch (error) {
-      handleApiError(error, "Failed to delete technician");
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // Handle by Hook
     }
   };
 
@@ -80,7 +69,7 @@ const DeleteUserForm = ({
             size="sm"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={isLoading}
+            disabled={isPending}
             className="w-1/3 cursor-pointer duration-300"
           >
             Cancel
@@ -90,10 +79,10 @@ const DeleteUserForm = ({
             size="sm"
             variant="destructive"
             onClick={handleDelete}
-            disabled={isLoading}
+            disabled={isPending}
             className="w-1/3 cursor-pointer duration-300"
           >
-            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Delete
           </Button>
         </DialogFooter>
