@@ -35,6 +35,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import NotFoundPage from "./NotFoundPage";
+import { isAxiosError } from "axios";
 
 const DetailServicePage = () => {
   const { serviceId } = useParams();
@@ -52,22 +53,18 @@ const DetailServicePage = () => {
         const response = await RepairServices.getById(Number(serviceId));
         setService(response);
       } catch (error) {
-        // [FIX] Hapus ': any', biarkan TypeScript infer sebagai 'unknown'
-        const rawMessage = handleApiError(error);
-        console.error("Failed to load service", error);
-
-        // Cek pesan error string (konsisten dengan DetailProduct)
-        if (
-          rawMessage.toLowerCase().includes("not found") ||
-          rawMessage.includes("404")
-        ) {
+        if (isAxiosError(error) && error.response?.status === 404) {
           setIsNotFound(true);
           return;
         }
-
-        toast.error("Gagal memuat detail service", {
-          description: rawMessage,
-        });
+        if (isAxiosError(error) && error.response?.status === 403) {
+          toast.error("Access Denied", {
+            description: "Forbidden: Insufficient permissions.",
+          });
+          navigate("/dashboard");
+          return;
+        }
+        handleApiError(error, "Failed to load service");
         navigate("/dashboard/services");
       } finally {
         setIsLoading(false);

@@ -63,7 +63,7 @@ const DashboardUserTable = ({
   };
 
   if (isLoading) {
-    return <div className="">Loading...</div>;
+    return <UserSkeletonTable />;
   }
 
   if (users.length === 0) {

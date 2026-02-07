@@ -74,39 +74,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
 
       if (onSuccess) onSuccess();
     } catch (error) {
-      const rawMessage = handleApiError(error);
-
-      try {
-        if (rawMessage.includes("ZodError")) {
-          const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-          const errorObj = JSON.parse(jsonString);
-          if (errorObj.name === "ZodError" && errorObj.message) {
-            const issues = JSON.parse(errorObj.message);
-            if (issues.length > 0) {
-              toast.error("Validation Error", {
-                description: issues[0].message,
-              });
-              return;
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Gagal parsing error validation:", e);
-      }
-
-      if (rawMessage.toLowerCase().includes("Technician already exists")) {
-        const errorMsg =
-          "Duplicate Technician: Item with same Name already exists.";
-        toast.error("Technician already exists", { description: errorMsg });
-      } else if (rawMessage.toLowerCase().includes("forbidden")) {
-        const errorMsg =
-          "Permission Denied: Only Admin can create technicians.";
-        toast.error("Action Failed", { description: errorMsg });
-      } else {
-        toast.error("Failed to create technician", {
-          description: rawMessage,
-        });
-      }
+      handleApiError(error, "Failed to create technician");
     } finally {
       setIsLoading(false);
     }

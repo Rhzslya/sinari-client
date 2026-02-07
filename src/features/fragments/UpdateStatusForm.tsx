@@ -105,8 +105,7 @@ export function UpdateStatusDialog({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const rawMessage = handleApiError(error);
-      toast.error("Failed to update status", { description: rawMessage });
+      handleApiError(error, "Failed to send message");
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +153,6 @@ export function UpdateStatusDialog({
                     disabled={isSubmitting}
                   >
                     <FormControl>
-                      {/* Tambahkan className={inputStyle} di sini */}
                       <SelectTrigger className={inputStyle}>
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>

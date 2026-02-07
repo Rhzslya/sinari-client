@@ -45,7 +45,6 @@ const UpdateStockForm = ({
   onSuccess,
 }: UpdateStockFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const form = useForm<Pick<UpdateProductRequest, "stock">>({
     resolver: zodResolver(ProductValidation.UPDATE_STOCK) as Resolver<
@@ -83,26 +82,7 @@ const UpdateStockForm = ({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const rawMessage = handleApiError(error);
-
-      try {
-        if (rawMessage.includes("ZodError")) {
-          const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-          const errorObj = JSON.parse(jsonString);
-          if (errorObj.name === "ZodError" && errorObj.message) {
-            const issues = JSON.parse(errorObj.message);
-            if (issues.length > 0) {
-              toast.error("Validation Error", {
-                description: issues[0].message,
-              });
-              return;
-            }
-          }
-        }
-      } catch (error) {
-        setErrorMessage(`Failed to Parse Error: ${error}`);
-        toast.error(errorMessage);
-      }
+      handleApiError(error, "Failed to update stock");
     } finally {
       setIsLoading(false);
     }

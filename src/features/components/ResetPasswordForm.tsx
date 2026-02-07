@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { handleApiError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -62,8 +62,8 @@ export function ResetPasswordForm() {
       await AuthServices.resetPassword(data);
       setIsSuccess(true);
     } catch (error) {
-      const errorMessage = handleApiError(error);
-      setGlobalError(errorMessage);
+      const msg = getErrorMessage(error, "Failed to reset password");
+      setGlobalError(msg);
     } finally {
       setIsLoading(false);
     }

@@ -21,7 +21,6 @@ import { PaginationComponent } from "@/features/fragments/Pagination";
 import { useCallback, useEffect, useState } from "react";
 import type { ServiceResponse } from "@/model/repair-model";
 import { RepairServices } from "@/services/repair-services";
-import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import { Brand, ServiceStatus } from "@/enum/product-enum";
 import {
@@ -47,6 +46,7 @@ import {
 import { NumberStepper } from "@/components/utils/numberStepper";
 import DashboardServiceTable from "@/features/fragments/DashboardServiceTable";
 import { CreateServiceForm } from "@/features/components/CreateServiceForm";
+import { handleApiError } from "@/lib/utils";
 
 const DashboardServicePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,8 +103,7 @@ const DashboardServicePage = () => {
         setTotalPage(response.paging.total_page);
       }
     } catch (error) {
-      console.error("Failed to load services", error);
-      toast.error("Failed to load services");
+      handleApiError(error, "Failed to load services");
     } finally {
       setIsLoading(false);
     }

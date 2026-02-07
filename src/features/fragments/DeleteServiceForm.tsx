@@ -44,10 +44,7 @@ const DeleteServiceForm = ({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const rawMessage = handleApiError(error);
-      toast.error("Failed to delete service", {
-        description: rawMessage,
-      });
+      handleApiError(error, "Failed to delete service");
     } finally {
       setIsLoading(false);
     }

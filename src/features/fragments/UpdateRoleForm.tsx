@@ -83,8 +83,7 @@ export default function UpdateRoleForm({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const rawMessage = handleApiError(error);
-      toast.error("Failed to update role", { description: rawMessage });
+      handleApiError(error, "Failed to update role");
     } finally {
       setIsLoading(false);
     }

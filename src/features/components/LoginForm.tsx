@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { handleApiError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { maskEmail, type LoginRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
@@ -28,6 +28,7 @@ import { GoogleSignInFragments } from "../fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { clearAuthCache } from "@/components/utils/clearAuthCache";
+import { isAxiosError } from "axios";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -43,7 +44,6 @@ export function LoginForm() {
   const [identifier, setIdentifier] = useState("");
 
   const [email, setEmail] = useState<string | null>(null);
-  const [isMailSent, setIsMailSent] = useState(false);
   const [cardError, setCardError] = useState<string | null>(null);
 
   // Hook memantau Email (jika ada) atau Identifier
@@ -51,6 +51,8 @@ export function LoginForm() {
 
   const [isVerifiedNow, setIsVerifiedNow] = useState(false);
   const [isDailyLimit, setIsDailyLimit] = useState(false);
+
+  const [showInitialCheckEmail, setShowInitialCheckEmail] = useState(true);
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(UserValidation.LOGIN),
@@ -71,17 +73,16 @@ export function LoginForm() {
     setEmail(null);
     setCardError(null);
     setIsVerifiedNow(false);
-    setIsMailSent(false); // Reset status kirim
   };
 
   async function onSubmit(data: LoginRequest) {
     setIsLoading(true);
+    // Reset states
     setGlobalError(null);
     setShowUnverifiedCard(false);
     setEmail(null);
     setCardError(null);
     setIsDailyLimit(false);
-    setIsMailSent(false);
 
     try {
       setIdentifier(data.identifier);
@@ -91,32 +92,15 @@ export function LoginForm() {
       localStorage.setItem("role", result.role);
 
       clearAuthCache(data.identifier);
-
       navigate("/");
     } catch (error) {
-      const rawMessage = handleApiError(error);
+      const message = getErrorMessage(error);
 
-      try {
-        if (rawMessage.includes("ZodError")) {
-          const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-          const errorObj = JSON.parse(jsonString);
-          if (errorObj.name === "ZodError" && errorObj.message) {
-            const issues = JSON.parse(errorObj.message);
-            if (issues.length > 0) {
-              setGlobalError(issues[0].message);
-              return;
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Gagal parsing error validation:", e);
-      }
-
-      if (rawMessage.toLowerCase().includes("not verified")) {
+      if (isAxiosError(error) && error.response?.status === 403) {
         setShowUnverifiedCard(true);
-
+        setShowInitialCheckEmail(true);
+        setGlobalError(null);
         const currentId = data.identifier.toLowerCase();
-
         const cacheKey = `verif_email_cache_${currentId}`;
         const cachedEmail = localStorage.getItem(cacheKey);
 
@@ -134,13 +118,12 @@ export function LoginForm() {
           const remaining = Math.ceil(
             (parseInt(targetTime) - Date.now()) / 1000,
           );
-
           if (remaining > 0) {
             startCooldown(remaining, targetId);
           }
         }
       } else {
-        setGlobalError(rawMessage);
+        setGlobalError(message);
       }
     } finally {
       setIsLoading(false);
@@ -152,6 +135,7 @@ export function LoginForm() {
     setResendLoading(true);
     setIsVerifiedNow(false);
     setCardError(null);
+    setShowInitialCheckEmail(true);
 
     try {
       const response = await AuthServices.resendVerification(identifier);
@@ -162,31 +146,37 @@ export function LoginForm() {
         startCooldown(60, response.email);
       }
 
-      setIsMailSent(true);
-
       startCooldown(60, identifier);
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const message = getErrorMessage(error);
 
-      if (
-        errorMessage.toLowerCase().includes("wait") &&
-        errorMessage.includes("seconds")
-      ) {
-        const match = errorMessage.match(/(\d+) seconds/);
-        if (match && match[1]) {
-          startCooldown(parseInt(match[1], 10));
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
+
+        if (status === 429) {
+          setShowInitialCheckEmail(false);
+          setCardError(message);
+          setIsDailyLimit(true);
+          return;
         }
-        setCardError(null);
-      } else if (errorMessage.toLowerCase().includes("limit")) {
-        setEmail(null);
-        setCardError(errorMessage);
-        setIsDailyLimit(true);
-      } else if (errorMessage.toLowerCase().includes("already verified")) {
-        setIsVerifiedNow(true);
-        setCardError(null);
-      } else {
-        setCardError(errorMessage);
+
+        if (status === 400 && message.toLowerCase().includes("wait")) {
+          const match = message.match(/(\d+) seconds/);
+          if (match && match[1]) {
+            startCooldown(parseInt(match[1], 10));
+          }
+          setCardError(null);
+          return;
+        }
+
+        if (status === 400 && message.toLowerCase().includes("verified")) {
+          setIsVerifiedNow(true);
+          setCardError(null);
+          return;
+        }
       }
+
+      setCardError(message);
     } finally {
       setResendLoading(false);
     }
@@ -204,7 +194,7 @@ export function LoginForm() {
         localStorage.setItem("token", result.token!);
         navigate("/");
       } catch (error) {
-        setGlobalError(handleApiError(error));
+        setGlobalError(getErrorMessage(error));
       } finally {
         setIsGoogleLoading(false);
       }
@@ -215,18 +205,18 @@ export function LoginForm() {
   });
 
   if (showUnverifiedCard) {
-    const showCheckEmailState = isMailSent || (cooldown > 0 && !!email);
-
+    const isWaitingEmail =
+      !isVerifiedNow && !cardError && (cooldown > 0 || showInitialCheckEmail);
     return (
       <CheckEmailCard
         variant="default"
         title={
           isVerifiedNow
             ? "Account Verified!"
-            : showCheckEmailState
-              ? "Check Your Email"
-              : cardError
-                ? "Failed to Send"
+            : cardError
+              ? "Failed to Send"
+              : isWaitingEmail
+                ? "Check Your Email"
                 : "Account Not Verified"
         }
         message={
@@ -236,15 +226,6 @@ export function LoginForm() {
                 Your account is active. Please login to continue.
               </span>
             </div>
-          ) : showCheckEmailState ? (
-            <div className="text-center">
-              <span>
-                Please check your email to verify your account.
-                <br />A verification link has been sent to{" "}
-                <br className="sm:hidden" />
-                <strong className="break-all">{maskEmail(email!)}</strong>.
-              </span>
-            </div>
           ) : cardError ? (
             <div className="text-center">
               <span className="text-destructive font-medium flex items-center justify-center gap-2">
@@ -252,6 +233,15 @@ export function LoginForm() {
                 {cardError}
               </span>
               <br />
+            </div>
+          ) : isWaitingEmail ? (
+            <div className="text-center">
+              <span>
+                Please check your email to verify your account.
+                <br />A verification link has been sent to{" "}
+                <br className="sm:hidden" />
+                <strong className="break-all">{maskEmail(email!)}</strong>.
+              </span>
             </div>
           ) : (
             <div className="text-center px-1">

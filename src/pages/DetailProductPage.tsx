@@ -23,8 +23,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { toast } from "sonner";
 import NotFoundPage from "./NotFoundPage";
+import { isAxiosError } from "axios";
 
 const DetailProductPage = () => {
   const { productId } = useParams();
@@ -44,16 +44,11 @@ const DetailProductPage = () => {
         const product = await ProductServices.get(Number(productId));
         setProduct(product);
       } catch (error) {
-        const rawMessage = handleApiError(error);
-
-        console.error("Failed to load product", error);
-
-        if (rawMessage.includes("Product not found")) {
+        if (isAxiosError(error) && error.response?.status === 404) {
           setIsNotFound(true);
           return;
         }
-
-        toast.error("Gagal memuat detail produk");
+        handleApiError(error, "Failed to load product");
         navigate("/dashboard/products");
       } finally {
         setIsLoading(false);

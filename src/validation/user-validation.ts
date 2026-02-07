@@ -27,7 +27,8 @@ export class UserValidation {
             message: "Username must be at least 3 characters",
           });
         }
-      }),
+      })
+      .max(100, "Username/Email is too long"),
     password: z.string().min(8, "Password is required"),
   });
 
@@ -56,7 +57,11 @@ export class UserValidation {
 
   static readonly SEARCH = z.object({
     username: z.string().min(3).max(100).optional(),
-    name: z.string().min(1).max(100).optional(),
+    name: z
+      .string()
+      .min(1)
+      .max(100, { message: "Search name is too long" })
+      .optional(),
     page: z.coerce.number().min(1).positive().default(1),
     size: z.coerce.number().min(1).max(100).positive().default(10),
     sort_by: z.enum(["created_at", "name"]).optional(),

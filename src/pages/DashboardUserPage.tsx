@@ -25,12 +25,12 @@ import {
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import DashboardUserTable from "@/features/fragments/DashboardUserTable";
 import { PaginationComponent } from "@/features/fragments/Pagination";
+import { handleApiError } from "@/lib/utils";
 import type { ListUserResponse, UserResponse } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { ArrowUpDown, Check, Filter, Search, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
 
 const DashboardUserPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -68,7 +68,7 @@ const DashboardUserPage = () => {
         const user = await AuthServices.get();
         setCurrentUser(user);
       } catch (error) {
-        console.error("Failed to get current user", error);
+        handleApiError(error);
       }
     };
     fetchCurrentUser();
@@ -77,13 +77,23 @@ const DashboardUserPage = () => {
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     try {
+      const safeSortOrder =
+        sortOrderParam === "asc" || sortOrderParam === "desc"
+          ? sortOrderParam
+          : "desc";
+
+      const safeSortBy =
+        sortByParam === "name" || sortByParam === "created_at"
+          ? sortByParam
+          : "created_at";
+
       const response = await AuthServices.search({
         page: page,
         size: size,
         name: nameParam || undefined,
-        sort_by: sortByParam as "created_at",
+        sort_by: safeSortBy,
         is_online: isOnlineParam ? true : undefined,
-        sort_order: sortOrderParam as "asc" | "desc",
+        sort_order: safeSortOrder,
         role: roleParam && roleParam !== "ALL" ? roleParam : undefined,
       });
 
@@ -95,8 +105,7 @@ const DashboardUserPage = () => {
         setTotalPage(response.paging.total_page);
       }
     } catch (error) {
-      console.error("Failed to load users", error);
-      toast.error("Failed to load users");
+      handleApiError(error, "Failed to load users");
     } finally {
       setIsLoading(false);
     }

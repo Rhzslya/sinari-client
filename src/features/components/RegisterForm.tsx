@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { handleApiError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { type RegisterRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
@@ -27,6 +27,7 @@ import { CheckEmailCard } from "../fragments/CheckEmailCard";
 import { GoogleSignInFragments } from "../fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useCooldown } from "@/hooks/use-cooldown";
+import { isAxiosError } from "axios";
 
 export function RegisterForm() {
   const navigate = useNavigate();
@@ -99,8 +100,7 @@ export function RegisterForm() {
       startCooldown(60, data.email);
       startCooldown(60, data.username);
     } catch (error) {
-      const errorMessage = handleApiError(error);
-      setGlobalError(errorMessage);
+      setGlobalError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -119,26 +119,30 @@ export function RegisterForm() {
         startCooldown(60, registeredUsername);
       }
     } catch (error) {
-      const errorMessage = handleApiError(error);
-
-      if (
-        errorMessage.toLowerCase().includes("wait") &&
-        errorMessage.includes("seconds")
-      ) {
-        const match = errorMessage.match(/(\d+) seconds/);
-        if (match && match[1]) {
-          startCooldown(parseInt(match[1], 10));
+      const message = getErrorMessage(error);
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
+        if (status === 429) {
+          setCardError(message);
+          setIsDailyLimit(true);
+          return;
         }
-        setCardError(null);
-      } else if (errorMessage.toLowerCase().includes("limit")) {
-        setCardError(errorMessage);
-        setIsDailyLimit(true);
-      } else if (errorMessage.toLowerCase().includes("already verified")) {
-        setIsVerifiedNow(true);
-        setCardError(null);
-      } else {
-        setCardError(errorMessage);
+        if (status === 400 && message.toLowerCase().includes("verified")) {
+          setIsVerifiedNow(true);
+          setCardError(null);
+          return;
+        }
+
+        if (status === 400 && message.toLowerCase().includes("wait")) {
+          const match = message.match(/(\d+) seconds/);
+          if (match && match[1]) {
+            startCooldown(parseInt(match[1], 10));
+          }
+          setCardError(null);
+          return;
+        }
       }
+      setCardError(message);
     } finally {
       setResendLoading(false);
     }
@@ -156,7 +160,7 @@ export function RegisterForm() {
         localStorage.setItem("token", result.token!);
         navigate("/");
       } catch (error) {
-        setGlobalError(handleApiError(error));
+        setGlobalError(getErrorMessage(error));
       } finally {
         setIsGoogleLoading(false);
       }

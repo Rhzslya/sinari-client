@@ -69,24 +69,7 @@ export function EditServiceForm({
 
         setTechnicians(data);
       } catch (error) {
-        const rawMessage = handleApiError(error);
-        try {
-          if (rawMessage.includes("ZodError")) {
-            const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-            const errorObj = JSON.parse(jsonString);
-            if (errorObj.name === "ZodError" && errorObj.message) {
-              const issues = JSON.parse(errorObj.message);
-              if (issues.length > 0) {
-                toast.error("Validation Error", {
-                  description: issues[0].message,
-                });
-                return;
-              }
-            }
-          }
-        } catch (e) {
-          console.error("Gagal parsing error validation:", e);
-        }
+        handleApiError(error, "Failed to load technicians");
       } finally {
         setIsFetchingTechs(false);
       }
@@ -221,28 +204,7 @@ export function EditServiceForm({
 
       if (onSuccess) onSuccess();
     } catch (error) {
-      const rawMessage = handleApiError(error);
-      try {
-        if (rawMessage.includes("ZodError")) {
-          const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-          const errorObj = JSON.parse(jsonString);
-          if (errorObj.name === "ZodError" && errorObj.message) {
-            const issues = JSON.parse(errorObj.message);
-            if (issues.length > 0) {
-              toast.error("Validation Error", {
-                description: issues[0].message,
-              });
-              return;
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Gagal parsing error validation:", e);
-      }
-
-      toast.error("Failed to update service", { description: rawMessage });
-
-      console.error("ERROR ASLI:", error);
+      handleApiError(error, "Failed to update service");
     } finally {
       setIsLoading(false);
     }

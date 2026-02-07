@@ -46,10 +46,7 @@ const DeleteUserForm = ({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const rawMessage = handleApiError(error);
-      toast.error("Failed to delete user", {
-        description: rawMessage,
-      });
+      handleApiError(error, "Failed to delete technician");
     } finally {
       setIsLoading(false);
     }

@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { handleApiError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { CheckEmailCard } from "../fragments/CheckEmailCard";
 import type { ForgotPasswordRequest } from "@/model/user-model";
 import { useCooldown } from "@/hooks/use-cooldown";
+import { isAxiosError } from "axios";
 
 export function ForgotPasswordForm() {
   const navigate = useNavigate();
@@ -84,35 +85,33 @@ export function ForgotPasswordForm() {
       startCooldown(60, data.identifier);
       setCooldown(60);
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const message = getErrorMessage(error);
 
-      if (
-        errorMessage.toLowerCase().includes("wait") &&
-        errorMessage.includes("seconds")
-      ) {
-        const match = errorMessage.match(/(\d+) seconds/);
-        if (match && match[1]) {
-          const seconds = parseInt(match[1], 10);
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
+        if (status === 429) {
+          const match = message.match(/(\d+) seconds/);
 
-          startCooldown(seconds, data.identifier);
-          setCooldown(seconds);
+          if (match && match[1]) {
+            const seconds = parseInt(match[1], 10);
+            startCooldown(seconds, data.identifier);
+            setCooldown(seconds);
 
-          const cachedEmail = localStorage.getItem(emailCacheKey);
+            const cachedEmail = localStorage.getItem(emailCacheKey);
+            if (cachedEmail) {
+              setEmail(cachedEmail);
+            }
 
-          if (cachedEmail) {
-            setEmail(cachedEmail);
+            setIsSuccess(true);
+            return;
+          } else {
+            setIsDailyLimit(true);
+            setGlobalError(message);
+            return;
           }
-
-          setIsSuccess(true);
-
-          return;
         }
-      } else if (errorMessage.toLowerCase().includes("limit")) {
-        setGlobalError(errorMessage);
-        setIsDailyLimit(true);
-      } else {
-        setGlobalError(errorMessage);
       }
+      setGlobalError(message);
     } finally {
       setIsLoading(false);
     }
@@ -129,29 +128,30 @@ export function ForgotPasswordForm() {
       startCooldown(60, identifier);
       setIsDailyLimit(false);
     } catch (error) {
-      const errorMessage = handleApiError(error);
+      const message = getErrorMessage(error);
 
-      if (
-        errorMessage.toLowerCase().includes("wait") &&
-        errorMessage.includes("seconds")
-      ) {
-        const match = errorMessage.match(/(\d+) seconds/);
-        if (match && match[1]) {
-          const seconds = parseInt(match[1], 10);
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
 
-          startCooldown(seconds, identifier);
-          setCooldown(seconds);
+        if (status === 429) {
+          const match = message.match(/(\d+) seconds/);
+          if (match && match[1]) {
+            const seconds = parseInt(match[1], 10);
+            startCooldown(seconds, identifier);
+            setCooldown(seconds);
+            setCardError(null);
+            return;
+          }
 
-          setIsSuccess(true);
-
-          return;
+          if (message.toLowerCase().includes("limit")) {
+            setCardError(message);
+            setIsDailyLimit(true);
+            return;
+          }
         }
-      } else if (errorMessage.toLowerCase().includes("limit")) {
-        setCardError(errorMessage);
-        setIsDailyLimit(true);
-      } else {
-        setCardError(errorMessage);
       }
+
+      setCardError(message);
     } finally {
       setResendLoading(false);
     }

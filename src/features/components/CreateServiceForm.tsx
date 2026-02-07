@@ -57,24 +57,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
 
         setTechnicians(data);
       } catch (error) {
-        const rawMessage = handleApiError(error);
-        try {
-          if (rawMessage.includes("ZodError")) {
-            const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-            const errorObj = JSON.parse(jsonString);
-            if (errorObj.name === "ZodError" && errorObj.message) {
-              const issues = JSON.parse(errorObj.message);
-              if (issues.length > 0) {
-                toast.error("Validation Error", {
-                  description: issues[0].message,
-                });
-                return;
-              }
-            }
-          }
-        } catch (e) {
-          console.error("Gagal parsing error validation:", e);
-        }
+        handleApiError(error, "Failed to load technicians");
       } finally {
         setIsFetchingTechs(false);
       }
@@ -161,26 +144,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
 
       if (onSuccess) onSuccess();
     } catch (error) {
-      const rawMessage = handleApiError(error);
-
-      try {
-        if (rawMessage.includes("ZodError")) {
-          const jsonString = rawMessage.substring(rawMessage.indexOf("{"));
-          const errorObj = JSON.parse(jsonString);
-          if (errorObj.name === "ZodError" && errorObj.message) {
-            const issues = JSON.parse(errorObj.message);
-            if (issues.length > 0) {
-              toast.error("Validation Error", {
-                description: issues[0].message,
-              });
-              return;
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Failed parsing validation error:", e);
-      }
-      toast.error("Failed to create service", { description: rawMessage });
+      handleApiError(error, "Failed to create service");
     } finally {
       setIsLoading(false);
     }
@@ -321,7 +285,6 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
             </div>
 
             <div className="grid gap-4">
-              {/* TECHNICIAN SELECT */}
               <FormField
                 control={formCreate.control}
                 name="technician_id"
@@ -331,19 +294,15 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                       Assign Technician
                     </FormLabel>
                     <Select
-                      // 1. Handle perubahan value (UI String -> Form Number)
                       onValueChange={(value) => {
                         if (value) {
                           field.onChange(Number(value));
                         }
                       }}
-                      // 2. SOLUSI UTAMA: Gunakan String Kosong "" jika value null/undefined/0
-                      // Ini memaksa komponen selalu dalam mode "Controlled" sejak awal
                       value={field.value ? field.value.toString() : ""}
                       disabled={isSubmitting || isFetchingTechs}
                     >
                       <FormControl>
-                        {/* 3. Placeholder akan muncul otomatis jika value adalah "" */}
                         <SelectTrigger size="sm" className={inputStyle}>
                           <SelectValue
                             placeholder={

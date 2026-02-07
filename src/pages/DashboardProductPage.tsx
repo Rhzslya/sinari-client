@@ -24,7 +24,6 @@ import { PaginationComponent } from "@/features/fragments/Pagination";
 import { useCallback, useEffect, useState } from "react";
 import type { ProductResponse } from "@/model/product-model";
 import { ProductServices } from "@/services/product-services";
-import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import { Brand, Category } from "@/enum/product-enum";
 import {
@@ -49,6 +48,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NumberStepper } from "@/components/utils/numberStepper";
+import { handleApiError } from "@/lib/utils";
 
 const DashboardProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -110,8 +110,7 @@ const DashboardProductPage = () => {
         setTotalPage(response.paging.total_page);
       }
     } catch (error) {
-      console.error("Failed to load products", error);
-      toast.error("Failed to load products");
+      handleApiError(error, "Failed to load products");
     } finally {
       setIsLoading(false);
     }

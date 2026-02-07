@@ -32,6 +32,7 @@ import { CreateTechnicianForm } from "@/features/components/CreateTechnicianForm
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import DashboardTechnicianTable from "@/features/fragments/DashboardTechnicianTable";
 import { PaginationComponent } from "@/features/fragments/Pagination";
+import { handleApiError } from "@/lib/utils";
 import type { TechnicianResponse } from "@/model/technician-model";
 import { TechnicianServices } from "@/services/technician-services";
 import {
@@ -44,7 +45,6 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
 
 const DashboardTechnicianPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -52,12 +52,10 @@ const DashboardTechnicianPage = () => {
   const [technicians, setTechnicians] = useState<TechnicianResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
 
   const nameParam = searchParams.get("name") || "";
-  // Logic Active: jika "true" -> true, "false" -> false, selain itu undefined (ALL)
   const isActiveParam =
     searchParams.get("is_active") === "true"
       ? true
@@ -68,7 +66,6 @@ const DashboardTechnicianPage = () => {
   const sortByParam = searchParams.get("sort_by") || "created_at";
   const sortOrderParam = searchParams.get("sort_order") || "desc";
 
-  // --- LOCAL STATE FOR FILTERS ---
   const [tempActive, setTempActive] = useState<string | undefined>(
     isActiveParam === true
       ? "true"
@@ -84,7 +81,6 @@ const DashboardTechnicianPage = () => {
 
   const isSearching = !!nameParam;
 
-  // --- FETCH DATA ---
   const fetchTechnicians = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -92,7 +88,7 @@ const DashboardTechnicianPage = () => {
         page: page,
         size: size,
         name: nameParam || undefined,
-        is_active: isActiveParam, // Pass boolean or undefined directly
+        is_active: isActiveParam,
         sort_by: sortByParam as "created_at" | "is_active",
         sort_order: sortOrderParam as "asc" | "desc",
       });
@@ -105,8 +101,7 @@ const DashboardTechnicianPage = () => {
         setTotalPage(response.paging.total_page);
       }
     } catch (error) {
-      console.error("Failed to load technicians", error);
-      toast.error("Failed to load technicians");
+      handleApiError(error, "Failed to load technicians");
     } finally {
       setIsLoading(false);
     }
@@ -116,12 +111,10 @@ const DashboardTechnicianPage = () => {
     fetchTechnicians();
   }, [fetchTechnicians]);
 
-  // Sync Search Input with URL
   useEffect(() => {
     setSearchTerm(nameParam);
   }, [nameParam]);
 
-  // Sync Filter State when Popover Open
   useEffect(() => {
     if (isFilterOpen) {
       setTempActive(
@@ -134,7 +127,6 @@ const DashboardTechnicianPage = () => {
     }
   }, [isFilterOpen, isActiveParam]);
 
-  // --- HANDLERS ---
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
       prev.set("page", String(newPage));
@@ -309,7 +301,6 @@ const DashboardTechnicianPage = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* FILTER POPOVER */}
         <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -383,7 +374,6 @@ const DashboardTechnicianPage = () => {
           </PopoverContent>
         </Popover>
 
-        {/* ADD TECHNICIAN SHEET */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button
@@ -415,7 +405,6 @@ const DashboardTechnicianPage = () => {
         </Sheet>
       </DashboardHeader>
 
-      {/* TABLE CONTENT */}
       <div className="flex-1 overflow-auto">
         <DashboardTechnicianTable
           technicians={technicians}
@@ -424,7 +413,6 @@ const DashboardTechnicianPage = () => {
         />
       </div>
 
-      {/* PAGINATION */}
       <PaginationComponent
         currentPage={page}
         totalPages={totalPage}

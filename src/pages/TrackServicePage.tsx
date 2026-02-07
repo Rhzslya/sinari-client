@@ -8,6 +8,7 @@ import { Loader2, MapPin, Phone, Printer, RefreshCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
+import { handleApiError } from "@/lib/utils";
 
 const PDF_COLORS = {
   primary: "#ef473a",
@@ -36,8 +37,7 @@ export default function TrackServicePage() {
           setIsNotFound(true);
         }
       } catch (error) {
-        console.error("Tracking Error:", error);
-        setIsNotFound(true);
+        handleApiError(error, "Failed to load service");
       } finally {
         setIsLoading(false);
       }

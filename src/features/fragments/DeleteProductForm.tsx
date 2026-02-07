@@ -44,10 +44,7 @@ const DeleteProductForm = ({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const rawMessage = handleApiError(error);
-      toast.error("Failed to delete product", {
-        description: rawMessage,
-      });
+      handleApiError(error, "Failed to delete product");
     } finally {
       setIsLoading(false);
     }
