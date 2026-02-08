@@ -20,6 +20,8 @@ import {
   type UpdateRoleRequest,
   type UserResponse,
   type GetDetailedUserRequest,
+  type DetailedUserResponse,
+  toDetailedUserResponse,
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { Validation } from "@/validation/validation";
@@ -99,12 +101,12 @@ export class AuthServices {
 
   static async getById(
     request: GetDetailedUserRequest,
-  ): Promise<NotPublicUserResponse> {
-    const response = await api.get<ApiResponse<NotPublicUserResponse>>(
+  ): Promise<DetailedUserResponse> {
+    const response = await api.get<ApiResponse<DetailedUserResponse>>(
       `/users/${request.id}`,
     );
 
-    return toNotPublicUserResponse(response.data.data);
+    return toDetailedUserResponse(response.data.data);
   }
 
   static async updateRole(
@@ -144,7 +146,9 @@ export class AuthServices {
       throw new Error("Invalid user ID");
     }
 
-    const response = await api.delete(`/users/${id}`);
+    const response = await api.delete(`/users/${id}`, {
+      skipGlobalErrorHandler: true,
+    });
 
     return {
       message: response.data.message,

@@ -3,13 +3,17 @@ import {
   useMutation,
   useQueryClient,
   keepPreviousData,
+  type UseQueryResult,
 } from "@tanstack/react-query";
 import { AuthServices } from "@/services/user-services";
 import { toast } from "sonner"; // Sesuaikan library toast kamu
 import { handleApiError } from "@/lib/utils"; // Pakai utility error handler kita
 import type {
+  ApiResponse,
+  DeleteUserRequest,
   DeleteUserResponse,
-  ListUserResponse,
+  GetDetailedUserRequest,
+  NotPublicUserResponse,
   SearchUserRequest,
   UpdateRoleRequest,
 } from "@/model/user-model";
@@ -29,7 +33,9 @@ export const useUserQueries = () => {
 
   return {
     // 1. GET LIST (Search & Pagination)
-    useList: (params: SearchUserRequest) => {
+    useList: (
+      params: SearchUserRequest,
+    ): UseQueryResult<ApiResponse<NotPublicUserResponse[]>, Error> => {
       return useQuery({
         queryKey: USER_KEYS.list(params),
         queryFn: () => AuthServices.search(params),
@@ -39,14 +45,16 @@ export const useUserQueries = () => {
     },
 
     // 2. GET DETAIL (Untuk halaman Detail User)
-    // useDetail: (id: number) => {
-    //   return useQuery({
-    //     queryKey: USER_KEYS.detail(id),
-    //     queryFn: () => AuthServices.getById(id), // Asumsi ada method ini
-    //     enabled: !!id, // Hanya jalan jika ID ada
-    //     staleTime: 1000 * 60, // Detail user jarang berubah, cache 1 menit
-    //   });
-    // },
+    useDetail: (
+      request: GetDetailedUserRequest,
+    ): UseQueryResult<NotPublicUserResponse, Error> => {
+      return useQuery({
+        queryKey: USER_KEYS.detail(request.id),
+        queryFn: () => AuthServices.getById(request), // Asumsi ada method ini
+        enabled: !!request, // Hanya jalan jika ID ada
+        staleTime: 1000 * 60, // Detail user jarang berubah, cache 1 menit
+      });
+    },
 
     // 3. GET CURRENT USER (Untuk Navbar/Profile)
     useProfile: () => {
@@ -63,8 +71,8 @@ export const useUserQueries = () => {
 
     // 4. DELETE USER
     deleteMutation: useMutation({
-      mutationFn: (id: number): Promise<DeleteUserResponse> =>
-        AuthServices.remove(id),
+      mutationFn: (request: DeleteUserRequest): Promise<DeleteUserResponse> =>
+        AuthServices.remove(request.id),
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({ queryKey: USER_KEYS.lists() });
@@ -74,7 +82,7 @@ export const useUserQueries = () => {
 
     // 5. UPDATE ROLE
     updateRoleMutation: useMutation({
-      mutationFn: (data: UpdateRoleRequest): Promise<ListUserResponse> =>
+      mutationFn: (data: UpdateRoleRequest): Promise<NotPublicUserResponse> =>
         AuthServices.updateRole(data),
       onSuccess: (_, variables) => {
         toast.success("Role Updated", {

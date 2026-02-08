@@ -33,6 +33,10 @@ api.interceptors.response.use(
       const { status, data, config } = error.response;
       const errorCode = data?.code;
 
+      if (config.skipGlobalErrorHandler) {
+        return Promise.reject(error);
+      }
+
       if (status === 401) {
         const isLoginRequest = config.url?.endsWith("/login");
 

@@ -47,14 +47,6 @@ export function ForgotPasswordForm() {
 
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
-  // useEffect(() => {
-  //   if (cooldown <= 0) return;
-  //   const timer = setInterval(() => {
-  //     startCooldown((prev) => prev - 1);
-  //   }, 1000);
-  //   return () => clearInterval(timer);
-  // }, [cooldown]);
-
   const form = useForm<ForgotPasswordRequest>({
     resolver: zodResolver(UserValidation.FORGOT_PASSWORD),
     mode: "onChange",

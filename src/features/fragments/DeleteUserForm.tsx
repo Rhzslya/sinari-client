@@ -7,12 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { useUserQueries } from "@/hooks/user-queries";
-import type { ListUserResponse } from "@/model/user-model";
+import type {
+  DetailedUserResponse,
+  NotPublicUserResponse,
+} from "@/model/user-model";
 import { Loader2, Trash2 } from "lucide-react";
 
 interface DeleteUserFormProps {
-  user: ListUserResponse | null;
+  user: NotPublicUserResponse | DetailedUserResponse | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -32,7 +36,7 @@ const DeleteUserForm = ({
     if (!user) return;
 
     try {
-      await deleteUser(user.id);
+      await deleteUser({ id: user.id });
 
       if (onSuccess) onSuccess();
       onOpenChange(false);
@@ -53,12 +57,13 @@ const DeleteUserForm = ({
           </div>
 
           <div className="space-y-4 text-center">
-            <DialogTitle>Delete Technician?</DialogTitle>
+            <DialogTitle>Delete User?</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-foreground">
-                {user?.name}
-              </span>
+              <TruncatedTooltip
+                text={user?.username || ""}
+                className="font-semibold text-foreground max-w-37.5 truncate"
+              />
               ? This action cannot be undone.
             </DialogDescription>
           </div>

@@ -36,6 +36,7 @@ import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { UserRole } from "@/enum/product-enum";
 import { useUserQueries } from "@/hooks/user-queries";
 import type {
+  DetailedUserResponse,
   NotPublicUserResponse,
   UpdateRoleRequest,
 } from "@/model/user-model";
@@ -46,7 +47,7 @@ import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 interface UpdateRoleFormProps {
-  user: NotPublicUserResponse | null;
+  user: NotPublicUserResponse | DetailedUserResponse | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;

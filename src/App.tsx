@@ -23,6 +23,7 @@ import TrackServicePage from "./pages/TrackServicePage";
 import DashboardUserPage from "./pages/DashboardUserPage";
 import DashboardTechnicianPage from "./pages/DashboardTechnicianPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import DetailUserPage from "./pages/DetailUserPage";
 
 function App() {
   return (
@@ -79,6 +80,11 @@ function App() {
             />
 
             <Route path="/dashboard/users" element={<DashboardUserPage />} />
+
+            <Route
+              path="/dashboard/users/detail/:userId"
+              element={<DetailUserPage />}
+            />
 
             <Route
               path="/dashboard/technicians"
