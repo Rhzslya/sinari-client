@@ -172,6 +172,7 @@ const DetailUserPage = () => {
   };
 
   const isCurrentUser = currentUser?.id === user?.id;
+  const haveGoogleAuth = user?.google_id !== null;
 
   if (isError || !user) return <div>User Not Found</div>;
 
@@ -309,7 +310,12 @@ const DetailUserPage = () => {
               <Button
                 className="w-full justify-start duration-300 cursor-pointer"
                 variant="outline"
-                disabled={isCurrentUser || resetLoading || resetCooldown > 0}
+                disabled={
+                  isCurrentUser ||
+                  resetLoading ||
+                  resetCooldown > 0 ||
+                  haveGoogleAuth
+                }
                 onClick={handleResendResetPassword}
               >
                 {resetLoading ? (
