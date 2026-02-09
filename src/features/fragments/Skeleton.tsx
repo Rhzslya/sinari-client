@@ -1,3 +1,4 @@
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -276,6 +277,67 @@ export function UserSkeletonTable() {
           ))}
         </TableBody>
       </Table>
+    </div>
+  );
+}
+
+export function DashboardLayoutSkeleton() {
+  return (
+    <div className="flex h-screen w-full bg-background overflow-hidden">
+      <aside className="hidden md:flex w-[16rem] flex-col border-r bg-sidebar h-full shrink-0">
+        <div className="flex-1 p-2 mt-4">
+          <div className="px-2 mb-2">
+            <Skeleton className="h-3 w-20 opacity-50" />
+          </div>
+          <div className="space-y-1">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 px-2 py-2 h-9 w-full rounded-md"
+              >
+                <Skeleton className="h-4 w-4 shrink-0" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      <div className="flex flex-col flex-1 h-full overflow-hidden">
+        <header className="sticky top-0 z-50 w-full border-b bg-background h-16 shrink-0">
+          <div className="container mx-auto px-4 h-full flex items-center justify-between">
+            <Skeleton className="h-7 w-32 rounded-md" />
+
+            <div className="hidden md:flex items-center gap-6">
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-4 w-20" />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-10 w-10 rounded-full" />
+            </div>
+          </div>
+        </header>
+
+        <div className="p-4">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-4 rounded-md -ml-4" />{" "}
+              <Separator orientation="vertical" className="mr-2 h-4" />
+              <Skeleton className="h-5 w-40" /> {/* Page Title */}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Skeleton className="hidden md:block h-9 w-48 rounded-md" />
+              <Skeleton className="h-9 w-20 rounded-md" />
+              <Skeleton className="h-9 w-20 rounded-md" />
+              <Skeleton className="h-9 w-32 rounded-md" />
+            </div>
+          </header>
+        </div>
+        <main className="flex-1 overflow-hidden bg-background p-4"></main>
+      </div>
     </div>
   );
 }

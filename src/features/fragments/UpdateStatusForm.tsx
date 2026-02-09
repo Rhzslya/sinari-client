@@ -84,6 +84,7 @@ export function UpdateStatusDialog({
       const result = await RepairServices.update({
         id: service.id,
         status: data.status,
+        technician_id: service.technician.id,
       } as UpdateServiceRequest);
 
       toast.success("Status Updated", {

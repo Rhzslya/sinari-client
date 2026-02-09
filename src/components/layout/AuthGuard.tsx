@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { UserRole } from "@/enum/product-enum";
 import { useUserQueries } from "@/hooks/user-queries";
-import { Loader2 } from "lucide-react";
+import { DashboardLayoutSkeleton } from "@/features/fragments/Skeleton";
 
 export const GuestRoute = () => {
   const token = localStorage.getItem("token");
@@ -29,18 +29,13 @@ export const AdminRoute = () => {
   const { data: user, isLoading, isError } = useProfile();
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardLayoutSkeleton />;
   }
 
   const isAuthorized =
     user && (user.role === UserRole.ADMIN || user.role === UserRole.OWNER);
 
   if (isError || !isAuthorized) {
-    // localStorage.clear();
     return <Navigate to="/" replace />;
   }
 

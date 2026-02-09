@@ -18,9 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { PaginationComponent } from "@/features/fragments/Pagination";
-import { useCallback, useEffect, useState } from "react";
-import type { ServiceResponse } from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Brand, ServiceStatus } from "@/enum/product-enum";
 import {
@@ -47,81 +45,56 @@ import { NumberStepper } from "@/components/utils/numberStepper";
 import DashboardServiceTable from "@/features/fragments/DashboardServiceTable";
 import { CreateServiceForm } from "@/features/components/CreateServiceForm";
 import { handleApiError } from "@/lib/utils";
+import { useServiceQueries } from "@/hooks/repair-queries";
 
 const DashboardServicePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [services, setServices] = useState<ServiceResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
-
   const searchParam = searchParams.get("search") || "";
-
   const brandParam = searchParams.get("brand") as Brand | undefined;
   const statusParam = searchParams.get("status") as ServiceStatus | undefined;
   const minPriceParam = searchParams.get("min_price") || "";
   const maxPriceParam = searchParams.get("max_price") || "";
-
   const sortByParam = searchParams.get("sort_by") || "created_at";
   const sortOrderParam = searchParams.get("sort_order") || "desc";
 
+  // --- LOCAL STATES ---
+  const [searchTerm, setSearchTerm] = useState(searchParam);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Temporary filter states (sebelum tombol apply ditekan)
   const [tempBrand, setTempBrand] = useState<string | undefined>(brandParam);
   const [tempStatus, setTempStatus] = useState<string | undefined>(statusParam);
   const [tempMinPrice, setTempMinPrice] = useState(minPriceParam);
   const [tempMaxPrice, setTempMaxPrice] = useState(maxPriceParam);
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [totalPage, setTotalPage] = useState(0);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  // --- TANSTACK QUERY HOOK ---
+  const serviceQueries = useServiceQueries();
 
-  const [searchTerm, setSearchTerm] = useState(searchParam);
-
-  const isSearching = !!searchParam;
-
-  const fetchServices = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await RepairServices.search({
-        page: page,
-        size: size,
-        customer_name: searchParam || undefined,
-        brand: brandParam,
-        status: statusParam,
-        min_price: minPriceParam ? Number(minPriceParam) : undefined,
-        max_price: maxPriceParam ? Number(maxPriceParam) : undefined,
-        sort_by: sortByParam as "total_price" | "created_at" | "updated_at",
-        sort_order: sortOrderParam as "asc" | "desc",
-      });
-
-      if (response.data) {
-        setServices(response.data);
-      }
-
-      if (response.paging) {
-        setTotalPage(response.paging.total_page);
-      }
-    } catch (error) {
-      handleApiError(error, "Failed to load services");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [
+  const { data, isLoading, isError, error, refetch } = serviceQueries.useList({
     page,
     size,
-    searchParam,
-    brandParam,
-    statusParam,
-    minPriceParam,
-    maxPriceParam,
-    sortByParam,
-    sortOrderParam,
-  ]);
+    customer_name: searchParam || undefined,
+    brand: brandParam,
+    status: statusParam,
+    min_price: minPriceParam ? Number(minPriceParam) : undefined,
+    max_price: maxPriceParam ? Number(maxPriceParam) : undefined,
+    sort_by: sortByParam as "total_price" | "created_at" | "updated_at",
+    sort_order: sortOrderParam as "asc" | "desc",
+  });
+
+  const services = data?.data || [];
+  const totalPage = data?.paging?.total_page || 0;
 
   useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
+    if (isError) {
+      handleApiError(error, "Failed to load services");
+    }
+  }, [isError, error]);
 
   useEffect(() => {
     setSearchTerm(searchParam);
@@ -136,6 +109,18 @@ const DashboardServicePage = () => {
     }
   }, [isFilterOpen, brandParam, statusParam, minPriceParam, maxPriceParam]);
 
+  const handleSearch = () => {
+    setSearchParams((prev) => {
+      if (searchTerm) {
+        prev.set("search", searchTerm);
+      } else {
+        prev.delete("search");
+      }
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
       prev.set("page", String(newPage));
@@ -145,14 +130,28 @@ const DashboardServicePage = () => {
 
   const handleCreateSuccess = () => {
     setIsSheetOpen(false);
-    setSearchParams((prev) => {
-      prev.set("page", "1");
-      return prev;
-    });
     if (page === 1) {
-      fetchServices();
+      refetch();
+    } else {
+      setSearchParams((prev) => {
+        prev.set("page", "1");
+        return prev;
+      });
     }
   };
+
+  useEffect(() => {
+    setSearchTerm(searchParam);
+  }, [searchParam]);
+
+  useEffect(() => {
+    if (isFilterOpen) {
+      setTempBrand(brandParam);
+      setTempStatus(statusParam);
+      setTempMinPrice(minPriceParam);
+      setTempMaxPrice(maxPriceParam);
+    }
+  }, [isFilterOpen, brandParam, statusParam, minPriceParam, maxPriceParam]);
 
   const applyFilters = () => {
     setSearchParams((prev) => {
@@ -174,16 +173,20 @@ const DashboardServicePage = () => {
     setIsFilterOpen(false);
   };
 
-  const handleSearch = () => {
+  const clearFilters = () => {
     setSearchParams((prev) => {
-      if (searchTerm) {
-        prev.set("search", searchTerm);
-      } else {
-        prev.delete("search");
-      }
+      prev.delete("brand");
+      prev.delete("status");
+      prev.delete("min_price");
+      prev.delete("max_price");
       prev.set("page", "1");
       return prev;
     });
+    setTempBrand(undefined);
+    setTempStatus(undefined);
+    setTempMinPrice("");
+    setTempMaxPrice("");
+    setIsFilterOpen(false);
   };
 
   const handleClearSearch = () => {
@@ -208,22 +211,6 @@ const DashboardServicePage = () => {
     });
   };
 
-  const clearFilters = () => {
-    setSearchParams((prev) => {
-      prev.delete("brand");
-      prev.delete("status");
-      prev.delete("min_price");
-      prev.delete("max_price");
-      prev.set("page", "1");
-      return prev;
-    });
-    setTempBrand(undefined);
-    setTempStatus(undefined);
-    setTempMinPrice("");
-    setTempMaxPrice("");
-    setIsFilterOpen(false);
-  };
-
   const activeFiltersCount = [
     brandParam,
     statusParam,
@@ -232,6 +219,7 @@ const DashboardServicePage = () => {
   ].filter(Boolean).length;
 
   const isFiltering = activeFiltersCount > 0;
+  const isSearching = !!searchParam;
   const isDatabaseEmpty = services.length === 0 && !isFiltering && !isSearching;
 
   const isSortActive = (by: string, order: string) => {
@@ -480,7 +468,7 @@ const DashboardServicePage = () => {
         <DashboardServiceTable
           services={services}
           isLoading={isLoading}
-          onSuccess={fetchServices}
+          onSuccess={() => refetch()}
         />
       </div>
       <PaginationComponent
