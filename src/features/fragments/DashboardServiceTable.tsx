@@ -112,13 +112,15 @@ const DashboardServiceTable = ({
                 <TableHead className="w-32 font-bold border-r border-border/60 text-center">
                   Service ID
                 </TableHead>
-                <TableHead className="w-64 font-bold">Customer Info</TableHead>
+                <TableHead className="w-54 font-bold">Customer Info</TableHead>
                 <TableHead className="w-37.5 font-bold">Brand</TableHead>
                 <TableHead className="w-37.5 font-bold">Device Name</TableHead>
                 <TableHead className="w-32 font-bold text-center">
                   Status
                 </TableHead>
-                <TableHead className="w-37.5 font-bold">Total Price</TableHead>
+                <TableHead className="w-40 font-bold text-center">
+                  Total Price
+                </TableHead>
                 <TableHead className="w-37.5 font-bold">Date</TableHead>
                 <TableHead className="w-12.5 text-right font-bold">
                   Actions
@@ -159,8 +161,32 @@ const DashboardServiceTable = ({
                   <TableCell className="text-center">
                     {getStatusBadge(service.status)}
                   </TableCell>
-                  <TableCell className="font-medium font-mono text-sm">
-                    {formatRupiah(service.total_price)}
+                  <TableCell className="font-medium text-sm">
+                    {/* WRAPPER UTAMA: Ini yang membuat kontennya rata tengah */}
+                    <div className="flex w-full justify-center">
+                      {service.status === ServiceStatus.CANCELLED ? (
+                        // KONDISI 1: CANCELLED (Gunakan warna abu-abu/muted agar beda dengan Lunas)
+                        <Badge
+                          variant="outline"
+                          className="bg-slate-100 text-slate-500 border-slate-200 flex items-center gap-1 whitespace-nowrap"
+                        >
+                          VOID / CANCEL
+                        </Badge>
+                      ) : service.total_price <= 0 ? (
+                        // KONDISI 2: LUNAS (Warna Hijau)
+                        <Badge
+                          variant="outline"
+                          className="bg-emerald-50 text-emerald-700 border-emerald-200 flex items-center gap-1 whitespace-nowrap"
+                        >
+                          PAID OFF
+                        </Badge>
+                      ) : (
+                        // KONDISI 3: BELUM LUNAS (Text Orange)
+                        <span className="text-orange-600 font-mono">
+                          {formatRupiah(service.total_price)}
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     <div className="flex flex-col">

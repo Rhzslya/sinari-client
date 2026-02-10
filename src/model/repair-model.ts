@@ -88,6 +88,14 @@ export type CreateServiceItemRequest = {
   price: number;
 };
 
+export type GetDetailedServiceRequest = {
+  id: number;
+};
+
+export type DeleteServiceRequest = {
+  id: number;
+};
+
 export type UpdateServiceItemRequest = {
   name: string;
   price: number;
@@ -103,6 +111,7 @@ export type CreateServiceRequest = {
   service_list: CreateServiceItemRequest[];
   discount?: number;
   down_payment?: number;
+  technician_id: number;
 };
 
 export type SearchServiceRequest = {

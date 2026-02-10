@@ -20,18 +20,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand, ServiceStatus } from "@/enum/product-enum";
-import { handleApiError } from "@/lib/utils";
+import { useServiceQueries } from "@/hooks/repair-queries";
 import type {
   ServiceResponse,
   UpdateServiceRequest,
 } from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services";
 import { TechnicianServices } from "@/services/technician-services";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useFieldArray, useForm, type Resolver } from "react-hook-form";
+import { useEffect } from "react";
+import {
+  useFieldArray,
+  useForm,
+  useWatch,
+  type Resolver,
+} from "react-hook-form";
 import { toast } from "sonner";
 
 const BRAND_OPTIONS = Object.values(Brand);
@@ -44,38 +49,22 @@ interface ServiceFormProps {
   onCancel?: () => void;
 }
 
-interface TechnicianOption {
-  id: number;
-  name: string;
-}
-
 export function EditServiceForm({
   service,
   onSuccess,
   onCancel,
 }: ServiceFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [technicians, setTechnicians] = useState<TechnicianOption[]>([]);
-  const [isFetchingTechs, setIsFetchingTechs] = useState(false);
+  const { updateServiceMutation } = useServiceQueries();
+
+  const { mutateAsync: updateService, isPending } = updateServiceMutation;
+
+  const { data: technicians, isLoading: isFetchingTechs } = useQuery({
+    queryKey: ["technicians", "active_list"],
+    queryFn: TechnicianServices.listActive,
+    staleTime: 1000 * 60 * 5,
+  });
 
   type EditFormValues = Omit<UpdateServiceRequest, "id">;
-
-  useEffect(() => {
-    const fetchTechnicians = async () => {
-      setIsFetchingTechs(true);
-      try {
-        const data = await TechnicianServices.listActive();
-        console.log(data);
-
-        setTechnicians(data);
-      } catch (error) {
-        handleApiError(error, "Failed to load technicians");
-      } finally {
-        setIsFetchingTechs(false);
-      }
-    };
-    fetchTechnicians();
-  }, []);
 
   const formUpdate = useForm<EditFormValues>({
     resolver: zodResolver(RepairValidation.UPDATE) as Resolver<EditFormValues>,
@@ -105,13 +94,35 @@ export function EditServiceForm({
 
   const { isSubmitting, isDirty } = formUpdate.formState;
 
-  const serviceList = formUpdate.watch("service_list");
-  const discountPercent = formUpdate.watch("discount") || 0;
-  const downPayment = formUpdate.watch("down_payment") || 0;
+  const serviceList = useWatch({
+    control: formUpdate.control,
+    name: "service_list",
+  });
+  const discountPercent =
+    useWatch({
+      control: formUpdate.control,
+      name: "discount",
+    }) || 0;
 
-  const customerNameValue = formUpdate.watch("customer_name");
-  const phoneNumberValue = formUpdate.watch("phone_number");
-  const modelValue = formUpdate.watch("model");
+  const downPayment =
+    useWatch({
+      control: formUpdate.control,
+      name: "down_payment",
+    }) || 0;
+  const customerNameValue = useWatch({
+    control: formUpdate.control,
+    name: "customer_name",
+  });
+
+  const phoneNumberValue = useWatch({
+    control: formUpdate.control,
+    name: "phone_number",
+  });
+
+  const modelValue = useWatch({
+    control: formUpdate.control,
+    name: "model",
+  });
 
   const hasInvalidItems =
     !serviceList ||
@@ -177,15 +188,10 @@ export function EditServiceForm({
   };
 
   const onSubmit = async (data: EditFormValues) => {
-    setIsLoading(true);
     try {
-      const result = await RepairServices.update({
+      const result = await updateService({
         id: service.id,
         ...data,
-      });
-
-      toast.success("Service updated successfully", {
-        description: `Service ${service.service_id} has been updated.`,
       });
 
       const { meta } = result;
@@ -203,10 +209,8 @@ export function EditServiceForm({
       formUpdate.reset(data);
 
       if (onSuccess) onSuccess();
-    } catch (error) {
-      handleApiError(error, "Failed to update service");
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // Handle by Hook
     }
   };
 
@@ -254,7 +258,7 @@ export function EditServiceForm({
                         placeholder="John Doe"
                         className={inputStyle}
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -279,7 +283,7 @@ export function EditServiceForm({
                           const value = e.target.value.replace(/\D/g, "");
                           field.onChange(value);
                         }}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -296,7 +300,7 @@ export function EditServiceForm({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -328,7 +332,7 @@ export function EditServiceForm({
                         placeholder="e.g. A51"
                         className={inputStyle}
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -346,7 +350,7 @@ export function EditServiceForm({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -394,7 +398,7 @@ export function EditServiceForm({
                         }
                       }}
                       value={field.value ? field.value.toString() : ""}
-                      disabled={isSubmitting || isFetchingTechs}
+                      disabled={isSubmitting || isPending || isFetchingTechs}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -438,7 +442,7 @@ export function EditServiceForm({
                         placeholder="e.g. LCD Pecah, Touchscreen error..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -459,7 +463,7 @@ export function EditServiceForm({
                         placeholder="e.g. Casing agak bengkok..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -486,7 +490,11 @@ export function EditServiceForm({
                 variant="outline"
                 className="h-7 text-xs gap-1"
                 onClick={() => append({ name: "", price: 0 })}
-                disabled={isSubmitting || fields.length >= MAX_SERVICE_ITEMS}
+                disabled={
+                  isSubmitting ||
+                  isPending ||
+                  fields.length >= MAX_SERVICE_ITEMS
+                }
               >
                 <Plus className="w-3 h-3" /> Add Item
                 <span className="ml-1 text-[10px] text-muted-foreground">
@@ -530,7 +538,7 @@ export function EditServiceForm({
                             placeholder="e.g. Ganti LCD Samsung A51"
                             className={inputStyle}
                             {...field}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isPending}
                           />
                         </FormControl>
                         <FormMessage className="absolute -bottom-4 left-0 text-[10px] mt-0" />
@@ -554,7 +562,7 @@ export function EditServiceForm({
                             min={0}
                             prefix="Rp"
                             placeholder="0"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isPending}
                           />
                         </FormControl>
                         <FormMessage className="absolute -bottom-4 left-0 text-[10px] mt-0" />
@@ -610,7 +618,9 @@ export function EditServiceForm({
                             max={100}
                             min={0}
                             placeholder="0"
-                            disabled={isSubmitting || isBillingDisabled}
+                            disabled={
+                              isSubmitting || isPending || isBillingDisabled
+                            }
                           />
                         </FormControl>
                       </FormItem>
@@ -646,7 +656,9 @@ export function EditServiceForm({
                             max={maxDownPayment}
                             prefix="Rp"
                             placeholder="0"
-                            disabled={isSubmitting || isBillingDisabled}
+                            disabled={
+                              isSubmitting || isPending || isBillingDisabled
+                            }
                             className="text-right"
                           />
                         </FormControl>
@@ -685,7 +697,7 @@ export function EditServiceForm({
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={handleResetToOriginal}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPending}
             >
               Reset
             </Button>
@@ -696,7 +708,7 @@ export function EditServiceForm({
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={onCancel}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPending}
             >
               Cancel
             </Button>
@@ -706,9 +718,9 @@ export function EditServiceForm({
             size="sm"
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={isButtonDisabled || isLoading || !isDirty}
+            disabled={isButtonDisabled || isPending || !isDirty}
           >
-            {isSubmitting ? (
+            {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               "Save Changes"

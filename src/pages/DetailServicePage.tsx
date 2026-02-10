@@ -12,10 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { ServiceStatus } from "@/enum/product-enum";
-import { handleApiError } from "@/lib/utils";
 import type { ServiceResponse } from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services";
-import { isAxiosError } from "axios";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -34,7 +31,7 @@ import {
   User,
   Wrench,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import NotFoundPage from "./NotFoundPage";
@@ -51,19 +48,21 @@ import { UpdateStatusDialog } from "@/features/fragments/UpdateStatusForm";
 import { pdf } from "@react-pdf/renderer";
 import { ServiceInvoicePDF } from "@/features/components/ServiceInvoicePDF";
 import DeleteServiceForm from "@/features/fragments/DeleteServiceForm";
+import { useServiceQueries } from "@/hooks/repair-queries";
 
 const DetailServicePage = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
+  const { useDetail } = useServiceQueries();
 
-  const [service, setService] = useState<ServiceResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isNotFound, setIsNotFound] = useState(false);
+  const id = Number(serviceId);
+  const { data: service, isLoading, isError } = useDetail({ id });
+
+  const [selectedService, setSelectedService] =
+    useState<ServiceResponse | null>(null);
 
   //Edit Service States
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
-  const [selectedService, setSelectedService] =
-    useState<ServiceResponse | null>(null);
 
   //Update Status States
   const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false);
@@ -73,28 +72,6 @@ const DetailServicePage = () => {
 
   //Delete Service States
   const [isDeleteServiceOpen, setIsDeleteServiceOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchDetail = async () => {
-      if (!serviceId) return;
-      setIsLoading(true);
-      try {
-        const response = await RepairServices.getById(Number(serviceId));
-        setService(response);
-      } catch (error) {
-        if (isAxiosError(error) && error.response?.status === 404) {
-          setIsNotFound(true);
-          return;
-        }
-        handleApiError(error, "Failed to load service");
-        navigate("/dashboard/services");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDetail();
-  }, [serviceId, navigate]);
 
   const getInitials = (name: string) =>
     name
@@ -187,7 +164,7 @@ const DetailServicePage = () => {
   };
 
   if (isLoading) return <DetailServiceSkeleton />;
-  if (isNotFound)
+  if (isError)
     return (
       <NotFoundPage
         isDashboard={true}

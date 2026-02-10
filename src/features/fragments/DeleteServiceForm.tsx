@@ -7,12 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { handleApiError } from "@/lib/utils";
+import { useServiceQueries } from "@/hooks/repair-queries";
 import type { ServiceResponse } from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services";
 import { Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 interface DeleteServiceFormProps {
   service: ServiceResponse | null;
@@ -27,26 +24,20 @@ const DeleteServiceForm = ({
   onOpenChange,
   onSuccess,
 }: DeleteServiceFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { deleteMutation } = useServiceQueries();
+
+  const { mutateAsync: deleteService, isPending } = deleteMutation;
 
   const handleDelete = async () => {
     if (!service) return;
-    setIsLoading(true);
 
     try {
-      const response = await RepairServices.remove(service.id);
-      const successMessage = response.message || "Service deleted successfully";
+      await deleteService({ id: service.id });
 
-      toast.success("Service deleted successfully", {
-        description: successMessage,
-      });
-
-      onSuccess();
+      if (onSuccess) onSuccess();
       onOpenChange(false);
-    } catch (error) {
-      handleApiError(error, "Failed to delete service");
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // Handle by Hook
     }
   };
 
@@ -78,7 +69,7 @@ const DeleteServiceForm = ({
             size="sm"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={isLoading}
+            disabled={isPending}
             className="w-1/3 cursor-pointer duration-300"
           >
             Cancel
@@ -88,10 +79,10 @@ const DeleteServiceForm = ({
             size="sm"
             variant="destructive"
             onClick={handleDelete}
-            disabled={isLoading}
+            disabled={isPending}
             className="w-1/3 cursor-pointer duration-300"
           >
-            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Delete
           </Button>
         </DialogFooter>

@@ -23,16 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ServiceStatus } from "@/enum/product-enum";
-import { handleApiError } from "@/lib/utils";
-import {
-  type ServiceResponse,
-  type UpdateServiceRequest,
-} from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services";
+import { useServiceQueries } from "@/hooks/repair-queries";
+import { type ServiceResponse } from "@/model/repair-model";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
@@ -56,7 +52,8 @@ export function UpdateStatusDialog({
   onOpenChange,
   onSuccess,
 }: UpdateStatusDialogProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { updateStatusMutation } = useServiceQueries();
+  const { mutateAsync: updateStatus, isPending } = updateStatusMutation;
 
   const form = useForm<StatusFormValues>({
     resolver: zodResolver(statusSchema),
@@ -78,22 +75,16 @@ export function UpdateStatusDialog({
   const onSubmit = async (data: { status: ServiceStatus }) => {
     if (!service) return;
 
-    setIsLoading(true);
-
     try {
-      const result = await RepairServices.update({
+      const result = await updateStatus({
         id: service.id,
         status: data.status,
         technician_id: service.technician.id,
-      } as UpdateServiceRequest);
-
-      toast.success("Status Updated", {
-        description: `Service status changed to ${data.status}.`,
       });
 
       const { meta } = result;
 
-      if (meta.wa_status === "failed" || meta.wa_status === "skipped") {
+      if (meta.wa_status === "failed") {
         setTimeout(() => {
           toast.warning("WhatsApp Notification Failed", {
             description:
@@ -105,10 +96,8 @@ export function UpdateStatusDialog({
 
       onSuccess();
       onOpenChange(false);
-    } catch (error) {
-      handleApiError(error, "Failed to send message");
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // Handle by Hook
     }
   };
 
@@ -151,7 +140,7 @@ export function UpdateStatusDialog({
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isPending}
                   >
                     <FormControl>
                       <SelectTrigger className={inputStyle}>
@@ -177,7 +166,7 @@ export function UpdateStatusDialog({
                 variant="outline"
                 className="cursor-pointer duration-300"
                 onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isPending}
               >
                 Cancel
               </Button>
@@ -185,11 +174,11 @@ export function UpdateStatusDialog({
                 size="sm"
                 className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                 type="submit"
-                disabled={isSubmitting || !isDirty}
+                disabled={isSubmitting || !isDirty || isPending}
               >
                 Save Changes
                 {isSubmitting ||
-                  (isLoading && (
+                  (isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ))}
               </Button>
