@@ -7,12 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { handleApiError } from "@/lib/utils";
+import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
+import { useProductQueries } from "@/hooks/product-queries";
 import type { ProductResponse } from "@/model/product-model";
-import { ProductServices } from "@/services/product-services";
 import { Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 interface DeleteProductFormProps {
   product: ProductResponse | null;
@@ -27,26 +25,22 @@ const DeleteProductForm = ({
   onOpenChange,
   onSuccess,
 }: DeleteProductFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { deleteMutation } = useProductQueries();
+
+  const { mutateAsync: deleteProduct, isPending } = deleteMutation;
 
   const handleDelete = async () => {
     if (!product) return;
-    setIsLoading(true);
 
     try {
-      const response = await ProductServices.remove(product.id);
-      const successMessage = response.message || "Product deleted successfully";
-
-      toast.success("Product deleted successfully", {
-        description: successMessage,
+      await deleteProduct({
+        id: product.id,
       });
 
-      onSuccess();
+      if (onSuccess) onSuccess();
       onOpenChange(false);
-    } catch (error) {
-      handleApiError(error, "Failed to delete product");
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // Handle by Hook
     }
   };
 
@@ -65,8 +59,11 @@ const DeleteProductForm = ({
             <DialogTitle>Delete Product?</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete{" "}
-              <span className="font-semibold text-foreground">
-                {product?.name}
+              <span className="inline-flex align-middle max-w-37.5">
+                <TruncatedTooltip
+                  text={product?.name || ""}
+                  className="font-semibold text-foreground max-w-37.5 truncate"
+                />
               </span>
               ? This action cannot be undone.
             </DialogDescription>
@@ -78,7 +75,7 @@ const DeleteProductForm = ({
             size="sm"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={isLoading}
+            disabled={isPending}
             className="w-1/3 cursor-pointer duration-300"
           >
             Cancel
@@ -88,10 +85,10 @@ const DeleteProductForm = ({
             size="sm"
             variant="destructive"
             onClick={handleDelete}
-            disabled={isLoading}
+            disabled={isPending}
             className="w-1/3 cursor-pointer duration-300"
           >
-            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Delete
           </Button>
         </DialogFooter>

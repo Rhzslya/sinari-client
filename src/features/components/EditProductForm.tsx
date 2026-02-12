@@ -18,12 +18,11 @@ import {
 import { formatBytes } from "@/components/utils/formatBytes";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand, Category } from "@/enum/product-enum";
-import { handleApiError } from "@/lib/utils";
+import { useProductQueries } from "@/hooks/product-queries";
 import {
   type ProductResponse,
   type UpdateProductRequest,
 } from "@/model/product-model";
-import { ProductServices } from "@/services/product-services";
 import { MAX_FILE_SIZE } from "@/types/type";
 import { ProductValidation } from "@/validation/product-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,8 +35,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
-import { toast } from "sonner";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const CATEGORY_OPTIONS = Object.values(Category);
@@ -53,7 +51,11 @@ export function EditProductForm({
   onSuccess,
   onCancel,
 }: ProductFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { updateProductMutation } = useProductQueries();
+
+  const { mutateAsync: updateProduct, isPending } = updateProductMutation;
+
+  const [prevProductId, setPrevProductId] = useState(product.id);
   const [preview, setPreview] = useState<string | null>(
     product.image_url || null,
   );
@@ -61,12 +63,24 @@ export function EditProductForm({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  if (product.id !== prevProductId) {
+    setPrevProductId(product.id);
+    setPreview(product.image_url || null);
+    setIsImageDeleted(false);
+  }
+
+  useEffect(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [product.id]);
+
   type EditFormValues = Omit<UpdateProductRequest, "id">;
 
   const formUpdate = useForm<EditFormValues>({
     resolver: zodResolver(ProductValidation.UPDATE) as Resolver<EditFormValues>,
     mode: "onChange",
-    defaultValues: {
+    values: {
       name: product.name,
       brand: product.brand as Brand,
       manufacturer: product.manufacturer,
@@ -78,66 +92,33 @@ export function EditProductForm({
     },
   });
 
-  const { isSubmitting, isDirty } = formUpdate.formState;
-  const nameValue = formUpdate.watch("name");
-  const priceValue = formUpdate.watch("price");
-  const costPriceValue = formUpdate.watch("cost_price");
-  const imageValue = formUpdate.watch("image");
+  const { isDirty } = formUpdate.formState;
+  const nameValue = useWatch({
+    control: formUpdate.control,
+    name: "name",
+  });
+  const priceValue = useWatch({
+    control: formUpdate.control,
+    name: "price",
+  });
+  const costPriceValue = useWatch({
+    control: formUpdate.control,
+    name: "cost_price",
+  });
+  const imageValue = useWatch({
+    control: formUpdate.control,
+    name: "image",
+  });
 
   const isImageOversized =
     imageValue instanceof File && imageValue.size > MAX_FILE_SIZE;
 
   const isButtonDisabled =
-    isSubmitting ||
+    isPending ||
     !nameValue ||
     Number(priceValue) <= 0 ||
     Number(costPriceValue) <= 0 ||
     isImageOversized;
-
-  const onSubmit = async (data: EditFormValues) => {
-    setIsLoading(true);
-    try {
-      await ProductServices.update({
-        id: product.id,
-        ...data,
-        stock: undefined,
-        delete_image: isImageDeleted,
-      });
-
-      setIsImageDeleted(false);
-
-      toast.success("Product updated successfully", {
-        description: `${data.name} has been updated.`,
-      });
-
-      formUpdate.reset();
-      setPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      handleApiError(error, "Failed to update product");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (product) {
-      formUpdate.reset({
-        name: product.name,
-        brand: product.brand as Brand,
-        manufacturer: product.manufacturer,
-        price: product.price,
-        cost_price: product.cost_price,
-        category: product.category as Category,
-        stock: product.stock,
-        image: undefined,
-      });
-      setPreview(product.image_url || null);
-      setIsImageDeleted(false);
-    }
-  }, [product, formUpdate]);
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -186,6 +167,25 @@ export function EditProductForm({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const onSubmit = async (data: EditFormValues) => {
+    try {
+      await updateProduct({
+        id: product.id,
+        ...data,
+        stock: undefined,
+        delete_image: isImageDeleted,
+      });
+
+      setIsImageDeleted(false);
+      formUpdate.reset();
+      setPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (onSuccess) onSuccess();
+    } catch {
+      // Handle by Hook
+    }
+  };
+
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
@@ -194,7 +194,7 @@ export function EditProductForm({
   return (
     <Form {...formUpdate}>
       <form
-        onSubmit={formUpdate.handleSubmit(onSubmit)}
+        onSubmit={(e) => void formUpdate.handleSubmit(onSubmit)(e)}
         className="flex flex-col h-full"
       >
         <div
@@ -234,7 +234,7 @@ export function EditProductForm({
                       placeholder="e.g. iPhone 15 Pro Titanium"
                       className={inputStyle}
                       {...field}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -252,7 +252,7 @@ export function EditProductForm({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -281,7 +281,7 @@ export function EditProductForm({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -318,7 +318,7 @@ export function EditProductForm({
                         ref={fileInputRef}
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={(e) => handleImageChange(e, field.onChange)}
-                        disabled={isSubmitting}
+                        disabled={isPending}
                       />
 
                       {!preview ? (
@@ -372,7 +372,7 @@ export function EditProductForm({
                                 onClick={(e) =>
                                   handleRemoveImage(e, field.onChange)
                                 }
-                                disabled={isSubmitting}
+                                disabled={isPending}
                               >
                                 <X className="h-3.5 w-3.5" />
                               </Button>
@@ -454,7 +454,7 @@ export function EditProductForm({
                         step={10000}
                         prefix="Rp"
                         placeholder="0"
-                        disabled={isSubmitting}
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -475,7 +475,7 @@ export function EditProductForm({
                         step={10000}
                         prefix="Rp"
                         placeholder="0"
-                        disabled={isSubmitting}
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -514,7 +514,7 @@ export function EditProductForm({
                         autoComplete="off"
                         placeholder="ORIGINAL"
                         className={inputStyle}
-                        disabled={isSubmitting}
+                        disabled={isPending}
                         {...field}
                       />
                     </FormControl>
@@ -535,7 +535,7 @@ export function EditProductForm({
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={handleResetToOriginal}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Reset
             </Button>
@@ -546,7 +546,7 @@ export function EditProductForm({
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={onCancel}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Cancel
             </Button>
@@ -556,11 +556,9 @@ export function EditProductForm({
             size="sm"
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={
-              isButtonDisabled || isLoading || (!isDirty && !isImageDeleted)
-            }
+            disabled={isButtonDisabled || (!isDirty && !isImageDeleted)}
           >
-            {isSubmitting ? (
+            {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               "Save Product"

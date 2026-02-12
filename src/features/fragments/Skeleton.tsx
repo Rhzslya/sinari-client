@@ -86,11 +86,12 @@ export function ServiceSkeletonTable() {
             <TableHead className="w-32 font-bold border-r border-border/60 text-center">
               Service ID
             </TableHead>
-            <TableHead className="w-64 font-bold">Customer Info</TableHead>
+            <TableHead className="w-54 font-bold">Customer Info</TableHead>
             <TableHead className="w-37.5 font-bold">Brand</TableHead>
             <TableHead className="w-37.5 font-bold">Device Name</TableHead>
             <TableHead className="w-32 font-bold text-center">Status</TableHead>
             <TableHead className="w-37.5 font-bold">Total Price</TableHead>
+            <TableHead className="w-37.5 font-bold">Technician</TableHead>
             <TableHead className="w-37.5 font-bold">Date</TableHead>
             <TableHead className="w-12.5 text-right font-bold">
               Actions
@@ -127,6 +128,11 @@ export function ServiceSkeletonTable() {
 
               <TableCell>
                 <Skeleton className="h-4 w-24" />
+              </TableCell>
+
+              <TableCell className="flex gap-1 items-center">
+                <Skeleton className="h-4 w-4 rounded-full" />
+                <Skeleton className="h-4 w-20" />
               </TableCell>
 
               <TableCell>

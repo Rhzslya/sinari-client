@@ -60,10 +60,12 @@ const DeleteUserForm = ({
             <DialogTitle>Delete User?</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete{" "}
-              <TruncatedTooltip
-                text={user?.username || ""}
-                className="font-semibold text-foreground max-w-37.5 truncate"
-              />
+              <span className="inline-flex align-middle max-w-37.5">
+                <TruncatedTooltip
+                  text={user?.username || ""}
+                  className="font-semibold text-foreground max-w-37.5 truncate"
+                />
+              </span>
               ? This action cannot be undone.
             </DialogDescription>
           </div>

@@ -66,7 +66,7 @@ const DashboardServicePage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // Temporary filter states (sebelum tombol apply ditekan)
+  // Temporary filter states
   const [tempBrand, setTempBrand] = useState<string | undefined>(brandParam);
   const [tempStatus, setTempStatus] = useState<string | undefined>(statusParam);
   const [tempMinPrice, setTempMinPrice] = useState(minPriceParam);
@@ -143,15 +143,6 @@ const DashboardServicePage = () => {
   useEffect(() => {
     setSearchTerm(searchParam);
   }, [searchParam]);
-
-  useEffect(() => {
-    if (isFilterOpen) {
-      setTempBrand(brandParam);
-      setTempStatus(statusParam);
-      setTempMinPrice(minPriceParam);
-      setTempMaxPrice(maxPriceParam);
-    }
-  }, [isFilterOpen, brandParam, statusParam, minPriceParam, maxPriceParam]);
 
   const applyFilters = () => {
     setSearchParams((prev) => {
@@ -244,7 +235,7 @@ const DashboardServicePage = () => {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search customer..."
+            placeholder="Search"
             className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

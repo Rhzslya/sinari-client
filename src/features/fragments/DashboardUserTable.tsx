@@ -23,9 +23,9 @@ import { UserSkeletonTable } from "./Skeleton";
 
 const DashboardUserTable = ({
   users,
+  currentUser,
   isLoading,
   onSuccess,
-  currentUserId,
 }: ExtendedTableProps) => {
   const navigate = useNavigate();
 
@@ -36,14 +36,14 @@ const DashboardUserTable = ({
   const [isUpdateRoleOpen, setIsUpdateRoleOpen] = useState(false);
 
   const sortedUsers = useMemo(() => {
-    if (!currentUserId) return users;
+    if (!currentUser?.id) return users;
 
     return [...users].sort((a, b) => {
-      if (a.id === currentUserId) return -1;
-      if (b.id === currentUserId) return 1;
+      if (a.id === currentUser?.id) return -1;
+      if (b.id === currentUser?.id) return 1;
       return 0;
     });
-  }, [users, currentUserId]);
+  }, [users, currentUser?.id]);
 
   const handleViewDetail = (user: NotPublicUserResponse) => {
     navigate(`/dashboard/users/detail/${user.id}`);
@@ -107,7 +107,7 @@ const DashboardUserTable = ({
 
             <TableBody>
               {sortedUsers.map((user) => {
-                const isCurrentUser = user.id === currentUserId;
+                const isCurrentUser = user.id === currentUser?.id;
                 const rowClass = isCurrentUser
                   ? "bg-primary/20 hover:bg-primary/15 border-b-2 border-primary/20"
                   : "";
@@ -185,6 +185,7 @@ const DashboardUserTable = ({
 
                     <TableCell className="text-right">
                       <UserActionMenu
+                        currentUser={currentUser}
                         isCurrentUser={isCurrentUser}
                         user={user}
                         onViewDetails={() => handleViewDetail(user)}

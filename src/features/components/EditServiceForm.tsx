@@ -64,6 +64,15 @@ export function EditServiceForm({
     staleTime: 1000 * 60 * 5,
   });
 
+  const isServiceLocked =
+    service.status === ServiceStatus.FINISHED ||
+    service.status === ServiceStatus.CANCELLED ||
+    service.status === ServiceStatus.TAKEN;
+
+  const isCompletelyFinal =
+    service.status === ServiceStatus.CANCELLED ||
+    service.status === ServiceStatus.TAKEN;
+
   type EditFormValues = Omit<UpdateServiceRequest, "id">;
 
   const formUpdate = useForm<EditFormValues>({
@@ -87,12 +96,12 @@ export function EditServiceForm({
     },
   });
 
+  const { isSubmitting, isDirty } = formUpdate.formState;
+
   const { fields, append, remove } = useFieldArray({
     control: formUpdate.control,
     name: "service_list",
   });
-
-  const { isSubmitting, isDirty } = formUpdate.formState;
 
   const serviceList = useWatch({
     control: formUpdate.control,
@@ -228,6 +237,7 @@ export function EditServiceForm({
         <div
           className="flex-1 overflow-y-auto px-6 py-6 
             [&::-webkit-scrollbar]:w-1
+            [&::-webkit-scrollbar]:h-1
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-primary/20 
             [&::-webkit-scrollbar-thumb]:rounded-full
@@ -258,7 +268,9 @@ export function EditServiceForm({
                         placeholder="John Doe"
                         className={inputStyle}
                         {...field}
-                        disabled={isSubmitting || isPending}
+                        disabled={
+                          isSubmitting || isPending || isCompletelyFinal
+                        }
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -283,7 +295,9 @@ export function EditServiceForm({
                           const value = e.target.value.replace(/\D/g, "");
                           field.onChange(value);
                         }}
-                        disabled={isSubmitting || isPending}
+                        disabled={
+                          isSubmitting || isPending || isCompletelyFinal
+                        }
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -300,7 +314,7 @@ export function EditServiceForm({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting || isPending}
+                      disabled={isSubmitting || isPending || isCompletelyFinal}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -332,7 +346,9 @@ export function EditServiceForm({
                         placeholder="e.g. A51"
                         className={inputStyle}
                         {...field}
-                        disabled={isSubmitting || isPending}
+                        disabled={
+                          isSubmitting || isPending || isCompletelyFinal
+                        }
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -340,7 +356,7 @@ export function EditServiceForm({
                 )}
               />
 
-              {/* Status Field (Exclusive to Edit) */}
+              {/* Status Field */}
               <FormField
                 control={formUpdate.control}
                 name="status"
@@ -350,7 +366,7 @@ export function EditServiceForm({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting || isPending}
+                      disabled={isSubmitting || isPending || isCompletelyFinal}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -398,7 +414,12 @@ export function EditServiceForm({
                         }
                       }}
                       value={field.value ? field.value.toString() : ""}
-                      disabled={isSubmitting || isPending || isFetchingTechs}
+                      disabled={
+                        isSubmitting ||
+                        isPending ||
+                        isFetchingTechs ||
+                        isServiceLocked
+                      }
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -442,7 +463,9 @@ export function EditServiceForm({
                         placeholder="e.g. LCD Pecah, Touchscreen error..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
-                        disabled={isSubmitting || isPending}
+                        disabled={
+                          isSubmitting || isPending || isCompletelyFinal
+                        }
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -463,7 +486,9 @@ export function EditServiceForm({
                         placeholder="e.g. Casing agak bengkok..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
-                        disabled={isSubmitting || isPending}
+                        disabled={
+                          isSubmitting || isPending || isCompletelyFinal
+                        }
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -473,6 +498,14 @@ export function EditServiceForm({
             </div>
 
             <Separator />
+
+            {isServiceLocked && (
+              <div className="bg-warning/20 text-warning-foreground p-3 rounded-md border border-warning/50 text-xs flex items-center gap-2 mb-4">
+                <span className="font-semibold uppercase">LOCKED:</span>
+                The technician and cost details cannot be changed because the
+                service status is already {service.status}.
+              </div>
+            )}
 
             {/* SECTION 3: COST & BILLING */}
             <div className="flex items-center justify-between">
@@ -493,7 +526,8 @@ export function EditServiceForm({
                 disabled={
                   isSubmitting ||
                   isPending ||
-                  fields.length >= MAX_SERVICE_ITEMS
+                  fields.length >= MAX_SERVICE_ITEMS ||
+                  isServiceLocked
                 }
               >
                 <Plus className="w-3 h-3" /> Add Item
@@ -525,7 +559,9 @@ export function EditServiceForm({
                               size="icon"
                               className="h-6 w-6 -mr-1 -mt-1 text-muted-foreground hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                               onClick={() => remove(index)}
-                              disabled={isSubmitting}
+                              disabled={
+                                isSubmitting || isPending || isServiceLocked
+                              }
                               title="Remove Item"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -538,7 +574,9 @@ export function EditServiceForm({
                             placeholder="e.g. Ganti LCD Samsung A51"
                             className={inputStyle}
                             {...field}
-                            disabled={isSubmitting || isPending}
+                            disabled={
+                              isSubmitting || isPending || isServiceLocked
+                            }
                           />
                         </FormControl>
                         <FormMessage className="absolute -bottom-4 left-0 text-[10px] mt-0" />
@@ -562,7 +600,9 @@ export function EditServiceForm({
                             min={0}
                             prefix="Rp"
                             placeholder="0"
-                            disabled={isSubmitting || isPending}
+                            disabled={
+                              isSubmitting || isPending || isServiceLocked
+                            }
                           />
                         </FormControl>
                         <FormMessage className="absolute -bottom-4 left-0 text-[10px] mt-0" />
@@ -619,7 +659,10 @@ export function EditServiceForm({
                             min={0}
                             placeholder="0"
                             disabled={
-                              isSubmitting || isPending || isBillingDisabled
+                              isSubmitting ||
+                              isPending ||
+                              isBillingDisabled ||
+                              isServiceLocked
                             }
                           />
                         </FormControl>
@@ -657,7 +700,10 @@ export function EditServiceForm({
                             prefix="Rp"
                             placeholder="0"
                             disabled={
-                              isSubmitting || isPending || isBillingDisabled
+                              isSubmitting ||
+                              isPending ||
+                              isBillingDisabled ||
+                              isServiceLocked
                             }
                             className="text-right"
                           />
@@ -718,7 +764,12 @@ export function EditServiceForm({
             size="sm"
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={isButtonDisabled || isPending || !isDirty}
+            disabled={
+              isButtonDisabled ||
+              isPending ||
+              (!isDirty && !isCompletelyFinal) ||
+              isCompletelyFinal
+            }
           >
             {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

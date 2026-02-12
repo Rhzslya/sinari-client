@@ -16,18 +16,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { NumberStepper } from "@/components/utils/numberStepper";
-import { handleApiError } from "@/lib/utils";
+import { useProductQueries } from "@/hooks/product-queries";
 import type {
   ProductResponse,
   UpdateProductRequest,
 } from "@/model/product-model";
-import { ProductServices } from "@/services/product-services";
 import { ProductValidation } from "@/validation/product-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
-import { toast } from "sonner";
 
 interface UpdateStockFormProps {
   product: ProductResponse | null;
@@ -44,7 +42,8 @@ const UpdateStockForm = ({
   onOpenChange,
   onSuccess,
 }: UpdateStockFormProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { updateStockMutation } = useProductQueries();
+  const { mutateAsync: updateStock, isPending } = updateStockMutation;
 
   const form = useForm<Pick<UpdateProductRequest, "stock">>({
     resolver: zodResolver(ProductValidation.UPDATE_STOCK) as Resolver<
@@ -68,23 +67,17 @@ const UpdateStockForm = ({
 
   const onSubmit = async (data: Pick<UpdateProductRequest, "stock">) => {
     if (!product) return;
-    setIsLoading(true);
 
     try {
-      await ProductServices.update({
+      await updateStock({
         id: product.id,
         stock: data.stock,
       });
 
-      toast.success("Stock updated successfully", {
-        description: `${product.name} has been updated.`,
-      });
       onSuccess();
       onOpenChange(false);
-    } catch (error) {
-      handleApiError(error, "Failed to update stock");
-    } finally {
-      setIsLoading(false);
+    } catch {
+      //Handle by Hook
     }
   };
 
@@ -151,7 +144,7 @@ const UpdateStockForm = ({
                 variant="outline"
                 className="cursor-pointer duration-300"
                 onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isPending}
               >
                 Cancel
               </Button>
@@ -159,11 +152,11 @@ const UpdateStockForm = ({
                 size="sm"
                 className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                 type="submit"
-                disabled={isSubmitting || !isDirty}
+                disabled={isSubmitting || !isDirty || isPending}
               >
                 Save Changes
                 {isSubmitting ||
-                  (isLoading && (
+                  (isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ))}
               </Button>

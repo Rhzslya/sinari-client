@@ -11,12 +11,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { formatBytes } from "@/components/utils/formatBytes";
-import { handleApiError } from "@/lib/utils";
+import { useTechnicianQueries } from "@/hooks/technician-queries";
 import type {
   TechnicianResponse,
   UpdateTechnicianRequest,
 } from "@/model/technician-model";
-import { TechnicianServices } from "@/services/technician-services";
 import { MAX_FILE_SIZE } from "@/types/type";
 import { TechnicianValidation } from "@/validation/technician-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,8 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
-import { toast } from "sonner";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 
 interface EditTechnicianFormProps {
   technician: TechnicianResponse;
@@ -43,7 +41,11 @@ export function EditTechnicianForm({
   onSuccess,
   onCancel,
 }: EditTechnicianFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { updateTechnicianMutation } = useTechnicianQueries();
+  const { mutateAsync: updateTechnician, isPending } = updateTechnicianMutation;
+
+  // Track state
+  const [prevTechId, setPrevTechId] = useState(technician.id);
   const [preview, setPreview] = useState<string | null>(
     technician.signature_url || null,
   );
@@ -51,67 +53,48 @@ export function EditTechnicianForm({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  if (technician.id !== prevTechId) {
+    setPrevTechId(technician.id);
+    setPreview(technician.signature_url || null);
+    setIsImageDeleted(false);
+  }
+
+  useEffect(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [technician.id]);
+
   type EditFormValues = Omit<UpdateTechnicianRequest, "id">;
 
   const formUpdate = useForm<EditFormValues>({
     resolver: zodResolver(
       TechnicianValidation.UPDATE,
     ) as Resolver<EditFormValues>,
-    defaultValues: {
-      name: technician.name,
-      is_active: technician.is_active,
+    values: {
+      name: technician?.name || "",
+      is_active: technician?.is_active ?? true,
       signature: undefined,
     },
   });
 
-  const { isSubmitting, isDirty } = formUpdate.formState;
-  const nameValue = formUpdate.watch("name");
-  const isActiveValue = formUpdate.watch("is_active");
-  const imageValue = formUpdate.watch("signature");
+  const { isDirty } = formUpdate.formState;
+
+  const nameValue = useWatch({ control: formUpdate.control, name: "name" });
+  const isActiveValue = useWatch({
+    control: formUpdate.control,
+    name: "is_active",
+  });
+  const imageValue = useWatch({
+    control: formUpdate.control,
+    name: "signature",
+  });
 
   const isImageOversized =
     imageValue instanceof File && imageValue.size > MAX_FILE_SIZE;
 
-  const isButtonDisabled = isSubmitting || !nameValue || !isActiveValue;
-
-  const onSubmit = async (data: EditFormValues) => {
-    setIsLoading(true);
-
-    try {
-      await TechnicianServices.update({
-        id: technician.id,
-        ...data,
-        delete_image: isImageDeleted,
-      });
-
-      setIsImageDeleted(false);
-
-      toast.success("Technician updated successfully", {
-        description: `${data.name} has been successfully updated.`,
-      });
-      formUpdate.reset();
-      setPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      handleApiError(error, "Failed to update technician");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (technician) {
-      formUpdate.reset({
-        name: technician.name,
-        is_active: technician.is_active,
-        signature: undefined,
-      });
-      setPreview(technician.signature_url || null);
-      setIsImageDeleted(false);
-    }
-  }, [technician, formUpdate]);
+  const isButtonDisabled =
+    isPending || !nameValue || isActiveValue === undefined || isImageOversized;
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -152,31 +135,46 @@ export function EditTechnicianForm({
       signature: undefined,
     });
     setPreview(technician.signature_url || null);
+    setIsImageDeleted(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const onSubmit = async (data: EditFormValues) => {
+    try {
+      await updateTechnician({
+        id: technician.id,
+        ...data,
+        delete_image: isImageDeleted,
+      });
+
+      setIsImageDeleted(false);
+      formUpdate.reset(data);
+      setPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      if (onSuccess) onSuccess();
+    } catch {
+      // Handle by Hook
+    }
   };
 
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
     "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+
   return (
     <Form {...formUpdate}>
       <form
-        onSubmit={formUpdate.handleSubmit(onSubmit)}
+        onSubmit={(e) => void formUpdate.handleSubmit(onSubmit)(e)}
         className="flex flex-col h-full"
       >
         <div
           className="flex-1 overflow-y-auto px-6 py-6 
-            /* Lebar scrollbar */
             [&::-webkit-scrollbar]:w-1
-            
-            /* Track (Jalur) transparan */
             [&::-webkit-scrollbar-track]:bg-transparent
-            
-            /* Thumb (Batang) warna primary transparan & bulat */
             [&::-webkit-scrollbar-thumb]:bg-primary/20 
             [&::-webkit-scrollbar-thumb]:rounded-full
-            
             hover:[&::-webkit-scrollbar-thumb]:bg-primary
             transition-colors"
         >
@@ -199,10 +197,10 @@ export function EditTechnicianForm({
                   <FormControl>
                     <Input
                       autoComplete="off"
-                      placeholder="e.g. iPhone 15 Pro Titanium"
+                      placeholder="e.g. John Doe"
                       className={inputStyle}
                       {...field}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -229,7 +227,7 @@ export function EditTechnicianForm({
                         ref={fileInputRef}
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={(e) => handleImageChange(e, field.onChange)}
-                        disabled={isSubmitting}
+                        disabled={isPending}
                       />
 
                       {!preview ? (
@@ -281,7 +279,7 @@ export function EditTechnicianForm({
                                 onClick={(e) =>
                                   handleRemoveImage(e, field.onChange)
                                 }
-                                disabled={isSubmitting}
+                                disabled={isPending}
                               >
                                 <X className="h-3.5 w-3.5" />
                               </Button>
@@ -354,6 +352,7 @@ export function EditTechnicianForm({
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      disabled={isPending}
                     />
                   </FormControl>
                 </FormItem>
@@ -372,7 +371,7 @@ export function EditTechnicianForm({
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={handleResetToOriginal}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Reset
             </Button>
@@ -383,7 +382,7 @@ export function EditTechnicianForm({
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={onCancel}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Cancel
             </Button>
@@ -393,14 +392,12 @@ export function EditTechnicianForm({
             size="sm"
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={
-              isButtonDisabled || isLoading || (!isDirty && !isImageDeleted)
-            }
+            disabled={isButtonDisabled || (!isDirty && !isImageDeleted)}
           >
-            {isSubmitting ? (
+            {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Save Product"
+              "Save Technician"
             )}
           </Button>
         </div>

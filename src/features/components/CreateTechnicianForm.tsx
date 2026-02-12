@@ -11,9 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { formatBytes } from "@/components/utils/formatBytes";
-import { handleApiError } from "@/lib/utils";
+import { useTechnicianQueries } from "@/hooks/technician-queries";
 import type { CreateTechnicianRequest } from "@/model/technician-model";
-import { TechnicianServices } from "@/services/technician-services";
 import { MAX_FILE_SIZE } from "@/types/type";
 import { TechnicianValidation } from "@/validation/technician-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,15 +25,16 @@ import {
   X,
 } from "lucide-react";
 import { useRef, useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
-import { toast } from "sonner";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 
 interface CreateTechnicianFormProps {
   onSuccess?: () => void;
 }
 
 export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { createMutation } = useTechnicianQueries();
+  const { mutateAsync: createTechnician, isPending } = createMutation;
+
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,34 +51,21 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
   });
 
   const { isSubmitting, isDirty } = formCreate.formState;
-  const nameValue = formCreate.watch("name");
-  const signatureValue = formCreate.watch("signature");
+
+  const nameValue = useWatch({
+    control: formCreate.control,
+    name: "name",
+  });
+  const signatureValue = useWatch({
+    control: formCreate.control,
+    name: "signature",
+  });
 
   const isImageOversized =
     signatureValue instanceof File && signatureValue.size > MAX_FILE_SIZE;
 
   const isButtonDisabled = isSubmitting || !nameValue || isImageOversized;
 
-  const onSubmit = async (data: CreateTechnicianRequest) => {
-    setIsLoading(true);
-    try {
-      await TechnicianServices.create(data);
-
-      toast.success("Technician created successfully", {
-        description: `${data.name} has been added to the list.`,
-      });
-
-      formCreate.reset();
-      setPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      handleApiError(error, "Failed to create technician");
-    } finally {
-      setIsLoading(false);
-    }
-  };
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     onChange: (file: File | undefined) => void,
@@ -111,6 +98,19 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const onSubmit = async (data: CreateTechnicianRequest) => {
+    try {
+      await createTechnician(data);
+
+      formCreate.reset();
+      setPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (onSuccess) onSuccess();
+    } catch {
+      // Handle by Hook
+    }
+  };
+
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
@@ -119,7 +119,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
   return (
     <Form {...formCreate}>
       <form
-        onSubmit={formCreate.handleSubmit(onSubmit)}
+        onSubmit={(e) => void formCreate.handleSubmit(onSubmit)(e)}
         className="flex flex-col h-full"
       >
         {" "}
@@ -154,7 +154,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                       placeholder="John Doe"
                       className={inputStyle}
                       {...field}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isPending}
                     />
                   </FormControl>
                   <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -177,7 +177,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isPending}
                     />
                   </FormControl>
                 </FormItem>
@@ -209,7 +209,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                         ref={fileInputRef}
                         accept="image/png, image/jpeg, image/jpg, image/webp"
                         onChange={(e) => handleImageChange(e, field.onChange)}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
 
                       {!preview ? (
@@ -265,7 +265,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                                 onClick={(e) =>
                                   handleRemoveImage(e, field.onChange)
                                 }
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || isPending}
                               >
                                 <X className="h-3.5 w-3.5" />
                               </Button>
@@ -350,7 +350,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               onClick={handleReset}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPending}
             >
               Reset
             </Button>
@@ -360,7 +360,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
               variant="ghost"
               type="button"
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isPending}
             >
               Cancel
             </Button>
@@ -370,9 +370,9 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
             size="sm"
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={isButtonDisabled || isLoading}
+            disabled={isButtonDisabled || isPending}
           >
-            {isSubmitting ? (
+            {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               "Save Technician"

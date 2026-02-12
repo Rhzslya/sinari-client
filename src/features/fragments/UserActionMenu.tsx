@@ -8,10 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontalIcon } from "lucide-react";
-import type { ListUserResponse } from "@/model/user-model";
+import type { NotPublicUserResponse, UserResponse } from "@/model/user-model";
 
 interface UserActionMenuProps {
-  user: ListUserResponse;
+  user: NotPublicUserResponse;
+  currentUser: UserResponse | undefined;
   onViewDetails: () => void;
   onUpdateRole: () => void;
   onDeleteUser: () => void;
@@ -20,12 +21,27 @@ interface UserActionMenuProps {
 
 export function UserActionMenu({
   user,
+  currentUser,
   onViewDetails,
   onUpdateRole,
   onDeleteUser,
   isCurrentUser = false,
 }: UserActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const isTargetOwner = user.role === "OWNER";
+  const isTargetAdmin = user.role === "ADMIN";
+
+  const isCurrentUserOwner = currentUser?.role === "OWNER";
+  const isCurrentUserAdmin = currentUser?.role === "ADMIN";
+
+  const isAdminDeletingAdmin = isCurrentUserAdmin && isTargetAdmin;
+
+  const isDeleteDisabled =
+    isCurrentUser || isTargetOwner || isAdminDeletingAdmin;
+
+  const isEditRoleDisabled =
+    isCurrentUser || isTargetOwner || !isCurrentUserOwner;
 
   const handleAction = (callback: () => void) => {
     requestAnimationFrame(() => {
@@ -61,9 +77,11 @@ export function UserActionMenu({
           onSelect={() => {
             handleAction(onUpdateRole);
           }}
-          disabled={isCurrentUser}
+          disabled={isDeleteDisabled}
           className={
-            isCurrentUser ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            isEditRoleDisabled
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer"
           }
         >
           Edit Role
@@ -72,9 +90,11 @@ export function UserActionMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => handleAction(onDeleteUser)}
-          disabled={isCurrentUser}
+          disabled={isDeleteDisabled}
           className={`text-destructive focus:text-destructive ${
-            isCurrentUser ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            isDeleteDisabled
+              ? "opacity-50 cursor-not-allowed"
+              : "cursor-pointer"
           }`}
         >
           Delete User

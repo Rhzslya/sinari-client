@@ -20,16 +20,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand } from "@/enum/product-enum";
-import { handleApiError } from "@/lib/utils";
+import { useServiceQueries } from "@/hooks/repair-queries";
 import type { CreateServiceRequest } from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services";
 import { TechnicianServices } from "@/services/technician-services";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useFieldArray, useForm, type Resolver } from "react-hook-form";
-import { toast } from "sonner";
+import {
+  useFieldArray,
+  useForm,
+  useWatch,
+  type Resolver,
+} from "react-hook-form";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const MAX_SERVICE_ITEMS = 10;
@@ -38,32 +41,16 @@ interface ServiceFormProps {
   onSuccess?: () => void;
 }
 
-interface TechnicianOption {
-  id: number;
-  name: string;
-}
-
 export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [technicians, setTechnicians] = useState<TechnicianOption[]>([]);
-  const [isFetchingTechs, setIsFetchingTechs] = useState(false);
+  const { createMutation } = useServiceQueries();
 
-  useEffect(() => {
-    const fetchTechnicians = async () => {
-      setIsFetchingTechs(true);
-      try {
-        const data = await TechnicianServices.listActive();
-        console.log(data);
+  const { mutateAsync: createService, isPending } = createMutation;
 
-        setTechnicians(data);
-      } catch (error) {
-        handleApiError(error, "Failed to load technicians");
-      } finally {
-        setIsFetchingTechs(false);
-      }
-    };
-    fetchTechnicians();
-  }, []);
+  const { data: technicians, isLoading: isFetchingTechs } = useQuery({
+    queryKey: ["technicians", "active_list"],
+    queryFn: TechnicianServices.listActive,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const formCreate = useForm<CreateServiceRequest>({
     resolver: zodResolver(
@@ -84,36 +71,56 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
     },
   });
 
+  const { isSubmitting, isDirty } = formCreate.formState;
+
   const { fields, append, remove } = useFieldArray({
     control: formCreate.control,
     name: "service_list",
   });
 
-  const customerNameValue = formCreate.watch("customer_name");
-  const phoneNumberValue = formCreate.watch("phone_number");
-  const modelValue = formCreate.watch("model");
+  const customerNameValue = useWatch({
+    control: formCreate.control,
+    name: "customer_name",
+  });
+  const phoneNumberValue = useWatch({
+    control: formCreate.control,
+    name: "phone_number",
+  });
+  const modelValue = useWatch({
+    control: formCreate.control,
+    name: "model",
+  });
+  const serviceList = useWatch({
+    control: formCreate.control,
+    name: "service_list",
+  });
+  const discountPercent =
+    useWatch({
+      control: formCreate.control,
+      name: "discount",
+    }) || 0;
+  const downPayment =
+    useWatch({
+      control: formCreate.control,
+      name: "down_payment",
+    }) || 0;
 
-  const serviceList = formCreate.watch("service_list");
+  const hasInvalidItems =
+    !serviceList ||
+    serviceList.length === 0 ||
+    serviceList.some(
+      (item) => !item.name || !item.price || Number(item.price) <= 0,
+    );
 
-  const hasInvalidServiceItem = serviceList.some(
-    (item) => !item.name || !item.price || Number(item.price) <= 0,
-  );
-
-  const { isSubmitting } = formCreate.formState;
   const isButtonDisabled =
     isSubmitting ||
     !customerNameValue ||
     !phoneNumberValue ||
     !modelValue ||
-    hasInvalidServiceItem;
+    hasInvalidItems;
 
-  const discountPercent = formCreate.watch("discount") || 0;
-  const downPayment = formCreate.watch("down_payment") || 0;
-
-  const subTotal = serviceList.reduce(
-    (acc, curr) => acc + (Number(curr.price) || 0),
-    0,
-  );
+  const subTotal =
+    serviceList?.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0) || 0;
   const discountAmount = (subTotal * discountPercent) / 100;
   const grandTotal = subTotal - discountAmount - downPayment;
 
@@ -121,14 +128,24 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
 
   const isBillingDisabled = subTotal <= 0;
 
-  const onSubmit = async (data: CreateServiceRequest) => {
-    setIsLoading(true);
-    try {
-      await RepairServices.create(data);
+  const handleReset = () => {
+    formCreate.reset({
+      brand: Brand.OTHER,
+      model: "",
+      customer_name: "",
+      phone_number: "",
+      description: "",
+      technician_note: "",
+      service_list: [{ name: "", price: 0 }],
+      discount: 0,
+      down_payment: 0,
+      technician_id: undefined,
+    });
+  };
 
-      toast.success("Service created successfully", {
-        description: `Service for ${data.customer_name} has been registered.`,
-      });
+  const onSubmit = async (data: CreateServiceRequest) => {
+    try {
+      await createService(data);
 
       formCreate.reset({
         brand: Brand.OTHER,
@@ -143,10 +160,8 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
       });
 
       if (onSuccess) onSuccess();
-    } catch (error) {
-      handleApiError(error, "Failed to create service");
-    } finally {
-      setIsLoading(false);
+    } catch {
+      // Handle by Hook
     }
   };
 
@@ -164,6 +179,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
         <div
           className="flex-1 overflow-y-auto px-6 py-6 
             [&::-webkit-scrollbar]:w-1
+            [&::-webkit-scrollbar]:h-1
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-primary/20 
             [&::-webkit-scrollbar-thumb]:rounded-full
@@ -193,7 +209,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         placeholder="John Doe"
                         className={inputStyle}
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -218,7 +234,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                           const numericValue = value.replace(/\D/g, "");
                           field.onChange(numericValue);
                         }}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -234,7 +250,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -265,7 +281,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         placeholder="e.g. A51, iPhone 11"
                         className={inputStyle}
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -300,7 +316,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         }
                       }}
                       value={field.value ? field.value.toString() : ""}
-                      disabled={isSubmitting || isFetchingTechs}
+                      disabled={isSubmitting || isFetchingTechs || isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -344,7 +360,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         placeholder="e.g. LCD Pecah, Touchscreen error..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -365,7 +381,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         placeholder="e.g. Casing agak bengkok..."
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -391,7 +407,11 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 variant="outline"
                 className="h-7 text-xs gap-1"
                 onClick={() => append({ name: "", price: 0 })}
-                disabled={isSubmitting || fields.length >= MAX_SERVICE_ITEMS}
+                disabled={
+                  isSubmitting ||
+                  isPending ||
+                  fields.length >= MAX_SERVICE_ITEMS
+                }
               >
                 <Plus className="w-3 h-3" /> Add Item
                 <span className="ml-1 text-[10px] text-muted-foreground">
@@ -422,7 +442,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                               size="icon"
                               className="h-6 w-6 -mr-1 -mt-1 text-muted-foreground hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                               onClick={() => remove(index)}
-                              disabled={isSubmitting}
+                              disabled={isSubmitting || isPending}
                               title="Remove Item"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -435,7 +455,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                             placeholder="e.g. Ganti LCD Samsung A51"
                             className={inputStyle}
                             {...field}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isPending}
                           />
                         </FormControl>
                         <FormMessage className="absolute -bottom-4 left-0 text-[10px] mt-0" />
@@ -459,7 +479,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                             min={0}
                             prefix="Rp"
                             placeholder="0"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isPending}
                           />
                         </FormControl>
                         <FormMessage className="absolute -bottom-4 left-0 text-[10px] mt-0" />
@@ -511,7 +531,9 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                             max={100}
                             min={0}
                             placeholder="0"
-                            disabled={isSubmitting || isBillingDisabled}
+                            disabled={
+                              isSubmitting || isPending || isBillingDisabled
+                            }
                           />
                         </FormControl>
                       </FormItem>
@@ -545,7 +567,9 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                             max={maxDownPayment}
                             prefix="Rp"
                             placeholder="0"
-                            disabled={isSubmitting || isBillingDisabled}
+                            disabled={
+                              isSubmitting || isPending || isBillingDisabled
+                            }
                             className="text-right"
                           />
                         </FormControl>
@@ -575,21 +599,37 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
         </div>
 
         <div className="flex items-center justify-end gap-3 p-4 border-t bg-background mt-auto">
-          <Button
-            variant="ghost"
-            type="button"
-            className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
-            onClick={() => formCreate.reset()}
-            disabled={isSubmitting}
-          >
-            Reset
-          </Button>
+          {isDirty ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              type="button"
+              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              onClick={handleReset}
+              disabled={isSubmitting || isPending}
+            >
+              Reset
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="ghost"
+              type="button"
+              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              onClick={() => {
+                if (onSuccess) onSuccess();
+              }}
+              disabled={isSubmitting || isPending}
+            >
+              Cancel
+            </Button>
+          )}
           <Button
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={isButtonDisabled || isLoading}
+            disabled={isButtonDisabled || isPending}
           >
-            {isSubmitting ? (
+            {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               "Create Service"

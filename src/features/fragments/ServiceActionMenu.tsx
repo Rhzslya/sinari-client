@@ -19,6 +19,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
+import { useUserQueries } from "@/hooks/user-queries";
 
 interface ServiceActionMenuProps {
   service: ServiceResponse;
@@ -35,6 +36,11 @@ export function ServiceActionMenu({
   onUpdateStatus,
   onDeleteService,
 }: ServiceActionMenuProps) {
+  const userQueries = useUserQueries();
+
+  const { data: currentUser } = userQueries.useProfile();
+  const isOwner = currentUser?.role === "OWNER";
+
   const [isOpen, setIsOpen] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
@@ -94,16 +100,19 @@ export function ServiceActionMenu({
           <RefreshCw className="mr-2 h-4 w-4" />
           Update Status
         </DropdownMenuItem>
+        {isOwner && (
+          <>
+            <DropdownMenuSeparator />
 
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem
-          onClick={onDeleteService}
-          className="text-destructive focus:text-destructive cursor-pointer"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={onDeleteService}
+              className="text-destructive focus:text-destructive cursor-pointer"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

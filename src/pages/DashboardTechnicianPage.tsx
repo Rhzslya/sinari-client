@@ -32,9 +32,8 @@ import { CreateTechnicianForm } from "@/features/components/CreateTechnicianForm
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import DashboardTechnicianTable from "@/features/fragments/DashboardTechnicianTable";
 import { PaginationComponent } from "@/features/fragments/Pagination";
+import { useTechnicianQueries } from "@/hooks/technician-queries";
 import { handleApiError } from "@/lib/utils";
-import type { TechnicianResponse } from "@/model/technician-model";
-import { TechnicianServices } from "@/services/technician-services";
 import {
   ArrowUpDown,
   Check,
@@ -43,18 +42,15 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const DashboardTechnicianPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [technicians, setTechnicians] = useState<TechnicianResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
-
   const nameParam = searchParams.get("name") || "";
   const isActiveParam =
     searchParams.get("is_active") === "true"
@@ -62,10 +58,13 @@ const DashboardTechnicianPage = () => {
       : searchParams.get("is_active") === "false"
         ? false
         : undefined;
-
   const sortByParam = searchParams.get("sort_by") || "created_at";
   const sortOrderParam = searchParams.get("sort_order") || "desc";
 
+  // --- STATES ---
+  const [searchTerm, setSearchTerm] = useState(nameParam);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [tempActive, setTempActive] = useState<string | undefined>(
     isActiveParam === true
       ? "true"
@@ -74,42 +73,28 @@ const DashboardTechnicianPage = () => {
         : undefined,
   );
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [totalPage, setTotalPage] = useState(0);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(nameParam);
+  const technicianQueries = useTechnicianQueries();
+  const { data, isLoading, isError, error, refetch } =
+    technicianQueries.useList({
+      page: page,
+      size: size,
+      name: nameParam || undefined,
+      is_active: isActiveParam,
+      sort_by: sortByParam as "created_at" | "is_active",
+      sort_order: sortOrderParam as "asc" | "desc",
+    });
 
-  const isSearching = !!nameParam;
-
-  const fetchTechnicians = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await TechnicianServices.search({
-        page: page,
-        size: size,
-        name: nameParam || undefined,
-        is_active: isActiveParam,
-        sort_by: sortByParam as "created_at" | "is_active",
-        sort_order: sortOrderParam as "asc" | "desc",
-      });
-
-      if (response.data) {
-        setTechnicians(response.data);
+  const handleSearch = () => {
+    setSearchParams((prev) => {
+      if (searchTerm) {
+        prev.set("name", searchTerm);
+      } else {
+        prev.delete("name");
       }
-
-      if (response.paging) {
-        setTotalPage(response.paging.total_page);
-      }
-    } catch (error) {
-      handleApiError(error, "Failed to load technicians");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, size, nameParam, isActiveParam, sortByParam, sortOrderParam]);
-
-  useEffect(() => {
-    fetchTechnicians();
-  }, [fetchTechnicians]);
+      prev.set("page", "1");
+      return prev;
+    });
+  };
 
   useEffect(() => {
     setSearchTerm(nameParam);
@@ -127,22 +112,22 @@ const DashboardTechnicianPage = () => {
     }
   }, [isFilterOpen, isActiveParam]);
 
+  useEffect(() => {
+    if (isError) {
+      handleApiError(error, "Failed to load technicians");
+    }
+  }, [isError, error]);
+
+  const technicians = data?.data || [];
+  const totalPage = data?.paging?.total_page || 0;
+  const isDatabaseEmpty =
+    technicians.length === 0 && !nameParam && isActiveParam === undefined;
+
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
       prev.set("page", String(newPage));
       return prev;
     });
-  };
-
-  const handleCreateSuccess = () => {
-    setIsSheetOpen(false);
-    setSearchParams((prev) => {
-      prev.set("page", "1");
-      return prev;
-    });
-    if (page === 1) {
-      fetchTechnicians();
-    }
   };
 
   const applyFilters = () => {
@@ -158,16 +143,14 @@ const DashboardTechnicianPage = () => {
     setIsFilterOpen(false);
   };
 
-  const handleSearch = () => {
+  const clearFilters = () => {
     setSearchParams((prev) => {
-      if (searchTerm) {
-        prev.set("name", searchTerm);
-      } else {
-        prev.delete("name");
-      }
+      prev.delete("is_active");
       prev.set("page", "1");
       return prev;
     });
+    setTempActive("ALL");
+    setIsFilterOpen(false);
   };
 
   const handleClearSearch = () => {
@@ -192,31 +175,25 @@ const DashboardTechnicianPage = () => {
     });
   };
 
-  const clearFilters = () => {
+  const handleCreateSuccess = () => {
+    setIsSheetOpen(false);
     setSearchParams((prev) => {
-      prev.delete("is_active");
       prev.set("page", "1");
       return prev;
     });
-    setTempActive("ALL");
-    setIsFilterOpen(false);
+    if (page === 1) {
+      refetch();
+    }
   };
 
   // --- HELPERS ---
   const activeFiltersCount = [isActiveParam !== undefined].filter(
     Boolean,
   ).length;
-  const isFiltering = activeFiltersCount > 0;
-  const isDatabaseEmpty =
-    technicians.length === 0 && !isFiltering && !isSearching;
 
   const isSortActive = (by: string, order: string) => {
     return sortByParam === by && sortOrderParam === order;
   };
-
-  //   const hasChanges =
-  //     (tempActive === "ALL" ? undefined : tempActive === "true") !==
-  //     isActiveParam;
 
   return (
     <div className="flex flex-col h-full">
@@ -409,7 +386,7 @@ const DashboardTechnicianPage = () => {
         <DashboardTechnicianTable
           technicians={technicians}
           isLoading={isLoading}
-          onSuccess={fetchTechnicians}
+          onSuccess={() => refetch()}
         />
       </div>
 

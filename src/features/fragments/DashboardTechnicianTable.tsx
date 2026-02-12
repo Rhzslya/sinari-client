@@ -20,7 +20,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-// Pastikan komponen ini sudah dibuat atau sesuaikan importnya
 import { EditTechnicianForm } from "../components/EditTechnicianForm";
 import { TechnicianActionMenu } from "./TechnicianActionMenu";
 import DeleteTechnicianForm from "./DeleteTechnicianForm";
@@ -31,18 +30,10 @@ const DashboardTechnicianTable = ({
   isLoading,
   onSuccess,
 }: DashboardTechnicianTableProps) => {
-  const navigate = useNavigate();
-
-  // State Management mirip Product Table
   const [selectedTechnician, setSelectedTechnician] =
     useState<TechnicianResponse | null>(null);
   const [isEditTechnicianOpen, setIsEditTechnicianOpen] = useState(false);
   const [isDeleteTechnicianOpen, setIsDeleteTechnicianOpen] = useState(false);
-
-  // Handlers
-  const handleViewDetail = (technician: TechnicianResponse) => {
-    navigate(`/dashboard/technicians/detail/${technician.id}`);
-  };
 
   const handleEditTechnicianOpen = (technician: TechnicianResponse) => {
     setSelectedTechnician(technician);
@@ -76,7 +67,7 @@ const DashboardTechnicianTable = ({
                 <TableHead className="w-14 font-bold border-r border-border/60 text-center">
                   ID
                 </TableHead>
-                <TableHead className="w-87.5 font-bold">
+                <TableHead className="w-54 font-bold">
                   Technician Name
                 </TableHead>
                 <TableHead className="w-37.5 font-bold text-center">

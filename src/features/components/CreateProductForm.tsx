@@ -18,16 +18,14 @@ import {
 import { formatBytes } from "@/components/utils/formatBytes";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand, Category } from "@/enum/product-enum";
-import { handleApiError } from "@/lib/utils";
+import { useProductQueries } from "@/hooks/product-queries";
 import { type CreateProductRequest } from "@/model/product-model";
-import { ProductServices } from "@/services/product-services";
 import { MAX_FILE_SIZE } from "@/types/type";
 import { ProductValidation } from "@/validation/product-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileImage, Loader2, Sparkles, UploadCloud, X } from "lucide-react";
 import { useRef, useState } from "react";
-import { useForm, type Resolver } from "react-hook-form";
-import { toast } from "sonner";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const CATEGORY_OPTIONS = Object.values(Category);
@@ -37,7 +35,9 @@ interface ProductFormProps {
 }
 
 export function CreateProductForm({ onSuccess }: ProductFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { createMutation } = useProductQueries();
+  const { mutateAsync: createProduct, isPending } = createMutation;
+
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,41 +58,46 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
     },
   });
 
-  const { isSubmitting } = formCreate.formState;
-  const nameValue = formCreate.watch("name");
-  const priceValue = formCreate.watch("price");
-  const costPriceValue = formCreate.watch("cost_price");
-  const imageValue = formCreate.watch("image");
+  const { isSubmitting, isDirty } = formCreate.formState;
+
+  const nameValue = useWatch({
+    control: formCreate.control,
+    name: "name",
+  });
+  const priceValue = useWatch({
+    control: formCreate.control,
+    name: "price",
+  });
+  const costPriceValue = useWatch({
+    control: formCreate.control,
+    name: "cost_price",
+  });
+  const imageValue = useWatch({
+    control: formCreate.control,
+    name: "image",
+  });
 
   const isImageOversized =
     imageValue instanceof File && imageValue.size > MAX_FILE_SIZE;
 
   const isButtonDisabled =
-    isSubmitting ||
+    isPending ||
     !nameValue ||
     Number(priceValue) <= 0 ||
     Number(costPriceValue) <= 0 ||
     isImageOversized;
 
-  const onSubmit = async (data: CreateProductRequest) => {
-    setIsLoading(true);
-    try {
-      await ProductServices.create(data);
-
-      toast.success("Product created successfully", {
-        description: `${data.name} has been added to inventory.`,
-      });
-
-      formCreate.reset();
-      setPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      handleApiError(error, "Failed to create product");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleReset = () => {
+    formCreate.reset({
+      name: "",
+      brand: Brand.OTHER,
+      manufacturer: "ORIGINAL",
+      price: 0,
+      cost_price: 0,
+      category: Category.OTHER,
+      stock: 0,
+      image: undefined,
+    });
   };
 
   const handleImageChange = (
@@ -113,6 +118,19 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const onSubmit = async (data: CreateProductRequest) => {
+    try {
+      await createProduct(data);
+
+      formCreate.reset();
+      setPreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (onSuccess) onSuccess();
+    } catch {
+      // Handle by Hook
+    }
+  };
+
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
@@ -121,7 +139,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
   return (
     <Form {...formCreate}>
       <form
-        onSubmit={formCreate.handleSubmit(onSubmit)}
+        onSubmit={(e) => void formCreate.handleSubmit(onSubmit)(e)}
         className="flex flex-col h-full"
       >
         <div
@@ -161,7 +179,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                       placeholder="e.g. iPhone 15 Pro Titanium"
                       className={inputStyle}
                       {...field}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                     />
                   </FormControl>
                   <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -179,7 +197,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -208,7 +226,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      disabled={isSubmitting}
+                      disabled={isPending}
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
@@ -259,7 +277,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                           <Input
                             name={field.name}
                             onBlur={field.onBlur}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isPending}
                             ref={fileInputRef}
                             onChange={(e) =>
                               handleImageChange(e, field.onChange)
@@ -293,6 +311,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                               type="button"
                               variant="destructive"
                               size="icon"
+                              disabled={isSubmitting || isPending}
                               className="h-6 w-6 rounded-md shadow-sm transition-opacity cursor-pointer duration-300"
                               onClick={() => handleRemoveImage(field.onChange)}
                             >
@@ -391,7 +410,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                         step={10000}
                         prefix="Rp"
                         placeholder="0"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -412,7 +431,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                         step={10000}
                         prefix="Rp"
                         placeholder="0"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -432,7 +451,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                         onChange={field.onChange}
                         step={1}
                         placeholder="0"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
@@ -451,7 +470,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                         autoComplete="off"
                         placeholder="ORIGINAL"
                         className={inputStyle}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isPending}
                         {...field}
                       />
                     </FormControl>
@@ -465,25 +484,37 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
         </div>
 
         <div className="flex items-center justify-end gap-3 p-4 border-t bg-background mt-auto">
-          <Button
-            variant="ghost"
-            type="button"
-            className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
-            onClick={() => {
-              formCreate.reset();
-              setPreview(null);
-              if (fileInputRef.current) fileInputRef.current.value = "";
-            }}
-            disabled={isSubmitting}
-          >
-            Reset
-          </Button>
+          {isDirty ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              type="button"
+              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              onClick={handleReset}
+              disabled={isSubmitting || isPending}
+            >
+              Reset
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="ghost"
+              type="button"
+              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              onClick={() => {
+                if (onSuccess) onSuccess();
+              }}
+              disabled={isSubmitting || isPending}
+            >
+              Cancel
+            </Button>
+          )}
           <Button
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={isButtonDisabled || isLoading}
+            disabled={isButtonDisabled || isPending}
           >
-            {isSubmitting ? (
+            {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               "Save Product"

@@ -21,9 +21,7 @@ import {
 } from "@/components/ui/sheet";
 import { CreateProductForm } from "@/features/components/CreateProductForm";
 import { PaginationComponent } from "@/features/fragments/Pagination";
-import { useCallback, useEffect, useState } from "react";
-import type { ProductResponse } from "@/model/product-model";
-import { ProductServices } from "@/services/product-services";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Brand, Category } from "@/enum/product-enum";
 import {
@@ -49,17 +47,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { handleApiError } from "@/lib/utils";
+import { useProductQueries } from "@/hooks/product-queries";
 
 const DashboardProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [products, setProducts] = useState<ProductResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
-
-  const nameParam = searchParams.get("name") || "";
+  const searchParam = searchParams.get("name") || "";
   const brandParam = searchParams.get("brand") as Brand | undefined;
   const categoryParam = searchParams.get("category") as Category | undefined;
   const minPriceParam = searchParams.get("min_price") || "";
@@ -68,6 +64,12 @@ const DashboardProductPage = () => {
   const sortByParam = searchParams.get("sort_by") || "created_at";
   const sortOrderParam = searchParams.get("sort_order") || "desc";
 
+  // --- LOCAL STATES ---
+  const [searchTerm, setSearchTerm] = useState(searchParam);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // Temporary filter states
   const [tempBrand, setTempBrand] = useState<string | undefined>(brandParam);
   const [tempCategory, setTempCategory] = useState<string | undefined>(
     categoryParam,
@@ -76,64 +78,35 @@ const DashboardProductPage = () => {
   const [tempMaxPrice, setTempMaxPrice] = useState(maxPriceParam);
   const [tempInStock, setTempInStock] = useState(inStockOnlyParam);
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const productQueries = useProductQueries();
 
-  const [totalPage, setTotalPage] = useState(0);
+  const { data, isLoading, isError, error, refetch } = productQueries.useList({
+    page: page,
+    size: size,
+    name: searchParam || undefined,
+    brand: brandParam,
+    category: categoryParam,
+    min_price: minPriceParam ? Number(minPriceParam) : undefined,
+    max_price: maxPriceParam ? Number(maxPriceParam) : undefined,
+    in_stock_only: inStockOnlyParam ? true : undefined,
+    sort_by: sortByParam as "price" | "stock" | "created_at",
+    sort_order: sortOrderParam as "asc" | "desc",
+  });
 
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const products = data?.data || [];
+  const totalPage = data?.paging?.total_page || 0;
 
-  const [searchTerm, setSearchTerm] = useState(nameParam);
+  const isSearching = !!searchParam;
 
-  const isSearching = !!nameParam;
-
-  const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await ProductServices.search({
-        page: page,
-        size: size,
-        name: nameParam || undefined,
-        brand: brandParam,
-        category: categoryParam,
-        min_price: minPriceParam ? Number(minPriceParam) : undefined,
-        max_price: maxPriceParam ? Number(maxPriceParam) : undefined,
-        in_stock_only: inStockOnlyParam ? true : undefined,
-
-        sort_by: sortByParam as "price" | "stock" | "created_at",
-        sort_order: sortOrderParam as "asc" | "desc",
-      });
-      if (response.data) {
-        setProducts(response.data);
-      }
-
-      if (response.paging) {
-        setTotalPage(response.paging.total_page);
-      }
-    } catch (error) {
-      handleApiError(error, "Failed to load products");
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (isError) {
+      handleApiError(error, "Failed to load services");
     }
-  }, [
-    page,
-    size,
-    nameParam,
-    brandParam,
-    categoryParam,
-    minPriceParam,
-    maxPriceParam,
-    inStockOnlyParam,
-    sortByParam,
-    sortOrderParam,
-  ]);
+  }, [isError, error]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  useEffect(() => {
-    setSearchTerm(nameParam);
-  }, [nameParam]);
+    setSearchTerm(searchParam);
+  }, [searchParam]);
 
   useEffect(() => {
     if (isFilterOpen) {
@@ -152,6 +125,18 @@ const DashboardProductPage = () => {
     inStockOnlyParam,
   ]);
 
+  const handleSearch = () => {
+    setSearchParams((prev) => {
+      if (searchTerm) {
+        prev.set("name", searchTerm);
+      } else {
+        prev.delete("name");
+      }
+      prev.set("page", "1");
+      return prev;
+    });
+  };
+
   const handlePageChange = (newPage: number) => {
     setSearchParams((prev) => {
       prev.set("page", String(newPage));
@@ -161,14 +146,19 @@ const DashboardProductPage = () => {
 
   const handleCreateSuccess = () => {
     setIsSheetOpen(false);
-    setSearchParams((prev) => {
-      prev.set("page", "1");
-      return prev;
-    });
     if (page === 1) {
-      fetchProducts();
+      refetch();
+    } else {
+      setSearchParams((prev) => {
+        prev.set("page", "1");
+        return prev;
+      });
     }
   };
+
+  useEffect(() => {
+    setSearchTerm(searchParam);
+  }, [searchParam]);
 
   const applyFilters = () => {
     setSearchParams((prev) => {
@@ -196,29 +186,6 @@ const DashboardProductPage = () => {
     setIsFilterOpen(false);
   };
 
-  const handleSearch = () => {
-    setSearchParams((prev) => {
-      if (searchTerm) {
-        prev.set("name", searchTerm);
-      } else {
-        prev.delete("name");
-      }
-      prev.set("page", "1");
-      return prev;
-    });
-  };
-
-  const handleSortChange = (
-    sortBy: "price" | "stock" | "created_at",
-    sortOrder: "asc" | "desc",
-  ) => {
-    setSearchParams((prev) => {
-      prev.set("sort_by", sortBy);
-      prev.set("sort_order", sortOrder);
-      return prev;
-    });
-  };
-
   const clearFilters = () => {
     setSearchParams((prev) => {
       prev.delete("brand");
@@ -236,6 +203,28 @@ const DashboardProductPage = () => {
     setTempInStock(false);
 
     setIsFilterOpen(false);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    if (searchParam) {
+      setSearchParams((prev) => {
+        prev.delete("name");
+        prev.set("page", "1");
+        return prev;
+      });
+    }
+  };
+
+  const handleSortChange = (
+    sortBy: "price" | "stock" | "created_at",
+    sortOrder: "asc" | "desc",
+  ) => {
+    setSearchParams((prev) => {
+      prev.set("sort_by", sortBy);
+      prev.set("sort_order", sortOrder);
+      return prev;
+    });
   };
 
   const activeFiltersCount = [
@@ -264,16 +253,6 @@ const DashboardProductPage = () => {
     normalize(tempMaxPrice) !== normalize(maxPriceParam) ||
     tempInStock !== inStockOnlyParam;
 
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    if (nameParam) {
-      setSearchParams((prev) => {
-        prev.delete("name");
-        prev.set("page", "1");
-        return prev;
-      });
-    }
-  };
   return (
     <div className="flex flex-col h-full">
       <DashboardHeader title="Products Management">
@@ -543,7 +522,7 @@ const DashboardProductPage = () => {
         <DashboardProductTable
           products={products}
           isLoading={isLoading}
-          onSuccess={fetchProducts}
+          onSuccess={() => refetch()}
         />
       </div>
       <PaginationComponent

@@ -97,30 +97,35 @@ export function LoginForm() {
       const message = getErrorMessage(error);
 
       if (isAxiosError(error) && error.response?.status === 403) {
-        setShowUnverifiedCard(true);
-        setShowInitialCheckEmail(true);
-        setGlobalError(null);
-        const currentId = data.identifier.toLowerCase();
-        const cacheKey = `verif_email_cache_${currentId}`;
-        const cachedEmail = localStorage.getItem(cacheKey);
+        if (message.toLowerCase().includes("not verified")) {
+          setShowUnverifiedCard(true);
+          setShowInitialCheckEmail(true);
+          setGlobalError(null);
 
-        const effectiveEmail =
-          cachedEmail || (currentId.includes("@") ? currentId : null);
+          const currentId = data.identifier.toLowerCase();
+          const cacheKey = `verif_email_cache_${currentId}`;
+          const cachedEmail = localStorage.getItem(cacheKey);
 
-        if (effectiveEmail) {
-          setEmail(effectiveEmail);
-        }
+          const effectiveEmail =
+            cachedEmail || (currentId.includes("@") ? currentId : null);
 
-        const targetId = effectiveEmail || currentId;
-        const targetTime = localStorage.getItem(`resend_verif_${targetId}`);
-
-        if (targetTime) {
-          const remaining = Math.ceil(
-            (parseInt(targetTime) - Date.now()) / 1000,
-          );
-          if (remaining > 0) {
-            startCooldown(remaining, targetId);
+          if (effectiveEmail) {
+            setEmail(effectiveEmail);
           }
+
+          const targetId = effectiveEmail || currentId;
+          const targetTime = localStorage.getItem(`resend_verif_${targetId}`);
+
+          if (targetTime) {
+            const remaining = Math.ceil(
+              (parseInt(targetTime) - Date.now()) / 1000,
+            );
+            if (remaining > 0) {
+              startCooldown(remaining, targetId);
+            }
+          }
+        } else {
+          setGlobalError(message);
         }
       } else {
         setGlobalError(message);

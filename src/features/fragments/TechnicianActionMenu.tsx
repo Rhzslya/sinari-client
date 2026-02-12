@@ -12,14 +12,12 @@ import type { TechnicianResponse } from "@/model/technician-model";
 
 interface ProductActionMenuProps {
   technician: TechnicianResponse;
-  onViewDetails: () => void;
   onEditTechnician: () => void;
   onDeleteTechnician: () => void;
 }
 
 export function TechnicianActionMenu({
   technician,
-  onViewDetails,
   onEditTechnician,
   onDeleteTechnician,
 }: ProductActionMenuProps) {
@@ -48,13 +46,6 @@ export function TechnicianActionMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => handleAction(onViewDetails)}
-          className="cursor-pointer"
-        >
-          View Details
-        </DropdownMenuItem>
-
         <DropdownMenuItem
           onSelect={() => {
             handleAction(onEditTechnician);

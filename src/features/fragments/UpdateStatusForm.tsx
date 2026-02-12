@@ -55,6 +55,10 @@ export function UpdateStatusDialog({
   const { updateStatusMutation } = useServiceQueries();
   const { mutateAsync: updateStatus, isPending } = updateStatusMutation;
 
+  const isCompletelyFinal =
+    service?.status === ServiceStatus.CANCELLED ||
+    service?.status === ServiceStatus.TAKEN;
+
   const form = useForm<StatusFormValues>({
     resolver: zodResolver(statusSchema),
     defaultValues: {
@@ -126,6 +130,13 @@ export function UpdateStatusDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {isCompletelyFinal && (
+          <div className="bg-warning/20 text-warning-foreground p-3 rounded-md border border-warning/50 text-xs flex items-center gap-2 mb-2">
+            <span className="font-semibold uppercase">LOCKED:</span>
+            Status is final and cannot be changed anymore.
+          </div>
+        )}
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -140,7 +151,7 @@ export function UpdateStatusDialog({
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    disabled={isSubmitting || isPending}
+                    disabled={isSubmitting || isPending || isCompletelyFinal}
                   >
                     <FormControl>
                       <SelectTrigger className={inputStyle}>
@@ -174,7 +185,9 @@ export function UpdateStatusDialog({
                 size="sm"
                 className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                 type="submit"
-                disabled={isSubmitting || !isDirty || isPending}
+                disabled={
+                  isSubmitting || !isDirty || isPending || isCompletelyFinal
+                }
               >
                 Save Changes
                 {isSubmitting ||

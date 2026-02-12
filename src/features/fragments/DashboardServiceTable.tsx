@@ -118,9 +118,10 @@ const DashboardServiceTable = ({
                 <TableHead className="w-32 font-bold text-center">
                   Status
                 </TableHead>
-                <TableHead className="w-40 font-bold text-center">
+                <TableHead className="w-37.5 font-bold text-center">
                   Total Price
                 </TableHead>
+                <TableHead className="w-37.5 font-bold">Technician</TableHead>
                 <TableHead className="w-37.5 font-bold">Date</TableHead>
                 <TableHead className="w-12.5 text-right font-bold">
                   Actions
@@ -188,6 +189,25 @@ const DashboardServiceTable = ({
                       )}
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {/* Status Dot */}
+                      <div className="relative flex h-2.5 w-2.5 shrink-0">
+                        <span
+                          className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${service.technician.is_active ? "bg-emerald-400" : "hidden"}`}
+                        ></span>
+                        <span
+                          className={`relative inline-flex rounded-full h-2.5 w-2.5 ${service.technician.is_active ? "bg-emerald-500" : "bg-gray-300"}`}
+                        ></span>
+                      </div>
+
+                      <TruncatedTooltip
+                        text={service.technician.name}
+                        className={`font-medium text-sm max-w-35 ${!service.technician.is_active ? "text-muted-foreground" : ""}`}
+                      />
+                    </div>
+                  </TableCell>
+
                   <TableCell className="text-xs text-muted-foreground">
                     <div className="flex flex-col">
                       <span className="font-medium text-foreground">
@@ -198,6 +218,7 @@ const DashboardServiceTable = ({
                       </span>
                     </div>
                   </TableCell>
+
                   <TableCell className="text-right">
                     <ServiceActionMenu
                       service={service}
