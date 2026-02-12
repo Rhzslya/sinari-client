@@ -49,6 +49,8 @@ import { pdf } from "@react-pdf/renderer";
 import { ServiceInvoicePDF } from "@/features/components/ServiceInvoicePDF";
 import DeleteServiceForm from "@/features/fragments/DeleteServiceForm";
 import { useServiceQueries } from "@/hooks/repair-queries";
+import { ServiceLogTimeline } from "@/features/fragments/ServiceLogTimeline";
+import { useUserQueries } from "@/hooks/user-queries";
 
 const DetailServicePage = () => {
   const { serviceId } = useParams();
@@ -57,6 +59,11 @@ const DetailServicePage = () => {
 
   const id = Number(serviceId);
   const { data: service, isLoading, isError } = useDetail({ id });
+
+  const userQueries = useUserQueries();
+
+  const { data: currentUser } = userQueries.useProfile();
+  const isOwner = currentUser?.role === "OWNER";
 
   const [selectedService, setSelectedService] =
     useState<ServiceResponse | null>(null);
@@ -186,6 +193,8 @@ const DetailServicePage = () => {
   const discountAmount = (subTotal * (service.discount || 0)) / 100;
   const downPayment = service.down_payment || 0;
   const grandTotal = isCancelled ? 0 : subTotal - discountAmount - downPayment;
+
+  console.log(service.technician.is_active);
 
   return (
     <>
@@ -426,14 +435,19 @@ const DetailServicePage = () => {
                   <Printer className="mr-2 h-4 w-4" />{" "}
                   {isGeneratingPdf ? "Generating..." : "Download PDF"}
                 </Button>
-                <Separator />
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
-                  onClick={() => handleDeleteServiceOpen(service)}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" /> Delete Service
-                </Button>
+
+                {isOwner && (
+                  <>
+                    <Separator />
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
+                      onClick={() => handleDeleteServiceOpen(service)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete Service
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -457,9 +471,17 @@ const DetailServicePage = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div className="overflow-hidden min-w-0 flex-1">
-                        <p className="text-sm font-bold leading-none truncate">
-                          <TruncatedTooltip text={service.technician.name} />
-                        </p>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="text-sm font-bold leading-none flex-1 min-w-0">
+                            <TruncatedTooltip text={service.technician.name} />
+                          </div>
+
+                          {!service.technician.is_active && (
+                            <span className="text-[10px] font-semibold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded shrink-0">
+                              Inactive
+                            </span>
+                          )}
+                        </div>
                         <Badge
                           variant="secondary"
                           className="text-[10px] h-5 px-0 mt-1 font-mono"
@@ -577,6 +599,7 @@ const DetailServicePage = () => {
             </Card>
           </div>
         </div>
+        {isOwner && <ServiceLogTimeline serviceId={service.id} />}
       </div>
 
       <Sheet open={isEditServiceOpen} onOpenChange={setIsEditServiceOpen}>

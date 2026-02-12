@@ -1,0 +1,75 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useServiceLogQueries } from "@/hooks/repair-log-queries";
+import { format } from "date-fns";
+import { Badge, History, User } from "lucide-react";
+
+export const ServiceLogTimeline = ({ serviceId }: { serviceId: number }) => {
+  const { useLogList } = useServiceLogQueries();
+
+  const { data: logs, isLoading, isError } = useLogList({ id: serviceId });
+
+  if (isLoading) return <div>Loading logs...</div>;
+  if (isError) return <div>Failed to load logs.</div>;
+  if (!logs || logs.length === 0) return <div>No activity yet.</div>;
+
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) return "-";
+    return format(new Date(date), "dd MMM yyyy, HH:mm");
+  };
+
+  return (
+    <Card className="mt-6 border shadow-sm">
+      <CardHeader className="bg-muted/5 py-4 border-b">
+        <CardTitle className="text-base flex items-center gap-2">
+          <History className="w-4 h-4 text-primary" /> Activity Log
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        {isLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-16 w-full rounded-md" />
+            <Skeleton className="h-16 w-full rounded-md" />
+          </div>
+        ) : !logs || logs.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            <History className="w-8 h-8 mx-auto mb-2 opacity-20" />
+            <p className="text-sm">No activity logs found.</p>
+          </div>
+        ) : (
+          <div
+            className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-2 
+                        [&::-webkit-scrollbar]:w-1
+                        [&::-webkit-scrollbar-track]:bg-transparent
+                        [&::-webkit-scrollbar-thumb]:bg-primary/20 
+                        [&::-webkit-scrollbar-thumb]:rounded-full
+                        hover:[&::-webkit-scrollbar-thumb]:bg-primary"
+          >
+            {logs.map((log) => (
+              <div
+                key={log.id}
+                className="p-3 border rounded-md bg-muted/20 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex justify-between items-center text-xs text-muted-foreground mb-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                    <User className="w-3.5 h-3.5" />
+                    <span>{log.user.name}</span>
+                    <Badge className="text-[9px] uppercase px-1.5 h-4 tracking-wider">
+                      {log.user.role}
+                    </Badge>
+                  </div>
+                  <span className="font-mono">
+                    {formatDate(log.created_at)}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {log.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
