@@ -63,6 +63,8 @@ const DashboardUserPage = () => {
 
   const { data: currentUser } = userQueries.useProfile();
 
+  const isCurrentUserOwner = currentUser?.role === "OWNER";
+
   const handleSearch = () => {
     setSearchParams((prev) => {
       if (searchTerm) prev.set("name", searchTerm);
@@ -352,9 +354,11 @@ const DashboardUserPage = () => {
       <div className="flex-1 overflow-auto">
         <DashboardUserTable
           users={users}
+          currentUser={currentUser}
           isLoading={isLoading}
           onSuccess={() => refetch()}
           currentUserId={currentUser?.id}
+          isCurrentUserOwner={isCurrentUserOwner}
         />
       </div>
 

@@ -4,7 +4,9 @@ import {
   toProductResponse,
   type ApiResponse,
   type CreateProductRequest,
+  type DeleteProductRequest,
   type DeleteProductResponse,
+  type DetailedProductRequest,
   type ProductResponse,
   type SearchProductRequest,
   type UpdateProductRequest,
@@ -42,13 +44,13 @@ export class ProductServices {
     return response.data;
   }
 
-  static async get(id: number): Promise<ProductResponse> {
-    if (isNaN(id)) {
+  static async get(request: DetailedProductRequest): Promise<ProductResponse> {
+    if (isNaN(request.id)) {
       throw new Error("Invalid product ID");
     }
 
     const response = await api.get<ApiResponse<ProductResponse>>(
-      `/products/${id}`,
+      `/products/${request.id}`,
     );
 
     return toProductResponse(response.data.data);
@@ -73,12 +75,14 @@ export class ProductServices {
     return toProductResponse(response.data.data);
   }
 
-  static async remove(id: number): Promise<DeleteProductResponse> {
-    if (isNaN(id)) {
+  static async remove(
+    request: DeleteProductRequest,
+  ): Promise<DeleteProductResponse> {
+    if (isNaN(request.id)) {
       throw new Error("Invalid technician ID");
     }
 
-    const response = await api.delete(`/products/${id}`);
+    const response = await api.delete(`/products/${request.id}`);
 
     return {
       message: response.data.message,

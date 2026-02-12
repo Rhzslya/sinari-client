@@ -4,6 +4,7 @@ import {
   toTechnicianResponse,
   type ApiResponse,
   type CreateTechnicianRequest,
+  type DeleteTechnicianRequest,
   type DeleteTechnicianResponse,
   type ListTechnicianResponse,
   type SearchTechnicianRequest,
@@ -65,12 +66,14 @@ export class TechnicianServices {
     return toTechnicianResponse(response.data.data);
   }
 
-  static async remove(id: number): Promise<DeleteTechnicianResponse> {
-    if (isNaN(id)) {
+  static async remove(
+    request: DeleteTechnicianRequest,
+  ): Promise<DeleteTechnicianResponse> {
+    if (isNaN(request.id)) {
       throw new Error("Invalid technician ID");
     }
 
-    const response = await api.delete(`/technicians/${id}`);
+    const response = await api.delete(`/technicians/${request.id}`);
 
     return {
       message: response.data.message,

@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { getRoleBadgeColor } from "@/components/utils/roleBadge";
 import DeleteUserForm from "@/features/fragments/DeleteUserForm";
 import UpdateRoleForm from "@/features/fragments/UpdateRoleForm";
@@ -27,7 +26,6 @@ import {
   Mail,
   Pen,
   RefreshCcw,
-  ShieldAlert,
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
@@ -44,6 +42,21 @@ const DetailUserPage = () => {
 
   const id = Number(userId);
   const { data: user, isLoading, isError, refetch } = useDetail({ id });
+
+  const isTargetOwner = user?.role === "OWNER";
+  const isTargetAdmin = user?.role === "ADMIN";
+
+  const isCurrentUserOwner = currentUser?.role === "OWNER";
+  const isCurrentUserAdmin = currentUser?.role === "ADMIN";
+  const isCurrentUser = currentUser?.id === user?.id;
+
+  const isAdminDeletingAdmin = isCurrentUserAdmin && isTargetAdmin;
+
+  const isDeleteDisabled =
+    isCurrentUser || isTargetOwner || isAdminDeletingAdmin;
+
+  const isChangeRoleDisabled =
+    isCurrentUser || isTargetOwner || !isCurrentUserOwner;
 
   const [selectedUser, setSelectedUser] = useState<DetailedUserResponse | null>(
     null,
@@ -171,7 +184,6 @@ const DetailUserPage = () => {
     }
   };
 
-  const isCurrentUser = currentUser?.id === user?.id;
   const haveGoogleAuth = user?.google_id !== null;
 
   if (isError || !user) return <div>User Not Found</div>;
@@ -332,7 +344,7 @@ const DetailUserPage = () => {
                 onClick={() => handleUpdateRoleOpen(user)}
                 className="w-full justify-start duration-300 cursor-pointer"
                 variant="outline"
-                disabled={isCurrentUser}
+                disabled={isChangeRoleDisabled}
               >
                 <Pen className="mr-2 h-4 w-4" /> Change Role
               </Button>
@@ -340,18 +352,10 @@ const DetailUserPage = () => {
                 onClick={() => handleDeleteUserOpen(user)}
                 className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
                 variant="outline"
-                disabled={isCurrentUser}
+                disabled={isDeleteDisabled}
               >
                 <Trash2 className="mr-2 h-4 w-4" /> Delete User
               </Button>
-              <Separator />
-              <Button
-                className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
-                variant="outline"
-                disabled={isCurrentUser}
-              >
-                <ShieldAlert className="mr-2 h-4 w-4" /> Ban User
-              </Button>{" "}
             </CardContent>
           </Card>
 

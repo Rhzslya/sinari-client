@@ -5,7 +5,9 @@ import {
   toServiceResponseMeta,
   type ApiResponse,
   type CreateServiceRequest,
+  type DeleteServiceRequest,
   type DeleteServiceResponse,
+  type DetailedServiceRequest,
   type PublicServiceResponse,
   type SearchServiceRequest,
   type ServiceResponse,
@@ -27,9 +29,11 @@ export class RepairServices {
     return toServiceResponse(response.data.data);
   }
 
-  static async getById(id: number): Promise<ServiceResponse> {
+  static async getById(
+    request: DetailedServiceRequest,
+  ): Promise<ServiceResponse> {
     const response = await api.get<ApiResponse<ServiceResponse>>(
-      `/services/${id}`,
+      `/services/${request.id}`,
     );
 
     return toServiceResponse(response.data.data);
@@ -48,8 +52,10 @@ export class RepairServices {
     return response.data;
   }
 
-  static async remove(id: number): Promise<DeleteServiceResponse> {
-    const response = await api.delete(`/services/${id}`);
+  static async remove(
+    request: DeleteServiceRequest,
+  ): Promise<DeleteServiceResponse> {
+    const response = await api.delete(`/services/${request.id}`);
 
     return {
       message: response.data.message,
