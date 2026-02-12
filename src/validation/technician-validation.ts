@@ -29,7 +29,7 @@ export class TechnicianValidation {
       .optional(),
     page: z.coerce.number().min(1).positive().default(1),
     size: z.coerce.number().min(1).max(100).positive().default(10),
-    sort_by: z.enum(["created_at", "is_active"]).optional(),
+    sort_by: z.enum(["created_at", "is_active", "name"]).optional(),
     sort_order: z.enum(["asc", "desc"]).optional(),
   });
 

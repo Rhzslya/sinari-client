@@ -54,6 +54,14 @@ export type SearchProductRequest = {
   sort_order?: "asc" | "desc";
 };
 
+export type DetailedProductRequest = {
+  id: number;
+};
+
+export type DeleteProductRequest = {
+  id: number;
+};
+
 export type UpdateProductRequest = {
   id: number;
   name?: string;

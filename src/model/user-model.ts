@@ -20,6 +20,7 @@ export type NotPublicUserResponse = {
   is_online?: boolean;
   created_at: Date;
   updated_at?: Date;
+  is_active: boolean;
 };
 
 export type LoginRequest = {
@@ -79,6 +80,7 @@ export type DetailedUserResponse = {
   pass_reset_count: number;
   pass_reset_last_time: string | null;
   is_online?: boolean;
+  is_active: boolean;
 };
 
 export type DeleteUserRequest = {
@@ -158,6 +160,7 @@ export function toNotPublicUserResponse(
     created_at: data.created_at,
     updated_at: data.updated_at,
     is_online: data.is_online,
+    is_active: data.is_active,
   };
 }
 
@@ -181,6 +184,7 @@ export function toDetailedUserResponse(
     pass_reset_count: user.pass_reset_count,
     pass_reset_last_time: user.pass_reset_last_time || null,
     is_online: user.is_online ?? false,
+    is_active: user.is_active,
   };
 }
 

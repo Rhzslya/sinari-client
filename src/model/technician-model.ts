@@ -49,7 +49,7 @@ export type SearchTechnicianRequest = {
   page: number;
   size: number;
   is_active?: boolean;
-  sort_by?: "created_at" | "is_active";
+  sort_by?: "created_at" | "is_active" | "name";
   sort_order?: "asc" | "desc";
 };
 
@@ -59,6 +59,10 @@ export type UpdateTechnicianRequest = {
   signature?: File;
   delete_image?: boolean;
   is_active?: boolean;
+};
+
+export type DeleteTechnicianRequest = {
+  id: number;
 };
 
 export function toTechnicianResponse(

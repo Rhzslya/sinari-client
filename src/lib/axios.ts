@@ -62,9 +62,12 @@ api.interceptors.response.use(
       }
 
       if (status === 403) {
-        toast.error("Access Denied", {
-          description: "You do not have permission to access this resource.",
-        });
+        const isLoginRequest = config.url?.endsWith("/login");
+        if (!isLoginRequest) {
+          toast.error("Access Denied", {
+            description: "You do not have permission to access this resource.",
+          });
+        }
       }
     }
 

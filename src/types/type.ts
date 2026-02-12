@@ -1,7 +1,7 @@
 import type { ProductResponse } from "@/model/product-model";
 import type { ServiceResponse } from "@/model/repair-model";
 import type { TechnicianResponse } from "@/model/technician-model";
-import type { ListUserResponse } from "@/model/user-model";
+import type { NotPublicUserResponse, UserResponse } from "@/model/user-model";
 
 export type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -51,14 +51,16 @@ export interface DashboardTechnicianTableProps {
 }
 
 export interface DashboardUserTableProps {
-  users: ListUserResponse[];
+  users: NotPublicUserResponse[];
   isLoading: boolean;
   onRefresh?: () => void;
   onSuccess?: () => void;
 }
 
 export interface ExtendedTableProps extends DashboardUserTableProps {
+  currentUser: UserResponse | undefined;
   currentUserId?: number;
+  isCurrentUserOwner: boolean;
 }
 
 export interface JwtPayload {

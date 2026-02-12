@@ -88,7 +88,7 @@ export type CreateServiceItemRequest = {
   price: number;
 };
 
-export type GetDetailedServiceRequest = {
+export type DetailedServiceRequest = {
   id: number;
 };
 
@@ -119,6 +119,7 @@ export type SearchServiceRequest = {
   brand?: Brand;
   model?: string;
   customer_name?: string;
+  technician_name?: string | null;
   status?: ServiceStatus;
   page: number;
   size: number;

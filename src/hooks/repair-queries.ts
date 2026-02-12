@@ -1,9 +1,10 @@
 import { handleApiError } from "@/lib/utils";
 import type {
   ApiResponse,
+  CreateServiceRequest,
   DeleteServiceRequest,
   DeleteServiceResponse,
-  GetDetailedServiceRequest,
+  DetailedServiceRequest,
   SearchServiceRequest,
   ServiceResponse,
   ServiceResponseMeta,
@@ -18,6 +19,7 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { REPAIR_LOG_KEYS } from "./repair-log-queries";
 
 export const SERVICE_KEYS = {
   all: ["services"] as const,
@@ -44,21 +46,34 @@ export const useServiceQueries = () => {
     },
 
     useDetail: (
-      request: GetDetailedServiceRequest,
+      request: DetailedServiceRequest,
     ): UseQueryResult<ServiceResponse, Error> => {
       return useQuery({
         queryKey: SERVICE_KEYS.detail(request.id),
-        queryFn: () => RepairServices.getById(request.id),
+        queryFn: () => RepairServices.getById(request),
         enabled: !!request.id,
         staleTime: 1000 * 60,
       });
     },
 
+    //Create Service
+    createMutation: useMutation({
+      mutationFn: (request: CreateServiceRequest): Promise<ServiceResponse> =>
+        RepairServices.create(request),
+      onSuccess: (result) => {
+        toast.success("Service Created", {
+          description: `Service ${result.service_id} created successfully.`,
+        });
+        queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
+      },
+      onError: (error) => handleApiError(error, "Failed to create service"),
+    }),
+
     //Delete Service
     deleteMutation: useMutation({
       mutationFn: (
         request: DeleteServiceRequest,
-      ): Promise<DeleteServiceResponse> => RepairServices.remove(request.id),
+      ): Promise<DeleteServiceResponse> => RepairServices.remove(request),
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
@@ -82,6 +97,9 @@ export const useServiceQueries = () => {
         queryClient.invalidateQueries({
           queryKey: SERVICE_KEYS.detail(variables.id),
         });
+        queryClient.invalidateQueries({
+          queryKey: REPAIR_LOG_KEYS.detail(variables.id),
+        });
       },
       onError: (error) => handleApiError(error, "Failed to update service"),
     }),
@@ -100,6 +118,9 @@ export const useServiceQueries = () => {
         queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
         queryClient.invalidateQueries({
           queryKey: SERVICE_KEYS.detail(variables.id),
+        });
+        queryClient.invalidateQueries({
+          queryKey: REPAIR_LOG_KEYS.detail(variables.id),
         });
       },
       onError: (error) => handleApiError(error, "Failed to update status"),
