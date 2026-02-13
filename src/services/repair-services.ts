@@ -9,6 +9,7 @@ import {
   type DeleteServiceResponse,
   type DetailedServiceRequest,
   type PublicServiceResponse,
+  type RestoreServiceRequest,
   type SearchServiceRequest,
   type ServiceResponse,
   type ServiceResponseMeta,
@@ -60,6 +61,14 @@ export class RepairServices {
     return {
       message: response.data.message,
     };
+  }
+
+  static async restore(
+    request: RestoreServiceRequest,
+  ): Promise<ServiceResponse> {
+    const response = await api.patch(`/services/${request.id}/restore`);
+
+    return toServiceResponse(response.data);
   }
 
   static async update(request: UpdateServiceRequest): Promise<{

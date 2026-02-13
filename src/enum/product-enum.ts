@@ -54,6 +54,21 @@ export const ServiceStatus = {
   TAKEN: "TAKEN",
 };
 
+export type ServiceLogAction =
+  (typeof ServiceLogAction)[keyof typeof ServiceLogAction];
+
+export const ServiceLogAction = {
+  CREATED: "CREATED",
+  UPDATE_INFO: "UPDATE_INFO",
+  UPDATE_STATUS: "UPDATE_STATUS",
+  UPDATE_TECHNICIAN: "UPDATE_TECHNICIAN",
+  UPDATE_SERVICE_LIST: "UPDATE_SERVICE_LIST",
+  UPDATE_DISCOUNT: "UPDATE_DISCOUNT",
+  UPDATE_DOWN_PAYMENT: "UPDATE_DOWN_PAYMENT",
+  UPDATE_FINANCIALS: "UPDATE_FINANCIALS",
+  DELETED: "DELETED",
+};
+
 export const ROLE_OPTIONS = Object.values(UserRole).map((value) => ({
   value: value,
   label: value.charAt(0) + value.slice(1).toLowerCase(),

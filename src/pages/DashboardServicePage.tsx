@@ -7,6 +7,7 @@ import {
   ArrowUpDown,
   Check,
   X,
+  Trash2,
 } from "lucide-react";
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import {
@@ -50,12 +51,15 @@ import { useServiceQueries } from "@/hooks/repair-queries";
 const DashboardServicePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const isTrashMode = searchParams.get("is_deleted") === "true";
+
   // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
   const searchParam = searchParams.get("search") || "";
   const brandParam = searchParams.get("brand") as Brand | undefined;
   const statusParam = searchParams.get("status") as ServiceStatus | undefined;
+  const isDeletedApplied = searchParams.get("is_deleted") === "true";
   const minPriceParam = searchParams.get("min_price") || "";
   const maxPriceParam = searchParams.get("max_price") || "";
   const sortByParam = searchParams.get("sort_by") || "created_at";
@@ -85,6 +89,7 @@ const DashboardServicePage = () => {
     max_price: maxPriceParam ? Number(maxPriceParam) : undefined,
     sort_by: sortByParam as "total_price" | "created_at" | "updated_at",
     sort_order: sortOrderParam as "asc" | "desc",
+    is_deleted: isDeletedApplied,
   });
 
   const services = data?.data || [];
@@ -138,6 +143,29 @@ const DashboardServicePage = () => {
         return prev;
       });
     }
+  };
+
+  const toggleTrashMode = () => {
+    const currentSize = searchParams.get("size") || "10";
+
+    if (isTrashMode) {
+      setSearchParams({
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    } else {
+      setSearchParams({
+        is_deleted: "true",
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    }
+
+    setSearchTerm("");
   };
 
   useEffect(() => {
@@ -421,38 +449,59 @@ const DashboardServicePage = () => {
             </div>
           </PopoverContent>
         </Popover>
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-1 cursor-pointer"
-            >
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Service
-              </span>
-            </Button>
-          </SheetTrigger>
 
-          <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
-            <SheetHeader className="px-6 py-4 border-b">
-              <SheetTitle
-                tabIndex={-1}
-                className="text-xl text-primary outline-none"
+        {!isTrashMode && (
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1 cursor-pointer"
               >
-                Add New Service
-              </SheetTitle>
-            </SheetHeader>
-            <SheetDescription className="sr-only">
-              Form to create a new service
-            </SheetDescription>
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Service
+                </span>
+              </Button>
+            </SheetTrigger>
 
-            <div className="flex-1 overflow-hidden">
-              <CreateServiceForm onSuccess={handleCreateSuccess} />
-            </div>
-          </SheetContent>
-        </Sheet>
+            <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
+              <SheetHeader className="px-6 py-4 border-b">
+                <SheetTitle
+                  tabIndex={-1}
+                  className="text-xl text-primary outline-none"
+                >
+                  Add New Service
+                </SheetTitle>
+              </SheetHeader>
+              <SheetDescription className="sr-only">
+                Form to create a new service
+              </SheetDescription>
+
+              <div className="flex-1 overflow-hidden">
+                <CreateServiceForm onSuccess={handleCreateSuccess} />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1 w-24 shrink-0"
+          onClick={toggleTrashMode}
+        >
+          {isTrashMode ? (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Exit</span>
+            </>
+          ) : (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Trash</span>
+            </>
+          )}
+        </Button>
       </DashboardHeader>
 
       <div className="flex-1 overflow-auto">
@@ -460,6 +509,7 @@ const DashboardServicePage = () => {
           services={services}
           isLoading={isLoading}
           onSuccess={() => refetch()}
+          isTrashView={isDeletedApplied}
         />
       </div>
       <PaginationComponent

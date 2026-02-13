@@ -1,11 +1,13 @@
+import type { ServiceLogAction } from "@/enum/product-enum";
+
 export type ServiceLogResponse = {
   id: number;
   service_id: number;
-  action: string;
+  action: ServiceLogAction;
   description: string;
   created_at: Date;
   user: {
-    name: string;
+    username: string;
     role: string;
   };
 };
@@ -24,7 +26,7 @@ export function toServiceLogResponse(
     description: data.description,
     created_at: data.created_at,
     user: {
-      name: data.user.name,
+      username: data.user.username,
       role: data.user.role,
     },
   };

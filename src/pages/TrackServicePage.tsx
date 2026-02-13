@@ -1,14 +1,11 @@
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { ServiceStatus } from "@/enum/product-enum";
-import type { PublicServiceResponse } from "@/model/repair-model";
-import { RepairServices } from "@/services/repair-services";
 import { format } from "date-fns";
 import { Loader2, MapPin, Phone, Printer, RefreshCcw } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
-import { handleApiError } from "@/lib/utils";
+import { useServiceQueries } from "@/hooks/repair-queries";
 
 const PDF_COLORS = {
   primary: "#ef473a",
@@ -18,32 +15,14 @@ const PDF_COLORS = {
 };
 
 export default function TrackServicePage() {
-  const { identifier } = useParams();
+  const { identifier } = useParams<{ identifier: string }>();
+  const { useTrackPublic } = useServiceQueries();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [service, setService] = useState<PublicServiceResponse | null>(null);
-  const [isNotFound, setIsNotFound] = useState(false);
-
-  useEffect(() => {
-    const fetchService = async () => {
-      if (!identifier) return;
-      setIsLoading(true);
-      setIsNotFound(false);
-      try {
-        const data = await RepairServices.trackService(identifier);
-        if (data) {
-          setService(data);
-        } else {
-          setIsNotFound(true);
-        }
-      } catch (error) {
-        handleApiError(error, "Failed to load service");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchService();
-  }, [identifier]);
+  const {
+    data: service,
+    isLoading,
+    isError,
+  } = useTrackPublic(identifier || "");
 
   if (isLoading) {
     return (
@@ -56,7 +35,7 @@ export default function TrackServicePage() {
     );
   }
 
-  if (isNotFound || !service) {
+  if (isError || !service) {
     return (
       <NotFoundPage
         entityName="Service Tracking"

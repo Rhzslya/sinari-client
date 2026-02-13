@@ -13,6 +13,7 @@ interface RecentActivityProps {
     service_id: string;
     service_pk: number;
     customer_name: string;
+    is_deleted: boolean;
   }[];
 }
 
@@ -43,12 +44,21 @@ export function RecentActivity({ data }: RecentActivityProps) {
               <div className="flex items-center gap-2 min-w-0">
                 <p className="text-sm font-medium truncate">{item.username}</p>
 
-                <Link
-                  to={`/dashboard/services/detail/${item.service_pk}`}
-                  className="hover:opacity-80 transition-opacity flex items-center -translate-y-px"
-                >
-                  <Badge variant="link">{item.service_id}</Badge>
-                </Link>
+                {item.is_deleted ? (
+                  <Badge
+                    variant="outline"
+                    className="line-through text-muted-foreground"
+                  >
+                    {item.service_id}
+                  </Badge>
+                ) : (
+                  <Link
+                    to={`/dashboard/services/detail/${item.service_pk}`}
+                    className="hover:opacity-80 transition-opacity"
+                  >
+                    <Badge variant="link">{item.service_id}</Badge>
+                  </Link>
+                )}
               </div>
 
               <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">

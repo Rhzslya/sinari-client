@@ -5,6 +5,8 @@ import type {
   DeleteServiceRequest,
   DeleteServiceResponse,
   DetailedServiceRequest,
+  PublicServiceResponse,
+  RestoreServiceRequest,
   SearchServiceRequest,
   ServiceResponse,
   ServiceResponseMeta,
@@ -28,6 +30,8 @@ export const SERVICE_KEYS = {
     [...SERVICE_KEYS.lists(), params] as const,
   details: () => [...SERVICE_KEYS.all, "detail"] as const,
   detail: (id: number) => [...SERVICE_KEYS.details(), id] as const,
+  track: (identifier: string) =>
+    [...SERVICE_KEYS.all, "track", identifier] as const,
 };
 
 export const useServiceQueries = () => {
@@ -125,5 +129,36 @@ export const useServiceQueries = () => {
       },
       onError: (error) => handleApiError(error, "Failed to update status"),
     }),
+
+    //Restore Service
+    restoreMutation: useMutation({
+      mutationFn: (data: RestoreServiceRequest): Promise<ServiceResponse> =>
+        RepairServices.restore(data),
+      onSuccess: (result) => {
+        toast.success("Service Restored", {
+          description: `Service ${result.service_id} restored successfully.`,
+        });
+        queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
+        queryClient.invalidateQueries({
+          queryKey: SERVICE_KEYS.detail(result.id),
+        });
+        queryClient.invalidateQueries({
+          queryKey: REPAIR_LOG_KEYS.detail(result.id),
+        });
+      },
+      onError: (error) => handleApiError(error, "Failed to restore service"),
+    }),
+
+    useTrackPublic: (
+      identifier: string,
+    ): UseQueryResult<PublicServiceResponse, Error> => {
+      return useQuery({
+        queryKey: SERVICE_KEYS.track(identifier),
+        queryFn: () => RepairServices.trackService(identifier),
+        enabled: !!identifier,
+        staleTime: 1000 * 30,
+        retry: 1,
+      });
+    },
   };
 };

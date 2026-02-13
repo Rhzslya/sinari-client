@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/select";
 import { ServiceStatus } from "@/enum/product-enum";
 import { useServiceQueries } from "@/hooks/repair-queries";
+import { useServiceLock } from "@/hooks/use-cooldown";
 import { type ServiceResponse } from "@/model/repair-model";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Clock, Loader2, Lock } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -55,9 +56,8 @@ export function UpdateStatusDialog({
   const { updateStatusMutation } = useServiceQueries();
   const { mutateAsync: updateStatus, isPending } = updateStatusMutation;
 
-  const isCompletelyFinal =
-    service?.status === ServiceStatus.CANCELLED ||
-    service?.status === ServiceStatus.TAKEN;
+  const { isLocked, timeLeft, isGracePeriodActive, isTaken } =
+    useServiceLock(service);
 
   const form = useForm<StatusFormValues>({
     resolver: zodResolver(statusSchema),
@@ -66,7 +66,17 @@ export function UpdateStatusDialog({
     },
   });
 
+  const isTimeExpiredButCanTake = isLocked && !isTaken;
+
   const { isSubmitting, isDirty } = form.formState;
+
+  const isSelectDisabled = isSubmitting || isPending || isTaken;
+
+  const availableStatusOptions = isTimeExpiredButCanTake
+    ? [service?.status as ServiceStatus, ServiceStatus.TAKEN]
+    : Object.values(ServiceStatus);
+
+  const uniqueOptions = Array.from(new Set(availableStatusOptions));
 
   useEffect(() => {
     if (open && service) {
@@ -105,13 +115,60 @@ export function UpdateStatusDialog({
     }
   };
 
-  const STATUS_OPTIONS = Object.values(ServiceStatus);
-
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
     "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
 
+  const renderStatusAlert = () => {
+    if (isTaken) {
+      return (
+        <div className="bg-destructive/10 text-destructive p-3 rounded-md border border-destructive/20 text-xs flex items-start gap-2 mb-4">
+          <Lock className="w-4 h-4 mt-0.5 shrink-0" />
+          <div>
+            <span className="font-bold uppercase block mb-1">
+              Permanently Locked
+            </span>
+            Service items have been taken. Status cannot be changed anymore.
+          </div>
+        </div>
+      );
+    }
+
+    if (isTimeExpiredButCanTake) {
+      return (
+        <div className="bg-warning/20 text-warning-foreground p-3 rounded-md border border-warning/50 text-xs flex items-start gap-2 mb-4">
+          <Lock className="w-4 h-4 mt-0.5 shrink-0" />
+          <div>
+            <span className="font-bold uppercase block mb-1">
+              Editing Restricted
+            </span>
+            Grace period ended. You can only change status to <b>TAKEN</b>.
+          </div>
+        </div>
+      );
+    }
+
+    if (isGracePeriodActive) {
+      return (
+        <div className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 p-3 rounded-md border border-blue-200 dark:border-blue-800 text-xs flex items-start gap-2 mb-4">
+          <Clock className="w-4 h-4 mt-0.5 shrink-0 animate-pulse" />
+          <div>
+            <span className="font-bold uppercase block mb-1">
+              Grace Period Active
+            </span>
+            You can still undo/change this status for the next{" "}
+            <b className="tabular-nums">
+              {timeLeft.m}m {timeLeft.s.toString().padStart(2, "0")}s
+            </b>
+            .
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-100">
@@ -129,13 +186,7 @@ export function UpdateStatusDialog({
             </span>
           </DialogDescription>
         </DialogHeader>
-
-        {isCompletelyFinal && (
-          <div className="bg-warning/20 text-warning-foreground p-3 rounded-md border border-warning/50 text-xs flex items-center gap-2 mb-2">
-            <span className="font-semibold uppercase">LOCKED:</span>
-            Status is final and cannot be changed anymore.
-          </div>
-        )}
+        {renderStatusAlert()}
 
         <Form {...form}>
           <form
@@ -151,7 +202,7 @@ export function UpdateStatusDialog({
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    disabled={isSubmitting || isPending || isCompletelyFinal}
+                    disabled={isSelectDisabled}
                   >
                     <FormControl>
                       <SelectTrigger className={inputStyle}>
@@ -159,7 +210,7 @@ export function UpdateStatusDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {STATUS_OPTIONS.map((status) => (
+                      {uniqueOptions.map((status) => (
                         <SelectItem key={status} value={status}>
                           {status}
                         </SelectItem>
@@ -185,9 +236,7 @@ export function UpdateStatusDialog({
                 size="sm"
                 className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                 type="submit"
-                disabled={
-                  isSubmitting || !isDirty || isPending || isCompletelyFinal
-                }
+                disabled={isSubmitting || !isDirty || isPending || isTaken}
               >
                 Save Changes
                 {isSubmitting ||

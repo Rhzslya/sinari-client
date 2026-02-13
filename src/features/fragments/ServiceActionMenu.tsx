@@ -14,6 +14,7 @@ import {
   Eye,
   RefreshCw,
   FileText,
+  ArchiveRestore,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,6 +28,8 @@ interface ServiceActionMenuProps {
   onEditService: () => void;
   onUpdateStatus: () => void;
   onDeleteService: () => void;
+  onRestoreService: () => void;
+  isTrashView: boolean;
 }
 
 export function ServiceActionMenu({
@@ -35,6 +38,8 @@ export function ServiceActionMenu({
   onEditService,
   onUpdateStatus,
   onDeleteService,
+  onRestoreService,
+  isTrashView,
 }: ServiceActionMenuProps) {
   const userQueries = useUserQueries();
 
@@ -77,41 +82,63 @@ export function ServiceActionMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem onClick={onViewDetails} className="cursor-pointer">
-          <Eye className="mr-2 h-4 w-4" />
-          View Details
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={handleDownloadPDF}
-          disabled={isGeneratingPdf}
-          className="cursor-pointer"
-        >
-          <FileText className="mr-2 h-4 w-4" />
-          {isGeneratingPdf ? "Generating..." : "Download PDF"}
-        </DropdownMenuItem>
-
-        <DropdownMenuItem onClick={onEditService} className="cursor-pointer">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit Service
-        </DropdownMenuItem>
-
-        <DropdownMenuItem onClick={onUpdateStatus} className="cursor-pointer">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Update Status
-        </DropdownMenuItem>
-        {isOwner && (
+        {!isTrashView ? (
           <>
-            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={onViewDetails}
+              className="cursor-pointer"
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
 
             <DropdownMenuItem
-              onClick={onDeleteService}
-              className="text-destructive focus:text-destructive cursor-pointer"
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPdf}
+              className="cursor-pointer"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
+              <FileText className="mr-2 h-4 w-4" />
+              {isGeneratingPdf ? "Generating..." : "Download PDF"}
             </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={onEditService}
+              className="cursor-pointer"
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit Service
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={onUpdateStatus}
+              className="cursor-pointer"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Update Status
+            </DropdownMenuItem>
+
+            {isOwner && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={onDeleteService}
+                  className="text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </>
+        ) : (
+          <DropdownMenuItem
+            onClick={onRestoreService}
+            className="text-emerald-600 focus:text-emerald-600 cursor-pointer"
+            disabled={!isOwner}
+          >
+            <ArchiveRestore className="mr-2 h-4 w-4" />
+            Restore Data
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

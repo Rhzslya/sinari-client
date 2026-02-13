@@ -28,11 +28,13 @@ import DeleteServiceForm from "./DeleteServiceForm";
 import { EditServiceForm } from "../components/EditServiceForm";
 import type { DashboardServiceTableProps } from "@/types/type";
 import { UpdateStatusDialog } from "./UpdateStatusForm";
+import RestoreServiceForm from "./RestoreServiceForm";
 
 const DashboardServiceTable = ({
   services,
   isLoading,
   onSuccess,
+  isTrashView,
 }: DashboardServiceTableProps) => {
   const navigate = useNavigate();
 
@@ -41,6 +43,7 @@ const DashboardServiceTable = ({
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false);
   const [isDeleteServiceOpen, setIsDeleteServiceOpen] = useState(false);
   const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false);
+  const [isRestoreServiceOpen, setIsRestoreServiceOpen] = useState(false);
 
   const handleViewDetail = (service: ServiceResponse) => {
     navigate(`/dashboard/services/detail/${service.id}`);
@@ -59,6 +62,11 @@ const DashboardServiceTable = ({
   const handleDeleteServiceOpen = (service: ServiceResponse) => {
     setSelectedService(service);
     setIsDeleteServiceOpen(true);
+  };
+
+  const handleRestoreServiceOpen = (service: ServiceResponse) => {
+    setSelectedService(service);
+    setIsRestoreServiceOpen(true);
   };
 
   const getStatusBadge = (status: ServiceStatus) => {
@@ -226,6 +234,8 @@ const DashboardServiceTable = ({
                       onEditService={() => handleEditServiceOpen(service)}
                       onUpdateStatus={() => handleUpdateStatusOpen(service)}
                       onDeleteService={() => handleDeleteServiceOpen(service)}
+                      onRestoreService={() => handleRestoreServiceOpen(service)}
+                      isTrashView={isTrashView ?? false}
                     />
                   </TableCell>
                 </TableRow>
@@ -282,6 +292,18 @@ const DashboardServiceTable = ({
         service={selectedService}
         onSuccess={() => {
           setIsDeleteServiceOpen(false);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }}
+      />
+
+      <RestoreServiceForm
+        open={isRestoreServiceOpen}
+        onOpenChange={setIsRestoreServiceOpen}
+        service={selectedService}
+        onSuccess={() => {
+          setIsRestoreServiceOpen(false);
           if (onSuccess) {
             onSuccess();
           }

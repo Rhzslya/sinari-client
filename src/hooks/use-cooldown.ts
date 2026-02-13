@@ -1,3 +1,5 @@
+import { ServiceStatus } from "@/enum/product-enum";
+import type { ServiceResponse } from "@/model/repair-model";
 import { useState, useEffect, useCallback } from "react";
 
 const DEFAULT_PREFIX = "resend_verif_";
@@ -78,4 +80,61 @@ export function useCooldown(
   };
 
   return { cooldown, startCooldown, setCooldown };
+}
+
+const GRACE_PERIOD_MINUTES = 15;
+
+export function useServiceLock(service: ServiceResponse | null | undefined) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  if (!service) {
+    return {
+      isLocked: true,
+      timeLeft: { m: 0, s: 0 },
+      isGracePeriodActive: false,
+      isTaken: false,
+    };
+  }
+
+  const anchorTime = service.grace_period_start
+    ? new Date(service.grace_period_start).getTime()
+    : 0;
+
+  const diffInSeconds = (now - anchorTime) / 1000;
+  const GRACE_PERIOD_SECONDS = 15 * 60;
+
+  const remainingSeconds =
+    anchorTime > 0
+      ? Math.max(0, Math.ceil(GRACE_PERIOD_SECONDS - diffInSeconds))
+      : 0;
+
+  const m = Math.floor(remainingSeconds / 60);
+  const s = remainingSeconds % 60;
+
+  const diffInMinutes = anchorTime > 0 ? (now - anchorTime) / 1000 / 60 : 9999;
+
+  const minutesLeft = Math.max(
+    0,
+    Math.ceil(GRACE_PERIOD_MINUTES - diffInMinutes),
+  );
+
+  const isFinalStatus =
+    service.status === ServiceStatus.FINISHED ||
+    service.status === ServiceStatus.CANCELLED;
+
+  const isTaken = service.status === ServiceStatus.TAKEN;
+
+  const isLocked = isTaken || (isFinalStatus && minutesLeft <= 0);
+
+  return {
+    isLocked,
+    timeLeft: { m, s },
+    isGracePeriodActive: !isLocked && isFinalStatus && remainingSeconds > 0,
+    isTaken,
+  };
 }

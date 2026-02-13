@@ -22,6 +22,7 @@ export type ServiceResponse = {
   total_price: number;
   created_at: Date;
   updated_at?: Date;
+  grace_period_start?: Date | null;
   tracking_token: string;
   technician: {
     id: number;
@@ -96,6 +97,10 @@ export type DeleteServiceRequest = {
   id: number;
 };
 
+export type RestoreServiceRequest = {
+  id: number;
+};
+
 export type UpdateServiceItemRequest = {
   name: string;
   price: number;
@@ -123,6 +128,7 @@ export type SearchServiceRequest = {
   status?: ServiceStatus;
   page: number;
   size: number;
+  is_deleted?: boolean;
   min_price?: number;
   max_price?: number;
   sort_by?: "total_price" | "created_at" | "updated_at";
@@ -173,6 +179,9 @@ export function toServiceResponse(
     total_price: service.total_price,
     created_at: service.created_at,
     updated_at: service.updated_at,
+    grace_period_start: service.grace_period_start
+      ? new Date(service.grace_period_start)
+      : null,
     tracking_token: service.tracking_token,
     technician: service.technician,
   };

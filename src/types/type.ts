@@ -41,6 +41,7 @@ export interface DashboardServiceTableProps {
   isLoading: boolean;
   onRefresh?: () => void;
   onSuccess?: () => void;
+  isTrashView?: boolean;
 }
 
 export interface DashboardTechnicianTableProps {
