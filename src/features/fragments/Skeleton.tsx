@@ -83,7 +83,7 @@ export function ServiceSkeletonTable() {
       <Table className="min-w-200">
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-32 font-bold border-r border-border/60 text-center">
+            <TableHead className="w-30.5 font-bold border-r border-border/60 text-center">
               Service ID
             </TableHead>
             <TableHead className="w-54 font-bold">Customer Info</TableHead>
@@ -92,6 +92,14 @@ export function ServiceSkeletonTable() {
             <TableHead className="w-32 font-bold text-center">Status</TableHead>
             <TableHead className="w-37.5 font-bold">Total Price</TableHead>
             <TableHead className="w-37.5 font-bold">Technician</TableHead>
+
+            <TableHead className="w-51 font-bold">Customer Info</TableHead>
+            <TableHead className="w-35 font-bold">Brand</TableHead>
+            <TableHead className="w-37.5 font-bold">Device Name</TableHead>
+            <TableHead className="w-32 font-bold text-center">Status</TableHead>
+            <TableHead className="w-40 font-bold text-center">
+              Total Price
+            </TableHead>
             <TableHead className="w-37.5 font-bold">Date</TableHead>
             <TableHead className="w-12.5 text-right font-bold">
               Actions
@@ -107,8 +115,8 @@ export function ServiceSkeletonTable() {
               </TableCell>
 
               <TableCell>
-                <div className="flex flex-col gap-2">
-                  <Skeleton className="h-4 w-32" />
+                <div className="gap-2">
+                  <Skeleton className="h-4 w-42" />
                 </div>
               </TableCell>
 
@@ -127,7 +135,9 @@ export function ServiceSkeletonTable() {
               </TableCell>
 
               <TableCell>
-                <Skeleton className="h-4 w-24" />
+                <div className="flex justify-center">
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                </div>
               </TableCell>
 
               <TableCell className="flex gap-1 items-center">
