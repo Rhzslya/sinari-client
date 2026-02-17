@@ -13,6 +13,7 @@ import {
   type SearchServiceRequest,
   type ServiceResponse,
   type ServiceResponseMeta,
+  type TrackPublicServiceRequest,
   type UpdateServiceRequest,
 } from "@/model/repair-model";
 import { RepairValidation } from "@/validation/repair-validation";
@@ -43,32 +44,39 @@ export class RepairServices {
   static async search(
     request: SearchServiceRequest,
   ): Promise<ApiResponse<ServiceResponse[]>> {
-    const response = await api.get<ApiResponse<ServiceResponse[]>>(
+    const response = await api.get<ApiResponse<ApiResponse<ServiceResponse[]>>>(
       "/services",
       {
         params: request,
       },
     );
 
-    return response.data;
+    return response.data.data;
   }
 
   static async remove(
     request: DeleteServiceRequest,
   ): Promise<DeleteServiceResponse> {
-    const response = await api.delete(`/services/${request.id}`);
+    if (isNaN(request.id)) {
+      throw new Error("Invalid service ID");
+    }
+
+    const response = await api.delete<ApiResponse<boolean>>(
+      `/services/${request.id}`,
+    );
 
     return {
-      message: response.data.message,
+      message:
+        response.data.message ||
+        `Service With ID ${request.id} deleted successfully`,
     };
   }
-
   static async restore(
     request: RestoreServiceRequest,
   ): Promise<ServiceResponse> {
     const response = await api.patch(`/services/${request.id}/restore`);
 
-    return toServiceResponse(response.data);
+    return toServiceResponse(response.data.data);
   }
 
   static async update(request: UpdateServiceRequest): Promise<{
@@ -77,28 +85,23 @@ export class RepairServices {
   }> {
     const updateRequest = Validation.validate(RepairValidation.UPDATE, request);
 
-    const response = await api.patch<ApiResponse<ServiceResponse>>(
-      `/services/${request.id}`,
-      updateRequest,
-    );
+    const response = await api.patch<
+      ApiResponse<{ data: ServiceResponse; meta: ServiceResponseMeta }>
+    >(`/services/${request.id}`, updateRequest);
 
-    const apiMeta = response.data.meta;
-    const safeMeta: ServiceResponseMeta = {
-      wa_status: apiMeta?.wa_status || "skipped",
-      message: apiMeta?.message || "",
-    };
+    const apiData = response.data.data;
 
     return {
-      data: toServiceResponse(response.data.data),
-      meta: toServiceResponseMeta(safeMeta),
+      data: toServiceResponse(apiData.data),
+      meta: toServiceResponseMeta(apiData.meta),
     };
   }
 
   static async trackService(
-    identifier: string,
+    request: TrackPublicServiceRequest,
   ): Promise<PublicServiceResponse> {
     const response = await api.get<ApiResponse<PublicServiceResponse>>(
-      `/public/services/track/${identifier}`,
+      `/public/services/track/${request.identifier}`,
     );
 
     return toPublicServiceResponse(response.data.data);

@@ -80,6 +80,10 @@ const DetailServicePage = () => {
   //Delete Service States
   const [isDeleteServiceOpen, setIsDeleteServiceOpen] = useState(false);
 
+  const isDeleteDisabled =
+    service?.status !== ServiceStatus.CANCELLED &&
+    service?.status !== ServiceStatus.TAKEN;
+
   const getInitials = (name: string) =>
     name
       ? name
@@ -193,8 +197,6 @@ const DetailServicePage = () => {
   const discountAmount = (subTotal * (service.discount || 0)) / 100;
   const downPayment = service.down_payment || 0;
   const grandTotal = isCancelled ? 0 : subTotal - discountAmount - downPayment;
-
-  console.log(service.technician.is_active);
 
   return (
     <>
@@ -443,6 +445,7 @@ const DetailServicePage = () => {
                       variant="outline"
                       className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
                       onClick={() => handleDeleteServiceOpen(service)}
+                      disabled={isDeleteDisabled}
                     >
                       <Trash2 className="mr-2 h-4 w-4" /> Delete Service
                     </Button>

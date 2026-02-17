@@ -9,6 +9,7 @@ import {
   ArrowUpDown,
   Check,
   X,
+  Trash2,
 } from "lucide-react";
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import {
@@ -52,12 +53,15 @@ import { useProductQueries } from "@/hooks/product-queries";
 const DashboardProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const isTrashMode = searchParams.get("is_deleted") === "true";
+
   // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
   const searchParam = searchParams.get("name") || "";
   const brandParam = searchParams.get("brand") as Brand | undefined;
   const categoryParam = searchParams.get("category") as Category | undefined;
+  const isDeletedApplied = searchParams.get("is_deleted") === "true";
   const minPriceParam = searchParams.get("min_price") || "";
   const maxPriceParam = searchParams.get("max_price") || "";
   const inStockOnlyParam = searchParams.get("in_stock_only") === "true";
@@ -91,6 +95,7 @@ const DashboardProductPage = () => {
     in_stock_only: inStockOnlyParam ? true : undefined,
     sort_by: sortByParam as "price" | "stock" | "created_at",
     sort_order: sortOrderParam as "asc" | "desc",
+    is_deleted: isDeletedApplied,
   });
 
   const products = data?.data || [];
@@ -154,6 +159,29 @@ const DashboardProductPage = () => {
         return prev;
       });
     }
+  };
+
+  const toggleTrashMode = () => {
+    const currentSize = searchParams.get("size") || "10";
+
+    if (isTrashMode) {
+      setSearchParams({
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    } else {
+      setSearchParams({
+        is_deleted: "true",
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    }
+
+    setSearchTerm("");
   };
 
   useEffect(() => {
@@ -487,35 +515,55 @@ const DashboardProductPage = () => {
             </div>
           </PopoverContent>
         </Popover>
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-1 cursor-pointer"
-            >
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Product
-              </span>
-            </Button>
-          </SheetTrigger>
+        {!isTrashMode && (
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1 cursor-pointer"
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Product
+                </span>
+              </Button>
+            </SheetTrigger>
 
-          <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
-            <SheetHeader className="px-6 py-4 border-b">
-              <SheetTitle className="text-xl text-primary">
-                Add New Product
-              </SheetTitle>
-            </SheetHeader>
-            <SheetDescription className="sr-only">
-              Form to add a new product
-            </SheetDescription>
+            <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
+              <SheetHeader className="px-6 py-4 border-b">
+                <SheetTitle className="text-xl text-primary">
+                  Add New Product
+                </SheetTitle>
+              </SheetHeader>
+              <SheetDescription className="sr-only">
+                Form to add a new product
+              </SheetDescription>
 
-            <div className="flex-1 overflow-hidden">
-              <CreateProductForm onSuccess={handleCreateSuccess} />
-            </div>
-          </SheetContent>
-        </Sheet>
+              <div className="flex-1 overflow-hidden">
+                <CreateProductForm onSuccess={handleCreateSuccess} />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1 w-24 shrink-0"
+          onClick={toggleTrashMode}
+        >
+          {isTrashMode ? (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Exit</span>
+            </>
+          ) : (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Trash</span>
+            </>
+          )}
+        </Button>
       </DashboardHeader>
 
       <div className="flex-1 overflow-auto">
@@ -523,6 +571,7 @@ const DashboardProductPage = () => {
           products={products}
           isLoading={isLoading}
           onSuccess={() => refetch()}
+          isTrashView={isDeletedApplied}
         />
       </div>
       <PaginationComponent

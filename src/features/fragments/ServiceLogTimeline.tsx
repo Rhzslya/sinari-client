@@ -1,8 +1,9 @@
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useServiceLogQueries } from "@/hooks/repair-log-queries";
 import { format } from "date-fns";
-import { Badge, History, User } from "lucide-react";
+import { History, User } from "lucide-react";
 
 export const ServiceLogTimeline = ({ serviceId }: { serviceId: number }) => {
   const { useLogList } = useServiceLogQueries();
@@ -53,8 +54,11 @@ export const ServiceLogTimeline = ({ serviceId }: { serviceId: number }) => {
                 <div className="flex justify-between items-center text-xs text-muted-foreground mb-2">
                   <div className="flex items-center gap-1.5 font-semibold text-foreground">
                     <User className="w-3.5 h-3.5" />
-                    <span>{log.user.name}</span>
-                    <Badge className="text-[9px] uppercase px-1.5 h-4 tracking-wider">
+                    <span>{log.user.username}</span>
+                    <Badge
+                      variant="outline"
+                      className="text-[9px] uppercase px-1.5 h-4 tracking-wider"
+                    >
                       {log.user.role}
                     </Badge>
                   </div>

@@ -3,6 +3,9 @@ import type {
   CreateTechnicianRequest,
   DeleteTechnicianRequest,
   DeleteTechnicianResponse,
+  GetDetailedTechnicianRequest,
+  ListTechnicianResponse,
+  RestoreTechnicianRequest,
   SearchTechnicianRequest,
   TechnicianResponse,
   UpdateTechnicianRequest,
@@ -21,10 +24,12 @@ import { toast } from "sonner";
 export const TECHNICIAN_KEYS = {
   all: ["technicians"] as const,
   lists: () => [...TECHNICIAN_KEYS.all, "list"] as const,
-  list: (params: SearchTechnicianRequest) =>
-    [...TECHNICIAN_KEYS.lists(), params] as const,
+  list: (request: SearchTechnicianRequest) =>
+    [...TECHNICIAN_KEYS.lists(), request] as const,
   details: () => [...TECHNICIAN_KEYS.all, "detail"] as const,
-  detail: (id: number) => [...TECHNICIAN_KEYS.details(), id] as const,
+  detail: (request: GetDetailedTechnicianRequest) =>
+    [...TECHNICIAN_KEYS.details(), request.id] as const,
+  activeLists: () => [...TECHNICIAN_KEYS.all, "active_list"] as const,
 };
 
 export const useTechnicianQueries = () => {
@@ -42,6 +47,25 @@ export const useTechnicianQueries = () => {
       });
     },
 
+    useActiveList: (): UseQueryResult<ListTechnicianResponse[], Error> => {
+      return useQuery({
+        queryKey: TECHNICIAN_KEYS.activeLists(),
+        queryFn: () => TechnicianServices.listActive(),
+        staleTime: 1000 * 30,
+      });
+    },
+
+    useDetail: (
+      request: GetDetailedTechnicianRequest,
+    ): UseQueryResult<TechnicianResponse, Error> => {
+      return useQuery({
+        queryKey: TECHNICIAN_KEYS.detail(request),
+        queryFn: () => TechnicianServices.get(request),
+        enabled: !!request?.id && !isNaN(request.id),
+        staleTime: 1000 * 60,
+      });
+    },
+
     createMutation: useMutation({
       mutationFn: (
         request: CreateTechnicianRequest,
@@ -51,6 +75,9 @@ export const useTechnicianQueries = () => {
           description: `Technician ${result.name} created successfully.`,
         });
         queryClient.invalidateQueries({ queryKey: TECHNICIAN_KEYS.lists() });
+        queryClient.invalidateQueries({
+          queryKey: TECHNICIAN_KEYS.activeLists(),
+        });
       },
       onError: (error) => handleApiError(error, "Failed to create technician"),
     }),
@@ -63,24 +90,49 @@ export const useTechnicianQueries = () => {
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({ queryKey: TECHNICIAN_KEYS.lists() });
+        queryClient.invalidateQueries({
+          queryKey: TECHNICIAN_KEYS.activeLists(),
+        });
       },
       onError: (error) => handleApiError(error, "Failed to delete technician"),
     }),
 
     updateTechnicianMutation: useMutation({
       mutationFn: (
-        data: UpdateTechnicianRequest,
-      ): Promise<TechnicianResponse> => TechnicianServices.update(data),
-      onSuccess: (result) => {
+        request: UpdateTechnicianRequest,
+      ): Promise<TechnicianResponse> => TechnicianServices.update(request),
+      onSuccess: (result, variables) => {
         toast.success("Technician Updated", {
           description: `Technician ${result.name} updated successfully.`,
         });
         queryClient.invalidateQueries({ queryKey: TECHNICIAN_KEYS.lists() });
         queryClient.invalidateQueries({
-          queryKey: ["technicians", "active_list"],
+          queryKey: TECHNICIAN_KEYS.activeLists(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: TECHNICIAN_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to update technician"),
+    }),
+
+    restoreMutation: useMutation({
+      mutationFn: (
+        request: RestoreTechnicianRequest,
+      ): Promise<TechnicianResponse> => TechnicianServices.restore(request),
+      onSuccess: (result, variables) => {
+        toast.success("Technician Restored", {
+          description: `Technician ${result.name} restored successfully.`,
+        });
+        queryClient.invalidateQueries({ queryKey: TECHNICIAN_KEYS.lists() });
+        queryClient.invalidateQueries({
+          queryKey: TECHNICIAN_KEYS.activeLists(),
+        });
+        queryClient.invalidateQueries({
+          queryKey: TECHNICIAN_KEYS.detail(variables),
+        });
+      },
+      onError: (error) => handleApiError(error, "Failed to restore technician"),
     }),
   };
 };

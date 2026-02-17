@@ -10,7 +10,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import type { TechnicianResponse } from "@/model/technician-model";
 import type { DashboardTechnicianTableProps } from "@/types/type";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { format } from "date-fns";
 import {
@@ -24,16 +23,19 @@ import { EditTechnicianForm } from "../components/EditTechnicianForm";
 import { TechnicianActionMenu } from "./TechnicianActionMenu";
 import DeleteTechnicianForm from "./DeleteTechnicianForm";
 import { TechnicianSkeletonTable } from "./Skeleton";
+import RestoreTechnicianForm from "./RestoreTechnicianForm";
 
 const DashboardTechnicianTable = ({
   technicians,
   isLoading,
   onSuccess,
+  isTrashView,
 }: DashboardTechnicianTableProps) => {
   const [selectedTechnician, setSelectedTechnician] =
     useState<TechnicianResponse | null>(null);
   const [isEditTechnicianOpen, setIsEditTechnicianOpen] = useState(false);
   const [isDeleteTechnicianOpen, setIsDeleteTechnicianOpen] = useState(false);
+  const [isRestoreTechnicianOpen, setIsRestoreTechnicianOpen] = useState(false);
 
   const handleEditTechnicianOpen = (technician: TechnicianResponse) => {
     setSelectedTechnician(technician);
@@ -43,6 +45,11 @@ const DashboardTechnicianTable = ({
   const handleDeleteTechnicianOpen = (technician: TechnicianResponse) => {
     setSelectedTechnician(technician);
     setIsDeleteTechnicianOpen(true);
+  };
+
+  const handleTechnicianRestoreOpen = (technician: TechnicianResponse) => {
+    setSelectedTechnician(technician);
+    setIsRestoreTechnicianOpen(true);
   };
 
   if (isLoading) {
@@ -131,13 +138,16 @@ const DashboardTechnicianTable = ({
                   <TableCell className="text-right">
                     <TechnicianActionMenu
                       technician={technician}
-                      onViewDetails={() => handleViewDetail(technician)}
                       onEditTechnician={() =>
                         handleEditTechnicianOpen(technician)
                       }
                       onDeleteTechnician={() =>
                         handleDeleteTechnicianOpen(technician)
                       }
+                      onRestoreTechnician={() =>
+                        handleTechnicianRestoreOpen(technician)
+                      }
+                      isTrashView={isTrashView ?? false}
                     />
                   </TableCell>
                 </TableRow>
@@ -182,6 +192,18 @@ const DashboardTechnicianTable = ({
         technician={selectedTechnician}
         onSuccess={() => {
           setIsDeleteTechnicianOpen(false);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }}
+      />
+
+      <RestoreTechnicianForm
+        open={isRestoreTechnicianOpen}
+        onOpenChange={setIsRestoreTechnicianOpen}
+        technician={selectedTechnician}
+        onSuccess={() => {
+          setIsRestoreTechnicianOpen(false);
           if (onSuccess) {
             onSuccess();
           }

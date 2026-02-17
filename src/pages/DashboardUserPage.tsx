@@ -27,18 +27,21 @@ import DashboardUserTable from "@/features/fragments/DashboardUserTable";
 import { PaginationComponent } from "@/features/fragments/Pagination";
 import { useUserQueries } from "@/hooks/user-queries";
 import { handleApiError } from "@/lib/utils";
-import { ArrowUpDown, Check, Filter, Search, X } from "lucide-react";
+import { ArrowUpDown, Check, Filter, Search, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const DashboardUserPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const isTrashMode = searchParams.get("is_deleted") === "true";
+
   // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 10;
   const nameParam = searchParams.get("name") || "";
   const isOnlineParam = searchParams.get("is_online") === "true";
+  const isDeletedApplied = searchParams.get("is_deleted") === "true";
   const roleParam = searchParams.get("role") || "";
   const sortByParam = searchParams.get("sort_by") || "created_at";
   const sortOrderParam = searchParams.get("sort_order") || "desc";
@@ -51,6 +54,10 @@ const DashboardUserPage = () => {
 
   const userQueries = useUserQueries();
 
+  const { data: currentUser } = userQueries.useProfile();
+
+  const isCurrentUserOwner = currentUser?.role === "OWNER";
+
   const { data, isLoading, isError, error, refetch } = userQueries.useList({
     page,
     size,
@@ -59,11 +66,8 @@ const DashboardUserPage = () => {
     sort_order: sortOrderParam as "asc" | "desc",
     is_online: isOnlineParam ? true : undefined,
     role: roleParam && roleParam !== "ALL" ? roleParam : undefined,
+    is_deleted: isDeletedApplied,
   });
-
-  const { data: currentUser } = userQueries.useProfile();
-
-  const isCurrentUserOwner = currentUser?.role === "OWNER";
 
   const handleSearch = () => {
     setSearchParams((prev) => {
@@ -166,6 +170,29 @@ const DashboardUserPage = () => {
       prev.set("sort_order", sortOrder);
       return prev;
     });
+  };
+
+  const toggleTrashMode = () => {
+    const currentSize = searchParams.get("size") || "10";
+
+    if (isTrashMode) {
+      setSearchParams({
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    } else {
+      setSearchParams({
+        is_deleted: "true",
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    }
+
+    setSearchTerm("");
   };
 
   // --- HELPERS ---
@@ -349,6 +376,24 @@ const DashboardUserPage = () => {
             </div>
           </PopoverContent>
         </Popover>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1 w-24 shrink-0"
+          onClick={toggleTrashMode}
+        >
+          {isTrashMode ? (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Exit</span>
+            </>
+          ) : (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Trash</span>
+            </>
+          )}
+        </Button>
       </DashboardHeader>
 
       <div className="flex-1 overflow-auto">
@@ -359,6 +404,7 @@ const DashboardUserPage = () => {
           onSuccess={() => refetch()}
           currentUserId={currentUser?.id}
           isCurrentUserOwner={isCurrentUserOwner}
+          isTrashView={isDeletedApplied}
         />
       </div>
 

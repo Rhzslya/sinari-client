@@ -11,8 +11,6 @@ import {
   type ForgotPasswordResponse,
   type GoogleLoginRequest,
   type NotPublicUserResponse,
-  type LoginRequest,
-  type RegisterRequest,
   type ResendVerificationResponse,
   type ResetPasswordRequest,
   type ResetPasswordResponse,
@@ -22,20 +20,23 @@ import {
   type GetDetailedUserRequest,
   type DetailedUserResponse,
   toDetailedUserResponse,
+  type RestoreUserRequest,
+  type RegisterUserRequest,
+  type LoginUserRequest,
+  type DeleteUserRequest,
+  type VerifyUserRequest,
+  type ResendVerificationRequest,
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { Validation } from "@/validation/validation";
 import axios from "axios";
 
 export class AuthServices {
-  static async login(request: LoginRequest): Promise<UserResponse> {
+  static async login(request: LoginUserRequest): Promise<UserResponse> {
     const loginRequest = Validation.validate(UserValidation.LOGIN, request);
 
-    const isEmail = loginRequest.identifier.includes("@");
-
     const payload = {
-      email: isEmail ? loginRequest.identifier : undefined,
-      username: !isEmail ? loginRequest.identifier : undefined,
+      identifier: loginRequest.identifier,
       password: loginRequest.password,
     };
 
@@ -60,7 +61,7 @@ export class AuthServices {
     return toUserResponse(response.data.data);
   }
 
-  static async register(request: RegisterRequest): Promise<UserResponse> {
+  static async register(request: RegisterUserRequest): Promise<UserResponse> {
     const registerRequest = Validation.validate(
       UserValidation.REGISTER,
       request,
@@ -83,14 +84,13 @@ export class AuthServices {
   static async search(
     request: SearchUserRequest,
   ): Promise<ApiResponse<NotPublicUserResponse[]>> {
-    const response = await api.get<ApiResponse<NotPublicUserResponse[]>>(
-      "/users",
-      {
-        params: request,
-      },
-    );
+    const response = await api.get<
+      ApiResponse<ApiResponse<NotPublicUserResponse[]>>
+    >("/users", {
+      params: request,
+    });
 
-    return response.data;
+    return response.data.data;
   }
 
   static async get(): Promise<UserResponse> {
@@ -117,12 +117,12 @@ export class AuthServices {
       request,
     );
 
-    const response = await api.patch<NotPublicUserResponse>(
+    const response = await api.patch<ApiResponse<NotPublicUserResponse>>(
       `/users/${request.id}`,
       updateRoleRequest,
     );
 
-    return toNotPublicUserResponse(response.data);
+    return toNotPublicUserResponse(response.data.data);
   }
 
   static async logout(): Promise<boolean> {
@@ -141,34 +141,51 @@ export class AuthServices {
     }
   }
 
-  static async remove(id: number): Promise<DeleteUserResponse> {
-    if (isNaN(id)) {
+  static async remove(request: DeleteUserRequest): Promise<DeleteUserResponse> {
+    if (isNaN(request.id)) {
       throw new Error("Invalid user ID");
     }
 
-    const response = await api.delete(`/users/${id}`, {
-      skipGlobalErrorHandler: true,
-    });
+    const response = await api.delete<ApiResponse<boolean>>(
+      `/users/${request.id}`,
+      {
+        skipGlobalErrorHandler: true,
+      },
+    );
 
     return {
-      message: response.data.message,
+      message: response.data.message || "User deleted successfully",
     };
   }
 
-  static async verify(token: string): Promise<boolean> {
-    await api.get(`/auth/verify?token=${token}`);
+  static async restore(
+    request: RestoreUserRequest,
+  ): Promise<NotPublicUserResponse> {
+    if (isNaN(request.id)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const response = await api.patch<ApiResponse<NotPublicUserResponse>>(
+      `/users/${request.id}/restore`,
+    );
+
+    return toNotPublicUserResponse(response.data.data);
+  }
+
+  static async verify(request: VerifyUserRequest): Promise<boolean> {
+    await api.get<ApiResponse<boolean>>(`/auth/verify?token=${request.token}`);
     return true;
   }
 
   static async resendVerification(
-    identifier: string,
+    request: ResendVerificationRequest,
   ): Promise<ResendVerificationResponse> {
-    const isEmail = identifier.includes("@");
+    const isEmail = request.identifier.includes("@");
 
     const paramKey = isEmail ? "email" : "username";
 
     const response = await api.get<ApiResponse<ResendVerificationResponse>>(
-      `/auth/resend-verify?${paramKey}=${identifier}`,
+      `/auth/resend-verify?${paramKey}=${request.identifier}`,
     );
 
     return toResendVerificationResponse(response.data.data);

@@ -6,25 +6,28 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { AuthServices } from "@/services/user-services";
-import { toast } from "sonner"; // Sesuaikan library toast kamu
-import { handleApiError } from "@/lib/utils"; // Pakai utility error handler kita
+import { toast } from "sonner";
+import { handleApiError } from "@/lib/utils";
 import type {
   ApiResponse,
   DeleteUserRequest,
   DeleteUserResponse,
+  DetailedUserResponse,
   GetDetailedUserRequest,
   NotPublicUserResponse,
+  RestoreUserRequest,
   SearchUserRequest,
   UpdateRoleRequest,
 } from "@/model/user-model";
 
-// Definisikan Query Keys agar konsisten dan tidak typo
 export const USER_KEYS = {
   all: ["users"] as const,
   lists: () => [...USER_KEYS.all, "list"] as const,
-  list: (params: SearchUserRequest) => [...USER_KEYS.lists(), params] as const,
+  list: (request: SearchUserRequest) =>
+    [...USER_KEYS.lists(), request] as const,
   details: () => [...USER_KEYS.all, "detail"] as const,
-  detail: (id: number) => [...USER_KEYS.details(), id] as const,
+  detail: (request: GetDetailedUserRequest) =>
+    [...USER_KEYS.details(), request.id] as const,
   profile: ["current-user"] as const,
 };
 
@@ -32,31 +35,28 @@ export const useUserQueries = () => {
   const queryClient = useQueryClient();
 
   return {
-    // 1. GET LIST (Search & Pagination)
     useList: (
-      params: SearchUserRequest,
+      request: SearchUserRequest,
     ): UseQueryResult<ApiResponse<NotPublicUserResponse[]>, Error> => {
       return useQuery({
-        queryKey: USER_KEYS.list(params),
-        queryFn: () => AuthServices.search(params),
-        placeholderData: keepPreviousData, // Agar table tidak kedip saat ganti page
-        staleTime: 1000 * 30, // 30 detik data dianggap fresh
+        queryKey: USER_KEYS.list(request),
+        queryFn: () => AuthServices.search(request),
+        placeholderData: keepPreviousData,
+        staleTime: 1000 * 30,
       });
     },
 
-    // 2. GET DETAIL (Untuk halaman Detail User)
     useDetail: (
       request: GetDetailedUserRequest,
-    ): UseQueryResult<NotPublicUserResponse, Error> => {
+    ): UseQueryResult<DetailedUserResponse, Error> => {
       return useQuery({
-        queryKey: USER_KEYS.detail(request.id),
-        queryFn: () => AuthServices.getById(request), // Asumsi ada method ini
-        enabled: !!request, // Hanya jalan jika ID ada
-        staleTime: 1000 * 60, // Detail user jarang berubah, cache 1 menit
+        queryKey: USER_KEYS.detail(request),
+        queryFn: () => AuthServices.getById(request),
+        enabled: !!request?.id && !isNaN(request.id),
+        staleTime: 1000 * 60,
       });
     },
 
-    // 3. GET CURRENT USER (Untuk Navbar/Profile)
     useProfile: () => {
       return useQuery({
         queryKey: USER_KEYS.profile,
@@ -66,13 +66,9 @@ export const useUserQueries = () => {
       });
     },
 
-    // --- MUTATIONS (WRITE DATA) ---
-    // Di sinilah kekuatan TanStack Query: Otomatis refresh data!
-
-    // 4. DELETE USER
     deleteMutation: useMutation({
       mutationFn: (request: DeleteUserRequest): Promise<DeleteUserResponse> =>
-        AuthServices.remove(request.id),
+        AuthServices.remove(request),
       onSuccess: (data) => {
         toast.success(data.message);
         queryClient.invalidateQueries({ queryKey: USER_KEYS.lists() });
@@ -80,20 +76,36 @@ export const useUserQueries = () => {
       onError: (error) => handleApiError(error, "Failed to delete user"),
     }),
 
-    // 5. UPDATE ROLE
     updateRoleMutation: useMutation({
-      mutationFn: (data: UpdateRoleRequest): Promise<NotPublicUserResponse> =>
-        AuthServices.updateRole(data),
+      mutationFn: (
+        request: UpdateRoleRequest,
+      ): Promise<NotPublicUserResponse> => AuthServices.updateRole(request),
       onSuccess: (_, variables) => {
         toast.success("Role Updated", {
           description: `User with ID ${variables.id} is now a ${variables.role}.`,
         });
         queryClient.invalidateQueries({ queryKey: USER_KEYS.lists() });
         queryClient.invalidateQueries({
-          queryKey: USER_KEYS.detail(variables.id),
+          queryKey: USER_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to update role"),
+    }),
+
+    restoreMutation: useMutation({
+      mutationFn: (
+        request: RestoreUserRequest,
+      ): Promise<NotPublicUserResponse> => AuthServices.restore(request),
+      onSuccess: (result, variables) => {
+        toast.success("User Restored", {
+          description: `User with ID ${result.id} has been restored.`,
+        });
+        queryClient.invalidateQueries({ queryKey: USER_KEYS.lists() });
+        queryClient.invalidateQueries({
+          queryKey: USER_KEYS.detail(variables),
+        });
+      },
+      onError: (error) => handleApiError(error, "Failed to restore user"),
     }),
   };
 };

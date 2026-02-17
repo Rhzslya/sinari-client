@@ -10,6 +10,7 @@ export type TechnicianResponse = {
 export type ListTechnicianResponse = {
   id: number;
   name: string;
+  active_jobs: number;
 };
 
 export type Technician = {
@@ -42,13 +43,16 @@ export type ApiResponse<T> = {
     total_page: number;
     size: number;
   };
+  message?: string;
 };
 
 export type SearchTechnicianRequest = {
+  id?: number;
   name?: string;
   page: number;
   size: number;
   is_active?: boolean;
+  is_deleted?: boolean;
   sort_by?: "created_at" | "is_active" | "name";
   sort_order?: "asc" | "desc";
 };
@@ -61,7 +65,15 @@ export type UpdateTechnicianRequest = {
   is_active?: boolean;
 };
 
+export type GetDetailedTechnicianRequest = {
+  id: number;
+};
+
 export type DeleteTechnicianRequest = {
+  id: number;
+};
+
+export type RestoreTechnicianRequest = {
   id: number;
 };
 
@@ -84,5 +96,6 @@ export function toListTechnicianResponse(
   return {
     id: technician.id,
     name: technician.name,
+    active_jobs: technician.active_jobs,
   };
 }

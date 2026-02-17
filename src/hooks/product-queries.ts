@@ -6,6 +6,7 @@ import type {
   DeleteProductResponse,
   DetailedProductRequest,
   ProductResponse,
+  RestoreProductRequest,
   SearchProductRequest,
   UpdateProductRequest,
 } from "@/model/product-model";
@@ -18,14 +19,16 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { PRODUCT_LOG_KEYS } from "./product-log-queries";
 
 export const PRODUCT_KEYS = {
   all: ["products"] as const,
   lists: () => [...PRODUCT_KEYS.all, "list"] as const,
-  list: (params: SearchProductRequest) =>
-    [...PRODUCT_KEYS.lists(), params] as const,
+  list: (request: SearchProductRequest) =>
+    [...PRODUCT_KEYS.lists(), request] as const,
   details: () => [...PRODUCT_KEYS.all, "detail"] as const,
-  detail: (id: number) => [...PRODUCT_KEYS.details(), id] as const,
+  detail: (request: DetailedProductRequest) =>
+    [...PRODUCT_KEYS.details(), request.id] as const,
 };
 
 export const useProductQueries = () => {
@@ -47,9 +50,9 @@ export const useProductQueries = () => {
       request: DetailedProductRequest,
     ): UseQueryResult<ProductResponse, Error> => {
       return useQuery({
-        queryKey: PRODUCT_KEYS.detail(request.id),
+        queryKey: PRODUCT_KEYS.detail(request),
         queryFn: () => ProductServices.get(request),
-        enabled: !!request.id,
+        enabled: !!request?.id && !isNaN(request.id),
         staleTime: 1000 * 60,
       });
     },
@@ -86,25 +89,44 @@ export const useProductQueries = () => {
         });
         queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.lists() });
         queryClient.invalidateQueries({
-          queryKey: PRODUCT_KEYS.detail(variables.id),
+          queryKey: PRODUCT_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to update product"),
     }),
 
     updateStockMutation: useMutation({
-      mutationFn: (data: UpdateProductRequest): Promise<ProductResponse> =>
-        ProductServices.update(data),
+      mutationFn: (
+        data: Pick<UpdateProductRequest, "id" | "stock" | "stock_action">,
+      ): Promise<ProductResponse> => ProductServices.updateStock(data),
       onSuccess: (result, variables) => {
         toast.success("Stock Updated", {
           description: `Stock of ${result.name} updated successfully.`,
         });
         queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.lists() });
         queryClient.invalidateQueries({
-          queryKey: PRODUCT_KEYS.detail(Number(variables.id)),
+          queryKey: PRODUCT_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to update stock"),
+    }),
+
+    restoreMutation: useMutation({
+      mutationFn: (data: RestoreProductRequest): Promise<ProductResponse> =>
+        ProductServices.restore(data),
+      onSuccess: (result, variables) => {
+        toast.success("Product Restored", {
+          description: `Product ${result.name} restored successfully.`,
+        });
+        queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.lists() });
+        queryClient.invalidateQueries({
+          queryKey: PRODUCT_KEYS.detail(variables),
+        });
+        queryClient.invalidateQueries({
+          queryKey: PRODUCT_LOG_KEYS.detail(variables.id),
+        });
+      },
+      onError: (error) => handleApiError(error, "Failed to restore product"),
     }),
   };
 };

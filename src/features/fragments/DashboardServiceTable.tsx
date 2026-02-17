@@ -103,9 +103,6 @@ const DashboardServiceTable = ({
         <span className="text-lg font-medium text-foreground">
           No services found
         </span>
-        <span className="text-sm">
-          Try adjusting your filters or search query.
-        </span>
       </div>
     );
   }
@@ -252,11 +249,11 @@ const DashboardServiceTable = ({
         >
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle className="text-xl text-primary">
-              Edit Product
+              Edit Service
             </SheetTitle>
           </SheetHeader>
           <SheetDescription className="sr-only">
-            Form to add a new product
+            Form to add a new service
           </SheetDescription>
 
           <div className="flex-1 overflow-hidden">

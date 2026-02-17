@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
 import { useUserQueries } from "@/hooks/user-queries";
+import { ServiceStatus } from "@/enum/product-enum";
 
 interface ServiceActionMenuProps {
   service: ServiceResponse;
@@ -48,6 +49,10 @@ export function ServiceActionMenu({
 
   const [isOpen, setIsOpen] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const isDeleteDisabled =
+    service.status !== ServiceStatus.CANCELLED &&
+    service.status !== ServiceStatus.TAKEN;
 
   const handleDownloadPDF = async () => {
     setIsGeneratingPdf(true);
@@ -123,6 +128,7 @@ export function ServiceActionMenu({
                 <DropdownMenuItem
                   onClick={onDeleteService}
                   className="text-destructive focus:text-destructive cursor-pointer"
+                  disabled={isDeleteDisabled}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete

@@ -27,6 +27,10 @@ export class TechnicianValidation {
         return Boolean(val);
       }, z.boolean().default(true))
       .optional(),
+    is_deleted: z.preprocess((val) => {
+      if (typeof val === "string") return val === "true";
+      return Boolean(val);
+    }, z.boolean().optional()),
     page: z.coerce.number().min(1).positive().default(1),
     size: z.coerce.number().min(1).max(100).positive().default(10),
     sort_by: z.enum(["created_at", "is_active", "name"]).optional(),

@@ -34,6 +34,7 @@ export interface DashboardProductTableProps {
   isLoading: boolean;
   onRefresh?: () => void;
   onSuccess?: () => void;
+  isTrashView?: boolean;
 }
 
 export interface DashboardServiceTableProps {
@@ -49,6 +50,7 @@ export interface DashboardTechnicianTableProps {
   isLoading: boolean;
   onRefresh?: () => void;
   onSuccess?: () => void;
+  isTrashView?: boolean;
 }
 
 export interface DashboardUserTableProps {
@@ -62,6 +64,7 @@ export interface ExtendedTableProps extends DashboardUserTableProps {
   currentUser: UserResponse | undefined;
   currentUserId?: number;
   isCurrentUserOwner: boolean;
+  isTrashView?: boolean;
 }
 
 export interface JwtPayload {

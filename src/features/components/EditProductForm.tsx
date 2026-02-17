@@ -113,12 +113,16 @@ export function EditProductForm({
   const isImageOversized =
     imageValue instanceof File && imageValue.size > MAX_FILE_SIZE;
 
+  const isSellingPriceLowerThanCostPrice =
+    Number(priceValue) < Number(costPriceValue);
+
   const isButtonDisabled =
     isPending ||
     !nameValue ||
     Number(priceValue) <= 0 ||
     Number(costPriceValue) <= 0 ||
-    isImageOversized;
+    isImageOversized ||
+    isSellingPriceLowerThanCostPrice;
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -450,7 +454,10 @@ export function EditProductForm({
                     <FormControl>
                       <NumberStepper
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          formUpdate.trigger("cost_price");
+                        }}
                         step={10000}
                         prefix="Rp"
                         placeholder="0"
@@ -478,7 +485,7 @@ export function EditProductForm({
                         disabled={isPending}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs" />
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />

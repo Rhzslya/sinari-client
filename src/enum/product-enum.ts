@@ -69,6 +69,23 @@ export const ServiceLogAction = {
   DELETED: "DELETED",
 };
 
+export type ProductLogAction =
+  (typeof ProductLogAction)[keyof typeof ProductLogAction];
+
+export const ProductLogAction = {
+  CREATED: "CREATED",
+  UPDATE_INFO: "UPDATE_INFO",
+  UPDATE_COST: "UPDATE_COST",
+  UPDATE_PRICE: "UPDATE_PRICE",
+  RESTOCK: "RESTOCK",
+  SALE_OFFLINE: "SALE_OFFLINE",
+  ADJUST_DAMAGE: "ADJUST_DAMAGE",
+  ADJUST_LOST: "ADJUST_LOST",
+  ADJUST_OPNAME: "ADJUST_OPNAME",
+  VOID_LOG: "VOID_LOG",
+  DELETED: "DELETED",
+};
+
 export const ROLE_OPTIONS = Object.values(UserRole).map((value) => ({
   value: value,
   label: value.charAt(0) + value.slice(1).toLowerCase(),

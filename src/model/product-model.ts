@@ -1,4 +1,4 @@
-import type { Brand, Category } from "@/enum/product-enum";
+import type { Brand, Category, ProductLogAction } from "@/enum/product-enum";
 
 export type ProductResponse = {
   id: number;
@@ -38,6 +38,7 @@ export type ApiResponse<T> = {
     total_page: number;
     size: number;
   };
+  message?: string;
 };
 
 export type SearchProductRequest = {
@@ -48,6 +49,7 @@ export type SearchProductRequest = {
   min_price?: number;
   max_price?: number;
   in_stock_only?: boolean;
+  is_deleted?: boolean;
   page: number;
   size: number;
   sort_by?: "price" | "stock" | "created_at";
@@ -62,6 +64,11 @@ export type DeleteProductRequest = {
   id: number;
 };
 
+export type RestoreProductRequest = {
+  id: number;
+  name?: string;
+};
+
 export type UpdateProductRequest = {
   id: number;
   name?: string;
@@ -73,6 +80,7 @@ export type UpdateProductRequest = {
   stock?: number;
   image?: File;
   delete_image?: boolean;
+  stock_action?: ProductLogAction;
 };
 
 export function toProductResponse(product: ProductResponse): ProductResponse {

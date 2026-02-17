@@ -6,14 +6,17 @@ import { Link } from "react-router-dom";
 interface RecentActivityProps {
   data: {
     id: number;
+    type: "SERVICE" | "PRODUCT";
     username: string;
     action: string;
     description: string;
     time: string;
-    service_id: string;
-    service_pk: number;
-    customer_name: string;
+    service_id?: string;
+    service_pk?: number;
+    customer_name?: string;
     is_deleted: boolean;
+    product_pk?: number;
+    product_name?: string;
   }[];
 }
 
@@ -44,21 +47,39 @@ export function RecentActivity({ data }: RecentActivityProps) {
               <div className="flex items-center gap-2 min-w-0">
                 <p className="text-sm font-medium truncate">{item.username}</p>
 
-                {item.is_deleted ? (
-                  <Badge
-                    variant="outline"
-                    className="line-through text-muted-foreground"
-                  >
-                    {item.service_id}
-                  </Badge>
-                ) : (
-                  <Link
-                    to={`/dashboard/services/detail/${item.service_pk}`}
-                    className="hover:opacity-80 transition-opacity"
-                  >
-                    <Badge variant="link">{item.service_id}</Badge>
-                  </Link>
-                )}
+                {item.type === "SERVICE" &&
+                  (item.is_deleted ? (
+                    <Badge
+                      variant="outline"
+                      className="line-through text-muted-foreground"
+                    >
+                      {item.service_id}
+                    </Badge>
+                  ) : (
+                    <Link
+                      to={`/dashboard/services/detail/${item.service_pk}`}
+                      className="hover:opacity-80 transition-opacity -mt-1"
+                    >
+                      <Badge variant="link">{item.service_id}</Badge>
+                    </Link>
+                  ))}
+
+                {item.type === "PRODUCT" &&
+                  (item.is_deleted ? (
+                    <Badge
+                      variant="outline"
+                      className="line-through text-muted-foreground"
+                    >
+                      {item.product_name}
+                    </Badge>
+                  ) : (
+                    <Link
+                      to={`/dashboard/products/detail/${item.product_pk}`}
+                      className="hover:opacity-80 transition-opacity -mt-1"
+                    >
+                      <Badge variant="link">{item.product_name}</Badge>
+                    </Link>
+                  ))}
               </div>
 
               <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">

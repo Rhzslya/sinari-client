@@ -80,12 +80,16 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
   const isImageOversized =
     imageValue instanceof File && imageValue.size > MAX_FILE_SIZE;
 
+  const isSellingPriceLowerThanCostPrice =
+    Number(priceValue) < Number(costPriceValue);
+
   const isButtonDisabled =
     isPending ||
     !nameValue ||
     Number(priceValue) <= 0 ||
     Number(costPriceValue) <= 0 ||
-    isImageOversized;
+    isImageOversized ||
+    isSellingPriceLowerThanCostPrice;
 
   const handleReset = () => {
     formCreate.reset({
@@ -396,7 +400,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 gap-y-6">
               <FormField
                 control={formCreate.control}
                 name="price"
@@ -406,7 +410,10 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                     <FormControl>
                       <NumberStepper
                         value={field.value}
-                        onChange={field.onChange}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          formCreate.trigger("cost_price");
+                        }}
                         step={10000}
                         prefix="Rp"
                         placeholder="0"
@@ -434,7 +441,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                         disabled={isSubmitting || isPending}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs" />
+                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
                   </FormItem>
                 )}
               />

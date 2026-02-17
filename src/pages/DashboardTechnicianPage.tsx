@@ -40,6 +40,7 @@ import {
   Filter,
   PlusCircle,
   Search,
+  Trash2,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -47,6 +48,8 @@ import { useSearchParams } from "react-router-dom";
 
 const DashboardTechnicianPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const isTrashMode = searchParams.get("is_deleted") === "true";
 
   // --- QUERY PARAMS ---
   const page = Number(searchParams.get("page")) || 1;
@@ -58,6 +61,8 @@ const DashboardTechnicianPage = () => {
       : searchParams.get("is_active") === "false"
         ? false
         : undefined;
+  const isDeletedApplied = searchParams.get("is_deleted") === "true";
+
   const sortByParam = searchParams.get("sort_by") || "created_at";
   const sortOrderParam = searchParams.get("sort_order") || "desc";
 
@@ -82,6 +87,7 @@ const DashboardTechnicianPage = () => {
       is_active: isActiveParam,
       sort_by: sortByParam as "created_at" | "is_active",
       sort_order: sortOrderParam as "asc" | "desc",
+      is_deleted: isDeletedApplied,
     });
 
   const handleSearch = () => {
@@ -184,6 +190,29 @@ const DashboardTechnicianPage = () => {
     if (page === 1) {
       refetch();
     }
+  };
+
+  const toggleTrashMode = () => {
+    const currentSize = searchParams.get("size") || "10";
+
+    if (isTrashMode) {
+      setSearchParams({
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    } else {
+      setSearchParams({
+        is_deleted: "true",
+        page: "1",
+        size: currentSize,
+        sort_by: "created_at",
+        sort_order: "desc",
+      });
+    }
+
+    setSearchTerm("");
   };
 
   // --- HELPERS ---
@@ -351,35 +380,55 @@ const DashboardTechnicianPage = () => {
           </PopoverContent>
         </Popover>
 
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-1 cursor-pointer"
-            >
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Technician
-              </span>
-            </Button>
-          </SheetTrigger>
+        {!isTrashMode && (
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 gap-1 cursor-pointer"
+              >
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Technician
+                </span>
+              </Button>
+            </SheetTrigger>
 
-          <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
-            <SheetHeader className="px-6 py-4 border-b">
-              <SheetTitle className="text-xl text-primary">
-                Add New Technician
-              </SheetTitle>
-            </SheetHeader>
-            <SheetDescription className="sr-only">
-              Form to add a new technician
-            </SheetDescription>
+            <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
+              <SheetHeader className="px-6 py-4 border-b">
+                <SheetTitle className="text-xl text-primary">
+                  Add New Technician
+                </SheetTitle>
+              </SheetHeader>
+              <SheetDescription className="sr-only">
+                Form to add a new technician
+              </SheetDescription>
 
-            <div className="flex-1 overflow-hidden">
-              <CreateTechnicianForm onSuccess={handleCreateSuccess} />
-            </div>
-          </SheetContent>
-        </Sheet>
+              <div className="flex-1 overflow-hidden">
+                <CreateTechnicianForm onSuccess={handleCreateSuccess} />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1 w-24 shrink-0"
+          onClick={toggleTrashMode}
+        >
+          {isTrashMode ? (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Exit</span>
+            </>
+          ) : (
+            <>
+              <Trash2 className="h-3.5 w-3.5" />
+              <span className="sr-only sm:not-sr-only">Trash</span>
+            </>
+          )}
+        </Button>
       </DashboardHeader>
 
       <div className="flex-1 overflow-auto">
@@ -387,6 +436,7 @@ const DashboardTechnicianPage = () => {
           technicians={technicians}
           isLoading={isLoading}
           onSuccess={() => refetch()}
+          isTrashView={isDeletedApplied}
         />
       </div>
 

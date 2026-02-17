@@ -10,6 +10,7 @@ import type {
   SearchServiceRequest,
   ServiceResponse,
   ServiceResponseMeta,
+  TrackPublicServiceRequest,
   UpdateServiceRequest,
 } from "@/model/repair-model";
 import { RepairServices } from "@/services/repair-services";
@@ -29,9 +30,10 @@ export const SERVICE_KEYS = {
   list: (params: SearchServiceRequest) =>
     [...SERVICE_KEYS.lists(), params] as const,
   details: () => [...SERVICE_KEYS.all, "detail"] as const,
-  detail: (id: number) => [...SERVICE_KEYS.details(), id] as const,
-  track: (identifier: string) =>
-    [...SERVICE_KEYS.all, "track", identifier] as const,
+  detail: (request: DetailedServiceRequest) =>
+    [...SERVICE_KEYS.details(), request.id] as const,
+  track: (request: TrackPublicServiceRequest) =>
+    [...SERVICE_KEYS.all, "track", request.identifier] as const,
 };
 
 export const useServiceQueries = () => {
@@ -53,9 +55,9 @@ export const useServiceQueries = () => {
       request: DetailedServiceRequest,
     ): UseQueryResult<ServiceResponse, Error> => {
       return useQuery({
-        queryKey: SERVICE_KEYS.detail(request.id),
+        queryKey: SERVICE_KEYS.detail(request),
         queryFn: () => RepairServices.getById(request),
-        enabled: !!request.id,
+        enabled: !!request?.id && !isNaN(request.id),
         staleTime: 1000 * 60,
       });
     },
@@ -99,7 +101,7 @@ export const useServiceQueries = () => {
         });
         queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
         queryClient.invalidateQueries({
-          queryKey: SERVICE_KEYS.detail(variables.id),
+          queryKey: SERVICE_KEYS.detail(variables),
         });
         queryClient.invalidateQueries({
           queryKey: REPAIR_LOG_KEYS.detail(variables.id),
@@ -121,7 +123,7 @@ export const useServiceQueries = () => {
         });
         queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
         queryClient.invalidateQueries({
-          queryKey: SERVICE_KEYS.detail(variables.id),
+          queryKey: SERVICE_KEYS.detail(variables),
         });
         queryClient.invalidateQueries({
           queryKey: REPAIR_LOG_KEYS.detail(variables.id),
@@ -134,28 +136,28 @@ export const useServiceQueries = () => {
     restoreMutation: useMutation({
       mutationFn: (data: RestoreServiceRequest): Promise<ServiceResponse> =>
         RepairServices.restore(data),
-      onSuccess: (result) => {
+      onSuccess: (result, variables) => {
         toast.success("Service Restored", {
           description: `Service ${result.service_id} restored successfully.`,
         });
         queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
         queryClient.invalidateQueries({
-          queryKey: SERVICE_KEYS.detail(result.id),
+          queryKey: SERVICE_KEYS.detail(variables),
         });
         queryClient.invalidateQueries({
-          queryKey: REPAIR_LOG_KEYS.detail(result.id),
+          queryKey: REPAIR_LOG_KEYS.detail(variables.id),
         });
       },
       onError: (error) => handleApiError(error, "Failed to restore service"),
     }),
 
     useTrackPublic: (
-      identifier: string,
+      request: TrackPublicServiceRequest,
     ): UseQueryResult<PublicServiceResponse, Error> => {
       return useQuery({
-        queryKey: SERVICE_KEYS.track(identifier),
-        queryFn: () => RepairServices.trackService(identifier),
-        enabled: !!identifier,
+        queryKey: SERVICE_KEYS.track(request),
+        queryFn: () => RepairServices.trackService(request),
+        enabled: !!request?.identifier,
         staleTime: 1000 * 30,
         retry: 1,
       });

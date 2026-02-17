@@ -21,11 +21,10 @@ import { formatRupiah } from "@/components/utils/formatRupiah";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand } from "@/enum/product-enum";
 import { useServiceQueries } from "@/hooks/repair-queries";
+import { useTechnicianQueries } from "@/hooks/technician-queries";
 import type { CreateServiceRequest } from "@/model/repair-model";
-import { TechnicianServices } from "@/services/technician-services";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import {
   useFieldArray,
@@ -46,11 +45,9 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
 
   const { mutateAsync: createService, isPending } = createMutation;
 
-  const { data: technicians, isLoading: isFetchingTechs } = useQuery({
-    queryKey: ["technicians", "active_list"],
-    queryFn: TechnicianServices.listActive,
-    staleTime: 1000 * 60 * 5,
-  });
+  const { useActiveList } = useTechnicianQueries();
+
+  const { data: technicians, isLoading: isFetchingTechs } = useActiveList();
 
   const formCreate = useForm<CreateServiceRequest>({
     resolver: zodResolver(
@@ -332,7 +329,18 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                       <SelectContent>
                         {technicians?.map((tech) => (
                           <SelectItem key={tech.id} value={tech.id.toString()}>
-                            {tech.name}
+                            <div className="flex justify-between items-center w-full">
+                              <span>{tech.name}</span>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded ml-2 ${
+                                  tech.active_jobs > 5
+                                    ? "text-destructive"
+                                    : "text-success"
+                                }`}
+                              >
+                                {tech.active_jobs} Queue
+                              </span>
+                            </div>
                           </SelectItem>
                         ))}
                         {technicians?.length === 0 && !isFetchingTechs && (

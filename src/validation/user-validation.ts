@@ -3,6 +3,18 @@ import z from "zod";
 
 const ROLE_VALUES = Object.values(UserRole) as [UserRole, ...UserRole[]];
 
+const strongPassword = z
+  .string()
+  .min(8, "Password minimum 8 characters")
+  .max(100, "Password is too long")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/\d/, "Password must contain at least one number")
+  .regex(
+    /(?=.*[!@#$%^&*])/,
+    "Password must contain at least one special character",
+  );
+
 export class UserValidation {
   static readonly LOGIN = z.object({
     identifier: z
@@ -42,16 +54,7 @@ export class UserValidation {
         /^[a-zA-Z0-9_]+$/,
         "Username must contain only letters, numbers and underscores",
       ),
-    password: z
-      .string()
-      .min(8, "Password Minimum 8 Characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/\d/, "Password must contain at least one number")
-      .regex(
-        /(?=.*[!@#$%^&*])/,
-        "Password must contain at least one special character",
-      ),
+    password: strongPassword,
     name: z.string().min(1, "Name is required").max(100, "Name is too long"),
   });
 
@@ -62,6 +65,10 @@ export class UserValidation {
       .min(1)
       .max(100, { message: "Search name is too long" })
       .optional(),
+    is_deleted: z.preprocess((val) => {
+      if (typeof val === "string") return val === "true";
+      return Boolean(val);
+    }, z.boolean().optional()),
     page: z.coerce.number().min(1).positive().default(1),
     size: z.coerce.number().min(1).max(100).positive().default(10),
     sort_by: z.enum(["created_at", "name"]).optional(),
@@ -77,16 +84,29 @@ export class UserValidation {
     role: z.enum(ROLE_VALUES).optional(),
   });
 
-  static readonly UPDATE = z.object({
-    name: z
-      .string()
-      .min(1, {
-        message: "Name is required",
-      })
-      .max(100)
-      .optional(),
-    email: z.email({ message: "Invalid email address" }).optional(),
-  });
+  static readonly UPDATE = z
+    .object({
+      email: z.email().min(1).max(100).optional(),
+      password: strongPassword.optional(),
+      current_password: z
+        .string()
+        .min(1, "Current password is required")
+        .max(100)
+        .optional(),
+      name: z.string().min(1).max(100).optional(),
+    })
+    .refine(
+      (data) => {
+        if (data.password !== undefined && !data.current_password) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message: "Current password is required to change your password",
+        path: ["current_password"],
+      },
+    );
 
   static readonly UPDATE_ROLE = z.object({
     role: z.enum(ROLE_VALUES, {
@@ -127,16 +147,7 @@ export class UserValidation {
   static readonly RESET_PASSWORD = z
     .object({
       token: z.string().min(1, "Token is required"),
-      new_password: z
-        .string()
-        .min(8, "Password Minimum 8 Characters")
-        .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-        .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-        .regex(/\d/, "Password must contain at least one number")
-        .regex(
-          /(?=.*[!@#$%^&*])/,
-          "Password must contain at least one special character",
-        ),
+      new_password: strongPassword,
       confirm_new_password: z
         .string()
         .min(8, "Confirmation password is required"),

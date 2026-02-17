@@ -1,10 +1,10 @@
 import { api } from "@/lib/axios";
+import type { ApiResponse } from "@/model/api-model";
 import {
   toServiceLogResponse,
   type GetLogRequest,
   type ServiceLogResponse,
 } from "@/model/repair-logs-model";
-import type { ApiResponse } from "@/model/user-model";
 
 export class RepairLogService {
   static async get(request: GetLogRequest): Promise<ServiceLogResponse[]> {

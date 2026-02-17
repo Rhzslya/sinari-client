@@ -11,26 +11,38 @@ import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import { OverviewChart } from "@/features/fragments/OverviewChart";
 import { RecentActivity } from "@/features/fragments/RecentActivity";
 import { useDashboardQueries } from "@/hooks/dashboard-queries";
-import { Activity, DollarSign, Download, Users, Wrench } from "lucide-react";
+import {
+  Activity,
+  DollarSign,
+  Download,
+  Users,
+  Wrench,
+  Wallet,
+  ShoppingBag,
+} from "lucide-react";
 
 const DashboardPage = () => {
   const { useStats } = useDashboardQueries();
-
   const { data: stats, isLoading, isError } = useStats();
 
-  const growth = stats?.cards.revenue_growth || 0;
+  const revenueGrowth = stats?.cards.revenue_growth || 0;
+  const isRevenuePositive = revenueGrowth >= 0;
 
-  const isPositive = growth >= 0;
+  const profitGrowth = stats?.cards.profit_growth || 0;
+  const isProfitPositive = profitGrowth >= 0;
 
   if (isLoading) return <div>Loading Dashboard...</div>;
   if (isError) return <div>Failed to load stats.</div>;
 
+  // Nilai default/fallback yang aman
   const safeStats = stats || {
     cards: {
       total_revenue: 0,
+      profit: 0,
       active_services: 0,
       pending_queue: 0,
       finished_jobs: 0,
+      products_sold: 0,
     },
     chart_data: [],
     recent_activity: [],
@@ -45,27 +57,66 @@ const DashboardPage = () => {
         </Button>
       </DashboardHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {/* CARD 1: GROSS REVENUE */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Revenue (Month)
+              Gross Revenue (Month)
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatRupiah(stats?.cards.total_revenue || 0)}
+              {formatRupiah(safeStats.cards.total_revenue)}
             </div>
-
             <p
-              className={`text-xs mt-1 ${isPositive ? "text-emerald-600" : "text-red-600"}`}
+              className={`text-xs mt-1 ${isRevenuePositive ? "text-emerald-600" : "text-red-600"}`}
             >
-              {isPositive ? "+" : ""}
-              {growth.toFixed(1)}% from last month
+              {isRevenuePositive ? "+" : ""}
+              {revenueGrowth.toFixed(1)}% from last month
             </p>
           </CardContent>
         </Card>
+
+        {/* CARD 2: NET PROFIT */}
+        <Card className="border-emerald-500/20 bg-emerald-50/10 dark:bg-emerald-950/10">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+              Net Profit
+            </CardTitle>
+            <Wallet className="h-4 w-4 text-emerald-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+              {formatRupiah(safeStats.cards.profit)}
+            </div>
+            <p
+              className={`text-xs mt-1 ${isProfitPositive ? "text-emerald-600" : "text-red-600"}`}
+            >
+              {isProfitPositive ? "+" : ""}
+              {profitGrowth.toFixed(1)}% from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* CARD 3: PRODUCTS SOLD  */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Products Sold</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              +{safeStats.cards.products_sold}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Items sold this month
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* CARD 4: ACTIVE REPAIRS */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -83,6 +134,7 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
 
+        {/* CARD 5: PENDING QUEUE */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Queue</CardTitle>
@@ -98,6 +150,7 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
 
+        {/* CARD 6: FINISHED JOBS */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Finished Jobs</CardTitle>
@@ -114,31 +167,26 @@ const DashboardPage = () => {
         </Card>
       </div>
 
-      {/* --- 2. CHART & RECENT ACTIVITY --- */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        {/* Grafik (Lebar: 4 kolom) */}
         <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Revenue Overview</CardTitle>
             <CardDescription>
-              Total income from finished services per month.
+              Total income from finished services and product sales.
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <OverviewChart data={safeStats.chart_data} />{" "}
+            <OverviewChart data={safeStats.chart_data} />
           </CardContent>
         </Card>
 
-        {/* Recent Activity (Lebar: 3 kolom) */}
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest updates from technicians and admins.
-            </CardDescription>
+            <CardDescription>Latest updates.</CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentActivity data={safeStats.recent_activity} />{" "}
+            <RecentActivity data={safeStats.recent_activity} />
           </CardContent>
         </Card>
       </div>

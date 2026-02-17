@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { getErrorMessage } from "@/lib/utils";
-import { type RegisterRequest } from "@/model/user-model";
+import { type RegisterUserRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -69,7 +69,7 @@ export function RegisterForm() {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, [registeredUsername, registeredEmail, startCooldown]);
 
-  const form = useForm<RegisterRequest>({
+  const form = useForm<RegisterUserRequest>({
     resolver: zodResolver(UserValidation.REGISTER),
     mode: "all",
     defaultValues: {
@@ -80,7 +80,7 @@ export function RegisterForm() {
     },
   });
 
-  async function onSubmit(data: RegisterRequest) {
+  async function onSubmit(data: RegisterUserRequest) {
     setIsLoading(true);
     setGlobalError(null);
     setIsDailyLimit(false);
@@ -112,7 +112,7 @@ export function RegisterForm() {
     setIsVerifiedNow(false);
 
     try {
-      await AuthServices.resendVerification(registeredEmail);
+      await AuthServices.resendVerification({ identifier: registeredEmail });
 
       startCooldown(60, registeredEmail);
       if (registeredUsername) {

@@ -27,11 +27,13 @@ import { EditProductForm } from "../components/EditProductForm";
 import DeleteProductForm from "./DeleteProductForm";
 import { ProductActionMenu } from "./ProductActionMenu";
 import { ProductSkeletonTable } from "./Skeleton";
+import RestoreProductForm from "./RestoreProductForm";
 
 export function DashboardProductTable({
   products,
   isLoading,
   onSuccess,
+  isTrashView,
 }: DashboardProductTableProps) {
   const navigate = useNavigate();
 
@@ -42,6 +44,7 @@ export function DashboardProductTable({
 
   const [isEditProductOpen, setIsEditProductOpen] = useState(false);
   const [isDeleteProductOpen, setIsDeleteProductOpen] = useState(false);
+  const [isRestoreProductOpen, setIsRestoreProductOpen] = useState(false);
 
   const handleViewDetail = (product: ProductResponse) => {
     navigate(`/dashboard/products/detail/${product.id}`);
@@ -72,6 +75,11 @@ export function DashboardProductTable({
   const handleDeleteProductOpen = (product: ProductResponse) => {
     setSelectedProduct(product);
     setIsDeleteProductOpen(true);
+  };
+
+  const handleRestoreProductOpen = (product: ProductResponse) => {
+    setSelectedProduct(product);
+    setIsRestoreProductOpen(true);
   };
 
   return (
@@ -178,6 +186,8 @@ export function DashboardProductTable({
                       onEditProduct={() => handleEditProductOpen(product)}
                       onUpdateStock={() => handleUpdateStockOpen(product)}
                       onDeleteProduct={() => handleDeleteProductOpen(product)}
+                      onRestoreProduct={() => handleRestoreProductOpen(product)}
+                      isTrashView={isTrashView ?? false}
                     />
                   </TableCell>
                 </TableRow>
@@ -232,6 +242,18 @@ export function DashboardProductTable({
         product={selectedProduct}
         onSuccess={() => {
           setIsDeleteProductOpen(false);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }}
+      />
+
+      <RestoreProductForm
+        open={isRestoreProductOpen}
+        onOpenChange={setIsRestoreProductOpen}
+        product={selectedProduct}
+        onSuccess={() => {
+          setIsRestoreProductOpen(false);
           if (onSuccess) {
             onSuccess();
           }

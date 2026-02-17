@@ -67,6 +67,7 @@ export type ApiResponse<T> = {
     total_page: number;
     size: number;
   };
+  message?: string;
 };
 
 export type ServiceResponseMeta = {
@@ -104,6 +105,10 @@ export type RestoreServiceRequest = {
 export type UpdateServiceItemRequest = {
   name: string;
   price: number;
+};
+
+export type TrackPublicServiceRequest = {
+  identifier: string;
 };
 
 export type CreateServiceRequest = {

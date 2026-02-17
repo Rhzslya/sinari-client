@@ -8,14 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { useProductQueries } from "@/hooks/product-queries";
@@ -30,7 +22,6 @@ import {
   Eye,
   EyeOff,
   Factory,
-  History,
   Layers,
   Package,
   PackagePlus,
@@ -54,6 +45,8 @@ import {
 import { EditProductForm } from "@/features/components/EditProductForm";
 import UpdateStockForm from "@/features/fragments/UpdateStockForm";
 import DeleteProductForm from "@/features/fragments/DeleteProductForm";
+import { ProductLogTimeline } from "@/features/fragments/ProductLogTimeline";
+import { useUserQueries } from "@/hooks/user-queries";
 
 const DetailProductPage = () => {
   const { productId } = useParams();
@@ -62,6 +55,11 @@ const DetailProductPage = () => {
 
   const id = Number(productId);
   const { data: product, isLoading, isError, refetch } = useDetail({ id });
+
+  const userQueries = useUserQueries();
+
+  const { data: currentUser } = userQueries.useProfile();
+  const isOwner = currentUser?.role === "OWNER";
 
   const [selectedProduct, setSelectedProduct] =
     useState<ProductResponse | null>(null);
@@ -416,63 +414,8 @@ const DetailProductPage = () => {
               </Card>
             </div>
           </div>
-
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <History className="w-4 h-4" /> Recent Stock Movement
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-37.5">Date</TableHead>
-                    <TableHead>Activity Type</TableHead>
-                    <TableHead>Reference</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Balance</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {format(
-                        new Date(product.created_at),
-                        "dd MMM yyyy, HH:mm",
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className="bg-blue-50 text-blue-700 border-blue-200"
-                      >
-                        Initial Stock
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      Manual Adjustment
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-emerald-600">
-                      +{product.stock}
-                    </TableCell>
-                    <TableCell className="text-right font-bold">
-                      {product.stock}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="text-center py-8 text-muted-foreground text-xs"
-                    >
-                      No other recent movements recorded.
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </div>
+        {isOwner && <ProductLogTimeline productId={product.id} />}
       </div>
       <Sheet open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
         <SheetContent

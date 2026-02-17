@@ -21,15 +21,14 @@ import { formatRupiah } from "@/components/utils/formatRupiah";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand, ServiceStatus } from "@/enum/product-enum";
 import { useServiceQueries } from "@/hooks/repair-queries";
+import { useTechnicianQueries } from "@/hooks/technician-queries";
 import { useServiceLock } from "@/hooks/use-cooldown";
 import type {
   ServiceResponse,
   UpdateServiceRequest,
 } from "@/model/repair-model";
-import { TechnicianServices } from "@/services/technician-services";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
 import { Clock, Loader2, Lock, Plus, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import {
@@ -61,11 +60,9 @@ export function EditServiceForm({
   const { isLocked, timeLeft, isGracePeriodActive, isTaken } =
     useServiceLock(service);
 
-  const { data: technicians, isLoading: isFetchingTechs } = useQuery({
-    queryKey: ["technicians", "active_list"],
-    queryFn: TechnicianServices.listActive,
-    staleTime: 1000 * 60 * 5,
-  });
+  const { useActiveList } = useTechnicianQueries();
+
+  const { data: technicians, isLoading: isFetchingTechs } = useActiveList();
 
   const isTimeExpiredButCanTake = isLocked && !isTaken;
 
@@ -494,7 +491,18 @@ export function EditServiceForm({
                       <SelectContent>
                         {technicians?.map((tech) => (
                           <SelectItem key={tech.id} value={tech.id.toString()}>
-                            {tech.name}
+                            <div className="flex justify-between items-center w-full">
+                              <span>{tech.name}</span>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded ml-2 ${
+                                  tech.active_jobs > 5
+                                    ? "bg-destructive/20 text-destructive"
+                                    : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {tech.active_jobs} antrean
+                              </span>
+                            </div>
                           </SelectItem>
                         ))}
                         {technicians?.length === 0 && !isFetchingTechs && (

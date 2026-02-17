@@ -7,20 +7,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon } from "lucide-react";
+import { ArchiveRestore, MoreHorizontalIcon } from "lucide-react";
 import type { TechnicianResponse } from "@/model/technician-model";
+import { useUserQueries } from "@/hooks/user-queries";
 
 interface ProductActionMenuProps {
   technician: TechnicianResponse;
   onEditTechnician: () => void;
   onDeleteTechnician: () => void;
+  onRestoreTechnician: () => void;
+  isTrashView: boolean;
 }
 
 export function TechnicianActionMenu({
   technician,
   onEditTechnician,
   onDeleteTechnician,
+  onRestoreTechnician,
+  isTrashView,
 }: ProductActionMenuProps) {
+  const userQueries = useUserQueries();
+
+  const { data: currentUser } = userQueries.useProfile();
+  const isOwner = currentUser?.role === "OWNER";
+
   const [isOpen, setIsOpen] = useState(false);
 
   const handleAction = (callback: () => void) => {
@@ -46,21 +56,38 @@ export function TechnicianActionMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onSelect={() => {
-            handleAction(onEditTechnician);
-          }}
-        >
-          Edit Technician
-        </DropdownMenuItem>
+        {!isTrashView ? (
+          <>
+            <DropdownMenuItem
+              onSelect={() => {
+                handleAction(onEditTechnician);
+              }}
+            >
+              Edit Technician
+            </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={() => handleAction(onDeleteTechnician)}
-          className="text-destructive focus:text-destructive"
-        >
-          Delete Product
-        </DropdownMenuItem>
+            {isOwner && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={() => handleAction(onDeleteTechnician)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  Delete Technician
+                </DropdownMenuItem>
+              </>
+            )}
+          </>
+        ) : (
+          <DropdownMenuItem
+            onClick={onRestoreTechnician}
+            className="text-emerald-600 focus:text-emerald-600 cursor-pointer"
+            disabled={!isOwner}
+          >
+            <ArchiveRestore className="mr-2 h-4 w-4" />
+            Restore Data
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { getErrorMessage } from "@/lib/utils";
-import { maskEmail, type LoginRequest } from "@/model/user-model";
+import { maskEmail, type LoginUserRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -46,15 +46,35 @@ export function LoginForm() {
   const [email, setEmail] = useState<string | null>(null);
   const [cardError, setCardError] = useState<string | null>(null);
 
-  // Hook memantau Email (jika ada) atau Identifier
-  const { cooldown, startCooldown } = useCooldown(email || identifier);
+  const { cooldown, startCooldown } = useCooldown(identifier);
 
   const [isVerifiedNow, setIsVerifiedNow] = useState(false);
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
   const [showInitialCheckEmail, setShowInitialCheckEmail] = useState(true);
 
-  const form = useForm<LoginRequest>({
+  useEffect(() => {
+    if (!identifier) return;
+
+    const targetKey = `resend_verif_${identifier.toLowerCase()}`;
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === targetKey && e.newValue) {
+        const targetTime = parseInt(e.newValue);
+        const now = Date.now();
+        const remaining = Math.ceil((targetTime - now) / 1000);
+
+        if (remaining > 0) {
+          startCooldown(remaining, identifier);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [identifier, startCooldown]);
+
+  const form = useForm<LoginUserRequest>({
     resolver: zodResolver(UserValidation.LOGIN),
     mode: "all",
     defaultValues: {
@@ -75,7 +95,7 @@ export function LoginForm() {
     setIsVerifiedNow(false);
   };
 
-  async function onSubmit(data: LoginRequest) {
+  async function onSubmit(data: LoginUserRequest) {
     setIsLoading(true);
     // Reset states
     setGlobalError(null);
@@ -143,7 +163,7 @@ export function LoginForm() {
     setShowInitialCheckEmail(true);
 
     try {
-      const response = await AuthServices.resendVerification(identifier);
+      const response = await AuthServices.resendVerification({ identifier });
 
       if (response && response.email) {
         setEmail(response.email);

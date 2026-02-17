@@ -20,15 +20,14 @@ export type NotPublicUserResponse = {
   is_online?: boolean;
   created_at: Date;
   updated_at?: Date;
-  is_active: boolean;
 };
 
-export type LoginRequest = {
+export type LoginUserRequest = {
   identifier: string;
   password: string;
 };
 
-export type RegisterRequest = {
+export type RegisterUserRequest = {
   email: string;
   username: string;
   password: string;
@@ -38,6 +37,7 @@ export type RegisterRequest = {
 export type SearchUserRequest = {
   username?: string;
   name?: string;
+  is_deleted?: boolean;
   page: number;
   size: number;
   sort_by?: "created_at" | "name";
@@ -60,6 +60,18 @@ export type GetDetailedUserRequest = {
   id: number;
 };
 
+export type RestoreUserRequest = {
+  id: number;
+};
+
+export type VerifyUserRequest = {
+  token: string;
+};
+
+export type ResendVerificationRequest = {
+  identifier: string;
+};
+
 export type DetailedUserResponse = {
   id: number;
   name: string;
@@ -80,7 +92,6 @@ export type DetailedUserResponse = {
   pass_reset_count: number;
   pass_reset_last_time: string | null;
   is_online?: boolean;
-  is_active: boolean;
 };
 
 export type DeleteUserRequest = {
@@ -99,6 +110,7 @@ export type ApiResponse<T> = {
     total_page: number;
     size: number;
   };
+  message?: string;
 };
 
 export type ResendVerificationResponse = {
@@ -160,7 +172,6 @@ export function toNotPublicUserResponse(
     created_at: data.created_at,
     updated_at: data.updated_at,
     is_online: data.is_online,
-    is_active: data.is_active,
   };
 }
 
@@ -184,7 +195,6 @@ export function toDetailedUserResponse(
     pass_reset_count: user.pass_reset_count,
     pass_reset_last_time: user.pass_reset_last_time || null,
     is_online: user.is_online ?? false,
-    is_active: user.is_active,
   };
 }
 

@@ -1,4 +1,4 @@
-import type { ServiceLogAction } from "@/enum/product-enum";
+import type { ServiceLogAction, UserRole } from "@/enum/product-enum";
 
 export type ServiceLogResponse = {
   id: number;
@@ -8,7 +8,7 @@ export type ServiceLogResponse = {
   created_at: Date;
   user: {
     username: string;
-    role: string;
+    role: UserRole;
   };
 };
 

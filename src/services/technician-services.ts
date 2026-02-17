@@ -6,7 +6,9 @@ import {
   type CreateTechnicianRequest,
   type DeleteTechnicianRequest,
   type DeleteTechnicianResponse,
+  type GetDetailedTechnicianRequest,
   type ListTechnicianResponse,
+  type RestoreTechnicianRequest,
   type SearchTechnicianRequest,
   type TechnicianResponse,
   type UpdateTechnicianRequest,
@@ -33,13 +35,15 @@ export class TechnicianServices {
     return toTechnicianResponse(response.data.data);
   }
 
-  static async get(id: number): Promise<TechnicianResponse> {
-    if (isNaN(id)) {
+  static async get(
+    request: GetDetailedTechnicianRequest,
+  ): Promise<TechnicianResponse> {
+    if (isNaN(request.id)) {
       throw new Error("Invalid technician ID");
     }
 
     const response = await api.get<ApiResponse<TechnicianResponse>>(
-      `/technicians/${id}`,
+      `/technicians/${request.id}`,
     );
 
     return toTechnicianResponse(response.data.data);
@@ -69,28 +73,43 @@ export class TechnicianServices {
   static async remove(
     request: DeleteTechnicianRequest,
   ): Promise<DeleteTechnicianResponse> {
+    if (isNaN(request.id)) throw new Error("Invalid technician ID");
+
+    const response = await api.delete<ApiResponse<boolean>>(
+      `/technicians/${request.id}`,
+    );
+
+    return {
+      message:
+        response.data.message ||
+        `Technician With ID ${request.id} deleted successfully`,
+    };
+  }
+
+  static async restore(
+    request: RestoreTechnicianRequest,
+  ): Promise<TechnicianResponse> {
     if (isNaN(request.id)) {
       throw new Error("Invalid technician ID");
     }
 
-    const response = await api.delete(`/technicians/${request.id}`);
+    const response = await api.patch<ApiResponse<TechnicianResponse>>(
+      `/technicians/${request.id}/restore`,
+    );
 
-    return {
-      message: response.data.message,
-    };
+    return toTechnicianResponse(response.data.data);
   }
 
   static async search(
     request: SearchTechnicianRequest,
   ): Promise<ApiResponse<TechnicianResponse[]>> {
-    const response = await api.get<ApiResponse<TechnicianResponse[]>>(
-      "/technicians",
-      {
-        params: request,
-      },
-    );
+    const response = await api.get<
+      ApiResponse<ApiResponse<TechnicianResponse[]>>
+    >("/technicians", {
+      params: request,
+    });
 
-    return response.data;
+    return response.data.data;
   }
 
   static async listActive(): Promise<ListTechnicianResponse[]> {

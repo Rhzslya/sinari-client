@@ -20,20 +20,22 @@ import UpdateRoleForm from "./UpdateRoleForm";
 import EmailCell from "./EmailCell";
 import { getRoleBadgeColor } from "@/components/utils/roleBadge";
 import { UserSkeletonTable } from "./Skeleton";
+import RestoreUserForm from "../components/RestoreUserForm";
 
 const DashboardUserTable = ({
   users,
   currentUser,
   isLoading,
   onSuccess,
+  isTrashView,
 }: ExtendedTableProps) => {
   const navigate = useNavigate();
 
   const [selectedUser, setSelectedUser] =
     useState<NotPublicUserResponse | null>(null);
   const [isDeleteUserOpen, setIsDeleteUserOpen] = useState(false);
-
   const [isUpdateRoleOpen, setIsUpdateRoleOpen] = useState(false);
+  const [isRestoreUserOpen, setIsRestoreUserOpen] = useState(false);
 
   const sortedUsers = useMemo(() => {
     if (!currentUser?.id) return users;
@@ -57,6 +59,11 @@ const DashboardUserTable = ({
   const handleUpdateRoleOpen = (user: NotPublicUserResponse) => {
     setSelectedUser(user);
     setIsUpdateRoleOpen(true);
+  };
+
+  const handleRestoreUser = (user: NotPublicUserResponse) => {
+    setSelectedUser(user);
+    setIsRestoreUserOpen(true);
   };
 
   if (isLoading) {
@@ -191,6 +198,8 @@ const DashboardUserTable = ({
                         onViewDetails={() => handleViewDetail(user)}
                         onUpdateRole={() => handleUpdateRoleOpen(user)}
                         onDeleteUser={() => handleDeleteUserOpen(user)}
+                        onRestoreUser={() => handleRestoreUser(user)}
+                        isTrashView={isTrashView ?? false}
                       />
                     </TableCell>
                   </TableRow>
@@ -218,6 +227,18 @@ const DashboardUserTable = ({
         onSuccess={() => {
           setIsDeleteUserOpen(false);
           if (onSuccess) onSuccess();
+        }}
+      />
+
+      <RestoreUserForm
+        open={isRestoreUserOpen}
+        onOpenChange={setIsRestoreUserOpen}
+        user={selectedUser}
+        onSuccess={() => {
+          setIsRestoreUserOpen(false);
+          if (onSuccess) {
+            onSuccess();
+          }
         }}
       />
     </>
