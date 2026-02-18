@@ -118,31 +118,49 @@ export function LoginForm() {
 
       if (isAxiosError(error) && error.response?.status === 403) {
         if (message.toLowerCase().includes("not verified")) {
-          setShowUnverifiedCard(true);
+          // JANGAN set showUnverifiedCard(true) di sini!
           setShowInitialCheckEmail(true);
           setGlobalError(null);
 
-          const currentId = data.identifier.toLowerCase();
-          const cacheKey = `verif_email_cache_${currentId}`;
-          const cachedEmail = localStorage.getItem(cacheKey);
+          // Lakukan proses Auto-Resend sementara tombol Login masih berputar
+          try {
+            const res = await AuthServices.resendVerification({
+              identifier: data.identifier,
+            });
 
-          const effectiveEmail =
-            cachedEmail || (currentId.includes("@") ? currentId : null);
-
-          if (effectiveEmail) {
-            setEmail(effectiveEmail);
-          }
-
-          const targetId = effectiveEmail || currentId;
-          const targetTime = localStorage.getItem(`resend_verif_${targetId}`);
-
-          if (targetTime) {
-            const remaining = Math.ceil(
-              (parseInt(targetTime) - Date.now()) / 1000,
-            );
-            if (remaining > 0) {
-              startCooldown(remaining, targetId);
+            if (res && res.email) {
+              setEmail(res.email);
             }
+            startCooldown(60, data.identifier);
+          } catch (resendError) {
+            const resendMsg = getErrorMessage(resendError);
+
+            if (isAxiosError(resendError)) {
+              const status = resendError.response?.status;
+
+              if (status === 400 && resendMsg.toLowerCase().includes("wait")) {
+                const [cooldownMsg, cachedEmail] = resendMsg.split("|");
+
+                const match = cooldownMsg.match(/(\d+) seconds/);
+                if (match && match[1]) {
+                  startCooldown(parseInt(match[1], 10), data.identifier);
+
+                  if (cachedEmail) {
+                    setEmail(cachedEmail);
+                  }
+                }
+              } else if (status === 429) {
+                setShowInitialCheckEmail(false);
+                setCardError(resendMsg.split("|")[0]);
+                setIsDailyLimit(true);
+              } else {
+                setCardError(resendMsg.split("|")[0]);
+              }
+            } else {
+              setCardError(resendMsg.split("|")[0]);
+            }
+          } finally {
+            setShowUnverifiedCard(true);
           }
         } else {
           setGlobalError(message);
@@ -178,17 +196,16 @@ export function LoginForm() {
       if (isAxiosError(error)) {
         const status = error.response?.status;
 
-        if (status === 429) {
-          setShowInitialCheckEmail(false);
-          setCardError(message);
-          setIsDailyLimit(true);
-          return;
-        }
-
         if (status === 400 && message.toLowerCase().includes("wait")) {
-          const match = message.match(/(\d+) seconds/);
+          const [cooldownMsg, cachedEmail] = message.split("|");
+
+          const match = cooldownMsg.match(/(\d+) seconds/);
           if (match && match[1]) {
-            startCooldown(parseInt(match[1], 10));
+            startCooldown(parseInt(match[1], 10), identifier);
+
+            if (cachedEmail) {
+              setEmail(cachedEmail);
+            }
           }
           setCardError(null);
           return;
@@ -199,9 +216,16 @@ export function LoginForm() {
           setCardError(null);
           return;
         }
+
+        if (status === 429) {
+          setShowInitialCheckEmail(false);
+          setCardError(message.split("|")[0]);
+          setIsDailyLimit(true);
+          return;
+        }
       }
 
-      setCardError(message);
+      setCardError(message.split("|")[0]);
     } finally {
       setResendLoading(false);
     }
@@ -265,7 +289,10 @@ export function LoginForm() {
                 Please check your email to verify your account.
                 <br />A verification link has been sent to{" "}
                 <br className="sm:hidden" />
-                <strong className="break-all">{maskEmail(email!)}</strong>.
+                <strong className="break-all">
+                  {email ? email : "your registered email"}
+                </strong>
+                .
               </span>
             </div>
           ) : (

@@ -40,10 +40,7 @@ export function ForgotPasswordForm() {
   const [resendLoading, setResendLoading] = useState(false);
   const [cardError, setCardError] = useState<string | null>(null);
 
-  const { cooldown, startCooldown, setCooldown } = useCooldown(
-    identifier,
-    "reset_pass_",
-  );
+  const { cooldown, startCooldown } = useCooldown(identifier, "reset_pass_");
 
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
@@ -65,45 +62,39 @@ export function ForgotPasswordForm() {
     setIdentifier(data.identifier);
     setIsDailyLimit(false);
 
-    const emailCacheKey = `reset_email_cache_${data.identifier.toLowerCase()}`;
-
     try {
       const response = await AuthServices.forgotPassword(data);
       setEmail(response.email);
-      setIsSuccess(true);
-
-      localStorage.setItem(emailCacheKey, response.email);
-
       startCooldown(60, data.identifier);
-      setCooldown(60);
+      setIsSuccess(true);
     } catch (error) {
       const message = getErrorMessage(error);
 
       if (isAxiosError(error)) {
         const status = error.response?.status;
-        if (status === 429) {
-          const match = message.match(/(\d+) seconds/);
 
+        if (status === 400 && message.toLowerCase().includes("wait")) {
+          const [cooldownMsg, cachedEmail] = message.split("|");
+
+          const match = cooldownMsg.match(/(\d+) seconds/);
           if (match && match[1]) {
             const seconds = parseInt(match[1], 10);
             startCooldown(seconds, data.identifier);
-            setCooldown(seconds);
 
-            const cachedEmail = localStorage.getItem(emailCacheKey);
             if (cachedEmail) {
               setEmail(cachedEmail);
             }
 
             setIsSuccess(true);
             return;
-          } else {
-            setIsDailyLimit(true);
-            setGlobalError(message);
-            return;
           }
+        } else if (status === 429) {
+          setIsDailyLimit(true);
+          setGlobalError(message.split("|")[0]);
+          return;
         }
       }
-      setGlobalError(message);
+      setGlobalError(message.split("|")[0]);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +107,10 @@ export function ForgotPasswordForm() {
     setCardError(null);
 
     try {
-      await AuthServices.forgotPassword({ identifier });
+      const response = await AuthServices.forgotPassword({ identifier });
+      if (response && response.email) {
+        setEmail(response.email);
+      }
       startCooldown(60, identifier);
       setIsDailyLimit(false);
     } catch (error) {
@@ -125,25 +119,28 @@ export function ForgotPasswordForm() {
       if (isAxiosError(error)) {
         const status = error.response?.status;
 
-        if (status === 429) {
-          const match = message.match(/(\d+) seconds/);
+        if (status === 400 && message.toLowerCase().includes("wait")) {
+          const [cooldownMsg, cachedEmail] = message.split("|");
+
+          const match = cooldownMsg.match(/(\d+) seconds/);
           if (match && match[1]) {
             const seconds = parseInt(match[1], 10);
             startCooldown(seconds, identifier);
-            setCooldown(seconds);
+
+            if (cachedEmail) {
+              setEmail(cachedEmail);
+            }
             setCardError(null);
             return;
           }
-
-          if (message.toLowerCase().includes("limit")) {
-            setCardError(message);
-            setIsDailyLimit(true);
-            return;
-          }
+        } else if (status === 429) {
+          setCardError(message.split("|")[0]);
+          setIsDailyLimit(true);
+          return;
         }
       }
 
-      setCardError(message);
+      setCardError(message.split("|")[0]);
     } finally {
       setResendLoading(false);
     }
@@ -167,7 +164,7 @@ export function ForgotPasswordForm() {
                 Please check your email address for instructions to reset your
                 password.
                 <br />A reset link has been sent to{" "}
-                <strong>{email || identifier}</strong>.
+                <strong>{email ? email : "your registered email"}</strong>.
               </span>
             </div>
           )

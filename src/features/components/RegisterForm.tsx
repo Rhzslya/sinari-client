@@ -122,11 +122,7 @@ export function RegisterForm() {
       const message = getErrorMessage(error);
       if (isAxiosError(error)) {
         const status = error.response?.status;
-        if (status === 429) {
-          setCardError(message);
-          setIsDailyLimit(true);
-          return;
-        }
+
         if (status === 400 && message.toLowerCase().includes("verified")) {
           setIsVerifiedNow(true);
           setCardError(null);
@@ -139,6 +135,12 @@ export function RegisterForm() {
             startCooldown(parseInt(match[1], 10));
           }
           setCardError(null);
+          return;
+        }
+
+        if (status === 429) {
+          setCardError(message);
+          setIsDailyLimit(true);
           return;
         }
       }
