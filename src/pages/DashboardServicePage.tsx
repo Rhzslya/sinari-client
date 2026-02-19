@@ -47,6 +47,8 @@ import DashboardServiceTable from "@/features/fragments/DashboardServiceTable";
 import { CreateServiceForm } from "@/features/components/CreateServiceForm";
 import { handleApiError } from "@/lib/utils";
 import { useServiceQueries } from "@/hooks/repair-queries";
+import { isAxiosError } from "axios";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 
 const DashboardServicePage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -255,6 +257,28 @@ const DashboardServicePage = () => {
     normalize(tempStatus) !== normalize(statusParam) ||
     normalize(tempMinPrice) !== normalize(minPriceParam) ||
     normalize(tempMaxPrice) !== normalize(maxPriceParam);
+
+  if (isError && !data) {
+    if (isAxiosError(error) && error.response?.status === 429) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)(?:s| seconds)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      return <RateLimitFallback seconds={seconds} onRetry={() => refetch()} />;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <p className="text-destructive font-medium">Failed to load services.</p>
+        <p className="text-sm text-muted-foreground">
+          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+        </p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">

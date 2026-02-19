@@ -28,6 +28,7 @@ import DeleteProductForm from "./DeleteProductForm";
 import { ProductActionMenu } from "./ProductActionMenu";
 import { ProductSkeletonTable } from "./Skeleton";
 import RestoreProductForm from "./RestoreProductForm";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 export function DashboardProductTable({
   products,
@@ -61,9 +62,12 @@ export function DashboardProductTable({
 
   if (products.length === 0) {
     return (
-      <div className="rounded-md border bg-card p-8 text-center text-muted-foreground">
-        No products found.
-      </div>
+      <NotFoundPage
+        variant="minimal"
+        isDashboard={true}
+        entityName="Products"
+        onGoBack={() => navigate("/dashboard/products", { replace: true })}
+      />
     );
   }
 

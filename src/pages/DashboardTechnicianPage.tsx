@@ -32,8 +32,10 @@ import { CreateTechnicianForm } from "@/features/components/CreateTechnicianForm
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import DashboardTechnicianTable from "@/features/fragments/DashboardTechnicianTable";
 import { PaginationComponent } from "@/features/fragments/Pagination";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 import { useTechnicianQueries } from "@/hooks/technician-queries";
 import { handleApiError } from "@/lib/utils";
+import { isAxiosError } from "axios";
 import {
   ArrowUpDown,
   Check,
@@ -223,6 +225,30 @@ const DashboardTechnicianPage = () => {
   const isSortActive = (by: string, order: string) => {
     return sortByParam === by && sortOrderParam === order;
   };
+
+  if (isError && !data) {
+    if (isAxiosError(error) && error.response?.status === 429) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)(?:s| seconds)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      return <RateLimitFallback seconds={seconds} onRetry={() => refetch()} />;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <p className="text-destructive font-medium">
+          Failed to load technician.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+        </p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">

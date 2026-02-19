@@ -16,6 +16,7 @@ interface NotFoundPageProps {
   backUrl?: string;
   isDashboard?: boolean;
   variant?: "glass" | "split" | "minimal";
+  onGoBack?: () => void;
 }
 
 const NotFoundPage = ({
@@ -24,6 +25,7 @@ const NotFoundPage = ({
   backUrl,
   isDashboard = false,
   variant = "glass",
+  onGoBack,
 }: NotFoundPageProps) => {
   const navigate = useNavigate();
 
@@ -74,7 +76,7 @@ const NotFoundPage = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate(-1)}
+              onClick={() => (onGoBack ? onGoBack() : navigate(-1))}
               className="min-w-30 border-border text-foreground hover:bg-muted cursor-pointer duration-300"
             >
               <MoveLeft className="mr-2 h-4 w-4" />
@@ -139,7 +141,7 @@ const NotFoundPage = ({
               <Button
                 variant="ghost"
                 size="lg"
-                onClick={() => navigate(-1)}
+                onClick={() => (onGoBack ? onGoBack() : navigate(-1))}
                 className="rounded-full text-muted-foreground hover:text-foreground cursor-pointer duration-300"
               >
                 Go Back
@@ -186,7 +188,7 @@ const NotFoundPage = ({
 
         <div className="flex items-center justify-center gap-4 pt-4">
           <Button
-            onClick={() => navigate(-1)}
+            onClick={() => (onGoBack ? onGoBack() : navigate(-1))}
             variant="link"
             className="text-foreground underline-offset-4 cursor-pointer duration-300"
           >

@@ -25,13 +25,15 @@ import {
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { ProductLogAction } from "@/enum/product-enum";
 import { useProductQueries } from "@/hooks/product-queries";
+import { useCooldown } from "@/hooks/use-cooldown";
 import type {
   ProductResponse,
   UpdateProductRequest,
 } from "@/model/product-model";
 import { ProductValidation } from "@/validation/product-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { isAxiosError } from "axios";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 
@@ -57,7 +59,18 @@ const UpdateStockForm = ({
   onSuccess,
 }: UpdateStockFormProps) => {
   const { updateStockMutation } = useProductQueries();
-  const { mutateAsync: updateStock, isPending } = updateStockMutation;
+  const {
+    mutateAsync: updateStock,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = updateStockMutation;
+
+  const { cooldown, startCooldown } = useCooldown("update_stock", "ratelimit_");
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const form = useForm<Pick<UpdateProductRequest, "stock" | "stock_action">>({
     resolver: zodResolver(ProductValidation.UPDATE_STOCK) as Resolver<
@@ -138,6 +151,25 @@ const UpdateStockForm = ({
       //Handle by Hook
     }
   };
+
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -245,6 +277,23 @@ const UpdateStockForm = ({
               />
             </div>
 
+            {(cooldown > 0 || isRateLimited) && (
+              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                <div className="space-y-1 flex flex-col justify-center items-center">
+                  <AlertTriangle className="h-7 w-7 shrink-0" />
+                  <p className="font-semibold text-xs uppercase">
+                    Action Paused
+                  </p>
+                  <p className="text-xs opacity-90">
+                    Too many attempts. Please wait{" "}
+                    <span className="font-bold tabular-nums">
+                      {String(cooldown).padStart(2, "0")}s
+                    </span>{" "}
+                    before trying again.
+                  </p>
+                </div>
+              </div>
+            )}
             <DialogFooter>
               <Button
                 size="sm"
@@ -260,11 +309,12 @@ const UpdateStockForm = ({
                 size="sm"
                 className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                 type="submit"
-                disabled={isSubmitting || !isDirty || isPending}
+                disabled={isSubmitting || !isDirty || isPending || cooldown > 0}
               >
                 Save Changes
                 {isSubmitting ||
-                  (isPending && (
+                  isPending ||
+                  (isError && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ))}
               </Button>

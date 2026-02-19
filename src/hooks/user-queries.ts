@@ -107,5 +107,9 @@ export const useUserQueries = () => {
       },
       onError: (error) => handleApiError(error, "Failed to restore user"),
     }),
+
+    reset: () => {
+      return queryClient.resetQueries({ queryKey: USER_KEYS.lists() });
+    },
   };
 };

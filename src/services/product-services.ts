@@ -7,6 +7,7 @@ import {
   type DeleteProductRequest,
   type DeleteProductResponse,
   type DetailedProductRequest,
+  type ProductPublicResponse,
   type ProductResponse,
   type RestoreProductRequest,
   type SearchProductRequest,
@@ -55,6 +56,31 @@ export class ProductServices {
     );
 
     return toProductResponse(response.data.data);
+  }
+
+  static async searchPublic(
+    request: SearchProductRequest,
+  ): Promise<ApiResponse<ProductPublicResponse[]>> {
+    const response = await api.get<
+      ApiResponse<ApiResponse<ProductPublicResponse[]>>
+    >("/public/products", {
+      params: request,
+    });
+    return response.data.data;
+  }
+
+  static async getPublic(
+    request: DetailedProductRequest,
+  ): Promise<ProductPublicResponse> {
+    if (isNaN(request.id)) {
+      throw new Error("Invalid product ID");
+    }
+
+    const response = await api.get<ApiResponse<ProductPublicResponse>>(
+      `/public/products/${request.id}`,
+    );
+
+    return response.data.data;
   }
 
   static async update(request: UpdateProductRequest): Promise<ProductResponse> {

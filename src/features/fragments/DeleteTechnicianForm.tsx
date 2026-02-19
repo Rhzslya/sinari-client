@@ -9,9 +9,12 @@ import {
 } from "@/components/ui/dialog";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { useTechnicianQueries } from "@/hooks/technician-queries";
+import { useCooldown } from "@/hooks/use-cooldown";
 import type { TechnicianResponse } from "@/model/technician-model";
+import { isAxiosError } from "axios";
 
-import { Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { useEffect } from "react";
 
 interface DeleteTechnicianFormProps {
   technician: TechnicianResponse | null;
@@ -28,7 +31,21 @@ const DeleteTechnicianForm = ({
 }: DeleteTechnicianFormProps) => {
   const { deleteMutation } = useTechnicianQueries();
 
-  const { mutateAsync: deleteTechnician, isPending } = deleteMutation;
+  const {
+    mutateAsync: deleteTechnician,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = deleteMutation;
+
+  const { cooldown, startCooldown } = useCooldown(
+    "delete_technician",
+    "ratelimit_",
+  );
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const handleDelete = async () => {
     if (!technician) return;
@@ -42,6 +59,25 @@ const DeleteTechnicianForm = ({
       // Handle by Hook
     }
   };
+
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,6 +104,22 @@ const DeleteTechnicianForm = ({
             </DialogDescription>
           </div>
         </DialogHeader>
+
+        {(cooldown > 0 || isRateLimited) && (
+          <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+            <div className="space-y-1 flex flex-col justify-center items-center">
+              <AlertTriangle className="h-7 w-7 shrink-0" />
+              <p className="font-semibold text-xs uppercase">Action Paused</p>
+              <p className="text-xs opacity-90">
+                Too many attempts. Please wait{" "}
+                <span className="font-bold tabular-nums">
+                  {String(cooldown).padStart(2, "0")}s
+                </span>{" "}
+                before trying again.
+              </p>
+            </div>
+          </div>
+        )}
 
         <DialogFooter className="w-full sm:justify-between mt-4">
           <Button

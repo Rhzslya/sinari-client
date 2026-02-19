@@ -7,9 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCooldown } from "@/hooks/use-cooldown";
 import { useUserQueries } from "@/hooks/user-queries";
 import type { NotPublicUserResponse } from "@/model/user-model";
-import { ArchiveRestore, Loader2 } from "lucide-react";
+import { isAxiosError } from "axios";
+import { AlertTriangle, ArchiveRestore, Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 interface RestoreUserProps {
   user: NotPublicUserResponse | null;
@@ -26,7 +29,18 @@ const RestoreUserForm = ({
 }: RestoreUserProps) => {
   const { restoreMutation } = useUserQueries();
 
-  const { mutateAsync: restoreUser, isPending } = restoreMutation;
+  const {
+    mutateAsync: restoreUser,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = restoreMutation;
+
+  const { cooldown, startCooldown } = useCooldown("restore_user", "ratelimit_");
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const handleDelete = async () => {
     if (!user) return;
@@ -40,6 +54,25 @@ const RestoreUserForm = ({
       // Handle by Hook
     }
   };
+
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,6 +97,22 @@ const RestoreUserForm = ({
           </div>
         </DialogHeader>
 
+        {(cooldown > 0 || isRateLimited) && (
+          <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+            <div className="space-y-1 flex flex-col justify-center items-center">
+              <AlertTriangle className="h-7 w-7 shrink-0" />
+              <p className="font-semibold text-xs uppercase">Action Paused</p>
+              <p className="text-xs opacity-90">
+                Too many attempts. Please wait{" "}
+                <span className="font-bold tabular-nums">
+                  {String(cooldown).padStart(2, "0")}s
+                </span>{" "}
+                before trying again.
+              </p>
+            </div>
+          </div>
+        )}
+
         <DialogFooter className="w-full sm:justify-between mt-4">
           <Button
             size="sm"
@@ -79,7 +128,7 @@ const RestoreUserForm = ({
             size="sm"
             variant="default"
             onClick={handleDelete}
-            disabled={isPending}
+            disabled={isPending || cooldown > 0}
             className="w-1/3 cursor-pointer duration-300 text-foreground"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}

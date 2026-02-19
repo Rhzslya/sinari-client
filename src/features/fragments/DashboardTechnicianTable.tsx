@@ -24,6 +24,8 @@ import { TechnicianActionMenu } from "./TechnicianActionMenu";
 import DeleteTechnicianForm from "./DeleteTechnicianForm";
 import { TechnicianSkeletonTable } from "./Skeleton";
 import RestoreTechnicianForm from "./RestoreTechnicianForm";
+import NotFoundPage from "@/pages/NotFoundPage";
+import { useNavigate } from "react-router-dom";
 
 const DashboardTechnicianTable = ({
   technicians,
@@ -31,6 +33,8 @@ const DashboardTechnicianTable = ({
   onSuccess,
   isTrashView,
 }: DashboardTechnicianTableProps) => {
+  const navigate = useNavigate();
+
   const [selectedTechnician, setSelectedTechnician] =
     useState<TechnicianResponse | null>(null);
   const [isEditTechnicianOpen, setIsEditTechnicianOpen] = useState(false);
@@ -58,9 +62,12 @@ const DashboardTechnicianTable = ({
 
   if (technicians.length === 0) {
     return (
-      <div className="rounded-md border bg-card p-8 text-center text-muted-foreground">
-        No technicians found.
-      </div>
+      <NotFoundPage
+        variant="glass"
+        isDashboard={true}
+        entityName="Technician"
+        onGoBack={() => navigate("/dashboard/technicians", { replace: true })}
+      />
     );
   }
 

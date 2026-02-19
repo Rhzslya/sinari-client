@@ -15,6 +15,17 @@ export type ProductResponse = {
   message?: string;
 };
 
+export type ProductPublicResponse = {
+  id: number;
+  name: string;
+  brand: Brand;
+  manufacturer: string;
+  category: Category;
+  image_url?: string;
+  price: number;
+  stock: number;
+};
+
 export type DeleteProductResponse = {
   message: string;
 };
@@ -96,5 +107,20 @@ export function toProductResponse(product: ProductResponse): ProductResponse {
     image_url: product.image_url,
     created_at: product.created_at,
     updated_at: product.updated_at,
+  };
+}
+
+export function toProductPublicResponse(
+  product: ProductResponse,
+): ProductPublicResponse {
+  return {
+    id: product.id,
+    name: product.name,
+    brand: product.brand,
+    manufacturer: product.manufacturer,
+    category: product.category,
+    price: product.price,
+    stock: product.stock,
+    image_url: product.image_url,
   };
 }

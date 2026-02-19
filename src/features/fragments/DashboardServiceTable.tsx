@@ -29,6 +29,7 @@ import { EditServiceForm } from "../components/EditServiceForm";
 import type { DashboardServiceTableProps } from "@/types/type";
 import { UpdateStatusDialog } from "./UpdateStatusForm";
 import RestoreServiceForm from "./RestoreServiceForm";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 const DashboardServiceTable = ({
   services,
@@ -99,11 +100,12 @@ const DashboardServiceTable = ({
 
   if (services.length === 0) {
     return (
-      <div className="rounded-md border bg-card p-12 text-center flex flex-col items-center justify-center gap-2 text-muted-foreground">
-        <span className="text-lg font-medium text-foreground">
-          No services found
-        </span>
-      </div>
+      <NotFoundPage
+        variant="minimal"
+        isDashboard={true}
+        entityName="Services"
+        onGoBack={() => navigate("/dashboard/services", { replace: true })}
+      />
     );
   }
 

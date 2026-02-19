@@ -12,11 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { formatBytes } from "@/components/utils/formatBytes";
 import { useTechnicianQueries } from "@/hooks/technician-queries";
+import { useCooldown } from "@/hooks/use-cooldown";
 import type { CreateTechnicianRequest } from "@/model/technician-model";
 import { MAX_FILE_SIZE } from "@/types/type";
 import { TechnicianValidation } from "@/validation/technician-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
 import {
+  AlertTriangle,
   FileImage,
   Loader2,
   PenLine,
@@ -24,7 +27,7 @@ import {
   UploadCloud,
   X,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 
 interface CreateTechnicianFormProps {
@@ -33,7 +36,21 @@ interface CreateTechnicianFormProps {
 
 export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
   const { createMutation } = useTechnicianQueries();
-  const { mutateAsync: createTechnician, isPending } = createMutation;
+  const {
+    mutateAsync: createTechnician,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = createMutation;
+
+  const { cooldown, startCooldown } = useCooldown(
+    "create_technician",
+    "ratelimit_",
+  );
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,7 +81,8 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
   const isImageOversized =
     signatureValue instanceof File && signatureValue.size > MAX_FILE_SIZE;
 
-  const isButtonDisabled = isSubmitting || !nameValue || isImageOversized;
+  const isButtonDisabled =
+    isSubmitting || !nameValue || isImageOversized || isPending || cooldown > 0;
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -111,6 +129,19 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
     }
   };
 
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
@@ -133,6 +164,24 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
             transition-colors"
         >
           <div className="grid gap-5">
+            {(cooldown > 0 || isRateLimited) && (
+              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                <div className="space-y-1 flex flex-col justify-center items-center">
+                  <AlertTriangle className="h-7 w-7 shrink-0" />
+                  <p className="font-semibold text-xs uppercase">
+                    Action Paused
+                  </p>
+                  <p className="text-xs opacity-90">
+                    Too many attempts. Please wait{" "}
+                    <span className="font-bold tabular-nums">
+                      {String(cooldown).padStart(2, "0")}s
+                    </span>{" "}
+                    before trying again.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div>
               <h3 className="text-base font-semibold tracking-tight">
                 Technician Identity
@@ -339,7 +388,6 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                 </FormItem>
               )}
             />
-            <div className="h-4"></div>
           </div>
         </div>
         <div className="flex items-center justify-end gap-3 p-4 border-t bg-background mt-auto">
@@ -370,9 +418,9 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
             size="sm"
             className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
             type="submit"
-            disabled={isButtonDisabled || isPending}
+            disabled={isButtonDisabled}
           >
-            {isSubmitting || isPending ? (
+            {isPending || isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               "Save Technician"

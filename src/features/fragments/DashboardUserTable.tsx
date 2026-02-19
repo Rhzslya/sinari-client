@@ -9,7 +9,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { Badge } from "@/components/ui/badge";
-import type { NotPublicUserResponse } from "@/model/user-model"; // Ensure this matches your new NotPublicUserResponse type
+import type { NotPublicUserResponse } from "@/model/user-model";
 import type { ExtendedTableProps } from "@/types/type";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
@@ -21,6 +21,7 @@ import EmailCell from "./EmailCell";
 import { getRoleBadgeColor } from "@/components/utils/roleBadge";
 import { UserSkeletonTable } from "./Skeleton";
 import RestoreUserForm from "../components/RestoreUserForm";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 const DashboardUserTable = ({
   users,
@@ -72,22 +73,23 @@ const DashboardUserTable = ({
 
   if (users.length === 0) {
     return (
-      <div className="rounded-md border bg-card p-8 text-center text-muted-foreground">
-        No users found.
-      </div>
+      <NotFoundPage
+        variant="minimal"
+        isDashboard={true}
+        entityName="User"
+        onGoBack={() => navigate("/dashboard/users", { replace: true })}
+      />
     );
   }
-
-  if (isLoading) return <UserSkeletonTable />;
 
   return (
     <>
       <TooltipProvider>
         <div className="rounded-md border bg-card">
-          <Table className="min-w-250">
+          <Table className="min-w-250 table-fixed">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-12 font-bold border-r border-border/60 text-center">
+                <TableHead className="w-11 font-bold border-r border-border/60 text-center">
                   ID
                 </TableHead>
 
@@ -103,8 +105,8 @@ const DashboardUserTable = ({
                   Status
                 </TableHead>
 
-                <TableHead className="w-35 font-bold">Created At</TableHead>
-                <TableHead className="w-35 font-bold">Updated At</TableHead>
+                <TableHead className="w-30 font-bold">Created At</TableHead>
+                <TableHead className="w-30 font-bold">Updated At</TableHead>
 
                 <TableHead className="w-15 text-right font-bold">
                   Actions

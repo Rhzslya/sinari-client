@@ -49,6 +49,8 @@ import {
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { handleApiError } from "@/lib/utils";
 import { useProductQueries } from "@/hooks/product-queries";
+import { isAxiosError } from "axios";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 
 const DashboardProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -280,6 +282,28 @@ const DashboardProductPage = () => {
     normalize(tempMinPrice) !== normalize(minPriceParam) ||
     normalize(tempMaxPrice) !== normalize(maxPriceParam) ||
     tempInStock !== inStockOnlyParam;
+
+  if (isError && !data) {
+    if (isAxiosError(error) && error.response?.status === 429) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)(?:s| seconds)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      return <RateLimitFallback seconds={seconds} onRetry={() => refetch()} />;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <p className="text-destructive font-medium">Failed to load products.</p>
+        <p className="text-sm text-muted-foreground">
+          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+        </p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">

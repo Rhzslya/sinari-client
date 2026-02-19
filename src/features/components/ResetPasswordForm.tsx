@@ -19,11 +19,13 @@ import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { CheckEmailCard } from "../fragments/CheckEmailCard";
+import { useCooldown } from "@/hooks/use-cooldown";
+import { isAxiosError } from "axios";
 
 type ResetPasswordRequest = z.infer<typeof UserValidation.RESET_PASSWORD>;
 
@@ -38,6 +40,9 @@ export function ResetPasswordForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const { cooldown: blockCooldown, startCooldown: startBlockCooldown } =
+    useCooldown("reset_pass_block");
 
   const form = useForm<ResetPasswordRequest>({
     resolver: zodResolver(UserValidation.RESET_PASSWORD),
@@ -62,12 +67,30 @@ export function ResetPasswordForm() {
       await AuthServices.resetPassword(data);
       setIsSuccess(true);
     } catch (error) {
+      const message = getErrorMessage(error);
+
       const msg = getErrorMessage(error, "Failed to reset password");
+
+      if (isAxiosError(error) && error.response?.status === 429) {
+        const match = message.match(/(\d+) seconds/);
+        if (match && match[1]) {
+          const seconds = parseInt(match[1], 10);
+          startBlockCooldown(seconds);
+          setGlobalError("Too many attempts. Please wait before trying again.");
+          return;
+        }
+      }
       setGlobalError(msg);
     } finally {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+      setGlobalError(null);
+    }
+  }, [blockCooldown, globalError]);
 
   if (!token) {
     return (
@@ -219,6 +242,8 @@ export function ResetPasswordForm() {
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
+                ) : blockCooldown > 0 ? (
+                  `Try again in ${blockCooldown}s`
                 ) : (
                   "Reset Password"
                 )}

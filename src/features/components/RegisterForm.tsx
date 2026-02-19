@@ -44,6 +44,9 @@ export function RegisterForm() {
 
   const { cooldown, startCooldown } = useCooldown(registeredEmail);
 
+  const { cooldown: blockCooldown, startCooldown: startBlockCooldown } =
+    useCooldown("register_block");
+
   const [cardError, setCardError] = useState<string | null>(null);
   const [isVerifiedNow, setIsVerifiedNow] = useState(false);
   const [isDailyLimit, setIsDailyLimit] = useState(false);
@@ -100,6 +103,18 @@ export function RegisterForm() {
       startCooldown(60, data.email);
       startCooldown(60, data.username);
     } catch (error) {
+      const message = getErrorMessage(error);
+
+      if (isAxiosError(error) && error.response?.status === 429) {
+        const match = message.match(/(\d+) seconds/);
+        if (match && match[1]) {
+          const seconds = parseInt(match[1], 10);
+          startBlockCooldown(seconds);
+          setGlobalError("Too many attempts. Please wait before trying again.");
+          return;
+        }
+      }
+
       setGlobalError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
@@ -171,6 +186,12 @@ export function RegisterForm() {
       setGlobalError("Failed to connect to Google.");
     },
   });
+
+  useEffect(() => {
+    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+      setGlobalError(null);
+    }
+  }, [blockCooldown, globalError]);
 
   if (isSuccess) {
     return (
@@ -338,12 +359,16 @@ export function RegisterForm() {
               <Button
                 className="w-full mt-2 text-sm text-foreground font-semibold shadow-lg shadow-primary/20"
                 type="submit"
-                disabled={!form.formState.isValid || isLoading}
+                disabled={
+                  !form.formState.isValid || isLoading || blockCooldown > 0
+                }
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
+                ) : blockCooldown > 0 ? (
+                  `Try again in ${blockCooldown}s`
                 ) : (
                   "Sign Up"
                 )}

@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { UserRole } from "@/enum/product-enum";
+import { useCooldown } from "@/hooks/use-cooldown";
 import { useUserQueries } from "@/hooks/user-queries";
 import type {
   DetailedUserResponse,
@@ -42,6 +43,7 @@ import type {
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -60,7 +62,18 @@ export default function UpdateRoleForm({
   onSuccess,
 }: UpdateRoleFormProps) {
   const { updateRoleMutation } = useUserQueries();
-  const { mutateAsync: updateRole, isPending } = updateRoleMutation;
+  const {
+    mutateAsync: updateRole,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = updateRoleMutation;
+
+  const { cooldown, startCooldown } = useCooldown("update_role", "ratelimit_");
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingData, setPendingData] = useState<Pick<
@@ -122,6 +135,25 @@ export default function UpdateRoleForm({
       setShowConfirmDialog(false);
     }
   };
+
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
 
   const ROLE_OPTIONS = Object.values(UserRole);
 
@@ -219,6 +251,24 @@ export default function UpdateRoleForm({
                   </FormItem>
                 )}
               />
+
+              {(cooldown > 0 || isRateLimited) && (
+                <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                  <div className="space-y-1 flex flex-col justify-center items-center">
+                    <AlertTriangle className="h-7 w-7 shrink-0" />
+                    <p className="font-semibold text-xs uppercase">
+                      Action Paused
+                    </p>
+                    <p className="text-xs opacity-90">
+                      Too many attempts. Please wait{" "}
+                      <span className="font-bold tabular-nums">
+                        {String(cooldown).padStart(2, "0")}s
+                      </span>{" "}
+                      before trying again.
+                    </p>
+                  </div>
+                </div>
+              )}
               <DialogFooter>
                 <Button
                   size="sm"
@@ -234,7 +284,9 @@ export default function UpdateRoleForm({
                   size="sm"
                   className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                   type="submit"
-                  disabled={isSubmitting || !isDirty || isPending}
+                  disabled={
+                    isSubmitting || !isDirty || isPending || cooldown > 0
+                  }
                   variant={
                     selectedRole === UserRole.OWNER ||
                     user?.role === UserRole.OWNER
@@ -242,7 +294,7 @@ export default function UpdateRoleForm({
                       : "default"
                   }
                 >
-                  {isSubmitting || isPending ? (
+                  {isSubmitting || isPending || isError ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     "Save Changes"
@@ -264,7 +316,6 @@ export default function UpdateRoleForm({
               {pendingData?.role === UserRole.OWNER ? (
                 <span>
                   You are about to promote{" "}
-                  {/* Gunakan break-all agar string panjang tanpa spasi tetap turun ke bawah */}
                   <span className="font-bold text-foreground break-all">
                     {user?.username}
                   </span>{" "}
@@ -296,7 +347,7 @@ export default function UpdateRoleForm({
             </AlertDialogCancel>
             <AlertDialogAction
               className="w-1/3 bg-destructive hover:bg-destructive/90 text-foreground! cursor-pointer duration-300"
-              disabled={isPending}
+              disabled={isSubmitting || !isDirty || isPending}
               onClick={(e) => {
                 e.preventDefault();
                 if (pendingData) executeUpdate(pendingData);

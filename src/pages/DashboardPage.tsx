@@ -9,8 +9,10 @@ import {
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import { OverviewChart } from "@/features/fragments/OverviewChart";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 import { RecentActivity } from "@/features/fragments/RecentActivity";
 import { useDashboardQueries } from "@/hooks/dashboard-queries";
+import { isAxiosError } from "axios";
 import {
   Activity,
   DollarSign,
@@ -19,11 +21,12 @@ import {
   Wrench,
   Wallet,
   ShoppingBag,
+  Loader2,
 } from "lucide-react";
 
 const DashboardPage = () => {
   const { useStats } = useDashboardQueries();
-  const { data: stats, isLoading, isError } = useStats();
+  const { data: stats, isLoading, isError, error, refetch } = useStats();
 
   const revenueGrowth = stats?.cards.revenue_growth || 0;
   const isRevenuePositive = revenueGrowth >= 0;
@@ -31,10 +34,39 @@ const DashboardPage = () => {
   const profitGrowth = stats?.cards.profit_growth || 0;
   const isProfitPositive = profitGrowth >= 0;
 
-  if (isLoading) return <div>Loading Dashboard...</div>;
-  if (isError) return <div>Failed to load stats.</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading Dashboard...</span>
+      </div>
+    );
+  }
 
-  // Nilai default/fallback yang aman
+  if (isError && !stats) {
+    if (isAxiosError(error) && error.response?.status === 429) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)(?:s| seconds)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      return <RateLimitFallback seconds={seconds} onRetry={() => refetch()} />;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <p className="text-destructive font-medium">
+          Failed to load dashboard data.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+        </p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
   const safeStats = stats || {
     cards: {
       total_revenue: 0,
@@ -167,7 +199,7 @@ const DashboardPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
         <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Revenue Overview</CardTitle>
@@ -180,7 +212,7 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
+        <Card className="col-span-2">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>Latest updates.</CardDescription>

@@ -52,32 +52,35 @@ export function useCooldown(
     };
   }, [getRemainingTime, storageKey]);
 
-  const startCooldown = (seconds: number = 60, overrideId?: string) => {
-    const finalId = overrideId ? overrideId.toLowerCase() : normalizedKey;
-    const keyToUse = finalId ? `${keyPrefix}${finalId}` : storageKey;
+  const startCooldown = useCallback(
+    (seconds: number = 60, overrideId?: string) => {
+      const finalId = overrideId ? overrideId.toLowerCase() : normalizedKey;
+      const keyToUse = finalId ? `${keyPrefix}${finalId}` : storageKey;
 
-    if (!keyToUse) return;
+      if (!keyToUse) return;
 
-    const now = Date.now();
-    let targetTime = now + seconds * 1000;
+      const now = Date.now();
+      let targetTime = now + seconds * 1000;
 
-    const existingTimeStr = localStorage.getItem(keyToUse);
-    if (existingTimeStr) {
-      const existingTime = parseInt(existingTimeStr);
-      if (existingTime > now) {
-        targetTime = existingTime;
+      const existingTimeStr = localStorage.getItem(keyToUse);
+      if (existingTimeStr) {
+        const existingTime = parseInt(existingTimeStr);
+        if (existingTime > now) {
+          targetTime = existingTime;
+        }
       }
-    }
 
-    localStorage.setItem(keyToUse, targetTime.toString());
+      localStorage.setItem(keyToUse, targetTime.toString());
 
-    if (!overrideId || finalId === normalizedKey) {
-      const remaining = Math.ceil((targetTime - now) / 1000);
-      setCooldown(remaining);
-    }
+      if (!overrideId || finalId === normalizedKey) {
+        const remaining = Math.ceil((targetTime - now) / 1000);
+        setCooldown(remaining);
+      }
 
-    window.dispatchEvent(new Event("storage"));
-  };
+      window.dispatchEvent(new Event("storage"));
+    },
+    [keyPrefix, normalizedKey, storageKey],
+  );
 
   return { cooldown, startCooldown, setCooldown };
 }

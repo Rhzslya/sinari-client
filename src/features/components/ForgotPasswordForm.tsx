@@ -19,7 +19,7 @@ import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CheckEmailCard } from "../fragments/CheckEmailCard";
@@ -41,6 +41,9 @@ export function ForgotPasswordForm() {
   const [cardError, setCardError] = useState<string | null>(null);
 
   const { cooldown, startCooldown } = useCooldown(identifier, "reset_pass_");
+
+  const { cooldown: blockCooldown, startCooldown: startBlockCooldown } =
+    useCooldown("forgot_pass_block");
 
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
@@ -69,6 +72,16 @@ export function ForgotPasswordForm() {
       setIsSuccess(true);
     } catch (error) {
       const message = getErrorMessage(error);
+
+      if (isAxiosError(error) && error.response?.status === 429) {
+        const match = message.match(/(\d+) seconds/);
+        if (match && match[1]) {
+          const seconds = parseInt(match[1], 10);
+          startBlockCooldown(seconds);
+          setGlobalError("Too many attempts. Please wait before trying again.");
+          return;
+        }
+      }
 
       if (isAxiosError(error)) {
         const status = error.response?.status;
@@ -145,6 +158,12 @@ export function ForgotPasswordForm() {
       setResendLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+      setGlobalError(null);
+    }
+  }, [blockCooldown, globalError]);
 
   if (isSuccess) {
     return (
@@ -229,12 +248,19 @@ export function ForgotPasswordForm() {
               <Button
                 className="w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 text-secondary-foreground cursor-pointer"
                 type="submit"
-                disabled={!form.formState.isValid || isLoading || isDailyLimit}
+                disabled={
+                  !form.formState.isValid ||
+                  isLoading ||
+                  isDailyLimit ||
+                  blockCooldown > 0
+                }
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
+                ) : blockCooldown > 0 ? (
+                  `Try again in ${blockCooldown}s`
                 ) : (
                   "Send Reset Link"
                 )}

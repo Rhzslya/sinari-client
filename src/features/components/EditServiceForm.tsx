@@ -22,14 +22,22 @@ import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand, ServiceStatus } from "@/enum/product-enum";
 import { useServiceQueries } from "@/hooks/repair-queries";
 import { useTechnicianQueries } from "@/hooks/technician-queries";
-import { useServiceLock } from "@/hooks/use-cooldown";
+import { useCooldown, useServiceLock } from "@/hooks/use-cooldown";
 import type {
   ServiceResponse,
   UpdateServiceRequest,
 } from "@/model/repair-model";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Clock, Loader2, Lock, Plus, Trash2 } from "lucide-react";
+import { isAxiosError } from "axios";
+import {
+  AlertTriangle,
+  Clock,
+  Loader2,
+  Lock,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { useEffect } from "react";
 import {
   useFieldArray,
@@ -55,7 +63,18 @@ export function EditServiceForm({
 }: ServiceFormProps) {
   const { updateServiceMutation } = useServiceQueries();
 
-  const { mutateAsync: updateService, isPending } = updateServiceMutation;
+  const {
+    mutateAsync: updateService,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = updateServiceMutation;
+
+  const { cooldown, startCooldown } = useCooldown("edit_service", "ratelimit_");
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const { isLocked, timeLeft, isGracePeriodActive, isTaken } =
     useServiceLock(service);
@@ -150,7 +169,8 @@ export function EditServiceForm({
     !customerNameValue ||
     !phoneNumberValue ||
     !modelValue ||
-    hasInvalidItems;
+    hasInvalidItems ||
+    cooldown > 0;
 
   const subTotal =
     serviceList?.reduce((acc, curr) => acc + (Number(curr.price) || 0), 0) || 0;
@@ -228,6 +248,19 @@ export function EditServiceForm({
     }
   };
 
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
@@ -301,6 +334,23 @@ export function EditServiceForm({
         >
           {renderStatusAlert()}
           <div className="grid gap-6">
+            {(cooldown > 0 || isRateLimited) && (
+              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                <div className="space-y-1 flex flex-col justify-center items-center">
+                  <AlertTriangle className="h-7 w-7 shrink-0" />
+                  <p className="font-semibold text-xs uppercase">
+                    Action Paused
+                  </p>
+                  <p className="text-xs opacity-90">
+                    Too many attempts. Please wait{" "}
+                    <span className="font-bold tabular-nums">
+                      {String(cooldown).padStart(2, "0")}s
+                    </span>{" "}
+                    before trying again.
+                  </p>
+                </div>
+              </div>
+            )}
             {/* SECTION 1: CUSTOMER & DEVICE */}
             <div>
               <h3 className="text-base font-semibold tracking-tight">

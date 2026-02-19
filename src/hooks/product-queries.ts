@@ -5,6 +5,7 @@ import type {
   DeleteProductRequest,
   DeleteProductResponse,
   DetailedProductRequest,
+  ProductPublicResponse,
   ProductResponse,
   RestoreProductRequest,
   SearchProductRequest,
@@ -26,6 +27,9 @@ export const PRODUCT_KEYS = {
   lists: () => [...PRODUCT_KEYS.all, "list"] as const,
   list: (request: SearchProductRequest) =>
     [...PRODUCT_KEYS.lists(), request] as const,
+  publicLists: () => [...PRODUCT_KEYS.all, "public-list"] as const,
+  publicList: (request: SearchProductRequest) =>
+    [...PRODUCT_KEYS.publicLists(), request] as const,
   details: () => [...PRODUCT_KEYS.all, "detail"] as const,
   detail: (request: DetailedProductRequest) =>
     [...PRODUCT_KEYS.details(), request.id] as const,
@@ -41,6 +45,18 @@ export const useProductQueries = () => {
       return useQuery({
         queryKey: PRODUCT_KEYS.list(params),
         queryFn: () => ProductServices.search(params),
+        placeholderData: keepPreviousData,
+        staleTime: 1000 * 30,
+      });
+    },
+
+    usePublicList: (
+      params: SearchProductRequest,
+    ): UseQueryResult<ApiResponse<ProductPublicResponse[]>, Error> => {
+      // <--- 2. UBAH JADI ProductPublicResponse
+      return useQuery({
+        queryKey: PRODUCT_KEYS.publicList(params),
+        queryFn: () => ProductServices.searchPublic(params),
         placeholderData: keepPreviousData,
         staleTime: 1000 * 30,
       });

@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/select";
 import { ServiceStatus } from "@/enum/product-enum";
 import { useServiceQueries } from "@/hooks/repair-queries";
-import { useServiceLock } from "@/hooks/use-cooldown";
+import { useCooldown, useServiceLock } from "@/hooks/use-cooldown";
 import { type ServiceResponse } from "@/model/repair-model";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
 import { Clock, Loader2, Lock } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -54,8 +55,21 @@ export function UpdateStatusDialog({
   onSuccess,
 }: UpdateStatusDialogProps) {
   const { updateStatusMutation } = useServiceQueries();
-  const { mutateAsync: updateStatus, isPending } = updateStatusMutation;
+  const {
+    mutateAsync: updateStatus,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = updateStatusMutation;
 
+  const { cooldown, startCooldown } = useCooldown(
+    "update_status",
+    "ratelimit_",
+  );
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
   const { isLocked, timeLeft, isGracePeriodActive, isTaken } =
     useServiceLock(service);
 
@@ -114,6 +128,25 @@ export function UpdateStatusDialog({
       // Handle by Hook
     }
   };
+
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
+  useEffect(() => {
+    if (!open) {
+      reset();
+    }
+  }, [open, reset]);
 
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
@@ -236,7 +269,13 @@ export function UpdateStatusDialog({
                 size="sm"
                 className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                 type="submit"
-                disabled={isSubmitting || !isDirty || isPending || isTaken}
+                disabled={
+                  isSubmitting ||
+                  !isDirty ||
+                  isPending ||
+                  isTaken ||
+                  cooldown > 0
+                }
               >
                 Save Changes
                 {isSubmitting ||

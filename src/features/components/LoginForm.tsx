@@ -48,6 +48,9 @@ export function LoginForm() {
 
   const { cooldown, startCooldown } = useCooldown(identifier);
 
+  const { cooldown: blockCooldown, startCooldown: startBlockCooldown } =
+    useCooldown("login_block");
+
   const [isVerifiedNow, setIsVerifiedNow] = useState(false);
   const [isDailyLimit, setIsDailyLimit] = useState(false);
 
@@ -116,13 +119,21 @@ export function LoginForm() {
     } catch (error) {
       const message = getErrorMessage(error);
 
+      if (isAxiosError(error) && error.response?.status === 429) {
+        const match = message.match(/(\d+) seconds/);
+        if (match && match[1]) {
+          const seconds = parseInt(match[1], 10);
+          startBlockCooldown(seconds);
+          setGlobalError("Too many attempts. Please wait before trying again.");
+          return;
+        }
+      }
+
       if (isAxiosError(error) && error.response?.status === 403) {
         if (message.toLowerCase().includes("not verified")) {
-          // JANGAN set showUnverifiedCard(true) di sini!
           setShowInitialCheckEmail(true);
           setGlobalError(null);
 
-          // Lakukan proses Auto-Resend sementara tombol Login masih berputar
           try {
             const res = await AuthServices.resendVerification({
               identifier: data.identifier,
@@ -252,6 +263,12 @@ export function LoginForm() {
       setGlobalError("Failed to connect to Google.");
     },
   });
+
+  useEffect(() => {
+    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+      setGlobalError(null);
+    }
+  }, [blockCooldown, globalError]);
 
   if (showUnverifiedCard) {
     const isWaitingEmail =
@@ -415,12 +432,16 @@ export function LoginForm() {
               <Button
                 className={`w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-secondary-foreground`}
                 type="submit"
-                disabled={!form.formState.isValid || isLoading}
+                disabled={
+                  !form.formState.isValid || isLoading || blockCooldown > 0
+                }
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
+                ) : blockCooldown > 0 ? (
+                  `Try again in ${blockCooldown}s`
                 ) : (
                   "Sign In"
                 )}

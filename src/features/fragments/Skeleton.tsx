@@ -229,44 +229,41 @@ export function TechnicianSkeletonTable() {
 
 export function UserSkeletonTable() {
   return (
-    <div className="rounded-md border bg-card w-full">
-      <Table className="min-w-250">
+    <div className="rounded-md border bg-card">
+      <Table className="min-w-250 table-fixed">
         <TableHeader>
-          <TableRow className="hover:bg-transparent h-10">
-            <TableHead className="w-11.5 font-bold border-r border-border/60 text-center">
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-11 font-bold border-r border-border/60 text-center">
               ID
             </TableHead>
             <TableHead className="w-50 font-bold">Email</TableHead>
             <TableHead className="w-37.5 font-bold">Username</TableHead>
             <TableHead className="w-30 text-center font-bold">Role</TableHead>
             <TableHead className="w-30 text-center font-bold">Status</TableHead>
-            <TableHead className="w-35 font-bold">Created At</TableHead>
-            <TableHead className="w-35 font-bold">Updated At</TableHead>
+            <TableHead className="w-30 font-bold">Created At</TableHead>
+            <TableHead className="w-30 font-bold">Updated At</TableHead>
             <TableHead className="w-15 text-right font-bold">Actions</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: 10 }).map((_, index) => (
             <TableRow key={index} className="hover:bg-transparent">
               <TableCell className="border-r border-border/60 text-center">
-                <Skeleton className="h-4 w-4 mx-auto" />
+                <Skeleton className="h-6 w-6 mx-auto" />
               </TableCell>
 
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-30" />
-                  <Skeleton className="h-4 w-4 rounded-full opacity-50" />
-                </div>
+                <Skeleton className="h-4 w-42.5" />
               </TableCell>
 
               <TableCell>
-                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-33" />
               </TableCell>
 
               <TableCell>
                 <div className="flex justify-center">
-                  <Skeleton className="h-5 w-20 rounded-md" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
                 </div>
               </TableCell>
 

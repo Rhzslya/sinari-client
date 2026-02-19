@@ -117,27 +117,37 @@ const DetailUserPage = () => {
     setVerifyLoading(true);
 
     try {
-      await AuthServices.resendVerification(user.email);
+      await AuthServices.resendVerification({ identifier: user.email });
       toast.success(`Verification email sent to ${user.email}`);
       startVerifyCooldown(60);
 
       refetch();
     } catch (error) {
-      let message = "Failed to send verification email";
-
       if (isAxiosError(error)) {
         const status = error.response?.status;
-        const msg = error.response?.data?.errors || error.message;
+        const rawMessage = error.response?.data?.errors || error.message;
+        const mainMessage = rawMessage.split("|")[0];
 
-        if (status === 429) {
-          message = "Rate limit reached. Please try again later.";
-        } else if (status === 400 && msg.toLowerCase().includes("verified")) {
-          message = "User is already verified.";
+        if (status === 400 && mainMessage.toLowerCase().includes("wait")) {
+          const match = mainMessage.match(/(\d+) seconds/);
+          if (match && match[1]) {
+            startVerifyCooldown(parseInt(match[1], 10));
+            toast.error(`User is in cooldown. Try again in ${match[1]}s.`);
+          }
+        } else if (
+          status === 400 &&
+          mainMessage.toLowerCase().includes("verified")
+        ) {
+          toast.info("User is already verified.");
+        } else if (status === 429) {
+          const match = mainMessage.match(/(\d+)s|(\d+) seconds/);
+          const seconds = match ? parseInt(match[1] || match[2], 10) : 60;
+          startVerifyCooldown(seconds);
+          toast.error(`Rate limit reached. Try again in ${seconds}s.`);
         } else {
-          message = msg;
+          toast.error(mainMessage);
         }
       }
-      toast.error(message);
     } finally {
       setVerifyLoading(false);
     }
@@ -159,26 +169,35 @@ const DetailUserPage = () => {
       startResetCooldown(60);
       refetch();
     } catch (error) {
-      let message = "Failed to send reset password email";
-
       if (isAxiosError(error)) {
         const status = error.response?.status;
-        const msg = error.response?.data?.errors || error.message;
+        const rawMessage = error.response?.data?.errors || error.message;
 
-        if (status === 429) {
-          const match = msg.match(/(\d+) seconds/);
+        const mainMessage = rawMessage.split("|")[0];
+
+        if (status === 400 && mainMessage.toLowerCase().includes("wait")) {
+          const match = mainMessage.match(/(\d+) seconds/);
           if (match && match[1]) {
             const seconds = parseInt(match[1], 10);
             startResetCooldown(seconds);
-            message = `Rate limit reached. Try again in ${seconds}s`;
+            toast.error(`User is in cooldown. Try again in ${seconds}s.`);
+          }
+        } else if (status === 429) {
+          const match = mainMessage.match(/(\d+)s|(\d+) seconds/);
+          const seconds = match ? parseInt(match[1] || match[2], 10) : 60;
+          startResetCooldown(seconds);
+
+          if (mainMessage.toLowerCase().includes("daily")) {
+            toast.error("Daily limit reached for this action.");
           } else {
-            message = "Too many attempts. Please try again later.";
+            toast.error(`Rate limit reached. Try again in ${seconds}s.`);
           }
         } else {
-          message = msg;
+          toast.error(mainMessage);
         }
+      } else {
+        toast.error("An unexpected error occurred");
       }
-      toast.error(message);
     } finally {
       setResetLoading(false);
     }
@@ -303,7 +322,8 @@ const DetailUserPage = () => {
                   isCurrentUser ||
                   verifyLoading ||
                   verifyCooldown > 0 ||
-                  user.is_verified
+                  user.is_verified ||
+                  isRateLimited(user.resend_count)
                 }
                 onClick={handleResendVerification}
               >
@@ -326,7 +346,8 @@ const DetailUserPage = () => {
                   isCurrentUser ||
                   resetLoading ||
                   resetCooldown > 0 ||
-                  haveGoogleAuth
+                  haveGoogleAuth ||
+                  isRateLimited(user.pass_reset_count)
                 }
                 onClick={handleResendResetPassword}
               >
@@ -336,9 +357,11 @@ const DetailUserPage = () => {
                   <RefreshCcw className="mr-2 h-4 w-4" />
                 )}
 
-                {resetCooldown > 0
-                  ? `Resend in ${resetCooldown}s`
-                  : "Resend Reset Password"}
+                {isRateLimited(user.pass_reset_count)
+                  ? "Daily Limit Reached"
+                  : resetCooldown > 0
+                    ? `Resend in ${resetCooldown}s`
+                    : "Resend Reset Password"}
               </Button>
               <Button
                 onClick={() => handleUpdateRoleOpen(user)}

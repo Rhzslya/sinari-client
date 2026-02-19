@@ -19,6 +19,7 @@ import { formatBytes } from "@/components/utils/formatBytes";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand, Category } from "@/enum/product-enum";
 import { useProductQueries } from "@/hooks/product-queries";
+import { useCooldown } from "@/hooks/use-cooldown";
 import {
   type ProductResponse,
   type UpdateProductRequest,
@@ -26,7 +27,9 @@ import {
 import { MAX_FILE_SIZE } from "@/types/type";
 import { ProductValidation } from "@/validation/product-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
 import {
+  AlertTriangle,
   FileImage,
   Loader2,
   PenLine,
@@ -53,7 +56,18 @@ export function EditProductForm({
 }: ProductFormProps) {
   const { updateProductMutation } = useProductQueries();
 
-  const { mutateAsync: updateProduct, isPending } = updateProductMutation;
+  const {
+    mutateAsync: updateProduct,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = updateProductMutation;
+
+  const { cooldown, startCooldown } = useCooldown("edit_product", "ratelimit_");
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const [prevProductId, setPrevProductId] = useState(product.id);
   const [preview, setPreview] = useState<string | null>(
@@ -122,7 +136,8 @@ export function EditProductForm({
     Number(priceValue) <= 0 ||
     Number(costPriceValue) <= 0 ||
     isImageOversized ||
-    isSellingPriceLowerThanCostPrice;
+    isSellingPriceLowerThanCostPrice ||
+    cooldown > 0;
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -190,6 +205,19 @@ export function EditProductForm({
     }
   };
 
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
+
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
@@ -217,6 +245,24 @@ export function EditProductForm({
             transition-colors"
         >
           <div className="grid gap-5">
+            {(cooldown > 0 || isRateLimited) && (
+              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                <div className="space-y-1 flex flex-col justify-center items-center">
+                  <AlertTriangle className="h-7 w-7 shrink-0" />
+                  <p className="font-semibold text-xs uppercase">
+                    Action Paused
+                  </p>
+                  <p className="text-xs opacity-90">
+                    Too many attempts. Please wait{" "}
+                    <span className="font-bold tabular-nums">
+                      {String(cooldown).padStart(2, "0")}s
+                    </span>{" "}
+                    before trying again.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div>
               <h3 className="text-base font-semibold tracking-tight">
                 General Information

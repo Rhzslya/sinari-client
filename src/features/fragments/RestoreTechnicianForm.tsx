@@ -8,8 +8,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useTechnicianQueries } from "@/hooks/technician-queries";
+import { useCooldown } from "@/hooks/use-cooldown";
 import type { TechnicianResponse } from "@/model/technician-model";
-import { ArchiveRestore, Loader2 } from "lucide-react";
+import { isAxiosError } from "axios";
+import { AlertTriangle, ArchiveRestore, Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 interface RestoreTechnicianProps {
   technician: TechnicianResponse | null;
@@ -26,7 +29,21 @@ const RestoreTechnicianForm = ({
 }: RestoreTechnicianProps) => {
   const { restoreMutation } = useTechnicianQueries();
 
-  const { mutateAsync: restoreTechnician, isPending } = restoreMutation;
+  const {
+    mutateAsync: restoreTechnician,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = restoreMutation;
+
+  const { cooldown, startCooldown } = useCooldown(
+    "restore_technician",
+    "ratelimit_",
+  );
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const handleDelete = async () => {
     if (!technician) return;
@@ -40,6 +57,19 @@ const RestoreTechnicianForm = ({
       // Handle by Hook
     }
   };
+
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldown === 0) {
+        startCooldown(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldown, startCooldown, reset]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -63,6 +93,22 @@ const RestoreTechnicianForm = ({
             </DialogDescription>
           </div>
         </DialogHeader>
+
+        {(cooldown > 0 || isRateLimited) && (
+          <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+            <div className="space-y-1 flex flex-col justify-center items-center">
+              <AlertTriangle className="h-7 w-7 shrink-0" />
+              <p className="font-semibold text-xs uppercase">Action Paused</p>
+              <p className="text-xs opacity-90">
+                Too many attempts. Please wait{" "}
+                <span className="font-bold tabular-nums">
+                  {String(cooldown).padStart(2, "0")}s
+                </span>{" "}
+                before trying again.
+              </p>
+            </div>
+          </div>
+        )}
 
         <DialogFooter className="w-full sm:justify-between mt-4">
           <Button

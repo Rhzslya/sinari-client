@@ -103,6 +103,7 @@ const DetailProductPage = () => {
         id={productId}
         entityName="Product"
         backUrl="/dashboard/products"
+        variant="minimal"
       />
     );
 

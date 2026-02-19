@@ -1,5 +1,5 @@
 import { DashboardService } from "@/services/dashboard-service";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const DASHBOARD_KEYS = {
   all: ["dashboard"] as const,
@@ -7,6 +7,8 @@ export const DASHBOARD_KEYS = {
 };
 
 export const useDashboardQueries = () => {
+  const queryClient = useQueryClient();
+
   return {
     useStats: () => {
       return useQuery({
@@ -14,6 +16,10 @@ export const useDashboardQueries = () => {
         queryFn: () => DashboardService.getStats(),
         staleTime: 1000 * 60 * 5,
       });
+    },
+
+    resetStats: () => {
+      return queryClient.resetQueries({ queryKey: DASHBOARD_KEYS.stats() });
     },
   };
 };

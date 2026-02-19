@@ -25,8 +25,10 @@ import {
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
 import DashboardUserTable from "@/features/fragments/DashboardUserTable";
 import { PaginationComponent } from "@/features/fragments/Pagination";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 import { useUserQueries } from "@/hooks/user-queries";
 import { handleApiError } from "@/lib/utils";
+import { isAxiosError } from "axios";
 import { ArrowUpDown, Check, Filter, Search, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -52,13 +54,13 @@ const DashboardUserPage = () => {
   const [tempOnline, setTempOnline] = useState(isOnlineParam);
   const [tempRole, setTempRole] = useState(roleParam);
 
-  const userQueries = useUserQueries();
+  const { useList, useProfile } = useUserQueries();
 
-  const { data: currentUser } = userQueries.useProfile();
+  const { data: currentUser } = useProfile();
 
   const isCurrentUserOwner = currentUser?.role === "OWNER";
 
-  const { data, isLoading, isError, error, refetch } = userQueries.useList({
+  const { data, isLoading, isError, error, refetch } = useList({
     page,
     size,
     name: nameParam || undefined,
@@ -204,6 +206,28 @@ const DashboardUserPage = () => {
   const isSortActive = (by: string, order: string) => {
     return sortByParam === by && sortOrderParam === order;
   };
+
+  if (isError && !data) {
+    if (isAxiosError(error) && error.response?.status === 429) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)(?:s| seconds)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      return <RateLimitFallback seconds={seconds} onRetry={() => refetch()} />;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <p className="text-destructive font-medium">Failed to load users.</p>
+        <p className="text-sm text-muted-foreground">
+          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+        </p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
