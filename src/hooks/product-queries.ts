@@ -139,7 +139,7 @@ export const useProductQueries = () => {
           queryKey: PRODUCT_KEYS.detail(variables),
         });
         queryClient.invalidateQueries({
-          queryKey: PRODUCT_LOG_KEYS.detail(variables.id),
+          queryKey: PRODUCT_LOG_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to restore product"),

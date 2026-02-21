@@ -171,10 +171,9 @@ export function RegisterForm() {
       setIsGoogleLoading(true);
       setGlobalError(null);
       try {
-        const result = await AuthServices.googleLogin({
+        await AuthServices.googleLogin({
           token: codeResponse.code,
         });
-        localStorage.setItem("token", result.token!);
         navigate("/");
       } catch (error) {
         setGlobalError(getErrorMessage(error));
@@ -379,7 +378,7 @@ export function RegisterForm() {
           <div className="mt-6">
             <GoogleSignInFragments
               onClick={handleGoogleLogin}
-              isLoading={isGoogleLoading}
+              isLoading={isGoogleLoading || isLoading}
             />
           </div>
         </CardContent>

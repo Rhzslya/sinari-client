@@ -18,13 +18,9 @@ export const GoogleSignIn = ({ isLoading = false }: GoogleSignInProps) => {
     }
 
     try {
-      const result = await AuthServices.googleLogin({ token });
+      await AuthServices.googleLogin({ token });
 
-      if (result.token) {
-        localStorage.setItem("token", result.token);
-
-        navigate("/");
-      }
+      navigate("/");
     } catch (error) {
       console.error("Backend Login Failed:", error);
     }

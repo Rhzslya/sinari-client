@@ -2,10 +2,14 @@ import { formatRupiah } from "@/components/utils/formatRupiah";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { ServiceStatus } from "@/enum/product-enum";
 import { format } from "date-fns";
-import { Loader2, MapPin, Phone, Printer, RefreshCcw } from "lucide-react";
+import { Globe, Loader2, MapPin, Phone, RefreshCcw } from "lucide-react";
 import { useParams } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import { useServiceQueries } from "@/hooks/repair-queries";
+import { isAxiosError } from "axios";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
+import RateLimitBanner from "@/features/fragments/RateLimitBanner";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 
 const PDF_COLORS = {
   primary: "#ef473a",
@@ -17,14 +21,30 @@ const PDF_COLORS = {
 export default function TrackServicePage() {
   const { identifier } = useParams<{ identifier: string }>();
   const { useTrackPublic } = useServiceQueries();
+  const { useGetSettings } = useStoreSettingQueries();
 
   const {
     data: service,
     isLoading,
     isError,
-  } = useTrackPublic(identifier || "");
+    error,
+    refetch,
+    isRefetching,
+  } = useTrackPublic({ identifier });
 
-  if (isLoading) {
+  const { data: storeData } = useGetSettings();
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
+  let cooldownSeconds = 60;
+
+  if (isRateLimited) {
+    const message = error.response?.data?.errors || "";
+    const match = message.match(/(\d+)(?:s| seconds)/);
+    cooldownSeconds = match ? parseInt(match[1]) : 60;
+  }
+
+  if (isLoading && !service) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-3">
         <Loader2 className="w-10 h-10 animate-spin text-slate-400" />
@@ -35,7 +55,16 @@ export default function TrackServicePage() {
     );
   }
 
-  if (isError || !service) {
+  if (isRateLimited && !service) {
+    return (
+      <RateLimitFallback
+        seconds={cooldownSeconds}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
+  if (!service) {
     return (
       <NotFoundPage
         entityName="Service Tracking"
@@ -45,6 +74,17 @@ export default function TrackServicePage() {
       />
     );
   }
+
+  const storeName = storeData?.store_name || "SINARI CELL";
+  const storeAddress = storeData?.store_address || "Tangerang Selatan";
+  const storePhone = storeData?.store_phone || "0812-3456-7890";
+  const storeWebsite = storeData?.store_website || "";
+  const warrantyText =
+    storeData?.warranty_text ||
+    "Garansi 7 hari untuk kerusakan yang sama.\nWajib menunjukan invoice ini saat klaim.\nUnit > 30 hari tidak diambil diluar tanggung jawab.";
+  const paymentInfo = storeData?.payment_info || "BCA: 1234 5678 90 (Sinari)";
+
+  if (!service) return null;
 
   const isCancelled = service.status === ServiceStatus.CANCELLED;
 
@@ -57,7 +97,19 @@ export default function TrackServicePage() {
   const grandTotal = isCancelled ? 0 : subTotal - discountAmount - downPayment;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 flex justify-center items-start py-10 font-sans">
+    <div className="min-h-screen bg-gray-100 p-4 flex flex-col items-center py-10 font-sans">
+      {isRateLimited && (
+        <RateLimitBanner
+          seconds={cooldownSeconds}
+          onRetry={() => void refetch()}
+        />
+      )}
+      {isRefetching && !isRateLimited && (
+        <div className="w-full max-w-lg mb-4 flex items-center justify-center gap-2 text-sm text-slate-500 animate-pulse">
+          <RefreshCcw className="h-4 w-4 animate-spin" />
+          <p>Memperbarui data terbaru...</p>
+        </div>
+      )}
       <div className="w-full max-w-lg bg-white shadow-2xl min-h-150 flex flex-col">
         <div className="p-6 pb-2">
           <div className="flex justify-between items-start mb-4">
@@ -66,7 +118,7 @@ export default function TrackServicePage() {
                 className="text-2xl font-bold tracking-tight"
                 style={{ color: PDF_COLORS.dark }}
               >
-                SINARI CELL
+                {storeName.toUpperCase()}
               </h1>
               <p
                 className="text-[10px] uppercase tracking-widest"
@@ -244,17 +296,16 @@ export default function TrackServicePage() {
             <p className="font-bold" style={{ color: PDF_COLORS.dark }}>
               Terms & Conditions:
             </p>
-            <ol className="list-decimal list-inside space-y-0.5 leading-relaxed">
-              <li>Garansi 7 hari untuk kerusakan yang sama.</li>
-              <li>Wajib menunjukan invoice ini saat klaim.</li>
-              <li>Unit {">"} 30 hari tidak diambil diluar tanggung jawab.</li>
-              <li>Garansi hangus jika segel rusak/kena air.</li>
-            </ol>
+            <div className="whitespace-pre-wrap leading-relaxed">
+              {warrantyText}
+            </div>
 
             <p className="font-bold mt-3" style={{ color: PDF_COLORS.dark }}>
               Payment Info:
             </p>
-            <p>BCA: 1234 5678 90 (Sinari)</p>
+            <div className="whitespace-pre-wrap leading-relaxed">
+              {paymentInfo}
+            </div>
           </div>
 
           <div className="w-full md:w-56 text-xs space-y-2">
@@ -348,28 +399,39 @@ export default function TrackServicePage() {
           </div>
         </div>
         <div
-          className="mt-8 border-t py-3 bg-gray-50 flex flex-wrap justify-center gap-4 text-[10px] text-center px-4"
+          className="mt-8 border-t py-3 bg-gray-50 flex items-center justify-center gap-2 text-[10px] px-4 w-full overflow-hidden"
           style={{ borderColor: PDF_COLORS.dark, color: PDF_COLORS.muted }}
         >
-          <span className="flex items-center gap-1">
-            <Phone className="w-3 h-3" /> 0812-3456-7890
-          </span>
-          <span className="hidden sm:inline">|</span>
-          <span className="flex items-center gap-1">
-            <MapPin className="w-3 h-3" /> Tangerang Selatan
-          </span>
-          <span className="hidden sm:inline">|</span>
-          <span>www.sinaricell.com</span>
+          {storePhone && (
+            <span className="flex items-center gap-1 shrink-0">
+              <Phone className="w-3 h-3 shrink-0" />
+              <span className="whitespace-nowrap">{storePhone}</span>
+            </span>
+          )}
+
+          {storeAddress && (
+            <>
+              <span className="shrink-0 text-gray-300">|</span>
+              <span className="flex items-center gap-1 min-w-0">
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span className="truncate" title={storeAddress}>
+                  {storeAddress}
+                </span>
+              </span>
+            </>
+          )}
+
+          {storeWebsite && (
+            <>
+              <span className="shrink-0 text-gray-300">|</span>
+              <span className="flex items-center gap-1 shrink-0">
+                <Globe className="w-3 h-3 shrink-0" />
+                <span className="whitespace-nowrap">{storeWebsite}</span>
+              </span>
+            </>
+          )}
         </div>
       </div>
-
-      <button
-        onClick={() => window.print()}
-        className="fixed bottom-6 right-6 text-white p-4 rounded-full shadow-xl hover:opacity-90 transition-all print:hidden"
-        style={{ backgroundColor: PDF_COLORS.dark }}
-      >
-        <Printer className="w-6 h-6" />
-      </button>
     </div>
   );
 }

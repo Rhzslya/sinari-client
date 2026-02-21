@@ -7,7 +7,8 @@ import { RepairLogService } from "@/services/repair-logs-services";
 
 export const REPAIR_LOG_KEYS = {
   all: ["repair-logs"] as const,
-  detail: (serviceId: number) => [...REPAIR_LOG_KEYS.all, serviceId] as const,
+  detail: (request: GetLogRequest) =>
+    [...REPAIR_LOG_KEYS.all, request.id] as const,
 };
 
 export const useServiceLogQueries = () => {
@@ -16,7 +17,7 @@ export const useServiceLogQueries = () => {
       request: GetLogRequest,
     ): UseQueryResult<ServiceLogResponse[], Error> => {
       return useQuery({
-        queryKey: REPAIR_LOG_KEYS.detail(request.id),
+        queryKey: REPAIR_LOG_KEYS.detail(request),
         queryFn: () => RepairLogService.get(request),
         enabled: !!request.id && !isNaN(request.id),
         staleTime: 1000 * 60 * 2,

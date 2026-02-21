@@ -22,6 +22,7 @@ import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
 import { useUserQueries } from "@/hooks/user-queries";
 import { ServiceStatus } from "@/enum/product-enum";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 
 interface ServiceActionMenuProps {
   service: ServiceResponse;
@@ -43,8 +44,10 @@ export function ServiceActionMenu({
   isTrashView,
 }: ServiceActionMenuProps) {
   const userQueries = useUserQueries();
+  const { useGetSettings } = useStoreSettingQueries();
 
   const { data: currentUser } = userQueries.useProfile();
+  const { data: storeData, isLoading: isSettingsLoading } = useGetSettings();
   const isOwner = currentUser?.role === "OWNER";
 
   const [isOpen, setIsOpen] = useState(false);
@@ -54,11 +57,17 @@ export function ServiceActionMenu({
     service.status !== ServiceStatus.CANCELLED &&
     service.status !== ServiceStatus.TAKEN;
 
+  if (isSettingsLoading || !storeData) {
+    return <div>Loading invoice data...</div>;
+  }
+
   const handleDownloadPDF = async () => {
     setIsGeneratingPdf(true);
     const toastId = toast.loading("Generating Invoice PDF...");
     try {
-      const blob = await pdf(<ServiceInvoicePDF service={service} />).toBlob();
+      const blob = await pdf(
+        <ServiceInvoicePDF service={service} settings={storeData} />,
+      ).toBlob();
 
       const url = URL.createObjectURL(blob);
 

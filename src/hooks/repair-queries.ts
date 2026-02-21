@@ -104,7 +104,7 @@ export const useServiceQueries = () => {
           queryKey: SERVICE_KEYS.detail(variables),
         });
         queryClient.invalidateQueries({
-          queryKey: REPAIR_LOG_KEYS.detail(variables.id),
+          queryKey: REPAIR_LOG_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to update service"),
@@ -126,7 +126,7 @@ export const useServiceQueries = () => {
           queryKey: SERVICE_KEYS.detail(variables),
         });
         queryClient.invalidateQueries({
-          queryKey: REPAIR_LOG_KEYS.detail(variables.id),
+          queryKey: REPAIR_LOG_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to update status"),
@@ -145,18 +145,19 @@ export const useServiceQueries = () => {
           queryKey: SERVICE_KEYS.detail(variables),
         });
         queryClient.invalidateQueries({
-          queryKey: REPAIR_LOG_KEYS.detail(variables.id),
+          queryKey: REPAIR_LOG_KEYS.detail(variables),
         });
       },
       onError: (error) => handleApiError(error, "Failed to restore service"),
     }),
 
     useTrackPublic: (
-      request: TrackPublicServiceRequest,
+      request: Partial<TrackPublicServiceRequest>,
     ): UseQueryResult<PublicServiceResponse, Error> => {
       return useQuery({
-        queryKey: SERVICE_KEYS.track(request),
-        queryFn: () => RepairServices.trackService(request),
+        queryKey: SERVICE_KEYS.track(request as TrackPublicServiceRequest),
+        queryFn: () =>
+          RepairServices.trackService(request as TrackPublicServiceRequest),
         enabled: !!request?.identifier,
         staleTime: 1000 * 30,
         retry: 1,

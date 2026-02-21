@@ -86,10 +86,6 @@ export function LoginForm() {
     },
   });
 
-  useEffect(() => {
-    localStorage.removeItem("token");
-  }, []);
-
   const handleBackToLogin = () => {
     setShowUnverifiedCard(false);
     setGlobalError(null);
@@ -110,9 +106,7 @@ export function LoginForm() {
     try {
       setIdentifier(data.identifier);
 
-      const result = await AuthServices.login(data);
-      localStorage.setItem("token", result.token!);
-      localStorage.setItem("role", result.role);
+      await AuthServices.login(data);
 
       clearAuthCache(data.identifier);
       navigate("/");
@@ -248,10 +242,9 @@ export function LoginForm() {
       setIsGoogleLoading(true);
       setGlobalError(null);
       try {
-        const result = await AuthServices.googleLogin({
+        await AuthServices.googleLogin({
           token: codeResponse.code,
         });
-        localStorage.setItem("token", result.token!);
         navigate("/");
       } catch (error) {
         setGlobalError(getErrorMessage(error));
@@ -452,7 +445,7 @@ export function LoginForm() {
           <div className="mt-6">
             <GoogleSignInFragments
               onClick={handleGoogleLogin}
-              isLoading={isGoogleLoading}
+              isLoading={isGoogleLoading || isLoading}
               variant="light"
             />
           </div>

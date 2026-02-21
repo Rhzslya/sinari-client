@@ -6,7 +6,6 @@ export type UserResponse = {
   email: string;
   name: string;
   role: UserRole;
-  token?: string | null;
   google_id?: string | null;
 };
 
@@ -148,7 +147,6 @@ export function toUserResponse(data: UserResponse): UserResponse {
     name: data.name,
     email: data.email,
     role: data.role,
-    token: data.token,
   };
 }
 
@@ -202,7 +200,6 @@ export function toUserResponseWithToken(data: UserResponse): UserResponse {
   return {
     ...toUserResponse(data),
     google_id: data.google_id,
-    token: data.token,
   };
 }
 

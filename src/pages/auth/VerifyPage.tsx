@@ -22,7 +22,7 @@ export default function VerifyPage() {
     if (hasCalledRef.current) return;
     hasCalledRef.current = true;
 
-    AuthServices.verify(token)
+    AuthServices.verify({ token })
       .then(() => {
         setStatus("success");
         const timeout = setTimeout(() => navigate("/login"), 3000);
@@ -101,7 +101,7 @@ export default function VerifyPage() {
 
             {status === "success" && (
               <Button
-                className="w-full h-10 font-semibold shadow-lg shadow-primary/20 transition-all cursor-pointer"
+                className="w-full h-10 font-semibold shadow-lg shadow-primary/20 transition-all cursor-pointer text-foreground"
                 onClick={() => navigate("/login")}
               >
                 Login Now

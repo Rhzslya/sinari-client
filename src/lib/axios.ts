@@ -2,23 +2,12 @@ import axios, { isAxiosError } from "axios";
 import { toast } from "sonner";
 
 export const api = axios.create({
-  baseURL: "/api",
+  baseURL: "http://localhost:3000/api",
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-
-    const publicEndpoints = ["/login", "/register"];
-
-    const isPublic = publicEndpoints.some((endpoint) =>
-      config.url?.endsWith(endpoint),
-    );
-
-    if (token && !isPublic) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
     return config;
   },
   (error) => {
@@ -40,7 +29,16 @@ api.interceptors.response.use(
       if (status === 401) {
         const isLoginRequest = config.url?.endsWith("/login");
 
-        if (!isLoginRequest) {
+        const currentPath = window.location.pathname;
+        const isPublicPage =
+          currentPath === "/" ||
+          currentPath.startsWith("/login") ||
+          currentPath.startsWith("/register") ||
+          currentPath.startsWith("/auth/verify") ||
+          currentPath.startsWith("/auth/reset-password") ||
+          currentPath.startsWith("/forgot-password");
+
+        if (!isLoginRequest && !isPublicPage) {
           if (errorCode === "SESSION_EXPIRED") {
             toast.error("Session Ended", {
               description: "You have logged in on another device.",
@@ -52,7 +50,6 @@ api.interceptors.response.use(
             });
           }
 
-          localStorage.removeItem("token");
           localStorage.removeItem("role");
 
           window.location.href = "/login";

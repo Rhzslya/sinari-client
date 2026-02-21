@@ -1,6 +1,7 @@
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { ServiceStatus } from "@/enum/product-enum";
 import type { ServiceResponse } from "@/model/repair-model";
+import type { UpdateStoreSettingRequest } from "@/model/store-setting-model";
 import {
   Document,
   Image,
@@ -12,15 +13,18 @@ import {
 import { format } from "date-fns";
 
 const COLORS = {
-  primary: "#ef473acd",
+  primary: "#ef473a",
   dark: "#1e293b",
-  lightGray: "#f1f5f9",
+  muted: "#64748b",
+  gray50: "#f9fafb",
+  gray100: "#f3f4f6",
+  gray200: "#e5e7eb",
   white: "#ffffff",
-  textMain: "#0f172a",
-  textMuted: "#64748b",
-  danger: "#dc2626",
-  warningBg: "#fef2f2",
-  warningBorder: "#fecaca",
+  red50: "#fef2f2",
+  red300: "#fca5a5",
+  red500: "#ef4444",
+  red800: "#991b1b",
+  green600: "#16a34a",
 };
 
 const styles = StyleSheet.create({
@@ -28,11 +32,10 @@ const styles = StyleSheet.create({
     padding: 0,
     fontSize: 7,
     fontFamily: "Helvetica",
-    color: COLORS.textMain,
+    color: COLORS.dark,
     backgroundColor: COLORS.white,
     flexDirection: "column",
   },
-
   contentWrapper: {
     paddingHorizontal: 15,
     paddingTop: 10,
@@ -40,11 +43,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  // HEADER & STATUS BADGE
   headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 3,
+    marginBottom: 8,
   },
   logoSection: { flexDirection: "column" },
   logoText: {
@@ -52,66 +56,96 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     color: COLORS.dark,
     marginBottom: 1,
+    textTransform: "uppercase",
   },
   logoSub: {
     fontSize: 5,
-    color: COLORS.textMuted,
-    letterSpacing: 0.5,
+    color: COLORS.muted,
+    letterSpacing: 1,
     textTransform: "uppercase",
   },
-
-  accentBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 5,
+  statusBadgeWrapper: {
+    alignItems: "flex-end",
   },
-  primaryStrip: {
-    backgroundColor: COLORS.primary,
-    height: 15,
-    flex: 1,
-    marginRight: 10,
+  statusBadge: {
+    borderWidth: 1.5,
+    borderColor: COLORS.dark,
+    paddingVertical: 1.5,
+    paddingHorizontal: 5,
+    transform: "rotate(-6deg)",
+    opacity: 0.8,
   },
-  invoiceTitleLarge: {
-    fontSize: 16,
+  statusText: {
+    fontSize: 6,
     fontFamily: "Helvetica-Bold",
     color: COLORS.dark,
     textTransform: "uppercase",
-    letterSpacing: 1,
   },
 
+  // ACCENT BAR
+  accentBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  primaryStrip: {
+    backgroundColor: COLORS.primary,
+    height: 10,
+    flex: 1,
+    marginRight: 8,
+  },
+  invoiceTitleLarge: {
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.dark,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+  },
+  primarySquare: {
+    backgroundColor: COLORS.primary,
+    height: 10,
+    width: 10,
+    marginLeft: 8,
+  },
+
+  // INFO CONTAINER
   infoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 3,
+    marginBottom: 6,
   },
-  infoColLeft: { width: "60%" },
-  infoColRight: { width: "35%" },
+  infoColLeft: { width: "55%" },
+  infoColRight: { width: "40%" },
 
   labelBold: {
     fontSize: 7,
     fontFamily: "Helvetica-Bold",
-    marginBottom: 2,
+    marginBottom: 1,
     color: COLORS.dark,
   },
   textNormal: {
     fontSize: 7,
     marginBottom: 1,
-    color: COLORS.textMain,
+    color: COLORS.muted,
     lineHeight: 1.2,
   },
   metaRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLORS.gray100,
+    paddingBottom: 1.5,
     marginBottom: 2,
   },
-  metaLabel: { fontFamily: "Helvetica-Bold", width: "40%" },
-  metaValue: { width: "60%", textAlign: "right" },
+  metaLabel: { fontFamily: "Helvetica-Bold", color: COLORS.dark },
+  metaValue: { color: COLORS.muted, fontFamily: "Helvetica" },
 
-  tableContainer: { marginBottom: 5 },
+  // TABLE
+  tableContainer: { marginBottom: 6 },
   tableHeader: {
     flexDirection: "row",
     backgroundColor: COLORS.dark,
-    paddingVertical: 4,
+    paddingVertical: 2.8,
     paddingHorizontal: 4,
     alignItems: "center",
   },
@@ -123,30 +157,35 @@ const styles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: "row",
-    paddingVertical: 2,
+    paddingVertical: 3,
     paddingHorizontal: 4,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#cbd5e1",
+    borderBottomColor: COLORS.gray200,
     alignItems: "center",
   },
-  tableRowAlt: { backgroundColor: COLORS.lightGray },
+  tableRowAlt: { backgroundColor: COLORS.gray50 },
 
-  colSL: { width: "10%", textAlign: "center" },
-  colDesc: {
-    width: "50%",
+  colSL: { width: "10%", textAlign: "center", color: COLORS.muted },
+  colDesc: { width: "50%", color: COLORS.dark, fontFamily: "Helvetica-Bold" },
+  colPrice: { width: "20%", textAlign: "right", color: COLORS.muted },
+  colTotal: {
+    width: "20%",
+    textAlign: "right",
+    color: COLORS.dark,
+    fontFamily: "Helvetica-Bold",
   },
-  colPrice: { width: "20%", textAlign: "right" },
-  colTotal: { width: "20%", textAlign: "right" },
 
   strikethrough: {
     textDecoration: "line-through",
-    color: COLORS.textMuted,
+    color: COLORS.muted,
+    fontFamily: "Helvetica",
   },
 
+  // BOTTOM SECTION
   bottomContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 1,
+    marginTop: 2,
   },
   bottomLeft: { width: "50%" },
   bottomRight: { width: "45%" },
@@ -154,54 +193,89 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 7,
     fontFamily: "Helvetica-Bold",
-    marginBottom: 2,
-    marginTop: 8,
+    marginBottom: 4,
+    color: COLORS.dark,
   },
   smallText: {
-    fontSize: 5,
-    color: COLORS.textMuted,
-    lineHeight: 1.2,
+    fontSize: 5.5,
+    color: COLORS.muted,
+    lineHeight: 1.3,
   },
 
+  // TOTALS
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 4,
-    paddingHorizontal: 2,
+    marginBottom: 2.5,
   },
   grandTotalBox: {
     flexDirection: "row",
     justifyContent: "space-between",
     backgroundColor: COLORS.primary,
-    paddingVertical: 4,
-    paddingHorizontal: 4,
-    marginTop: 4,
+    paddingVertical: 4, // Padding kotak total diperkecil
+    paddingHorizontal: 5,
+    marginTop: 2,
+    alignItems: "center",
   },
-  grandTotalText: {
+  grandTotalLabel: {
+    fontSize: 7,
+    fontFamily: "Helvetica-Bold",
+    color: COLORS.white,
+    textTransform: "uppercase",
+  },
+  grandTotalValue: {
     fontSize: 9,
     fontFamily: "Helvetica-Bold",
-    color: COLORS.dark,
+    color: COLORS.white,
   },
 
+  // REFUND
   refundBox: {
-    marginTop: 6,
+    marginTop: 4,
     borderWidth: 1,
-    borderColor: COLORS.danger,
+    borderColor: COLORS.red300,
     borderStyle: "dashed",
-    backgroundColor: COLORS.warningBg,
+    backgroundColor: COLORS.red50,
     padding: 4,
   },
   refundTitle: {
-    fontSize: 6,
+    fontSize: 5,
     fontFamily: "Helvetica-Bold",
-    color: COLORS.danger,
-    marginBottom: 2,
+    color: COLORS.red800,
+    marginBottom: 1,
     textTransform: "uppercase",
   },
   refundText: {
     fontSize: 5,
-    color: COLORS.danger,
+    color: COLORS.red800,
     lineHeight: 1.2,
+  },
+
+  // FOOTER & SIGN
+  signArea: {
+    marginTop: 8, // 🌟 6. Jarak area tanda tangan ditekan
+    width: "80%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  signatureImage: {
+    height: 18, // Gambar tanda tangan dikecilkan
+    width: "80%",
+    objectFit: "contain",
+    marginBottom: 1,
+  },
+  signLine: {
+    width: "100%",
+    borderTopWidth: 0.5,
+    borderTopColor: COLORS.dark,
+    marginBottom: 1.5,
+  },
+  technicianName: {
+    fontSize: 6,
+    fontFamily: "Helvetica-Bold",
+    textAlign: "center",
+    color: COLORS.dark,
+    textTransform: "uppercase",
   },
 
   footerStrip: {
@@ -209,55 +283,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: COLORS.dark,
-    paddingTop: 5,
-    marginBottom: 5,
-  },
-  signArea: {
-    marginTop: 4,
-    width: "80%",
-    alignSelf: "flex-end",
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
-  signLine: {
-    width: "100%",
-    marginBottom: 2,
-    alignItems: "center",
-    height: 25,
-    justifyContent: "flex-end",
-  },
-
-  signatureImage: {
-    height: 22,
-    width: "80%",
-    objectFit: "contain",
-    marginBottom: 1,
-  },
-
-  technicianName: {
-    fontSize: 6,
-    fontFamily: "Helvetica-Bold",
-    textAlign: "center",
-    color: COLORS.textMain,
-  },
-
-  printMeta: {
-    textAlign: "left",
     borderTopWidth: 0.5,
     borderTopColor: COLORS.dark,
-    fontSize: 4.5,
-    color: "#cbd5e1",
-    marginTop: 3,
+    backgroundColor: COLORS.gray50,
+    paddingTop: 5,
+    paddingBottom: 10,
+    paddingHorizontal: 10,
+
+    flexWrap: "wrap",
+  },
+  footerText: {
+    fontSize: 5.5,
+    color: COLORS.muted,
+    marginHorizontal: 3,
   },
 });
 
 interface InvoiceProps {
   service: ServiceResponse;
+  settings: UpdateStoreSettingRequest;
 }
 
-export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
+export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
   const isCancelled = service.status === ServiceStatus.CANCELLED;
 
   const subTotal = service.service_list.reduce(
@@ -268,40 +315,57 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
   const discountAmount = (subTotal * discountPercent) / 100;
   const downPayment = service.down_payment || 0;
   const grandTotal = isCancelled ? 0 : subTotal - discountAmount - downPayment;
-  const printedAt = format(new Date(), "dd/MM/yyyy HH:mm");
 
   const truncate = (str: string, max: number) => {
     return str.length > max ? str.substring(0, max) + "..." : str;
   };
+
+  const storeName = settings?.store_name || "SINARI CELL";
+  const storeAddress = settings?.store_address || "Alamat belum diatur";
+  const storePhone = settings?.store_phone || "-";
+  const storeWebsite = settings?.store_website || "";
+  const warrantyText = settings?.warranty_text || "-";
+  const paymentInfo = settings?.payment_info || "-";
+
   return (
     <Document>
       <Page size="A6" style={styles.page}>
         <View style={styles.contentWrapper}>
           <View style={styles.headerTop}>
             <View style={styles.logoSection}>
-              <Text style={styles.logoText}>SINARI CELL</Text>
+              <Text style={styles.logoText}>{storeName}</Text>
               <Text style={styles.logoSub}>Professional Repair Service</Text>
+            </View>
+            <View style={styles.statusBadgeWrapper}>
+              <View style={styles.statusBadge}>
+                <Text style={styles.statusText}>
+                  {service.status.replace("_", " ")}
+                </Text>
+              </View>
             </View>
           </View>
 
+          {/* ACCENT BAR */}
           <View style={styles.accentBar}>
             <View style={styles.primaryStrip} />
             <Text style={styles.invoiceTitleLarge}>INVOICE</Text>
-            <View
-              style={[
-                styles.primaryStrip,
-                { flex: 0, width: 10, marginLeft: 10 },
-              ]}
-            />
+            <View style={styles.primarySquare} />
           </View>
 
           <View style={styles.infoContainer}>
             <View style={styles.infoColLeft}>
               <Text style={styles.labelBold}>Invoice to:</Text>
               <Text
-                style={[styles.textNormal, { fontFamily: "Helvetica-Bold" }]}
+                style={[
+                  styles.textNormal,
+                  {
+                    fontFamily: "Helvetica-Bold",
+                    color: COLORS.dark,
+                    textTransform: "uppercase",
+                  },
+                ]}
               >
-                {truncate(service.customer_name, 35)}
+                {truncate(service.customer_name, 25)}
               </Text>
               <Text style={styles.textNormal}>{service.phone_number}</Text>
               <Text style={styles.textNormal}>
@@ -311,18 +375,24 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
 
             <View style={styles.infoColRight}>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Inv#</Text>
-                <Text style={styles.metaValue}>{service.service_id}</Text>
+                <Text style={[styles.metaLabel, { fontSize: 6 }]}>Inv#</Text>
+                <Text style={[styles.metaValue, { fontSize: 6 }]}>
+                  {service.service_id}
+                </Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Date</Text>
-                <Text style={styles.metaValue}>
+                <Text style={[styles.metaLabel, { fontSize: 6 }]}>Date</Text>
+                <Text style={[styles.metaValue, { fontSize: 6 }]}>
                   {format(new Date(service.created_at), "dd/MM/yy")}
                 </Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Status</Text>
-                <Text style={styles.metaValue}>{service.status}</Text>
+                <Text style={[styles.metaLabel, { fontSize: 6 }]}>
+                  Technician
+                </Text>
+                <Text style={[styles.metaValue, { fontSize: 6 }]}>
+                  {truncate(service.technician?.name || "-", 15)}
+                </Text>
               </View>
             </View>
           </View>
@@ -330,14 +400,32 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
           <View style={styles.tableContainer}>
             <View style={styles.tableHeader}>
               <Text style={[styles.tableHeaderText, styles.colSL]}>No.</Text>
-              <Text style={[styles.tableHeaderText, styles.colDesc]}>
-                DESCRIPTION
+              <Text
+                style={[
+                  styles.tableHeaderText,
+                  styles.colDesc,
+                  { color: COLORS.white },
+                ]}
+              >
+                Description
               </Text>
-              <Text style={[styles.tableHeaderText, styles.colPrice]}>
-                PRICE
+              <Text
+                style={[
+                  styles.tableHeaderText,
+                  styles.colPrice,
+                  { color: COLORS.white },
+                ]}
+              >
+                Price
               </Text>
-              <Text style={[styles.tableHeaderText, styles.colTotal]}>
-                TOTAL
+              <Text
+                style={[
+                  styles.tableHeaderText,
+                  styles.colTotal,
+                  { color: COLORS.white },
+                ]}
+              >
+                Total
               </Text>
             </View>
 
@@ -349,71 +437,36 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
                   index % 2 !== 0 ? styles.tableRowAlt : {},
                 ]}
               >
-                <Text
-                  style={[styles.textNormal, styles.colSL, { marginBottom: 0 }]}
-                >
-                  {index + 1}
-                </Text>
+                <Text style={[styles.colSL, { fontSize: 7 }]}>{index + 1}</Text>
                 <Text
                   style={[
-                    styles.textNormal,
                     styles.colDesc,
-                    { marginBottom: 0 },
+                    { fontSize: 7 },
                     isCancelled ? styles.strikethrough : {},
                   ]}
                 >
-                  {truncate(item.name, 35)}
+                  {truncate(item.name, 30)}
                 </Text>
-                <Text
-                  style={[
-                    styles.textNormal,
-                    styles.colPrice,
-                    { marginBottom: 0 },
-                  ]}
-                >
+                <Text style={[styles.colPrice, { fontSize: 7 }]}>
                   {formatRupiah(item.price)}
                 </Text>
-                <Text
-                  style={[
-                    styles.textNormal,
-                    styles.colTotal,
-                    { marginBottom: 0, fontFamily: "Helvetica-Bold" },
-                  ]}
-                >
+                <Text style={[styles.colTotal, { fontSize: 7 }]}>
                   {formatRupiah(item.price)}
                 </Text>
               </View>
             ))}
           </View>
 
+          {/* BOTTOM (T&C DAN TOTALS) */}
           <View style={styles.bottomContainer}>
             <View style={styles.bottomLeft}>
               <Text style={styles.sectionTitle}>Terms & Conditions:</Text>
-              <Text style={styles.smallText}>
-                1. Garansi 7 hari berlaku untuk kerusakan/part yang sama.{"\n"}
-                2. Wajib membawa nota ini saat klaim garansi.{"\n"}
-                3. Unit yang tidak diambil &gt; 30 hari di luar tanggung jawab
-                kami.{"\n"}
-                4. Garansi hangus jika segel rusak, kena air, atau terjatuh.
-              </Text>
+              <Text style={styles.smallText}>{warrantyText}</Text>
 
               <Text style={[styles.sectionTitle, { marginTop: 6 }]}>
-                Payment:
+                Payment Info:
               </Text>
-              <Text style={styles.smallText}>
-                BCA: 1234 5678 90 (Sinari){"\n"}
-                Mandiri: 0987 6543 21 (Sinari)
-              </Text>
-
-              <View style={styles.printMeta}>
-                <Text
-                  style={{
-                    marginTop: 3,
-                  }}
-                >
-                  Printed on {printedAt}
-                </Text>
-              </View>
+              <Text style={styles.smallText}>{paymentInfo}</Text>
             </View>
 
             <View style={styles.bottomRight}>
@@ -432,32 +485,34 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
               {!isCancelled && discountPercent > 0 && (
                 <View style={styles.totalRow}>
                   <Text style={styles.labelBold}>
-                    Disc. ({discountPercent}%)
+                    Disc ({discountPercent}%)
                   </Text>
-                  <Text style={[styles.textNormal, { color: COLORS.danger }]}>
-                    -{formatRupiah(discountAmount)}
+                  <Text style={[styles.textNormal, { color: COLORS.red500 }]}>
+                    - {formatRupiah(discountAmount)}
                   </Text>
                 </View>
               )}
 
-              <View style={styles.totalRow}>
-                <Text style={styles.labelBold}>Down Payment</Text>
-                <Text style={styles.textNormal}>
-                  {formatRupiah(downPayment)}
-                </Text>
-              </View>
+              {downPayment > 0 && (
+                <View style={styles.totalRow}>
+                  <Text style={styles.labelBold}>Down Payment</Text>
+                  <Text style={[styles.textNormal, { color: COLORS.green600 }]}>
+                    - {formatRupiah(downPayment)}
+                  </Text>
+                </View>
+              )}
 
               <View
                 style={[
                   styles.grandTotalBox,
-                  isCancelled ? { backgroundColor: COLORS.lightGray } : {},
+                  isCancelled ? { backgroundColor: COLORS.muted } : {},
                 ]}
               >
-                <Text style={styles.grandTotalText}>
-                  {isCancelled ? "AMOUNT DUE" : "TOTAL"}
+                <Text style={styles.grandTotalLabel}>
+                  {isCancelled ? "Amount Due" : "Total Due"}
                 </Text>
-                <Text style={styles.grandTotalText}>
-                  {formatRupiah(grandTotal)}
+                <Text style={styles.grandTotalValue}>
+                  {formatRupiah(Math.max(0, grandTotal))}
                 </Text>
               </View>
 
@@ -471,36 +526,51 @@ export const ServiceInvoicePDF = ({ service }: InvoiceProps) => {
                 </View>
               )}
 
-              <View style={{ marginBottom: 1 }}>
-                <View style={styles.signArea}>
-                  <Text style={styles.sectionTitle}>Signed by</Text>
-                  <View style={styles.signLine}>
-                    {service.technician?.signature_url ? (
-                      <Image
-                        src={service.technician.signature_url}
-                        style={styles.signatureImage}
-                      />
-                    ) : null}
-                  </View>
-                </View>
+              <View style={styles.signArea}>
+                {service.technician?.signature_url ? (
+                  <Image
+                    src={service.technician.signature_url}
+                    style={styles.signatureImage}
+                  />
+                ) : (
+                  <View style={{ height: 25 }} />
+                )}
+                <View style={styles.signLine} />
+                <Text style={styles.technicianName}>
+                  {service.technician?.name || "Authorized Sign"}
+                </Text>
+                {service.technician?.name && (
+                  <Text
+                    style={[
+                      styles.smallText,
+                      { textAlign: "center", fontSize: 5 },
+                    ]}
+                  >
+                    Technician
+                  </Text>
+                )}
               </View>
             </View>
           </View>
+        </View>
 
-          <View style={styles.footerStrip}>
-            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>
-              0812-3456-7890
-            </Text>
-            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>|</Text>
-            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>
-              Website
-            </Text>
-            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>|</Text>
-            <Text style={[styles.smallText, { marginHorizontal: 3 }]}>
-              Jl. Guru Kojar, Kp. Pondok Belimbing, Jurang Mangu Barat,
-              Tangerang Selatan
-            </Text>
-          </View>
+        {/* FOOTER */}
+        <View style={styles.footerStrip}>
+          {storePhone && <Text style={styles.footerText}>{storePhone}</Text>}
+          {storePhone && storeAddress && (
+            <Text style={styles.footerText}>|</Text>
+          )}
+
+          {storeAddress && (
+            <Text style={styles.footerText}>{truncate(storeAddress, 45)}</Text>
+          )}
+          {storeAddress && storeWebsite && (
+            <Text style={styles.footerText}>|</Text>
+          )}
+
+          {storeWebsite && (
+            <Text style={styles.footerText}>{storeWebsite}</Text>
+          )}
         </View>
       </Page>
     </Document>

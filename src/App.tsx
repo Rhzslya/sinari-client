@@ -24,6 +24,7 @@ import DashboardUserPage from "./pages/DashboardUserPage";
 import DashboardTechnicianPage from "./pages/DashboardTechnicianPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import DetailUserPage from "./pages/DetailUserPage";
+import DashboardSettingPage from "./pages/DashboardSettingPage";
 
 function App() {
   return (
@@ -89,6 +90,11 @@ function App() {
             <Route
               path="/dashboard/technicians"
               element={<DashboardTechnicianPage />}
+            />
+
+            <Route
+              path="/dashboard/settings"
+              element={<DashboardSettingPage />}
             />
 
             <Route

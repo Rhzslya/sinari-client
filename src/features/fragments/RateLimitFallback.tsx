@@ -64,7 +64,7 @@ const RateLimitFallback = ({
         <RefreshCw
           className={`mr-2 h-4 w-4 text-foreground ${timeLeft === 0 ? "" : "animate-spin"}`}
         />
-        {timeLeft > 0 ? "Please Wait" : "Refresh Dashboard"}
+        {timeLeft > 0 ? "Please Wait" : "Refresh"}
       </Button>
     </div>
   );

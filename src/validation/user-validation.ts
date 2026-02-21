@@ -59,7 +59,7 @@ export class UserValidation {
   });
 
   static readonly SEARCH = z.object({
-    username: z.string().min(3).max(100).optional(),
+    username: z.string().min(1).max(100).optional(),
     name: z
       .string()
       .min(1)
@@ -137,11 +137,12 @@ export class UserValidation {
             message: "Username must be at least 3 characters",
           });
         }
-      }),
+      })
+      .max(100, "Username/Email is too long"),
   });
 
   static readonly GOOGLE_LOGIN = z.object({
-    token: z.string().min(1, "Token is required"),
+    token: z.string().min(1, "Token is required").max(2000),
   });
 
   static readonly RESET_PASSWORD = z

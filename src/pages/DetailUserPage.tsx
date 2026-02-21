@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getRoleBadgeColor } from "@/components/utils/roleBadge";
+import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import DeleteUserForm from "@/features/fragments/DeleteUserForm";
 import UpdateRoleForm from "@/features/fragments/UpdateRoleForm";
 import { useCooldown } from "@/hooks/use-cooldown";
@@ -212,7 +213,6 @@ const DetailUserPage = () => {
   return (
     <>
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-        {/* HEADER */}
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -223,9 +223,15 @@ const DetailUserPage = () => {
           </Button>
           <div>
             <h1 className="text-xl font-bold tracking-tight">User Details</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage information for {user.username}
-            </p>
+            <span className="text-sm text-muted-foreground truncate max-w-[320px]">
+              Manage information for{" "}
+            </span>
+            <span className="inline-flex align-middle max-w-37.5">
+              <TruncatedTooltip
+                text={user.username || ""}
+                className="font-semibold text-sm text-foreground max-w-37.5 truncate"
+              />
+            </span>
           </div>
         </div>
 
@@ -234,15 +240,18 @@ const DetailUserPage = () => {
           <Card className="xl:col-span-2 h-full flex flex-col">
             <CardHeader className="bg-muted/10 pb-8">
               <div className="flex items-center gap-4">
-                <Avatar className="w-20 h-20 border-2 border-background shadow-sm">
-                  <AvatarFallback className="text-4xl font-bold text-foreground bg-primary border-3 border-muted">
+                <Avatar className="w-17 h-17 border-2 border-background shadow-sm">
+                  <AvatarFallback className="text-2xl font-bold text-foreground bg-primary border-3 border-muted">
                     {getInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <CardTitle className="text-2xl">{user.name}</CardTitle>
                   <CardDescription className="flex items-center gap-2 mt-1">
-                    @{user.username}
+                    <TruncatedTooltip
+                      text={user.username}
+                      className="max-w-100"
+                    />
                     {user.is_online ? (
                       <Badge
                         variant="outline"
@@ -264,7 +273,7 @@ const DetailUserPage = () => {
                     Email
                   </label>
                   <div className="font-medium flex items-center gap-2">
-                    {user.email}{" "}
+                    <TruncatedTooltip text={user.email} className="max-w-100" />
                     {user.is_verified && (
                       <CheckCircle2 className="w-4 h-4 text-blue-500" />
                     )}

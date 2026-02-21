@@ -16,7 +16,8 @@ import { handleApiError } from "@/lib/utils";
 
 export const PRODUCT_LOG_KEYS = {
   all: ["product-logs"] as const,
-  detail: (productId: number) => [...PRODUCT_LOG_KEYS.all, productId] as const,
+  detail: (request: GetLogRequest) =>
+    [...PRODUCT_LOG_KEYS.all, request.id] as const,
 };
 
 export const useProductLogQueries = () => {
@@ -27,7 +28,7 @@ export const useProductLogQueries = () => {
       request: GetLogRequest,
     ): UseQueryResult<ProductLogResponse[], Error> => {
       return useQuery({
-        queryKey: PRODUCT_LOG_KEYS.detail(request.id),
+        queryKey: PRODUCT_LOG_KEYS.detail(request),
         queryFn: () => ProductLogService.get(request),
         enabled: !!request.id && !isNaN(request.id),
         staleTime: 1000 * 60 * 2,
