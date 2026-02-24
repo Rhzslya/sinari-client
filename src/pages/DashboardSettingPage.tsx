@@ -37,16 +37,34 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { PreviewSettingDialog } from "@/features/fragments/PreviewSettingDialog";
 import { useWhatsappQueries } from "@/hooks/whatsapp-queries";
+import { isAxiosError } from "axios";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 
 const DashboardSettingPage = () => {
   const { useGetSettings, updateMutation } = useStoreSettingQueries();
   const [activeTab, setActiveTab] = useState<string>("store");
+
+  const [isWaActive, setIsWaActive] = useState(false);
+
   const { useGetStatus, disconnectMutation } = useWhatsappQueries(
-    activeTab === "integrations",
+    activeTab === "integrations" && isWaActive,
   );
 
-  const { data: storeData, isLoading, isPending } = useGetSettings();
-  const { data: waData, isLoading: isWaLoading } = useGetStatus();
+  const {
+    data: storeData,
+    isLoading: isStoreLoading,
+    isPending: isStorePending,
+    isError: isStoreError,
+    error: storeError,
+    refetch: refetchStore,
+  } = useGetSettings();
+  const {
+    data: waData,
+    isLoading: isWaLoading,
+    isError: isWaError,
+    error: waError,
+    refetch: refetchWa,
+  } = useGetStatus();
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -77,6 +95,12 @@ const DashboardSettingPage = () => {
     }
   }, [storeData, form]);
 
+  useEffect(() => {
+    if (activeTab !== "integrations") {
+      setIsWaActive(false);
+    }
+  }, [activeTab]);
+
   const watchedValues = useWatch({ control: form.control });
 
   const currentFormData: UpdateStoreSettingRequest = {
@@ -91,7 +115,7 @@ const DashboardSettingPage = () => {
   };
 
   const isButtonDisabled =
-    isPending ||
+    isStorePending ||
     !watchedValues.store_name ||
     !watchedValues.store_address ||
     !watchedValues.store_phone ||
@@ -120,7 +144,7 @@ const DashboardSettingPage = () => {
     }
   };
 
-  if (isLoading) {
+  if (isStoreLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -128,6 +152,54 @@ const DashboardSettingPage = () => {
     );
   }
 
+  if (isStoreLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const hasError = isStoreError || isWaError;
+  const anyError = storeError || waError;
+
+  if (hasError) {
+    if (isAxiosError(anyError) && anyError.response?.status === 429) {
+      const message = anyError.response?.data?.errors || "";
+      const match = message.match(/(\d+)(?:s| seconds)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      return (
+        <RateLimitFallback
+          seconds={seconds}
+          onRetry={() => {
+            if (isStoreError) refetchStore();
+            if (isWaError) refetchWa();
+          }}
+        />
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <p className="text-destructive font-medium">
+          Failed to load settings data.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {isAxiosError(anyError) ? anyError.message : "Unknown error occurred"}
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (isStoreError) refetchStore();
+            if (isWaError) refetchWa();
+          }}
+        >
+          Try Again
+        </Button>
+      </div>
+    );
+  }
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
   const labelStyle =
@@ -188,7 +260,7 @@ const DashboardSettingPage = () => {
                             autoComplete="off"
                             {...field}
                             className={inputStyle}
-                            disabled={isPending}
+                            disabled={isStorePending}
                             spellCheck={false}
                           />
                         </FormControl>
@@ -207,7 +279,7 @@ const DashboardSettingPage = () => {
                             autoComplete="off"
                             {...field}
                             className={inputStyle}
-                            disabled={isPending}
+                            disabled={isStorePending}
                             spellCheck={false}
                           />
                         </FormControl>
@@ -229,7 +301,7 @@ const DashboardSettingPage = () => {
                               autoComplete="off"
                               {...field}
                               className={inputStyle}
-                              disabled={isPending}
+                              disabled={isStorePending}
                               spellCheck={false}
                             />
                           </FormControl>
@@ -249,7 +321,7 @@ const DashboardSettingPage = () => {
                               className={inputStyle}
                               {...field}
                               value={field.value || ""}
-                              disabled={isPending}
+                              disabled={isStorePending}
                               spellCheck={false}
                             />
                           </FormControl>
@@ -283,7 +355,7 @@ const DashboardSettingPage = () => {
                           <Textarea
                             {...field}
                             className={`${textareaStyle} min-h-37.5`}
-                            disabled={isPending}
+                            disabled={isStorePending}
                             spellCheck={false}
                           />
                         </FormControl>
@@ -316,7 +388,7 @@ const DashboardSettingPage = () => {
                           <Textarea
                             {...field}
                             className={`${textareaStyle} min-h-25`}
-                            disabled={isPending}
+                            disabled={isStorePending}
                             spellCheck={false}
                           />
                         </FormControl>
@@ -339,87 +411,124 @@ const DashboardSettingPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col md:flex-row items-start gap-6 bg-muted/30 p-6 rounded-lg border border-border/50">
-                    {/* INFO & TOMBOL DISCONNECT */}
-                    <div className="flex-1 space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`h-3 w-3 rounded-full ${
-                            waData?.status === "connected"
-                              ? "bg-green-500 animate-pulse"
-                              : "bg-destructive"
-                          }`}
-                        />
-                        <span className="font-semibold text-sm">
-                          Status:{" "}
-                          {waData?.status === "connected"
-                            ? "Connected"
-                            : waData?.status === "loading_qr"
-                              ? "Waiting for Scan..."
-                              : "Disconnected"}
-                        </span>
+                  {/* LOGIKA TAMPILAN BARU */}
+                  {!isWaActive ? (
+                    <div className="flex flex-col items-center justify-center p-8 bg-muted/30 border border-dashed border-border rounded-lg text-center">
+                      <Smartphone className="h-10 w-10 text-muted-foreground mb-3" />
+                      <h3 className="text-sm font-semibold mb-1">
+                        WhatsApp is Idle
+                      </h3>
+                      <p className="text-xs text-muted-foreground max-w-sm mb-4">
+                        Klik tombol di bawah untuk mengecek status koneksi saat
+                        ini atau memunculkan QR Code baru.
+                      </p>
+                      <Button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsWaActive(true);
+                        }}
+                        variant="outline"
+                      >
+                        Check Status / Connect Device
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col md:flex-row items-start gap-6 bg-muted/30 p-6 rounded-lg border border-border/50">
+                      <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`h-3 w-3 rounded-full ${
+                              waData?.status === "connected"
+                                ? "bg-green-500 animate-pulse"
+                                : "bg-destructive"
+                            }`}
+                          />
+                          <span className="font-semibold text-sm">
+                            Status:{" "}
+                            {waData?.status === "connected"
+                              ? "Connected"
+                              : waData?.status === "loading_qr"
+                                ? "Waiting for Scan..."
+                                : "Disconnected"}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
+                          Gunakan WhatsApp Bisnis atau WA reguler toko Anda.
+                          Jika nomor terblokir, klik "Disconnect" lalu scan
+                          ulang menggunakan nomor yang baru.
+                        </p>
+
+                        <div className="pt-2 h-10 flex gap-2">
+                          {waData?.status === "connected" ? (
+                            <Button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                disconnectMutation.mutate(undefined, {
+                                  onSuccess: () => setIsWaActive(false),
+                                });
+                              }}
+                              disabled={disconnectMutation.isPending}
+                              variant="destructive"
+                              size="sm"
+                              className="gap-2 cursor-pointer"
+                            >
+                              {disconnectMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <PowerOff className="h-4 w-4" />
+                              )}
+                              Disconnect Device
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setIsWaActive(false);
+                              }}
+                              variant="secondary"
+                              size="sm"
+                            >
+                              Stop Polling
+                            </Button>
+                          )}
+                        </div>
                       </div>
 
-                      <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-                        Gunakan WhatsApp Bisnis atau WA reguler toko Anda. Jika
-                        nomor terblokir, klik "Disconnect" lalu scan ulang
-                        menggunakan nomor yang baru.
-                      </p>
-
-                      <div className="pt-2 h-10">
-                        {waData?.status === "connected" && (
-                          <Button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              disconnectMutation.mutate();
-                            }}
-                            disabled={disconnectMutation.isPending}
-                            variant="destructive"
-                            size="sm"
-                            className="gap-2 cursor-pointer"
-                          >
-                            {disconnectMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <PowerOff className="h-4 w-4" />
-                            )}
-                            Disconnect Device
-                          </Button>
+                      <div className="w-full md:w-48 aspect-square bg-white border border-border rounded-xl flex items-center justify-center shadow-inner overflow-hidden p-2">
+                        {isWaLoading ? (
+                          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        ) : waData?.status === "connected" ? (
+                          <div className="flex flex-col items-center text-center p-2">
+                            <Smartphone className="h-10 w-10 text-green-500 mb-2" />
+                            <p className="text-xs font-bold text-green-500">
+                              Device Linked
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-1">
+                              Ready to send messages
+                            </p>
+                          </div>
+                        ) : waData?.status === "loading_qr" &&
+                          waData.qr_code ? (
+                          <img
+                            src={waData.qr_code}
+                            alt="WhatsApp QR Code"
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center text-center p-4">
+                            <QrCode className="h-10 w-10 text-muted-foreground/30 mb-2 animate-pulse" />
+                            <p className="text-[10px] text-muted-foreground">
+                              Generating QR...
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
-
-                    {/* AREA QR CODE / STATUS */}
-                    <div className="w-full md:w-48 aspect-square bg-white border border-border rounded-xl flex items-center justify-center shadow-inner overflow-hidden p-2">
-                      {isWaLoading ? (
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                      ) : waData?.status === "connected" ? (
-                        <div className="flex flex-col items-center text-center p-2">
-                          <Smartphone className="h-10 w-10 text-green-500 mb-2" />
-                          <p className="text-xs font-bold text-green-500">
-                            Device Linked
-                          </p>
-                          <p className="text-[10px] text-muted-foreground mt-1">
-                            Ready to send messages
-                          </p>
-                        </div>
-                      ) : waData?.status === "loading_qr" && waData.qr_code ? (
-                        <img
-                          src={waData.qr_code}
-                          alt="WhatsApp QR Code"
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center text-center p-4">
-                          <QrCode className="h-10 w-10 text-muted-foreground/30 mb-2 animate-pulse" />
-                          <p className="text-[10px] text-muted-foreground">
-                            Generating QR...
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

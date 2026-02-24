@@ -31,6 +31,7 @@ export type RegisterUserRequest = {
   username: string;
   password: string;
   name: string;
+  secondary_number?: string; //Honeypot
 };
 
 export type SearchUserRequest = {

@@ -25,6 +25,7 @@ import DashboardTechnicianPage from "./pages/DashboardTechnicianPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import DetailUserPage from "./pages/DetailUserPage";
 import DashboardSettingPage from "./pages/DashboardSettingPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductPage />} />
+          <Route path="/products/:productId" element={<ProductDetailPage />} />
         </Route>
 
         <Route element={<GuestRoute />}>

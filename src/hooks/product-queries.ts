@@ -53,7 +53,6 @@ export const useProductQueries = () => {
     usePublicList: (
       params: SearchProductRequest,
     ): UseQueryResult<ApiResponse<ProductPublicResponse[]>, Error> => {
-      // <--- 2. UBAH JADI ProductPublicResponse
       return useQuery({
         queryKey: PRODUCT_KEYS.publicList(params),
         queryFn: () => ProductServices.searchPublic(params),
@@ -68,6 +67,17 @@ export const useProductQueries = () => {
       return useQuery({
         queryKey: PRODUCT_KEYS.detail(request),
         queryFn: () => ProductServices.get(request),
+        enabled: !!request?.id && !isNaN(request.id),
+        staleTime: 1000 * 60,
+      });
+    },
+
+    usePublicDetail: (
+      request: DetailedProductRequest,
+    ): UseQueryResult<ProductPublicResponse, Error> => {
+      return useQuery({
+        queryKey: PRODUCT_KEYS.detail(request),
+        queryFn: () => ProductServices.getPublic(request),
         enabled: !!request?.id && !isNaN(request.id),
         staleTime: 1000 * 60,
       });

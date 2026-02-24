@@ -156,8 +156,7 @@ const DetailProductPage = () => {
                         <Package className="w-12 h-12 text-muted-foreground/30" />
                       )}
                     </div>
-
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-2 min-w-0">
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-[10px]">
                           {product.category}
@@ -171,12 +170,22 @@ const DetailProductPage = () => {
                       <CardTitle className="text-2xl md:text-3xl font-bold leading-tight">
                         <TruncatedTooltip text={product.name} />
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2 text-base">
-                        <span className="font-semibold text-foreground">
+
+                      <CardDescription className="flex items-center gap-2 text-base overflow-hidden">
+                        <span className="font-semibold text-foreground shrink-0">
                           {product.brand}
                         </span>
-                        <span>•</span>
-                        <span>{product.manufacturer}</span>
+
+                        <span className="shrink-0 text-muted-foreground">
+                          •
+                        </span>
+
+                        <span
+                          className="truncate max-w-37.5 sm:max-w-50"
+                          title={product.manufacturer}
+                        >
+                          {product.manufacturer}
+                        </span>
                       </CardDescription>
                     </div>
                   </div>
@@ -283,11 +292,14 @@ const DetailProductPage = () => {
                         {product.brand}
                       </span>
                     </div>
-                    <div className="flex justify-between py-1">
-                      <span className="text-sm text-muted-foreground">
+                    <div className="flex justify-between items-center gap-4 py-1">
+                      <span className="text-sm text-muted-foreground shrink-0">
                         Manufacturer
                       </span>
-                      <span className="text-sm font-medium">
+                      <span
+                        className="text-sm font-medium truncate max-w-37.5 sm:max-w-50 text-right"
+                        title={product.manufacturer}
+                      >
                         {product.manufacturer}
                       </span>
                     </div>
@@ -394,11 +406,16 @@ const DetailProductPage = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm h-full flex flex-col justify-center">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground flex items-center gap-2 text-xs">
+                  <div className="flex justify-between items-center gap-4">
+                    <span className="text-muted-foreground flex items-center gap-2 text-xs shrink-0">
                       <Factory className="w-3.5 h-3.5" /> Manufacturer
                     </span>
-                    <span className="font-medium">{product.manufacturer}</span>
+                    <span
+                      className="font-medium truncate max-w-37.5 text-right"
+                      title={product.manufacturer}
+                    >
+                      {product.manufacturer}
+                    </span>
                   </div>
                   <Separator />
                   <div className="space-y-2">

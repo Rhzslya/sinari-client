@@ -36,7 +36,8 @@ api.interceptors.response.use(
           currentPath.startsWith("/register") ||
           currentPath.startsWith("/auth/verify") ||
           currentPath.startsWith("/auth/reset-password") ||
-          currentPath.startsWith("/forgot-password");
+          currentPath.startsWith("/forgot-password") ||
+          currentPath.startsWith("/products");
 
         if (!isLoginRequest && !isPublicPage) {
           if (errorCode === "SESSION_EXPIRED") {

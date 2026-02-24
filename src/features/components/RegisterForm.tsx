@@ -80,6 +80,7 @@ export function RegisterForm() {
       username: "",
       password: "",
       name: "",
+      secondary_number: "", //Honeypot
     },
   });
 
@@ -320,6 +321,31 @@ export function RegisterForm() {
                   </FormItem>
                 )}
               />
+
+              {/* ============================================== */}
+              {/* HONEYPOT FIELD - DONT TOUCH IT */}
+              {/* ============================================== */}
+              <div
+                className="absolute opacity-0 w-0 h-0 -z-50 overflow-hidden pointer-events-none select-none"
+                aria-hidden="true"
+              >
+                <FormField
+                  control={form.control}
+                  name="secondary_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          autoComplete="off"
+                          tabIndex={-1}
+                          placeholder="Secondary Phone Number"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <FormField
                 control={form.control}
