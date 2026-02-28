@@ -18,6 +18,8 @@ interface SidebarFiltersProps {
   setTempMaxPrice: (val: string) => void;
   updateFilter: (key: string, value: string | null) => void;
   applyPriceFilter: () => void;
+  isLoading: boolean;
+  isDatabaseEmpty: boolean;
 }
 
 export const SidebarFilters = ({
@@ -33,6 +35,8 @@ export const SidebarFilters = ({
   setTempMaxPrice,
   updateFilter,
   applyPriceFilter,
+  isLoading,
+  isDatabaseEmpty,
 }: SidebarFiltersProps) => {
   return (
     <div className="space-y-8 pr-4">
@@ -45,11 +49,12 @@ export const SidebarFilters = ({
           <Input
             type="search"
             placeholder="Cari produk"
-            className="pl-8 bg-background border-border/50 text-sm"
+            className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             onBlur={handleSearch}
+            disabled={isDatabaseEmpty || isLoading}
           />
         </div>
       </div>
@@ -62,6 +67,7 @@ export const SidebarFilters = ({
           <li>
             <button
               onClick={() => updateFilter("category", "ALL")}
+              disabled={isDatabaseEmpty || isLoading}
               className={`w-full text-left px-2 py-1.5 rounded-md transition-colors ${
                 !categoryParam
                   ? "bg-primary/10 text-primary font-semibold"
@@ -75,6 +81,7 @@ export const SidebarFilters = ({
             <li key={category}>
               <button
                 onClick={() => updateFilter("category", category)}
+                disabled={isDatabaseEmpty || isLoading}
                 className={`w-full text-left px-2 py-1.5 rounded-md transition-colors ${
                   categoryParam === category
                     ? "bg-primary/10 text-primary font-semibold"
@@ -102,6 +109,7 @@ export const SidebarFilters = ({
             min={0}
             prefix="Rp"
             placeholder="Min"
+            disabled={isDatabaseEmpty || isLoading}
           />
           <NumberStepper
             value={tempMaxPrice ? Number(tempMaxPrice) : undefined}
@@ -112,12 +120,14 @@ export const SidebarFilters = ({
             min={0}
             prefix="Rp"
             placeholder="Max"
+            disabled={isDatabaseEmpty || isLoading}
           />
           <Button
             size="sm"
             variant="secondary"
             className="w-full text-xs"
             onClick={applyPriceFilter}
+            disabled={isDatabaseEmpty || isLoading}
           >
             Terapkan Harga
           </Button>
@@ -133,6 +143,7 @@ export const SidebarFilters = ({
           {Object.values(Brand).map((brand) => (
             <button
               key={brand}
+              disabled={isDatabaseEmpty || isLoading}
               onClick={() =>
                 updateFilter("brand", brandParam === brand ? "ALL" : brand)
               }
@@ -157,10 +168,15 @@ export const SidebarFilters = ({
             onCheckedChange={(checked) =>
               updateFilter("in_stock_only", checked ? "true" : null)
             }
+            disabled={isDatabaseEmpty || isLoading}
           />
           <label
             htmlFor="in_stock"
-            className="text-sm font-medium leading-none text-muted-foreground cursor-pointer"
+            className={`text-sm font-medium leading-none ${
+              isDatabaseEmpty || isLoading
+                ? "text-muted-foreground/50 cursor-not-allowed"
+                : "text-muted-foreground cursor-pointer"
+            }`}
           >
             Hanya tampilkan stok tersedia
           </label>

@@ -141,15 +141,17 @@ const ProductPage = () => {
       return prev;
     });
   };
-
+  const isSearching = !!searchParam;
   const activeFiltersCount = [
     brandParam,
     categoryParam,
     minPriceParam,
     maxPriceParam,
     inStockOnlyParam,
-    searchParam,
   ].filter(Boolean).length;
+
+  const isFiltering = activeFiltersCount > 0;
+  const isDatabaseEmpty = products.length === 0 && !isFiltering && !isSearching;
 
   const isSortActive = (by: string, order: string) => {
     return sortByParam === by && sortOrderParam === order;
@@ -168,6 +170,8 @@ const ProductPage = () => {
     setTempMaxPrice,
     updateFilter,
     applyPriceFilter,
+    isLoading,
+    isDatabaseEmpty,
   };
 
   if (isError && !data) {
@@ -216,7 +220,11 @@ const ProductPage = () => {
               <div className="md:hidden flex-1">
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="outline" className="w-full gap-2">
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 "
+                      disabled={isDatabaseEmpty}
+                    >
                       <SlidersHorizontal className="h-4 w-4" /> Filter
                       {activeFiltersCount > 0 && `(${activeFiltersCount})`}
                     </Button>
@@ -238,6 +246,7 @@ const ProductPage = () => {
                   <Button
                     variant="ghost"
                     className="flex-1 sm:flex-none gap-2 px-3 bg-muted/30"
+                    disabled={products.length === 0}
                   >
                     Sortir{" "}
                     <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
@@ -282,7 +291,6 @@ const ProductPage = () => {
             </div>
           </div>
 
-          {/* Active Filter Badges (Pills) */}
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap items-center gap-2 mb-6">
               <span className="text-xs text-muted-foreground mr-1">Aktif:</span>

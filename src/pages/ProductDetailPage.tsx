@@ -17,10 +17,10 @@ import {
   Package,
   QrCode,
   ScanBarcode,
-  ShoppingCart,
   ShieldCheck,
-  Truck,
   AlertCircle,
+  MapPin,
+  Store,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
@@ -64,10 +64,17 @@ const ProductDetailPage = () => {
   if (isOutOfStock) stockColor = "bg-destructive";
   else if (isLowStock) stockColor = "bg-amber-500";
 
+  const handleWhatsAppClick = () => {
+    const message = `Halo Admin Sinari Cell, saya tertarik dengan produk ${product.name} yang ada di website. Apakah stoknya masih ${product.stock} unit?`;
+    const whatsappUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(
+      message,
+    )}`;
+    window.open(whatsappUrl, "_blank");
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-6 lg:px-8 max-w-7xl">
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-        {/* HEADER */}
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
@@ -82,13 +89,10 @@ const ProductDetailPage = () => {
 
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            {/* KOLOM KIRI (Main Info & Specs) */}
             <div className="xl:col-span-2 flex flex-col gap-6 h-full">
-              {/* CARD UTAMA (Gambar, Judul, Harga) */}
               <Card className="flex flex-col overflow-hidden shrink-0 shadow-sm border-border/60">
                 <CardHeader className="bg-slate-50/50 dark:bg-muted/10 pb-8 border-b">
                   <div className="flex items-start md:items-center gap-6 flex-col md:flex-row">
-                    {/* Gambar Produk */}
                     <div className="w-32 h-32 md:w-48 md:h-48 shrink-0 rounded-xl border-2 border-background shadow-sm bg-white flex items-center justify-center overflow-hidden p-4 relative">
                       {product.image_url ? (
                         <img
@@ -107,8 +111,6 @@ const ProductDetailPage = () => {
                         </div>
                       )}
                     </div>
-
-                    {/* Judul & Badge */}
                     <div className="flex-1 space-y-3 min-w-0">
                       <div className="flex items-center gap-2">
                         <Badge
@@ -134,7 +136,6 @@ const ProductDetailPage = () => {
                         <span className="shrink-0 text-muted-foreground">
                           •
                         </span>
-                        {/* Perlindungan teks spam pabrikan */}
                         <span
                           className="truncate max-w-37.5 sm:max-w-62.5 text-sm font-medium uppercase tracking-wider"
                           title={product.manufacturer}
@@ -158,9 +159,7 @@ const ProductDetailPage = () => {
                 </CardContent>
               </Card>
 
-              {/* DUA CARD BAWAH (Specs & ID) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
-                {/* Spesifikasi Card */}
                 <Card className="h-full flex flex-col shadow-sm border-border/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
@@ -196,7 +195,6 @@ const ProductDetailPage = () => {
                   </CardContent>
                 </Card>
 
-                {/* Identification / Jaminan Card */}
                 <Card className="h-full flex flex-col shadow-sm border-border/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
@@ -222,33 +220,32 @@ const ProductDetailPage = () => {
 
             {/* KOLOM KANAN (Actions, Status, Info) */}
             <div className="space-y-6 h-full flex flex-col">
-              {/* KOTAK PEMBELIAN (Quick Actions Public) */}
-              <Card className="h-fit border-t-4 border-t-primary shadow-md">
+              {/* KOTAK KONTAK / WHATSAPP */}
+              <Card className="h-fit border-t-4 border-t-green-500 shadow-md">
                 <CardHeader className="pb-4 bg-muted/10">
                   <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">
-                    Atur Pembelian
+                    Tertarik dengan produk ini?
                   </CardTitle>
+                  <CardDescription className="text-xs">
+                    Tanyakan ketersediaan dan detail lebih lanjut langsung
+                    kepada admin kami.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3 pt-6">
                   <Button
                     size="lg"
-                    className="w-full justify-center duration-300 font-bold shadow-sm"
-                    disabled={isOutOfStock}
+                    onClick={handleWhatsAppClick}
+                    className="w-full justify-center duration-300 font-bold shadow-md bg-green-600 hover:bg-green-700 text-white border-none"
                   >
-                    <ShoppingCart className="mr-2 h-5 w-5" /> Masukkan Keranjang
+                    <MessageCircle className="mr-2 h-5 w-5" /> Tanya via
+                    WhatsApp
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full justify-center duration-300 font-bold border-2 hover:bg-green-50 hover:text-green-700 hover:border-green-600 transition-colors"
-                  >
-                    <MessageCircle className="mr-2 h-5 w-5 text-green-600" />{" "}
-                    Tanya Penjual
-                  </Button>
+                  <p className="text-[10px] text-muted-foreground text-center mt-1">
+                    Atau kunjungi langsung toko offline kami.
+                  </p>
                 </CardContent>
               </Card>
 
-              {/* INVENTORY STATUS */}
               <Card className="h-fit shadow-sm border-border/60">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
@@ -265,7 +262,7 @@ const ProductDetailPage = () => {
                       {product.stock}
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mt-1">
-                      Unit Tersedia
+                      Unit di Toko
                     </p>
                   </div>
 
@@ -284,42 +281,42 @@ const ProductDetailPage = () => {
                     </div>
                     {isLowStock && !isOutOfStock && (
                       <p className="text-[11px] text-amber-600 font-medium flex items-center gap-1 mt-2">
-                        <AlertCircle className="w-3 h-3" /> Stok menipis, segera
-                        beli!
+                        <AlertCircle className="w-3 h-3" /> Stok menipis di
+                        etalase toko.
                       </p>
                     )}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* KEPERCAYAAN / METADATA */}
               <Card className="flex-1 shadow-sm border-border/60 bg-muted/10">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold flex gap-2 items-center text-muted-foreground uppercase tracking-wider">
-                    <ShieldCheck className="w-4 h-4" /> Jaminan Layanan
+                    <Store className="w-4 h-4" /> Kunjungi Kami
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm h-full flex flex-col pt-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 text-primary rounded-full">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-primary/10 text-primary rounded-full shrink-0">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">Produk Original</p>
+                      <p className="font-bold text-sm">Cek Fisik Langsung</p>
                       <p className="text-xs text-muted-foreground">
-                        Terjamin keasliannya
+                        Pastikan kualitas barang secara langsung sebelum
+                        membeli.
                       </p>
                     </div>
                   </div>
                   <Separator />
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 text-primary rounded-full">
-                      <Truck className="w-4 h-4" />
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-primary/10 text-primary rounded-full shrink-0">
+                      <MapPin className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">Pengiriman Aman</p>
+                      <p className="font-bold text-sm">Tersedia di Toko</p>
                       <p className="text-xs text-muted-foreground">
-                        Dikemas dengan standar tinggi
+                        Barang ini ada di etalase toko offline Sinari Cell.
                       </p>
                     </div>
                   </div>

@@ -72,6 +72,12 @@ export type ResendVerificationRequest = {
   identifier: string;
 };
 
+export type ChangePasswordRequest = {
+  old_password: string;
+  new_password: string;
+  confirm_new_password: string;
+};
+
 export type DetailedUserResponse = {
   id: number;
   name: string;
@@ -141,6 +147,10 @@ export type DeleteUserResponse = {
   message: string;
 };
 
+export type ChangePasswordResponse = {
+  message: string;
+};
+
 export function toUserResponse(data: UserResponse): UserResponse {
   return {
     id: data.id,
@@ -148,6 +158,7 @@ export function toUserResponse(data: UserResponse): UserResponse {
     name: data.name,
     email: data.email,
     role: data.role,
+    google_id: data.google_id,
   };
 }
 
@@ -219,6 +230,12 @@ export function toForgotPasswordResponse(data: ForgotPasswordResponse) {
 }
 
 export function toResetPasswordResponse(data: ResetPasswordResponse) {
+  return {
+    message: data.message,
+  };
+}
+
+export function toChangePasswordResponse(data: ChangePasswordResponse) {
   return {
     message: data.message,
   };

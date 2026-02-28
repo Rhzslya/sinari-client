@@ -26,6 +26,9 @@ import {
   type DeleteUserRequest,
   type VerifyUserRequest,
   type ResendVerificationRequest,
+  type ChangePasswordRequest,
+  type ChangePasswordResponse,
+  toChangePasswordResponse,
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { Validation } from "@/validation/validation";
@@ -231,5 +234,27 @@ export class AuthServices {
     );
 
     return toResetPasswordResponse(response.data.data);
+  }
+
+  static async changePassword(
+    request: ChangePasswordRequest,
+  ): Promise<ChangePasswordResponse> {
+    const changePasswordRequest = Validation.validate(
+      UserValidation.CHANGE_PASSWORD,
+      request,
+    );
+
+    const payload = {
+      old_password: changePasswordRequest.old_password,
+      new_password: changePasswordRequest.new_password,
+      confirm_new_password: changePasswordRequest.confirm_new_password,
+    };
+
+    const response = await api.patch<ApiResponse<ChangePasswordResponse>>(
+      "/users/change-password",
+      payload,
+    );
+
+    return toChangePasswordResponse(response.data.data);
   }
 }

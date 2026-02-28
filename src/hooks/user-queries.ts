@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { handleApiError } from "@/lib/utils";
 import type {
   ApiResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
   DeleteUserRequest,
   DeleteUserResponse,
   DetailedUserResponse,
@@ -106,6 +108,17 @@ export const useUserQueries = () => {
         });
       },
       onError: (error) => handleApiError(error, "Failed to restore user"),
+    }),
+
+    changePasswordMutation: useMutation({
+      mutationFn: (
+        request: ChangePasswordRequest,
+      ): Promise<ChangePasswordResponse> =>
+        AuthServices.changePassword(request),
+      onSuccess: (data) => {
+        toast.success(data.message);
+      },
+      onError: (error) => handleApiError(error, "Failed to change password"),
     }),
 
     reset: () => {

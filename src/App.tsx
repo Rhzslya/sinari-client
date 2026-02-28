@@ -26,6 +26,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import DetailUserPage from "./pages/DetailUserPage";
 import DashboardSettingPage from "./pages/DashboardSettingPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -35,11 +36,21 @@ function App() {
           path="/services/track/:identifier"
           element={<TrackServicePage />}
         />
-
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductPage />} />
           <Route path="/products/:productId" element={<ProductDetailPage />} />
+
+          <Route
+            path="*"
+            element={
+              <NotFoundPage
+                variant="minimal"
+                entityName="Page"
+                isDashboard={false}
+              />
+            }
+          />
         </Route>
 
         <Route element={<GuestRoute />}>
@@ -48,9 +59,22 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/verify" element={<VerifyPage />} />
           <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+
+          <Route
+            path="*"
+            element={
+              <NotFoundPage
+                variant="minimal"
+                entityName="Page"
+                isDashboard={false}
+              />
+            }
+          />
         </Route>
 
-        <Route element={<ProtectedRoute />}></Route>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
 
         <Route element={<AdminRoute />}>
           <Route
