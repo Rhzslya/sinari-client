@@ -118,7 +118,6 @@ export const useUserQueries = () => {
       onSuccess: (data) => {
         toast.success(data.message);
       },
-      onError: (error) => handleApiError(error, "Failed to change password"),
     }),
 
     reset: () => {
