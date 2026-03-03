@@ -79,7 +79,7 @@ const ProfilePage = () => {
               </p>
               <Badge
                 variant={user.role === "OWNER" ? "default" : "secondary"}
-                className="uppercase tracking-widest font-bold"
+                className="uppercase tracking-widest font-bold text-foreground"
               >
                 {user.role}
               </Badge>

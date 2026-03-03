@@ -29,6 +29,7 @@ export const Brand = {
 export type Brand = (typeof Brand)[keyof typeof Brand];
 
 export const Category = {
+  DEVICE: "DEVICE",
   LCD: "LCD",
   BATTERY: "BATTERY",
   CONNECTOR: "CONNECTOR",

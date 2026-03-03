@@ -78,6 +78,14 @@ export type ChangePasswordRequest = {
   confirm_new_password: string;
 };
 
+export type ContactUsRequest = {
+  name: string;
+  email: string;
+  subject: string;
+  phone_number?: string;
+  message: string;
+};
+
 export type DetailedUserResponse = {
   id: number;
   name: string;

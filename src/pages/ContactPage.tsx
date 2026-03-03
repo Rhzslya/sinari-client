@@ -1,0 +1,259 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MapPin, Phone, Mail, Clock, Loader2 } from "lucide-react";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { ContactUsRequest } from "@/model/user-model";
+import { UserValidation } from "@/validation/user-validation";
+import { useContactQueries } from "@/hooks/contact-queries";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const ContactPage = () => {
+  const { sendEmailMutation } = useContactQueries();
+  const { mutateAsync: sendEmail, isPending } = sendEmailMutation;
+
+  const form = useForm<ContactUsRequest>({
+    resolver: zodResolver(UserValidation.CONTACT_US),
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      email: "",
+      phone_number: "",
+      subject: "",
+      message: "",
+    },
+  });
+
+  const isButtonDisabled = isPending || !form.formState.isValid;
+
+  const onSubmit = async (data: ContactUsRequest) => {
+    try {
+      await sendEmail(data);
+      form.reset();
+    } catch {
+      // Error
+    }
+  };
+
+  const inputStyle =
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary";
+  const labelStyle =
+    "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+  return (
+    <div className="min-h-screen bg-background text-foreground animate-in fade-in duration-500 py-16">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+            Hubungi Kami
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Punya pertanyaan seputar kerusakan gadget atau ketersediaan suku
+            cadang? Tim kami siap membantu Anda dengan senang hati.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+          <div className="space-y-8">
+            <h2 className="text-2xl font-bold mb-6">Informasi Toko</h2>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl text-primary shrink-0">
+                <MapPin className="size-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Alamat Lengkap</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Ruko Grand Teknologi Blok A1
+                  <br />
+                  Jl. Raya Pusat Kota No. 123
+                  <br />
+                  Indonesia, 40123
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl text-primary shrink-0">
+                <Clock className="size-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Jam Operasional</h3>
+                <p className="text-muted-foreground">
+                  Senin - Sabtu: 09.00 - 21.00 WIB
+                </p>
+                <p className="text-muted-foreground">
+                  Minggu: 10.00 - 18.00 WIB
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl text-primary shrink-0">
+                <Phone className="size-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Telepon & WhatsApp</h3>
+                <p className="text-muted-foreground">0812-3456-7890</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl text-primary shrink-0">
+                <Mail className="size-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Email</h3>
+                <p className="text-muted-foreground">cs@sinaricell.com</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-muted/20 border border-border/50 rounded-3xl p-8 shadow-sm h-fit">
+            <h2 className="text-2xl font-bold mb-6">Kirim Pesan</h2>
+
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem className="relative grid gap-2 space-y-0 mb-4">
+                        <FormLabel className={labelStyle}>
+                          Nama Lengkap
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            autoComplete="off"
+                            placeholder="Masukkan nama Anda"
+                            disabled={isPending}
+                            className={inputStyle}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="relative grid gap-2 space-y-0 mb-4">
+                        <FormLabel className={labelStyle}>
+                          Alamat Email
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            autoComplete="off"
+                            type="email"
+                            placeholder="Email Kamu"
+                            disabled={isPending}
+                            className={inputStyle}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+                  <FormField
+                    control={form.control}
+                    name="phone_number"
+                    render={({ field }) => (
+                      <FormItem className="relative grid gap-2 space-y-0 mb-4">
+                        <FormLabel className={labelStyle}>
+                          Nomor WhatsApp (Opsional)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            autoComplete="off"
+                            type="tel"
+                            placeholder="Nomor Kamu"
+                            disabled={isPending}
+                            className={inputStyle}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem className="relative grid gap-2 space-y-0 mb-4">
+                        <FormLabel className={labelStyle}>
+                          Subjek Pesan
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            autoComplete="off"
+                            placeholder="Tanya Apa Saja"
+                            disabled={isPending}
+                            className={inputStyle}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem className="relative grid gap-2 space-y-0 mb-8">
+                      <FormLabel className={labelStyle}>Pesan</FormLabel>{" "}
+                      <FormControl>
+                        <textarea
+                          rows={4}
+                          placeholder="Jelaskan detail pertanyaan atau kendala gadget Anda..."
+                          disabled={isPending}
+                          className={`${inputStyle} resize-none`}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
+                  type="submit"
+                  disabled={isButtonDisabled || isPending}
+                >
+                  {isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    "Kirim Pesan"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ContactPage;

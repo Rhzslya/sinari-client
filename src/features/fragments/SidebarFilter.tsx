@@ -68,10 +68,10 @@ export const SidebarFilters = ({
             <button
               onClick={() => updateFilter("category", "ALL")}
               disabled={isDatabaseEmpty || isLoading}
-              className={`w-full text-left px-2 py-1.5 rounded-md transition-colors ${
+              className={`w-full text-left px-2 py-1.5 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                 !categoryParam
                   ? "bg-primary/10 text-primary font-semibold"
-                  : "text-muted-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:bg-muted disabled:hover:bg-transparent"
               }`}
             >
               Semua Kategori
@@ -82,10 +82,10 @@ export const SidebarFilters = ({
               <button
                 onClick={() => updateFilter("category", category)}
                 disabled={isDatabaseEmpty || isLoading}
-                className={`w-full text-left px-2 py-1.5 rounded-md transition-colors ${
+                className={`w-full text-left px-2 py-1.5 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   categoryParam === category
                     ? "bg-primary/10 text-primary font-semibold"
-                    : "text-muted-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:bg-muted disabled:hover:bg-transparent"
                 }`}
               >
                 {category}

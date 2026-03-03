@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import RateLimitFallback from "@/features/fragments/RateLimitFallback";
+import { useProductQueries } from "@/hooks/product-queries";
+import { handleApiError } from "@/lib/utils";
+import { isAxiosError } from "axios";
 import {
   Smartphone,
   Wrench,
@@ -9,12 +13,100 @@ import {
   ArrowRight,
   Star,
   ShieldCheck,
+  Package,
+  Loader2,
+  Banknote,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { formatRupiah } from "@/components/utils/formatRupiah";
+import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 
 const HomePage = () => {
+  const [searchParams] = useSearchParams();
+
+  const navigate = useNavigate();
+  const [trackingInput, setTrackingInput] = useState("");
+
+  const page = Number(searchParams.get("page")) || 1;
+  const size = Number(searchParams.get("size")) || 4;
+
+  const productQueries = useProductQueries();
+
+  const { data, isLoading, isError, error, refetch } =
+    productQueries.usePublicList({
+      page: page,
+      size: size,
+    });
+
+  const products = data?.data || [];
+
+  useEffect(() => {
+    if (isError) {
+      handleApiError(error, "Failed to load products");
+    }
+  }, [isError, error]);
+
+  const handleConsultClick = () => {
+    const phoneNumber = "6281234567890";
+    const text =
+      "Halo Sinari Cell, saya ingin konsultasi mengenai servis gadget saya.";
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
+
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const handleTrackService = () => {
+    const input = trackingInput.trim();
+    if (!input) return;
+
+    let extractedId = input;
+
+    if (extractedId.includes("/")) {
+      const parts = extractedId.split("/").filter(Boolean);
+      extractedId = parts[parts.length - 1];
+    }
+
+    navigate(`/services/track/${extractedId}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleTrackService();
+    }
+  };
+
+  if (isError && !data) {
+    if (isAxiosError(error) && error.response?.status === 429) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)(?:s| seconds)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      return <RateLimitFallback seconds={seconds} onRetry={() => refetch()} />;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <p className="text-destructive font-medium">Failed to load products.</p>
+        <p className="text-sm text-muted-foreground">
+          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+        </p>
+        <Button variant="outline" onClick={() => refetch()}>
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
+  const inputStyle =
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-12";
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col relative">
-      <section className="relative py-20 lg:py-32 overflow-hidden">
+      <section
+        id="track-srv"
+        className="relative py-20 lg:py-32 overflow-hidden"
+      >
         <div className="absolute inset-0 bg-primary/10 -z-10 skew-y-3 transform origin-top-left" />
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-primary mb-6">
@@ -28,7 +120,8 @@ const HomePage = () => {
             <Button
               size="lg"
               variant="outline"
-              className="font-semibold text-lg h-12 px-8"
+              className="font-semibold text-lg h-12 px-8 cursor-pointer"
+              onClick={handleConsultClick}
             >
               Konsultasi Servis
             </Button>
@@ -46,11 +139,19 @@ const HomePage = () => {
           <CardContent>
             <div className="flex gap-2">
               <Input
-                placeholder="Masukkan Nomor Resi / ID Servis..."
-                className="h-12 text-lg"
+                placeholder="Masukkan Nomor Resi / ID Servis"
+                className={inputStyle}
+                value={trackingInput}
+                onChange={(e) => setTrackingInput(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
-              <Button size="lg" className="h-12 aspect-square p-0">
-                <Search className="size-4" />
+              <Button
+                size="lg"
+                className="h-12 aspect-square p-0 cursor-pointer"
+                onClick={handleTrackService}
+                disabled={!trackingInput.trim()}
+              >
+                <Search className="size-6 text-foreground" />
               </Button>
             </div>
             <p className="text-center text-xs text-muted-foreground mt-3">
@@ -97,59 +198,195 @@ const HomePage = () => {
               Pilihan favorit pelanggan minggu ini
             </p>
           </div>
-          <Button variant="ghost" className="hidden md:flex gap-2">
+          <Button
+            variant="ghost"
+            className="hidden md:flex gap-2 cursor-pointer"
+            onClick={() => navigate("/products")}
+          >
             Lihat Semua <ArrowRight className="size-4" />
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((item) => (
-            <Card
-              key={item}
-              className="group cursor-pointer hover:border-primary transition-all"
-            >
-              <div className="aspect-square bg-muted rounded-t-lg relative overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground bg-secondary/50 group-hover:scale-105 transition-transform duration-300">
-                  Product Image
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-10 w-10 animate-spin text-primary/60" />
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12 bg-muted/20 rounded-2xl border border-border/40">
+            <Package className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
+            <h3 className="text-lg font-medium text-foreground">
+              Belum ada produk
+            </h3>
+            <p className="text-muted-foreground text-sm">
+              Produk akan segera ditambahkan ke katalog.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="group relative flex flex-col rounded-2xl bg-muted/20 border border-border/40 p-3 sm:p-4 transition-all duration-300 hover:bg-muted/40 hover:border-border cursor-pointer"
+                onClick={() => navigate(`/products/${product.id}`)}
+              >
+                <div className="relative aspect-square bg-slate-50 flex items-center justify-center rounded-xl overflow-hidden mb-4 transition-colors group-hover:bg-slate-100 border border-slate-100">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      loading="lazy"
+                      className="w-full h-full object-contain p-5 mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <Package className="h-16 w-16 text-slate-300 transition-transform duration-500 group-hover:scale-110" />
+                  )}
+
+                  {product.stock <= 0 && (
+                    <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
+                      <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-4 py-1.5 rounded-full shadow-sm tracking-widest">
+                        HABIS
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
-                  Diskon
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="font-semibold truncate">
-                  iPhone 15 Pro Max Case
-                </h3>
-                <p className="text-sm text-muted-foreground mb-2">Aksesoris</p>
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-primary">Rp 150.000</span>
-                  <div className="flex text-yellow-500 text-xs gap-0.5">
-                    <Star className="size-3 fill-current" /> 4.9
+
+                <div className="flex flex-col flex-1 mt-auto pt-2">
+                  <TruncatedTooltip
+                    text={product.name}
+                    className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 leading-tight mb-1.5 group-hover:text-primary transition-colors duration-300"
+                  />
+
+                  {product.manufacturer ? (
+                    <div className="mb-3 w-full">
+                      <span
+                        className="inline-block max-w-full truncate text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20"
+                        title={product.manufacturer}
+                      >
+                        {product.manufacturer}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mb-3 w-full h-5"></div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="flex flex-col border-l-2 border-primary/50 pl-2">
+                      <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
+                        Merek
+                      </span>
+                      <span className="text-xs font-semibold truncate text-foreground">
+                        {product.brand}
+                      </span>
+                    </div>
+                    <div className="flex flex-col border-l-2 border-muted pl-2">
+                      <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
+                        Kategori
+                      </span>
+                      <span className="text-xs font-semibold truncate text-foreground">
+                        {product.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto flex items-center justify-between bg-muted/40 p-2 sm:p-2.5 rounded-lg border border-border/50 group-hover:bg-primary/5 transition-colors">
+                    <span className="font-bold text-sm sm:text-base text-foreground tracking-tight">
+                      {formatRupiah(product.price)}
+                    </span>
+
+                    <div className="flex items-center text-yellow-500 text-[10px] font-bold bg-background px-2 py-1 rounded shadow-sm border border-border/50 gap-1">
+                      <Star className="size-3 fill-current" /> 4.9
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <Button variant="outline" className="w-full mt-6 md:hidden">
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Button
+          variant="outline"
+          className="w-full mt-6 md:hidden cursor-pointer"
+          onClick={() => navigate("/products")}
+        >
           Lihat Semua Produk
         </Button>
       </section>
+      <section className="py-16 container mx-auto px-4">
+        <div className="bg-primary text-foreground rounded-[2.5rem] p-8 md:p-12 lg:p-16 relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-      <section className="py-16 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-8">
-            Kenapa Memilih Sinari Cell?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col items-center">
-              <div className="p-4 bg-primary-foreground/10 rounded-full mb-4">
-                <ShieldCheck className="size-8" />
-              </div>
-              <h3 className="font-bold text-xl">Garansi Terjamin</h3>
-              <p className="text-primary-foreground/80 mt-2">
-                Setiap produk dan servis dilindungi garansi toko.
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
+            <div>
+              <h2 className="text-3xl md:text-5xl font-extrabold mb-6 leading-tight">
+                Standar Pelayanan <br /> Terbaik untuk Anda.
+              </h2>
+              <p className="text-muted text-lg mb-8 max-w-md leading-relaxed">
+                Kami berkomitmen memberikan solusi teknologi yang transparan,
+                cepat, dan dapat diandalkan. Perangkat Anda berada di tangan
+                yang tepat bersama Sinari Cell.
               </p>
+              <div className="flex items-center gap-4">
+                <div className="flex -space-x-3">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="w-10 h-10 rounded-full bg-white/20 border-2 border-primary flex items-center justify-center backdrop-blur-sm"
+                    >
+                      <Star className="size-4 text-yellow-300 fill-yellow-300" />
+                    </div>
+                  ))}
+                </div>
+                <span className="text-sm font-medium">
+                  Dipercaya oleh Ribuan Pelanggan
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors">
+                <ShieldCheck className="size-8 mb-4 text-white" />
+                <h3 className="font-bold text-lg mb-2 text-white">
+                  Jaminan Garansi
+                </h3>
+                <p className="text-muted text-sm">
+                  Ketenangan Anda adalah prioritas kami. Nikmati layanan purna
+                  jual untuk setiap perbaikan dan pembelian.
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors sm:translate-y-8">
+                <Smartphone className="size-8 mb-4 text-white" />
+                <h3 className="font-bold text-lg mb-2 text-white">
+                  Cek Status Daring
+                </h3>
+                <p className="text-muted text-sm">
+                  Pantau perkembangan progres perbaikan perangkat Anda dari mana
+                  saja melalui fitur cek resi pintar kami.
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors">
+                <Banknote className="size-8 mb-4 text-white" />
+                <h3 className="font-bold text-lg mb-2 text-white">
+                  Biaya Transparan
+                </h3>
+                <p className="text-muted text-sm">
+                  Konsultasi awal tanpa biaya. Segala estimasi harga suku cadang
+                  dan jasa akan diinformasikan sebelum pengerjaan.
+                </p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors sm:translate-y-8">
+                <Wrench className="size-8 mb-4 text-white" />
+                <h3 className="font-bold text-lg mb-2 text-white">
+                  Teknisi Berpengalaman
+                </h3>
+                <p className="text-muted text-sm">
+                  Dikerjakan secara teliti oleh para ahli teknis menggunakan
+                  peralatan khusus berstandar profesional.
+                </p>
+              </div>
             </div>
           </div>
         </div>

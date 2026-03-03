@@ -38,7 +38,13 @@ api.interceptors.response.use(
           currentPath.startsWith("/auth/reset-password") ||
           currentPath.startsWith("/forgot-password") ||
           currentPath.startsWith("/products") ||
-          currentPath.startsWith("/services/track");
+          currentPath.startsWith("/services/track") ||
+          currentPath.startsWith("/about") ||
+          currentPath.startsWith("/contact") ||
+          currentPath.startsWith("/faq") ||
+          currentPath.startsWith("/warranty") ||
+          currentPath.startsWith("/privacy") ||
+          currentPath.startsWith("/terms");
 
         if (!isLoginRequest && !isPublicPage) {
           if (errorCode === "SESSION_EXPIRED") {
