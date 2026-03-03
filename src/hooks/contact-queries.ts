@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { ContactUsRequest } from "@/model/user-model";
 import { ContactServices } from "@/services/contact-service";
+import type { ContactUsRequest } from "@/model/contact-model";
 
 export const useContactQueries = () => {
   return {

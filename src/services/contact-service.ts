@@ -1,23 +1,24 @@
-import emailjs from "@emailjs/browser";
-import type { ContactUsRequest } from "@/model/user-model";
+import type {
+  ApiResponse,
+  ContactUsRequest,
+  ContactUsResponse,
+} from "@/model/contact-model";
+import { api } from "@/lib/axios";
 
 export class ContactServices {
-  static async sendEmail(request: ContactUsRequest) {
-    const templateParams = {
-      from_name: request.name,
-      phone_number: request.phone_number || "-",
-      email: request.email,
-      subject: request.subject,
-      message: request.message,
-    };
-
-    const response = await emailjs.send(
-      import.meta.env.VITE_EMAILJS_SERVICE_ID,
-      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-      templateParams,
-      import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+  static async sendEmail(
+    request: ContactUsRequest,
+  ): Promise<ContactUsResponse> {
+    const response = await api.post<ApiResponse<boolean>>(
+      "/public/contact-us",
+      request,
+      {
+        skipGlobalErrorHandler: true,
+      },
     );
 
-    return response;
+    return {
+      message: response.data.message || "Mail sent successfully",
+    };
   }
 }

@@ -1,10 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Phone, Mail, Clock, Loader2 } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Loader2,
+  Timer,
+  Send,
+  AlertTriangle,
+} from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { ContactUsRequest } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { useContactQueries } from "@/hooks/contact-queries";
 import {
@@ -15,10 +23,27 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useCooldown } from "@/hooks/use-cooldown";
+import type { ContactUsRequest } from "@/model/contact-model";
+import { isAxiosError } from "axios";
+import { useEffect } from "react";
 
 const ContactPage = () => {
   const { sendEmailMutation } = useContactQueries();
-  const { mutateAsync: sendEmail, isPending } = sendEmailMutation;
+  const {
+    mutateAsync: sendEmail,
+    isPending,
+    isError,
+    error,
+    reset,
+  } = sendEmailMutation;
+
+  const { cooldown, startCooldown } = useCooldown("contact_form", "delay_");
+  const { cooldown: cooldownRateLimit, startCooldown: startCooldownRateLimit } =
+    useCooldown("contact_form", "ratelimit_");
+
+  const isRateLimited =
+    isError && isAxiosError(error) && error.response?.status === 429;
 
   const form = useForm<ContactUsRequest>({
     resolver: zodResolver(UserValidation.CONTACT_US),
@@ -32,16 +57,38 @@ const ContactPage = () => {
     },
   });
 
-  const isButtonDisabled = isPending || !form.formState.isValid;
+  const isButtonDisabled =
+    isPending ||
+    !form.formState.isValid ||
+    cooldown > 0 ||
+    cooldownRateLimit > 0;
 
   const onSubmit = async (data: ContactUsRequest) => {
     try {
       await sendEmail(data);
       form.reset();
+      startCooldown(120);
     } catch {
       // Error
     }
   };
+
+  useEffect(() => {
+    if (isRateLimited) {
+      const message = error.response?.data?.errors || "";
+      const match = message.match(/(\d+)/);
+      const seconds = match ? parseInt(match[1]) : 60;
+
+      if (cooldownRateLimit === 0) {
+        startCooldownRateLimit(seconds);
+        reset();
+      }
+    }
+  }, [isRateLimited, error, cooldownRateLimit, startCooldownRateLimit, reset]);
+
+  useEffect(() => {
+    return () => reset();
+  }, [reset]);
 
   const inputStyle =
     "flex w-full bg-input/50 border border-border rounded-md px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary";
@@ -124,6 +171,23 @@ const ContactPage = () => {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-4"
               >
+                {(cooldownRateLimit > 0 || isRateLimited) && (
+                  <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                    <div className="space-y-1 flex flex-col justify-center items-center">
+                      <AlertTriangle className="h-7 w-7 shrink-0" />
+                      <p className="font-semibold text-xs uppercase">
+                        Action Paused
+                      </p>
+                      <p className="text-xs opacity-90">
+                        Too many attempts. Please wait{" "}
+                        <span className="font-bold tabular-nums">
+                          {String(cooldownRateLimit).padStart(2, "0")}s
+                        </span>{" "}
+                        before trying again.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -137,7 +201,7 @@ const ContactPage = () => {
                           <Input
                             autoComplete="off"
                             placeholder="Masukkan nama Anda"
-                            disabled={isPending}
+                            disabled={isPending || cooldown > 0}
                             className={inputStyle}
                             {...field}
                           />
@@ -159,7 +223,7 @@ const ContactPage = () => {
                             autoComplete="off"
                             type="email"
                             placeholder="Email Kamu"
-                            disabled={isPending}
+                            disabled={isPending || cooldown > 0}
                             className={inputStyle}
                             {...field}
                           />
@@ -184,7 +248,7 @@ const ContactPage = () => {
                             autoComplete="off"
                             type="tel"
                             placeholder="Nomor Kamu"
-                            disabled={isPending}
+                            disabled={isPending || cooldown > 0}
                             className={inputStyle}
                             {...field}
                           />
@@ -205,7 +269,7 @@ const ContactPage = () => {
                           <Input
                             autoComplete="off"
                             placeholder="Tanya Apa Saja"
-                            disabled={isPending}
+                            disabled={isPending || cooldown > 0}
                             className={inputStyle}
                             {...field}
                           />
@@ -225,8 +289,8 @@ const ContactPage = () => {
                       <FormControl>
                         <textarea
                           rows={4}
-                          placeholder="Jelaskan detail pertanyaan atau kendala gadget Anda..."
-                          disabled={isPending}
+                          placeholder="Jelaskan detail pertanyaan atau kendala Anda"
+                          disabled={isPending || cooldown > 0}
                           className={`${inputStyle} resize-none`}
                           {...field}
                         />
@@ -237,14 +301,23 @@ const ContactPage = () => {
                 />
 
                 <Button
-                  className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
+                  className="w-1/2 md:w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300 mt-4"
                   type="submit"
-                  disabled={isButtonDisabled || isPending}
+                  disabled={isButtonDisabled}
                 >
                   {isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    </>
+                  ) : cooldown > 0 ? (
+                    <>
+                      <Timer className="mr-2 h-4 w-4 animate-pulse text-muted-foreground" />
+                      Tunggu {cooldown}s
+                    </>
                   ) : (
-                    "Kirim Pesan"
+                    <>
+                      Kirim Pesan <Send className="ml-2 size-4" />
+                    </>
                   )}
                 </Button>
               </form>
