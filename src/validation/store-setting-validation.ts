@@ -38,5 +38,10 @@ export class StoreSettingValidation {
       .string()
       .min(1, "Payment info is required")
       .max(1000, "Text is too long"),
+
+    store_hours: z
+      .string()
+      .min(1, "Store hours is required")
+      .max(500, "Text is too long"),
   });
 }

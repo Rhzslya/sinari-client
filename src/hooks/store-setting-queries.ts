@@ -5,6 +5,7 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import type {
+  StoreSettingPublicResponse,
   StoreSettingResponse,
   UpdateStoreSettingRequest,
 } from "@/model/store-setting-model";
@@ -25,6 +26,18 @@ export const useStoreSettingQueries = () => {
       return useQuery({
         queryKey: STORE_SETTING_KEYS.detail(),
         queryFn: () => StoreSettingService.get(),
+        staleTime: 1000 * 60 * 5,
+        retry: false,
+      });
+    },
+
+    useGetPublicSettings: (): UseQueryResult<
+      StoreSettingPublicResponse,
+      Error
+    > => {
+      return useQuery({
+        queryKey: STORE_SETTING_KEYS.detail(),
+        queryFn: () => StoreSettingService.getPublic(),
         staleTime: 1000 * 60 * 5,
         retry: false,
       });

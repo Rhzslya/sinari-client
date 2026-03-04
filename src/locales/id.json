@@ -1,0 +1,677 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "products": "Produk",
+    "dashboard": "Dashboard",
+    "profile": "Profil",
+    "logout": "Keluar",
+    "login": "Masuk",
+    "signup": "Daftar",
+    "sidebar": {
+      "label": "Aplikasi",
+      "overview": "Ikhtisar",
+      "users": "Pengguna",
+      "technicians": "Teknisi",
+      "products": "Produk",
+      "services": "Layanan Servis",
+      "settings": "Pengaturan"
+    }
+  },
+  "home": {
+    "hero": {
+      "title_1": "Solusi Gadget",
+      "title_2": "Terlengkap.",
+      "subtitle": "Pusat penjualan smartphone, aksesoris premium, dan layanan servis terpercaya di kota Anda.",
+      "consult_btn": "Konsultasi Servis"
+    },
+    "tracking": {
+      "title": "Cek Status Servis Anda",
+      "placeholder": "Masukkan Nomor Resi / ID Servis",
+      "example": "Contoh: SRV-2024001"
+    },
+    "services": {
+      "title": "Layanan Sinari Cell",
+      "subtitle": "Apa yang bisa kami bantu hari ini?",
+      "items": {
+        "smartphone": {
+          "title": "Smartphone & Aksesoris",
+          "desc": "Koleksi smartphone terbaru dan aksesoris original dengan garansi resmi."
+        },
+        "service_center": {
+          "title": "Service Center",
+          "desc": "Perbaikan hardware dan software yang ditangani langsung oleh teknisi bersertifikat."
+        },
+        "ppob": {
+          "title": "Pulsa & Tagihan",
+          "desc": "Layanan cepat untuk isi ulang pulsa, paket data, dan pembayaran tagihan."
+        }
+      }
+    },
+    "products": {
+      "title": "Produk Terlaris",
+      "subtitle": "Pilihan favorit pelanggan minggu ini",
+      "see_all": "Lihat Semua",
+      "see_all_mobile": "Lihat Semua Produk",
+      "empty_title": "Belum Ada Produk",
+      "empty_desc": "Produk akan segera ditambahkan ke dalam katalog kami.",
+      "out_of_stock": "HABIS",
+      "brand": "Merek",
+      "category": "Kategori"
+    },
+    "standards": {
+      "title_1": "Standar Pelayanan Terbaik",
+      "title_2": "Khusus Untuk Anda.",
+      "subtitle": "Kami berkomitmen memberikan layanan yang transparan, cepat, dan bisa diandalkan. Gadget Anda berada di tangan yang tepat bersama Sinari Cell.",
+      "trusted": "Dipercaya oleh Ribuan Pelanggan",
+      "items": {
+        "warranty": {
+          "title": "Jaminan Garansi",
+          "desc": "Kenyamanan Anda adalah prioritas kami. Nikmati layanan purna jual untuk setiap perbaikan dan pembelian."
+        },
+        "tracking": {
+          "title": "Cek Status Online",
+          "desc": "Pantau proses servis perangkat Anda dari mana saja melalui fitur cek resi pintar kami."
+        },
+        "transparent": {
+          "title": "Biaya Transparan",
+          "desc": "Konsultasi awal gratis. Seluruh estimasi biaya suku cadang dan jasa akan diinformasikan sebelum pengerjaan dimulai."
+        },
+        "technician": {
+          "title": "Teknisi Ahli",
+          "desc": "Dikerjakan dengan teliti oleh ahlinya menggunakan peralatan berstandar profesional."
+        }
+      }
+    }
+  },
+  "footer": {
+    "newsletter": {
+      "title": "Dapatkan Info Promo Spesial",
+      "subtitle": "Berlangganan buletin kami agar tidak ketinggalan info layanan dan aksesori terbaru.",
+      "placeholder": "Masukkan email Anda",
+      "processing": "Memproses...",
+      "subscribe": "Langganan",
+      "success_msg": "Berhasil berlangganan"
+    },
+    "standards": {
+      "title": "Standar Pelayanan Kami",
+      "warranty": "Jaminan Garansi",
+      "transparent": "Biaya Transparan",
+      "technician": "Teknisi Ahli",
+      "tracking": "Cek Status Online"
+    },
+    "company_desc": "Mitra terpercaya untuk perbaikan perangkat keras, pemeliharaan perangkat lunak, dan penyedia aksesoris.",
+    "links": {
+      "services": {
+        "title": "Layanan Utama",
+        "consultation": "Konsultasi Kerusakan",
+        "tracking": "Cek Status Servis",
+        "products": "Katalog Produk"
+      },
+      "customer": {
+        "title": "Informasi Pelanggan",
+        "about": "Tentang Kami",
+        "contact": "Hubungi Kami",
+        "faq": "Pusat Bantuan (FAQ)"
+      },
+      "policy": {
+        "title": "Kebijakan",
+        "warranty": "Ketentuan Garansi",
+        "privacy": "Kebijakan Privasi",
+        "terms": "Syarat & Ketentuan"
+      }
+    },
+    "copyright": "Hak Cipta Dilindungi Undang-Undang."
+  },
+  "terms": {
+    "title_1": "Ketentuan",
+    "title_2": "Layanan.",
+    "subtitle": "Lima pilar kesepakatan antara Sinari Cell dan Pelanggan untuk memastikan transaksi yang aman, nyaman, dan bebas drama.",
+    "items": {
+      "01": {
+        "title": "Pendaftaran & Biaya Diagnosa",
+        "desc": "Kami tidak memungut biaya pengecekan. Namun, jika pengerjaan dibatalkan <strong>setelah</strong> Anda menyetujui harga (dan perangkat sudah dibongkar), akan dikenakan biaya perakitan ulang minimum. Pemesanan suku cadang khusus wajib disertai DP 50%."
+      },
+      "02": {
+        "title": "Pembayaran Transaksi",
+        "desc": "Barang yang sudah diperbaiki atau dibeli wajib dilunasi sebelum dibawa pulang. Kami tidak menerima sistem kasbon/cicilan pribadi. Pembayaran valid dilakukan di area kasir toko atau transfer rekening perusahaan."
+      },
+      "03": {
+        "title": "Batas Pengambilan Unit",
+        "desc": "Perangkat maksimal diambil <strong>30 Hari</strong> setelah dikonfirmasi selesai/batal. Melewati 90 hari tanpa kabar, kami anggap barang tersebut tidak bertuan dan berhak kami lelang untuk menutupi kerugian."
+      },
+      "04": {
+        "title": "Risiko Servis Mesin",
+        "desc": "Unit yang masuk dengan riwayat <strong>mati total, terkena cairan, atau butuh servis IC/CPU</strong> memiliki risiko mati permanen atau kehilangan fitur tertentu setelah dibongkar. Teknisi kami bekerja semaksimal mungkin, namun risiko ini ditanggung sepenuhnya oleh pelanggan."
+      },
+      "05": {
+        "title": "Pengecekan Akhir (Serah Terima)",
+        "desc": "Pelanggan wajib mengetes fisik layar, kamera, dan kelengkapan lain sebelum meninggalkan kasir. Komplain mengenai retak, lecet, atau hilang setelah keluar dari area toko dianggap tidak valid."
+      }
+    },
+    "back_to_home": "Kembali ke Beranda"
+  },
+  "privacy": {
+    "title": "Privasi & Keamanan Data",
+    "subtitle": "Kami menjaga kerahasiaan data Anda sama ketatnya dengan kami menjaga perangkat Anda.",
+    "items": {
+      "01": {
+        "title": "Informasi yang Kami Kumpulkan",
+        "desc": "Kami hanya meminta Nama Lengkap, Nomor WhatsApp, dan detail kerusakan untuk keperluan pendaftaran. Kami tidak akan meminta kartu identitas (KTP) kecuali untuk kasus klaim kepemilikan perangkat dengan bukti nota yang hilang."
+      },
+      "02": {
+        "title": "Kerahasiaan Kata Sandi",
+        "desc": "Kata sandi atau pola layar Anda hanya diminta jika diperlukan untuk pengujian fungsi komponen secara menyeluruh (misal: tes sentuhan layar atau audio). Anda berhak menolak, dengan konsekuensi garansi pengetesan yang terbatas."
+      },
+      "03": {
+        "title": "Larangan Akses Data Pribadi",
+        "desc": "Standar Operasional (SOP) Teknisi Sinari Cell melarang keras akses ke aplikasi pesan, galeri foto, maupun m-banking pelanggan. Segala bentuk pelanggaran privasi oleh staf kami akan ditindak tegas secara hukum."
+      },
+      "04": {
+        "title": "Pihak Ketiga & Pemasaran",
+        "desc": "Data nomor telepon Anda murni digunakan dalam basis data internal kami untuk pelacakan resi dan layanan purna jual. Kami tidak memperjualbelikan data pelanggan kepada pihak telemarketing mana pun."
+      },
+      "05": {
+        "title": "Penggunaan Cookies",
+        "desc": "Website Sinari Cell menggunakan <i>Cookies</i> esensial dalam skala minimum yang hanya berfungsi untuk menyimpan sesi masuk (Token Login) Anda. Kami tidak menggunakan <i>cookies</i> pihak ketiga untuk melacak aktivitas penjelajahan Anda."
+      }
+    },
+    "delete_data": {
+      "title": "Hapus Data Anda",
+      "desc": "Anda memiliki hak penuh untuk meminta penghapusan nomor telepon dan data riwayat servis dari sistem kami setelah masa garansi berakhir.",
+      "btn": "Ajukan Penghapusan",
+      "email_subject": "Permohonan Anonimisasi Data Pribadi",
+      "email_body": "Halo Tim Sinari Cell,\n\nSesuai dengan kebijakan privasi yang berlaku, saya bermaksud mengajukan permohonan anonimisasi data pribadi (menyamarkan Nama dan Nomor WhatsApp) dari sistem riwayat servis toko.\n\nBerikut adalah detail transaksi saya untuk keperluan verifikasi:\n\nID Servis (SRV) :\nNama Pelanggan :\nNomor WA Terdaftar :\n\nMohon konfirmasinya melalui email ini apabila data identitas saya telah berhasil dihapus/disamarkan dari database.\n\nTerima kasih atas bantuannya."
+    }
+  },
+  "warranty": {
+    "title": "Kebijakan Garansi",
+    "subtitle": "Transparan sejak awal. Ketahui hak Anda dan bagaimana cara menjaga garansi perangkat agar tetap berlaku.",
+    "badges": {
+      "hardware": "Hardware: 30 Hari",
+      "software": "Software: 7 Hari"
+    },
+    "valid": {
+      "title": "Garansi Berlaku",
+      "desc": "Sinari Cell akan memperbaiki kembali atau mengganti suku cadang secara gratis jika:",
+      "list": {
+        "01": "Kerusakan terjadi pada <strong>komponen yang sama</strong> dengan yang diperbaiki sebelumnya.",
+        "02": "Masa waktu klaim masih berada dalam rentang masa garansi (dihitung sejak barang diambil).",
+        "03": "Membawa kelengkapan nota servis dan menyertakan bukti kendala (jika ada)."
+      }
+    },
+    "void": {
+      "title": "Garansi Hangus",
+      "desc": "Klaim garansi akan ditolak dan segala perbaikan lanjutan akan dikenakan biaya normal apabila:",
+      "list": {
+        "01": "<strong>Segel toko rusak:</strong> Segel robek, hilang, atau terlihat indikasi dibongkar.",
+        "02": "<strong>Human Error:</strong> Perangkat jatuh, terbentur, tertekan di saku, cacat fisik, atau terkena air/keringat.",
+        "03": "<strong>Intervensi pihak lain:</strong> Perangkat telah diservis di toko lain setelah dari Sinari Cell."
+      }
+    },
+    "claim": {
+      "title": "Cara Klaim Garansi",
+      "desc": "Bawa perangkat, nota asli, dan tunjukkan kendalanya ke teknisi kami.",
+      "btn": "Konsultasi Klaim"
+    }
+  },
+  "faq": {
+    "badge": "Pusat Bantuan",
+    "title": "FAQ Sinari Cell",
+    "subtitle": "Semua hal yang perlu Anda ketahui mengenai layanan, garansi, dan prosedur operasional kami.",
+    "not_found": "Belum menemukan jawaban yang tepat?",
+    "btn_msg": "Kirim Pesan",
+    "list": [
+      {
+        "question": "Berapa lama proses perbaikan perangkat?",
+        "answer": "Perbaikan ringan dapat ditunggu (1-2 jam). Untuk kerusakan perangkat keras/mesin yang berat, estimasi pengerjaan adalah 1-3 hari kerja."
+      },
+      {
+        "question": "Apakah ada garansi setelah perbaikan selesai?",
+        "answer": "Ya, kami memberikan garansi selama 30 hari untuk pergantian suku cadang dan jasa perbaikan, dengan catatan segel garansi tetap utuh."
+      },
+      {
+        "question": "Bagaimana cara melacak status perbaikan perangkat saya?",
+        "answer": "Silakan gunakan fitur 'Cek Status Servis' pada menu utama, lalu masukkan ID Resi yang diberikan oleh kasir untuk memantau perkembangannya secara langsung."
+      },
+      {
+        "question": "Metode pembayaran apa saja yang tersedia?",
+        "answer": "Sistem pembayaran kami sangat fleksibel. Anda dapat bertransaksi menggunakan Tunai, Transfer Bank (BCA, Mandiri), maupun QRIS (Gopay, OVO, DANA, dll)."
+      },
+      {
+        "question": "Apakah kerahasiaan data pribadi saya terjamin?",
+        "answer": "Sangat terjamin. Teknisi kami tidak diizinkan untuk mengakses galeri, pesan, atau data pribadi lainnya tanpa izin dari Anda. Privasi Anda adalah prioritas kami."
+      },
+      {
+        "question": "Apakah ada biaya untuk konsultasi awal?",
+        "answer": "Sama sekali tidak. Pengecekan awal dan konsultasi keluhan perangkat, baik secara langsung di toko maupun melalui WhatsApp, sepenuhnya gratis."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Hubungi Kami",
+    "subtitle": "Punya pertanyaan seputar kerusakan gadget atau ketersediaan suku cadang? Tim kami siap membantu Anda dengan senang hati.",
+    "info": {
+      "title": "Informasi Toko",
+      "address": "Alamat Lengkap",
+      "hours": "Jam Operasional",
+      "phone": "Telepon & WhatsApp",
+      "email": "Email",
+      "loading": "Memuat informasi..."
+    },
+    "form": {
+      "title": "Kirim Pesan",
+      "privacy_mode": "<strong>Mode Pengajuan Privasi:</strong> Silakan lengkapi data yang kosong pada kotak pesan di bawah (ID Servis, Nama, dan Nomor WA) agar kami dapat memverifikasi dan memproses penghapusan data Anda.",
+      "rate_limit_title": "Aksi Dijeda",
+      "rate_limit_desc": "Terlalu banyak percobaan. Harap tunggu <span class=\"font-bold tabular-nums\">{{seconds}}s</span> sebelum mencoba lagi.",
+      "labels": {
+        "name": "Nama Lengkap",
+        "email": "Alamat Email",
+        "phone": "Nomor WhatsApp (Opsional)",
+        "subject": "Subjek Pesan",
+        "message": "Pesan"
+      },
+      "placeholders": {
+        "name": "Masukkan nama Anda",
+        "email": "Email Anda",
+        "phone": "Nomor Anda",
+        "subject": "Tanya Apa Saja",
+        "message": "Jelaskan detail pertanyaan atau kendala Anda"
+      },
+      "submit": "Kirim Pesan",
+      "processing": "Memproses...",
+      "cooldown": "Tunggu {{seconds}}s"
+    }
+  },
+  "about": {
+    "title": "Kisah Perjalanan Kami",
+    "subtitle": "Sinari Cell tidak dibangun dalam semalam. Kami hadir sebagai solusi atas sulitnya menemukan layanan perbaikan perangkat yang jujur, aman, dan dapat diandalkan.",
+    "timeline": [
+      {
+        "badge": "2013",
+        "title": "Awal Mula Berdiri",
+        "desc": "Berawal dari sebuah kios sederhana, kami mulai melayani perbaikan ringan dan pemeliharaan perangkat lunak bagi masyarakat sekitar."
+      },
+      {
+        "badge": "2019",
+        "title": "Ekspansi Layanan & Produk",
+        "desc": "Seiring dengan meningkatnya kepercayaan pelanggan, kami memperluas fasilitas toko dan mulai menyediakan suku cadang orisinal serta beragam aksesoris premium."
+      },
+      {
+        "badge": "Hari Ini",
+        "title": "Transformasi Digital",
+        "desc": "Kami menghadirkan sistem pelacakan perbaikan berbasis daring (online), memungkinkan pelanggan untuk memantau status perangkat mereka dari mana saja secara transparan."
+      }
+    ]
+  },
+  "catalog": {
+    "title": "Katalog Produk",
+    "filters": {
+      "title": "Filter",
+      "active": "Aktif:",
+      "clear_all": "Hapus Semua",
+      "search": "Pencarian:",
+      "category": "Kategori:",
+      "brand": "Merek:",
+      "in_stock": "Ready Stock",
+      "price": "Harga:"
+    },
+    "sort": {
+      "title": "Sortir",
+      "newest": "Terbaru",
+      "oldest": "Terlama",
+      "price_asc": "Harga: Rendah - Tinggi",
+      "price_desc": "Harga: Tinggi - Rendah"
+    },
+    "empty": {
+      "title": "Tidak ada produk ditemukan",
+      "desc": "Coba sesuaikan filter pencarian, hapus beberapa tag, atau cari dengan kata kunci lain."
+    },
+    "product": {
+      "out_of_stock": "HABIS",
+      "brand": "Merek",
+      "category": "Kategori",
+      "stock": "Stok:"
+    },
+    "sidebar": {
+      "search": "Pencarian",
+      "search_placeholder": "Cari produk",
+      "category": "Kategori",
+      "all_categories": "Semua Kategori",
+      "price": "Harga",
+      "min": "Min",
+      "max": "Max",
+      "apply_price": "Terapkan Harga",
+      "brand_tags": "Merek (Tags)",
+      "in_stock_label": "Hanya tampilkan stok tersedia"
+    }
+  },
+  "profile": {
+    "error": {
+      "title": "Gagal memuat profil.",
+      "btn": "Ke Login"
+    },
+    "header": {
+      "title": "Pengaturan Akun",
+      "subtitle": "Kelola profil dan preferensi keamanan Anda di sini."
+    },
+    "personal_info": {
+      "title": "Detail Informasi Pribadi",
+      "name": "Nama Lengkap",
+      "username": "Username",
+      "email": "Email Terdaftar",
+      "user_id": "User ID"
+    },
+    "security": {
+      "title": "Akses & Keamanan",
+      "change_pwd_title": "Ubah Kata Sandi",
+      "change_pwd_desc": "Perbarui kata sandi Anda secara berkala untuk menjaga keamanan akun.",
+      "change_pwd_btn": "Ganti Sandi"
+    },
+    "session": {
+      "title": "Sesi Aktif",
+      "desc": "Keluar dari aplikasi pada perangkat ini.",
+      "logout_btn": "Keluar Sekarang"
+    },
+    "change_password": {
+      "trigger_btn": "Ganti Sandi",
+      "title": "Ubah Kata Sandi",
+      "desc": "Masukkan kata sandi Anda saat ini untuk verifikasi, lalu masukkan kata sandi baru.",
+      "rate_limit_title": "Aksi Dijeda",
+      "rate_limit_desc": "Terlalu banyak percobaan. Harap tunggu <span class=\"font-bold tabular-nums\">{{seconds}}s</span> sebelum mencoba lagi.",
+      "labels": {
+        "old_password": "Kata Sandi Saat Ini",
+        "new_password": "Kata Sandi Baru",
+        "confirm_password": "Konfirmasi Sandi Baru"
+      },
+      "placeholders": {
+        "old_password": "Masukkan sandi saat ini",
+        "new_password": "Masukkan sandi baru",
+        "confirm_password": "Ulangi sandi baru"
+      },
+      "btn_cancel": "Batal",
+      "btn_save": "Simpan Sandi"
+    }
+  },
+  "dashboard": {
+    "loading": "Memuat Dashboard...",
+    "error": {
+      "title": "Gagal memuat data dashboard.",
+      "btn": "Coba Lagi"
+    },
+    "header": {
+      "title": "Ringkasan Dashboard",
+      "export_btn": "Ekspor Laporan"
+    },
+    "cards": {
+      "revenue": {
+        "title": "Pendapatan Kotor (Bulan)",
+        "desc_positive": "+{{value}}% dari bulan lalu",
+        "desc_negative": "{{value}}% dari bulan lalu"
+      },
+      "profit": {
+        "title": "Laba Bersih",
+        "desc_positive": "+{{value}}% dari bulan lalu",
+        "desc_negative": "{{value}}% dari bulan lalu"
+      },
+      "products": {
+        "title": "Produk Terjual",
+        "desc": "Item terjual bulan ini"
+      },
+      "active_repairs": {
+        "title": "Servis Aktif",
+        "desc": "Sedang dalam pengerjaan"
+      },
+      "pending_queue": {
+        "title": "Antrean Menunggu",
+        "desc": "Menunggu teknisi"
+      },
+      "finished_jobs": {
+        "title": "Servis Selesai",
+        "desc": "Pekerjaan selesai periode ini"
+      }
+    },
+    "chart": {
+      "title": "Ringkasan Pendapatan",
+      "desc": "Total pemasukan dari servis selesai dan penjualan produk."
+    },
+    "activity": {
+      "title": "Aktivitas Terbaru",
+      "desc": "Pembaruan terakhir."
+    }
+  },
+  "auth": {
+    "common": {
+      "too_many_attempts": "Terlalu banyak percobaan. Harap tunggu sebelum mencoba lagi.",
+      "google_failed": "Gagal terhubung ke Google.",
+      "try_again": "Coba lagi dalam {{seconds}}s",
+      "copyright": "Hak Cipta Dilindungi Undang-Undang."
+    },
+    "login": {
+      "title": "Sinari Cell",
+      "subtitle": "Selamat datang kembali! Silakan masuk untuk melanjutkan.",
+      "identifier": "Email atau Username",
+      "password": "Kata Sandi",
+      "forgot_pwd": "Lupa kata sandi?",
+      "btn_submit": "Masuk",
+      "no_account": "Belum punya akun?",
+      "create_account": "Buat akun baru"
+    },
+    "register": {
+      "title": "Sinari Cell",
+      "subtitle": "Buat akun Anda untuk memulai",
+      "email": "Email",
+      "username": "Username",
+      "name": "Nama Lengkap",
+      "password": "Kata Sandi",
+      "btn_submit": "Daftar",
+      "have_account": "Sudah punya akun?",
+      "sign_in": "Masuk di sini"
+    },
+    "verify": {
+      "verified_title": "Akun Terverifikasi!",
+      "verified_msg": "Akun Anda sudah aktif. Silakan masuk untuk melanjutkan.",
+      "verified_reg_msg": "Akun Anda sudah aktif. Anda sekarang bisa masuk.",
+      "failed_title": "Gagal Mengirim",
+      "check_email_title": "Cek Email Anda",
+      "check_email_msg_1": "Silakan cek email Anda untuk memverifikasi akun.",
+      "check_email_msg_2": "Tautan verifikasi telah dikirim ke",
+      "registered_email": "email terdaftar Anda",
+      "not_verified_title": "Akun Belum Terverifikasi",
+      "not_verified_msg_1": "Akun Anda",
+      "not_verified_msg_2": "belum terverifikasi.",
+      "linked_email": "Email tertaut:",
+      "check_inbox": "Silakan periksa kotak masuk Anda atau klik tombol di bawah untuk mengirim ulang tautan.",
+      "reg_success_title": "Registrasi Berhasil",
+      "btn_resend": "Kirim Ulang Email Verifikasi",
+      "btn_login_now": "Masuk Sekarang",
+      "btn_back_login": "Kembali ke Login"
+    },
+    "forgot": {
+      "title": "Sinari Cell",
+      "subtitle_1": "Lupa kata sandi Anda?",
+      "subtitle_2": "Masukkan email atau username Anda di bawah ini.",
+      "identifier": "Email atau Username",
+      "btn_submit": "Kirim Tautan Reset",
+      "btn_back": "Kembali ke Login",
+      "check_email_title": "Cek Email Anda",
+      "check_email_msg_1": "Silakan periksa kotak masuk Anda untuk instruksi menyetel ulang kata sandi.",
+      "check_email_msg_2": "Tautan reset telah dikirim ke",
+      "registered_email": "email terdaftar Anda",
+      "failed_title": "Gagal Mengirim",
+      "btn_resend": "Kirim Ulang Tautan",
+      "limit_reached": "Batas Harian Tercapai"
+    },
+    "reset": {
+      "title": "Sinari Cell",
+      "subtitle": "Buat Kata Sandi Baru",
+      "invalid_link_title": "Tautan Tidak Valid",
+      "invalid_link_desc": "Tautan setel ulang kata sandi tidak valid atau tidak ditemukan. Silakan minta tautan baru.",
+      "btn_back_forgot": "Kembali ke Lupa Sandi",
+      "success_title": "Kata Sandi Diperbarui!",
+      "success_msg_1": "Kata sandi Anda telah berhasil diperbarui.",
+      "success_msg_2": "Anda sekarang dapat masuk dengan kata sandi baru Anda.",
+      "btn_go_login": "Menuju Login",
+      "missing_token": "Tautan tidak valid. Token tidak ditemukan.",
+      "failed_reset": "Gagal menyetel ulang kata sandi",
+      "placeholders": {
+        "new_password": "Kata Sandi Baru",
+        "confirm_password": "Konfirmasi Kata Sandi Baru"
+      },
+      "btn_submit": "Setel Ulang Sandi"
+    },
+    "card": {
+      "default_title": "Registrasi Berhasil",
+      "default_message": "Silakan cek email Anda untuk memverifikasi akun.",
+      "default_btn_resend": "Kirim Ulang Email Verifikasi",
+      "resend_in": "Kirim ulang dalam {{seconds}}s"
+    }
+  },
+  "not_found": {
+    "glass": {
+      "title": "{{entity}} tidak ditemukan",
+      "message": "{{entity}} dengan ID {{id}} tidak ada dalam catatan kami. Mungkin telah dihapus atau ID yang dimasukkan salah.",
+      "message_no_id": "{{entity}} tersebut tidak ada dalam catatan kami. Mungkin telah dihapus atau tautan salah.",
+      "btn_back": "Kembali",
+      "btn_home": "Beranda",
+      "btn_dashboard": "Dashboard"
+    },
+    "split": {
+      "badge": "Kesalahan 404",
+      "title": "Data Tidak Ditemukan",
+      "message": "Maaf, kami tidak dapat menemukan {{entity}}. Data mungkin telah dipindahkan, dihapus, atau Anda salah mengetik ID.",
+      "searched_id": "ID yang Dicari",
+      "btn_main": "Kembali ke {{target}}",
+      "btn_ghost": "Kembali"
+    },
+    "minimal": {
+      "title": "{{entity}} tidak ditemukan",
+      "message": "Kami tidak dapat menemukan halaman atau data yang Anda cari.",
+      "id_label": "(ID: {{id}})",
+      "btn_back": "Kembali",
+      "btn_main": "{{target}}"
+    }
+  },
+  "product_detail": {
+    "loading": "Memuat detail produk...",
+    "header": {
+      "title": "Detail Produk",
+      "subtitle": "Informasi lengkap dan spesifikasi produk"
+    },
+    "status": {
+      "out_of_stock_badge": "HABIS",
+      "out_of_stock_label": "STOK HABIS",
+      "low_stock": "Stok menipis di etalase toko."
+    },
+    "info": {
+      "price_label": "Harga Produk",
+      "specs_title": "Spesifikasi",
+      "id_title": "Identifikasi",
+      "category": "Kategori",
+      "brand": "Merek",
+      "manufacturer": "Pabrikan",
+      "sku": "SKU Produk",
+      "unit_label": "Unit di Toko"
+    },
+    "cta": {
+      "wa_card_title": "Tertarik dengan produk ini?",
+      "wa_card_desc": "Tanyakan ketersediaan dan detail lebih lanjut langsung kepada admin kami.",
+      "wa_btn": "Tanya via WhatsApp",
+      "wa_footer": "Atau kunjungi langsung toko offline kami.",
+      "wa_message": "Halo Admin Sinari Cell, saya tertarik dengan produk {{name}} yang ada di website. Apakah stoknya masih {{stock}} unit?",
+      "stock_title": "Ketersediaan Stok",
+      "stock_empty": "Habis",
+      "stock_safe": "Aman"
+    },
+    "store_info": {
+      "title": "Kunjungi Kami",
+      "physical_check": "Cek Fisik Langsung",
+      "physical_check_desc": "Pastikan kualitas barang secara langsung sebelum membeli.",
+      "available_store": "Tersedia di Toko",
+      "available_store_desc": "Barang ini ada di etalase toko offline Sinari Cell."
+    }
+  },
+  "track_service": {
+    "loading": "Melacak Layanan...",
+    "updating": "Memperbarui data terbaru...",
+    "not_found_entity": "Pelacakan Servis",
+    "invoice": {
+      "subtitle": "Layanan Perbaikan Profesional",
+      "title": "INVOICE TRACKER",
+      "info_to": "Ditujukan kepada:",
+      "inv_no": "No. Inv",
+      "date": "Tanggal",
+      "technician": "Teknisi",
+      "table": {
+        "no": "No.",
+        "desc": "Deskripsi",
+        "price": "Harga",
+        "total": "Total"
+      },
+      "footer": {
+        "terms": "Syarat & Ketentuan:",
+        "payment": "Info Pembayaran:",
+        "subtotal": "Sub Total",
+        "discount": "Diskon",
+        "dp": "Uang Muka (DP)",
+        "amount_due": "Total Tagihan",
+        "total_due": "Sisa Tagihan",
+        "refund_notice": "PEMBERITAHUAN REFUND",
+        "refund_msg": "Layanan dibatalkan. Silakan tunjukkan invoice ini ke kasir untuk pengembalian dana DP sebesar {{amount}}.",
+        "authorized_sign": "Tanda Tangan Resmi"
+      }
+    }
+  },
+  "settings": {
+    "header": {
+      "title": "Pengaturan",
+      "subtitle": "Kelola detail toko, integrasi, dan preferensi sistem Anda."
+    },
+    "tabs": {
+      "store": "Toko",
+      "policy": "Kebijakan",
+      "payment": "Pembayaran",
+      "apps": "Aplikasi"
+    },
+    "store_profile": {
+      "title": "Profil Toko",
+      "desc": "Informasi publik yang akan ditampilkan pada nota.",
+      "name": "Nama Toko",
+      "address": "Alamat",
+      "phone": "Nomor Telepon",
+      "email": "Email",
+      "hours": "Jam Operasional",
+      "hours_placeholder": "Senin - Sabtu: 09.00 - 21.00 WIB\nMinggu: Tutup"
+    },
+    "operational": {
+      "title": "Syarat & Ketentuan",
+      "desc": "Teks standar untuk bagian bawah nota (footer).",
+      "warranty_label": "Kebijakan Garansi"
+    },
+    "payment_info": {
+      "title": "Informasi Pembayaran",
+      "desc": "Akun bank atau instruksi pembayaran.",
+      "bank_label": "Detail Bank"
+    },
+    "whatsapp": {
+      "title": "Integrasi WhatsApp",
+      "desc": "Hubungkan nomor WhatsApp untuk mengirim notifikasi otomatis ke pelanggan.",
+      "idle_title": "WhatsApp Tidak Aktif",
+      "idle_desc": "Klik tombol di bawah untuk mengecek status koneksi saat ini atau memunculkan QR Code baru.",
+      "btn_check": "Cek Status / Hubungkan Perangkat",
+      "status_label": "Status",
+      "status_connected": "Terhubung",
+      "status_waiting": "Menunggu Pemindaian...",
+      "status_disconnected": "Terputus",
+      "instruction": "Gunakan WhatsApp Bisnis atau WA reguler toko Anda. Jika nomor terblokir, klik 'Disconnect' lalu scan ulang menggunakan nomor yang baru.",
+      "btn_disconnect": "Putuskan Perangkat",
+      "btn_stop": "Hentikan Polling",
+      "linked_title": "Perangkat Tertaut",
+      "linked_desc": "Siap untuk mengirim pesan",
+      "generating_qr": "Menghasilkan QR..."
+    },
+    "footer": {
+      "btn_preview": "Pratinjau Perubahan",
+      "btn_save": "Simpan Pengaturan"
+    }
+  }
+}

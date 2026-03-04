@@ -18,49 +18,51 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
-
-const items = [
-  {
-    title: "Overview",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Users",
-    url: "/dashboard/users",
-    icon: Users,
-  },
-  {
-    title: "Technicians",
-    url: "/dashboard/technicians",
-    icon: UserCog,
-  },
-  {
-    title: "Products",
-    url: "/dashboard/products",
-    icon: Package,
-  },
-  {
-    title: "Services",
-    url: "/dashboard/services",
-    icon: Wrench,
-  },
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export function AppSidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const pathname = location.pathname;
+
+  const items = [
+    {
+      title: t("nav.sidebar.overview"),
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: t("nav.sidebar.users"),
+      url: "/dashboard/users",
+      icon: Users,
+    },
+    {
+      title: t("nav.sidebar.technicians"),
+      url: "/dashboard/technicians",
+      icon: UserCog,
+    },
+    {
+      title: t("nav.sidebar.products"),
+      url: "/dashboard/products",
+      icon: Package,
+    },
+    {
+      title: t("nav.sidebar.services"),
+      url: "/dashboard/services",
+      icon: Wrench,
+    },
+    {
+      title: t("nav.sidebar.settings"),
+      url: "/dashboard/settings",
+      icon: Settings,
+    },
+  ];
 
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav.sidebar.label")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {

@@ -19,11 +19,15 @@ import { UserRole } from "@/enum/product-enum";
 import { useUserQueries } from "@/hooks/user-queries";
 import { AuthServices } from "@/services/user-services";
 import { LayoutDashboard, Loader2, LogOut, UserIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { t, i18n } = useTranslation();
+  const isId = i18n.language.startsWith("id");
 
   const { useProfile } = useUserQueries();
   const { data: user, isLoading: isLoadingUser } = useProfile();
@@ -53,6 +57,11 @@ const NavigationBar = () => {
       .join("")
       .toUpperCase()
       .substring(0, 2);
+  };
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith("id") ? "en" : "id";
+    i18n.changeLanguage(newLang);
   };
 
   const renderAuthSection = () => {
@@ -99,7 +108,7 @@ const NavigationBar = () => {
                 className="cursor-pointer"
               >
                 <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>Dashboard</span>
+                <span>{t("nav.dashboard")}</span>
               </DropdownMenuItem>
             )}
 
@@ -108,7 +117,7 @@ const NavigationBar = () => {
               className="cursor-pointer"
             >
               <UserIcon className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <span>{t("nav.profile")}</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -116,7 +125,7 @@ const NavigationBar = () => {
               className="text-destructive focus:text-destructive focus:bg-red-50 cursor-pointer"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span>{t("nav.logout")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -130,13 +139,13 @@ const NavigationBar = () => {
           variant="ghost"
           className="cursor-pointer hover:bg-white/10 text-white"
         >
-          <Link to="/login">Log in</Link>
+          <Link to="/login">{t("nav.login")}</Link>
         </Button>
         <Button
           asChild
           className="cursor-pointer bg-white text-primary hover:bg-white/90"
         >
-          <Link to="/register">Sign Up</Link>
+          <Link to="/register">{t("nav.signup")}</Link>
         </Button>
       </div>
     );
@@ -160,7 +169,7 @@ const NavigationBar = () => {
                 className={navigationMenuTriggerStyle()}
                 active={isActive("/")}
               >
-                <Link to="/">Home</Link>
+                <Link to="/">{t("nav.home")}</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
@@ -170,7 +179,7 @@ const NavigationBar = () => {
                 className={navigationMenuTriggerStyle()}
                 active={isActive("/products")}
               >
-                <Link to="/products">Products</Link>
+                <Link to="/products">{t("nav.products")}</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
@@ -184,14 +193,39 @@ const NavigationBar = () => {
                     className={navigationMenuTriggerStyle()}
                     active={isActive("/dashboard")}
                   >
-                    <Link to="/dashboard">Dashboard</Link>
+                    <Link to="/dashboard">{t("nav.dashboard")}</Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               )}
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="flex items-center gap-4">{renderAuthSection()}</div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center p-0.5 rounded-full bg-black/15 border border-white/20 cursor-pointer transition-all hover:bg-black/25 shadow-inner"
+          >
+            <span
+              className={`px-2.5 py-1 text-[10px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
+                isId
+                  ? "bg-white text-primary shadow-sm"
+                  : "text-white/70 hover:text-white"
+              }`}
+            >
+              ID
+            </span>
+            <span
+              className={`px-2.5 py-1 text-[10px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
+                !isId
+                  ? "bg-white text-primary shadow-sm"
+                  : "text-white/70 hover:text-white"
+              }`}
+            >
+              EN
+            </span>
+          </button>
+          {renderAuthSection()}
+        </div>
       </div>
     </header>
   );

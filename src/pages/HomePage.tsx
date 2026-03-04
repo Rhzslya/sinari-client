@@ -21,25 +21,48 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
+import { useRotatedPage } from "@/hooks/use-rotated";
+import { useTranslation } from "react-i18next";
+
+const CACHE_KEY = "sinari_home_featured_products";
+const CACHE_DURATION_MS = 3 * 60 * 60 * 1000;
+const MAX_PAGES = 5;
 
 const HomePage = () => {
+  const { t } = useTranslation();
+
   const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
   const [trackingInput, setTrackingInput] = useState("");
 
-  const page = Number(searchParams.get("page")) || 1;
   const size = Number(searchParams.get("size")) || 4;
+  const { page: featuredPage, updatePage } = useRotatedPage(
+    CACHE_KEY,
+    MAX_PAGES,
+    CACHE_DURATION_MS,
+  );
 
   const productQueries = useProductQueries();
 
   const { data, isLoading, isError, error, refetch } =
     productQueries.usePublicList({
-      page: page,
+      page: featuredPage,
       size: size,
     });
 
   const products = data?.data || [];
+
+  useEffect(() => {
+    if (data?.paging && data.paging.total_page > 0) {
+      if (featuredPage > data.paging.total_page) {
+        const correctedPage =
+          Math.floor(Math.random() * data.paging.total_page) + 1;
+
+        updatePage(correctedPage);
+      }
+    }
+  }, [data, featuredPage, updatePage]);
 
   useEffect(() => {
     if (isError) {
@@ -110,11 +133,11 @@ const HomePage = () => {
         <div className="absolute inset-0 bg-primary/10 -z-10 skew-y-3 transform origin-top-left" />
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-primary mb-6">
-            Solusi Gadget <span className="text-foreground">Terlengkap.</span>
+            {t("home.hero.title_1")}{" "}
+            <span className="text-foreground">{t("home.hero.title_2")}</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Pusat penjualan smartphone, aksesoris berkualitas, dan layanan
-            servis teknis terpercaya di kota Anda.
+            {t("home.hero.subtitle")}
           </p>
           <div className="flex flex-col sm:flex-row  justify-center">
             <Button
@@ -123,7 +146,7 @@ const HomePage = () => {
               className="font-semibold text-lg h-12 px-8 cursor-pointer"
               onClick={handleConsultClick}
             >
-              Konsultasi Servis
+              {t("home.hero.consult_btn")}
             </Button>
           </div>
         </div>
@@ -133,13 +156,13 @@ const HomePage = () => {
         <Card className="max-w-3xl mx-auto shadow-2xl border-primary/20 bg-card/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-center text-xl">
-              Cek Status Servis Kamu
+              {t("home.tracking.title")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2">
               <Input
-                placeholder="Masukkan Nomor Resi / ID Servis"
+                placeholder={t("home.tracking.placeholder")}
                 className={inputStyle}
                 value={trackingInput}
                 onChange={(e) => setTrackingInput(e.target.value)}
@@ -155,7 +178,7 @@ const HomePage = () => {
               </Button>
             </div>
             <p className="text-center text-xs text-muted-foreground mt-3">
-              Contoh: SRV-2024001
+              {t("home.tracking.example")}
             </p>
           </CardContent>
         </Card>
@@ -164,27 +187,29 @@ const HomePage = () => {
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-2">Layanan Sinari Cell</h2>
+            <h2 className="text-3xl font-bold mb-2">
+              {t("home.services.title")}
+            </h2>
             <p className="text-muted-foreground">
-              Apa yang bisa kami bantu hari ini?
+              {t("home.services.subtitle")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<Smartphone className="size-10 text-primary" />}
-              title="Smartphone & Aksesoris"
-              desc="Koleksi HP terbaru dan aksesoris original dengan garansi resmi."
+              title={t("home.services.items.smartphone.title")}
+              desc={t("home.services.items.smartphone.desc")}
             />
             <FeatureCard
               icon={<Wrench className="size-10 text-primary" />}
-              title="Service Center"
-              desc="Perbaikan hardware dan software ditangani oleh teknisi bersertifikat."
+              title={t("home.services.items.service_center.title")}
+              desc={t("home.services.items.service_center.desc")}
             />
             <FeatureCard
               icon={<Zap className="size-10 text-primary" />}
-              title="Pulsa & PPOB"
-              desc="Isi ulang pulsa, paket data, dan pembayaran tagihan kilat."
+              title={t("home.services.items.ppob.title")}
+              desc={t("home.services.items.ppob.desc")}
             />
           </div>
         </div>
@@ -193,9 +218,9 @@ const HomePage = () => {
       <section className="py-16 container mx-auto px-4">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h2 className="text-3xl font-bold">Produk Terlaris</h2>
+            <h2 className="text-3xl font-bold">{t("home.products.title")}</h2>
             <p className="text-muted-foreground mt-1">
-              Pilihan favorit pelanggan minggu ini
+              {t("home.products.subtitle")}
             </p>
           </div>
           <Button
@@ -203,7 +228,7 @@ const HomePage = () => {
             className="hidden md:flex gap-2 cursor-pointer"
             onClick={() => navigate("/products")}
           >
-            Lihat Semua <ArrowRight className="size-4" />
+            {t("home.products.see_all")} <ArrowRight className="size-4" />
           </Button>
         </div>
 
@@ -215,10 +240,10 @@ const HomePage = () => {
           <div className="text-center py-12 bg-muted/20 rounded-2xl border border-border/40">
             <Package className="h-12 w-12 text-muted-foreground/40 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-foreground">
-              Belum ada produk
+              {t("home.products.empty_title")}
             </h3>
             <p className="text-muted-foreground text-sm">
-              Produk akan segera ditambahkan ke katalog.
+              {t("home.products.empty_desc")}
             </p>
           </div>
         ) : (
@@ -244,7 +269,7 @@ const HomePage = () => {
                   {product.stock <= 0 && (
                     <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
                       <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-4 py-1.5 rounded-full shadow-sm tracking-widest">
-                        HABIS
+                        {t("home.products.out_of_stock")}
                       </span>
                     </div>
                   )}
@@ -272,7 +297,7 @@ const HomePage = () => {
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     <div className="flex flex-col border-l-2 border-primary/50 pl-2">
                       <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
-                        Merek
+                        {t("home.products.brand")}
                       </span>
                       <span className="text-xs font-semibold truncate text-foreground">
                         {product.brand}
@@ -280,7 +305,7 @@ const HomePage = () => {
                     </div>
                     <div className="flex flex-col border-l-2 border-muted pl-2">
                       <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
-                        Kategori
+                        {t("home.products.category")}
                       </span>
                       <span className="text-xs font-semibold truncate text-foreground">
                         {product.category}
@@ -308,7 +333,7 @@ const HomePage = () => {
           className="w-full mt-6 md:hidden cursor-pointer"
           onClick={() => navigate("/products")}
         >
-          Lihat Semua Produk
+          {t("home.products.see_all_mobile")}
         </Button>
       </section>
       <section className="py-16 container mx-auto px-4">
@@ -319,12 +344,11 @@ const HomePage = () => {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
             <div>
               <h2 className="text-3xl md:text-5xl font-extrabold mb-6 leading-tight">
-                Standar Pelayanan <br /> Terbaik untuk Anda.
+                {t("home.standards.title_1")} <br />
+                {t("home.standards.title_2")}
               </h2>
               <p className="text-muted text-lg mb-8 max-w-md leading-relaxed">
-                Kami berkomitmen memberikan solusi teknologi yang transparan,
-                cepat, dan dapat diandalkan. Perangkat Anda berada di tangan
-                yang tepat bersama Sinari Cell.
+                {t("home.standards.subtitle")}
               </p>
               <div className="flex items-center gap-4">
                 <div className="flex -space-x-3">
@@ -338,7 +362,7 @@ const HomePage = () => {
                   ))}
                 </div>
                 <span className="text-sm font-medium">
-                  Dipercaya oleh Ribuan Pelanggan
+                  {t("home.standards.trusted")}{" "}
                 </span>
               </div>
             </div>
@@ -347,44 +371,40 @@ const HomePage = () => {
               <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors">
                 <ShieldCheck className="size-8 mb-4 text-white" />
                 <h3 className="font-bold text-lg mb-2 text-white">
-                  Jaminan Garansi
+                  {t("home.standards.items.warranty.title")}{" "}
                 </h3>
                 <p className="text-muted text-sm">
-                  Ketenangan Anda adalah prioritas kami. Nikmati layanan purna
-                  jual untuk setiap perbaikan dan pembelian.
+                  {t("home.standards.items.warranty.desc")}
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors sm:translate-y-8">
                 <Smartphone className="size-8 mb-4 text-white" />
                 <h3 className="font-bold text-lg mb-2 text-white">
-                  Cek Status Daring
+                  {t("home.standards.items.tracking.title")}
                 </h3>
                 <p className="text-muted text-sm">
-                  Pantau perkembangan progres perbaikan perangkat Anda dari mana
-                  saja melalui fitur cek resi pintar kami.
+                  {t("home.standards.items.tracking.desc")}
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors">
                 <Banknote className="size-8 mb-4 text-white" />
                 <h3 className="font-bold text-lg mb-2 text-white">
-                  Biaya Transparan
+                  {t("home.standards.items.transparent.title")}
                 </h3>
                 <p className="text-muted text-sm">
-                  Konsultasi awal tanpa biaya. Segala estimasi harga suku cadang
-                  dan jasa akan diinformasikan sebelum pengerjaan.
+                  {t("home.standards.items.transparent.desc")}
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl hover:bg-white/20 transition-colors sm:translate-y-8">
                 <Wrench className="size-8 mb-4 text-white" />
                 <h3 className="font-bold text-lg mb-2 text-white">
-                  Teknisi Berpengalaman
+                  {t("home.standards.items.technician.title")}
                 </h3>
                 <p className="text-muted text-sm">
-                  Dikerjakan secara teliti oleh para ahli teknis menggunakan
-                  peralatan khusus berstandar profesional.
+                  {t("home.standards.items.technician.desc")}
                 </p>
               </div>
             </div>

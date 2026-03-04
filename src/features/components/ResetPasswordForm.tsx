@@ -26,11 +26,13 @@ import { z } from "zod";
 import { CheckEmailCard } from "../fragments/CheckEmailCard";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { isAxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 type ResetPasswordRequest = z.infer<typeof UserValidation.RESET_PASSWORD>;
 
 export function ResetPasswordForm() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
@@ -56,7 +58,7 @@ export function ResetPasswordForm() {
 
   async function onSubmit(data: ResetPasswordRequest) {
     if (!data.token) {
-      setGlobalError("Invalid link. Token is missing.");
+      setGlobalError(t("auth.reset.missing_token"));
       return;
     }
 
@@ -69,14 +71,14 @@ export function ResetPasswordForm() {
     } catch (error) {
       const message = getErrorMessage(error);
 
-      const msg = getErrorMessage(error, "Failed to reset password");
+      const msg = getErrorMessage(error, t("auth.reset.failed_reset"));
 
       if (isAxiosError(error) && error.response?.status === 429) {
         const match = message.match(/(\d+) seconds/);
         if (match && match[1]) {
           const seconds = parseInt(match[1], 10);
           startBlockCooldown(seconds);
-          setGlobalError("Too many attempts. Please wait before trying again.");
+          setGlobalError(t("auth.common.too_many_attempts"));
           return;
         }
       }
@@ -87,10 +89,13 @@ export function ResetPasswordForm() {
   }
 
   useEffect(() => {
-    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+    if (
+      blockCooldown === 0 &&
+      globalError === t("auth.common.too_many_attempts")
+    ) {
       setGlobalError(null);
     }
-  }, [blockCooldown, globalError]);
+  }, [blockCooldown, globalError, t]);
 
   if (!token) {
     return (
@@ -100,18 +105,17 @@ export function ResetPasswordForm() {
             <AlertCircle className="size-12 text-destructive" />
             <div className="space-y-2">
               <h3 className="font-bold text-lg text-destructive">
-                Invalid Link
+                {t("auth.reset.invalid_link_title")}
               </h3>
               <p className="text-muted-foreground text-sm">
-                The password reset link is invalid or missing. Please request a
-                new one.
+                {t("auth.reset.invalid_link_desc")}
               </p>
             </div>
             <Button
               variant="destructive"
               onClick={() => navigate("/forgot-password")}
             >
-              Back to Forgot Password
+              {t("auth.reset.btn_back_forgot")}
             </Button>
           </CardContent>
         </Card>
@@ -122,17 +126,17 @@ export function ResetPasswordForm() {
   if (isSuccess) {
     return (
       <CheckEmailCard
-        title="Password Reset!"
+        title={t("auth.reset.success_title")}
         variant="default"
         message={
           <>
-            Your password has been successfully updated.
+            {t("auth.reset.success_msg_1")}
             <br />
-            You can now login with your new password.
+            {t("auth.reset.success_msg_2")}
           </>
         }
-        buttonResend="Resend Password Reset Email"
-        buttonNavigate="Go to Login"
+        buttonResend=""
+        buttonNavigate={t("auth.reset.btn_go_login")}
         onActionNavigate={() => navigate("/login")}
         isDisabled={true}
       />
@@ -144,10 +148,10 @@ export function ResetPasswordForm() {
       <Card className="bg-transparent border-none shadow-none text-foreground">
         <CardHeader>
           <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
-            Sinari Cell
+            {t("auth.reset.title")}
           </CardTitle>
           <CardDescription className="text-center text-muted text-base">
-            Create New Password
+            {t("auth.reset.subtitle")}
           </CardDescription>
         </CardHeader>
 
@@ -173,7 +177,9 @@ export function ResetPasswordForm() {
                         <Input
                           autoComplete="off"
                           type={showPassword ? "text" : "password"}
-                          placeholder="New Password"
+                          placeholder={t(
+                            "auth.reset.placeholders.new_password",
+                          )}
                           {...field}
                           disabled={isLoading}
                           className="bg-foreground border-muted-foreground text-muted placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
@@ -207,7 +213,9 @@ export function ResetPasswordForm() {
                         <Input
                           autoComplete="off"
                           type={showConfirmPassword ? "text" : "password"}
-                          placeholder="Confirm New Password"
+                          placeholder={t(
+                            "auth.reset.placeholders.confirm_password",
+                          )}
                           {...field}
                           disabled={isLoading}
                           className="bg-foreground border-muted-foreground text-muted placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-0 focus-visible:ring-2 pr-10"
@@ -234,7 +242,7 @@ export function ResetPasswordForm() {
               />
 
               <Button
-                className="w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 text-foreground"
+                className="w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 text-foreground cursor-pointer"
                 type="submit"
                 disabled={!form.formState.isValid || isLoading}
               >
@@ -243,9 +251,12 @@ export function ResetPasswordForm() {
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
                 ) : blockCooldown > 0 ? (
-                  `Try again in ${blockCooldown}s`
+                  t("auth.common.try_again").replace(
+                    "{{seconds}}",
+                    String(blockCooldown),
+                  )
                 ) : (
-                  "Reset Password"
+                  t("auth.reset.btn_submit")
                 )}
               </Button>
             </form>

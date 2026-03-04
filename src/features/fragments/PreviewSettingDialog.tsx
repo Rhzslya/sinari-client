@@ -36,6 +36,7 @@ const DUMMY_SERVICE: ServiceResponse = {
   tracking_token: "TOKEN123",
   created_at: new Date(),
   updated_at: new Date(),
+  is_anonymized: false,
   technician: {
     id: 1,
     name: "Rizqi Technician",

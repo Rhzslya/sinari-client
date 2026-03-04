@@ -30,6 +30,7 @@ import type { DashboardServiceTableProps } from "@/types/type";
 import { UpdateStatusDialog } from "./UpdateStatusForm";
 import RestoreServiceForm from "./RestoreServiceForm";
 import NotFoundPage from "@/pages/NotFoundPage";
+import AnonymizeForm from "./AnonymizeForm";
 
 const DashboardServiceTable = ({
   services,
@@ -45,6 +46,8 @@ const DashboardServiceTable = ({
   const [isDeleteServiceOpen, setIsDeleteServiceOpen] = useState(false);
   const [isUpdateStatusOpen, setIsUpdateStatusOpen] = useState(false);
   const [isRestoreServiceOpen, setIsRestoreServiceOpen] = useState(false);
+  const [isAnonymizeCustomerDataOpen, setIsAnonymizeCustomerDataOpen] =
+    useState(false);
 
   const handleViewDetail = (service: ServiceResponse) => {
     navigate(`/dashboard/services/detail/${service.id}`);
@@ -68,6 +71,11 @@ const DashboardServiceTable = ({
   const handleRestoreServiceOpen = (service: ServiceResponse) => {
     setSelectedService(service);
     setIsRestoreServiceOpen(true);
+  };
+
+  const handleAnonymizeCustomerDataOpen = (service: ServiceResponse) => {
+    setSelectedService(service);
+    setIsAnonymizeCustomerDataOpen(true);
   };
 
   const getStatusBadge = (status: ServiceStatus) => {
@@ -234,6 +242,9 @@ const DashboardServiceTable = ({
                       onUpdateStatus={() => handleUpdateStatusOpen(service)}
                       onDeleteService={() => handleDeleteServiceOpen(service)}
                       onRestoreService={() => handleRestoreServiceOpen(service)}
+                      onAnonymizeCustomerData={() =>
+                        handleAnonymizeCustomerDataOpen(service)
+                      }
                       isTrashView={isTrashView ?? false}
                     />
                   </TableCell>
@@ -303,6 +314,18 @@ const DashboardServiceTable = ({
         service={selectedService}
         onSuccess={() => {
           setIsRestoreServiceOpen(false);
+          if (onSuccess) {
+            onSuccess();
+          }
+        }}
+      />
+
+      <AnonymizeForm
+        open={isAnonymizeCustomerDataOpen}
+        onOpenChange={setIsAnonymizeCustomerDataOpen}
+        service={selectedService}
+        onSuccess={() => {
+          setIsAnonymizeCustomerDataOpen(false);
           if (onSuccess) {
             onSuccess();
           }

@@ -1,7 +1,9 @@
 import { handleApiError } from "@/lib/utils";
 import type {
+  AnonymizeCustomerDataRequest,
   ApiResponse,
   CreateServiceRequest,
+  CustomerDataAnonymizationResponse,
   DeleteServiceRequest,
   DeleteServiceResponse,
   DetailedServiceRequest,
@@ -73,6 +75,20 @@ export const useServiceQueries = () => {
         queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
       },
       onError: (error) => handleApiError(error, "Failed to create service"),
+    }),
+
+    //Anonymize Customer Data
+    anonymizeCustomerDataMutation: useMutation({
+      mutationFn: (
+        request: AnonymizeCustomerDataRequest,
+      ): Promise<CustomerDataAnonymizationResponse> =>
+        RepairServices.anonymizeCustomerData(request),
+      onSuccess: (result) => {
+        toast.success(result.message);
+        queryClient.invalidateQueries({ queryKey: SERVICE_KEYS.lists() });
+      },
+      onError: (error) =>
+        handleApiError(error, "Failed to anonymize customer data"),
     }),
 
     //Delete Service

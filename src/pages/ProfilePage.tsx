@@ -16,9 +16,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AuthServices } from "@/services/user-services";
 import { ChangePasswordDialog } from "@/features/components/ChangePasswordDialog";
+import { useTranslation } from "react-i18next";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { useProfile } = useUserQueries();
   const { data: user, isLoading, isError } = useProfile();
 
@@ -30,13 +32,14 @@ const ProfilePage = () => {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+
   if (isError || !user)
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <ShieldAlert className="h-12 w-12 text-destructive/50 mb-4" />
-        <p>Gagal memuat profil.</p>
+        <p>{t("profile.error.title")}</p>
         <Button onClick={() => navigate("/login")} className="mt-4">
-          Ke Login
+          {t("profile.error.btn")}
         </Button>
       </div>
     );
@@ -55,10 +58,10 @@ const ProfilePage = () => {
     <div className="container mx-auto py-8 px-4 max-w-6xl animate-in fade-in duration-500">
       <div className="mb-8 border-b border-border pb-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Pengaturan Akun
+          {t("profile.header.title")}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Kelola profil dan preferensi keamanan Anda di sini.
+          {t("profile.header.subtitle")}
         </p>
       </div>
 
@@ -91,15 +94,16 @@ const ProfilePage = () => {
           <Card className="border-border/60 shadow-sm">
             <CardHeader className="bg-muted/10 border-b border-border/40 pb-4">
               <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" /> Detail Informasi
-                Pribadi
+                <User className="w-5 h-5 text-primary" />{" "}
+                {t("profile.personal_info.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 mb-1">
-                    <User className="w-3.5 h-3.5" /> Nama Lengkap
+                    <User className="w-3.5 h-3.5" />{" "}
+                    {t("profile.personal_info.name")}
                   </label>
                   <p className="font-medium text-foreground break-all">
                     {user.name}
@@ -107,7 +111,8 @@ const ProfilePage = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 mb-1">
-                    <AtSign className="w-3.5 h-3.5" /> Username
+                    <AtSign className="w-3.5 h-3.5" />{" "}
+                    {t("profile.personal_info.username")}
                   </label>
                   <p className="font-medium text-foreground break-all">
                     {user.username}
@@ -115,7 +120,8 @@ const ProfilePage = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 mb-1">
-                    <Mail className="w-3.5 h-3.5" /> Email Terdaftar
+                    <Mail className="w-3.5 h-3.5" />{" "}
+                    {t("profile.personal_info.email")}
                   </label>
                   <p className="font-medium text-foreground break-all">
                     {user.email}
@@ -123,7 +129,8 @@ const ProfilePage = () => {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 mb-1">
-                    <Hash className="w-3.5 h-3.5" /> User ID
+                    <Hash className="w-3.5 h-3.5" />{" "}
+                    {t("profile.personal_info.user_id")}
                   </label>
                   <p className="font-mono font-medium text-foreground bg-muted px-2 py-0.5 rounded-md w-fit">
                     #{user.id}
@@ -136,15 +143,17 @@ const ProfilePage = () => {
           <Card className="border-border/60 shadow-sm">
             <CardHeader className="bg-muted/10 border-b border-border/40 pb-4">
               <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-primary" /> Akses &
-                Keamanan
+                <ShieldCheck className="w-5 h-5 text-primary" />{" "}
+                {t("profile.security.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <p className="font-bold mb-1">Ubah Kata Sandi</p>
+                <p className="font-bold mb-1">
+                  {t("profile.security.change_pwd_title")}
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  Perbarui sandi Anda secara berkala untuk keamanan.
+                  {t("profile.security.change_pwd_desc")}
                 </p>
               </div>
               {user.google_id ? (
@@ -153,7 +162,8 @@ const ProfilePage = () => {
                   className="font-bold border-2 shrink-0 opacity-50 cursor-not-allowed"
                   disabled
                 >
-                  <Key className="w-4 h-4 mr-2" /> Ganti Sandi
+                  <Key className="w-4 h-4 mr-2" />{" "}
+                  {t("profile.security.change_pwd_btn")}
                 </Button>
               ) : (
                 <ChangePasswordDialog />
@@ -164,17 +174,20 @@ const ProfilePage = () => {
           <Card className="border-red-200 bg-red-50/30 dark:border-red-900/40 dark:bg-red-950/20 shadow-sm">
             <CardContent className="p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <p className="font-bold text-destructive mb-1">Sesi Aktif</p>
+                <p className="font-bold text-destructive mb-1">
+                  {t("profile.session.title")}
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  Keluar dari aplikasi pada perangkat ini.
+                  {t("profile.session.desc")}
                 </p>
               </div>
               <Button
                 variant="destructive"
-                className="font-bold shrink-0 shadow-sm"
+                className="font-bold shrink-0 shadow-sm cursor-pointer"
                 onClick={handleManualLogout}
               >
-                <LogOut className="w-4 h-4 mr-2" /> Logout Sekarang
+                <LogOut className="w-4 h-4 mr-2" />{" "}
+                {t("profile.session.logout_btn")}
               </Button>
             </CardContent>
           </Card>

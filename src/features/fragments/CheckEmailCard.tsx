@@ -10,6 +10,7 @@ import {
   Timer,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next"; // 👈 Import ini
 
 interface CheckEmailCardProps {
   title?: string;
@@ -25,9 +26,9 @@ interface CheckEmailCardProps {
 }
 
 export function CheckEmailCard({
-  title = "Registration Success",
-  message = "Please check your email to verify your account.",
-  buttonResend = "Resend Verification Email",
+  title,
+  message,
+  buttonResend,
   buttonNavigate,
   onActionResend,
   onActionNavigate,
@@ -36,15 +37,38 @@ export function CheckEmailCard({
   isDisabled = false,
   variant = "default",
 }: CheckEmailCardProps) {
-  const isSuccessTitle =
-    title === "Account Verified!" ||
-    title === "Registration Success" ||
-    title === "Password Reset!";
+  const { t } = useTranslation();
 
-  const isErrorTitle =
-    title === "Account Not Verified" || title === "Failed to Send";
+  const displayTitle = title || t("auth.card.default_title");
+  const displayMessage = message || t("auth.card.default_message");
+  const displayBtnResend = buttonResend || t("auth.card.default_btn_resend");
 
-  const isMailSent = title === "Check Your Email";
+  const successTitles = [
+    "Account Verified!",
+    t("auth.verify.verified_title"),
+    "Registration Success",
+    t("auth.verify.reg_success_title"),
+    "Password Reset!",
+    t("auth.reset.success_title"),
+  ];
+
+  const errorTitles = [
+    "Account Not Verified",
+    t("auth.verify.not_verified_title"),
+    "Failed to Send",
+    t("auth.verify.failed_title"),
+    t("auth.forgot.failed_title"),
+  ];
+
+  const mailSentTitles = [
+    "Check Your Email",
+    t("auth.verify.check_email_title"),
+    t("auth.forgot.check_email_title"),
+  ];
+
+  const isSuccessTitle = successTitles.includes(displayTitle);
+  const isErrorTitle = errorTitles.includes(displayTitle);
+  const isMailSent = mailSentTitles.includes(displayTitle);
 
   let titleColor = "text-foreground";
   if (isSuccessTitle) titleColor = "text-green-600";
@@ -90,7 +114,7 @@ export function CheckEmailCard({
               </div>
             )}
 
-            <span>{title}</span>
+            <span>{displayTitle}</span>
           </CardTitle>
         </CardHeader>
 
@@ -103,7 +127,7 @@ export function CheckEmailCard({
                 : "text-muted",
             )}
           >
-            {message}
+            {displayMessage}
           </div>
 
           {onActionResend && (
@@ -119,10 +143,13 @@ export function CheckEmailCard({
               ) : cooldown > 0 ? (
                 <span className="flex items-center gap-2">
                   <Timer className="size-4 animate-pulse" />
-                  Resend in {cooldown}s
+                  {t("auth.card.resend_in").replace(
+                    "{{seconds}}",
+                    String(cooldown),
+                  )}
                 </span>
               ) : (
-                buttonResend
+                displayBtnResend
               )}
             </Button>
           )}

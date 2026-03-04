@@ -23,8 +23,10 @@ import {
   ShoppingBag,
   Loader2,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const DashboardPage = () => {
+  const { t } = useTranslation();
   const { useStats } = useDashboardQueries();
   const { data: stats, isLoading, isError, error, refetch } = useStats();
 
@@ -38,7 +40,9 @@ const DashboardPage = () => {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">Loading Dashboard...</span>
+        <span className="ml-2 text-muted-foreground">
+          {t("dashboard.loading")}
+        </span>
       </div>
     );
   }
@@ -55,13 +59,13 @@ const DashboardPage = () => {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
         <p className="text-destructive font-medium">
-          Failed to load dashboard data.
+          {t("dashboard.error.title")}
         </p>
         <p className="text-sm text-muted-foreground">
           {isAxiosError(error) ? error.message : "Unknown error occurred"}
         </p>
         <Button variant="outline" onClick={() => refetch()}>
-          Try Again
+          {t("dashboard.error.btn")}
         </Button>
       </div>
     );
@@ -82,19 +86,18 @@ const DashboardPage = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <DashboardHeader title="Dashboard Overview">
+      <DashboardHeader title={t("dashboard.header.title")}>
         <Button variant="outline" size="sm">
           <Download className="mr-2 h-4 w-4" />
-          Export Report
+          {t("dashboard.header.export_btn")}
         </Button>
       </DashboardHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* CARD 1: GROSS REVENUE */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Gross Revenue (Month)
+              {t("dashboard.cards.revenue.title")}
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -105,8 +108,13 @@ const DashboardPage = () => {
             <p
               className={`text-xs mt-1 ${isRevenuePositive ? "text-emerald-600" : "text-red-600"}`}
             >
-              {isRevenuePositive ? "+" : ""}
-              {revenueGrowth.toFixed(1)}% from last month
+              {isRevenuePositive
+                ? t("dashboard.cards.revenue.desc_positive", {
+                    value: revenueGrowth.toFixed(1),
+                  })
+                : t("dashboard.cards.revenue.desc_negative", {
+                    value: revenueGrowth.toFixed(1),
+                  })}
             </p>
           </CardContent>
         </Card>
@@ -115,7 +123,7 @@ const DashboardPage = () => {
         <Card className="border-emerald-500/20 bg-emerald-50/10 dark:bg-emerald-950/10">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              Net Profit
+              {t("dashboard.cards.profit.title")}
             </CardTitle>
             <Wallet className="h-4 w-4 text-emerald-600" />
           </CardHeader>
@@ -126,8 +134,13 @@ const DashboardPage = () => {
             <p
               className={`text-xs mt-1 ${isProfitPositive ? "text-emerald-600" : "text-red-600"}`}
             >
-              {isProfitPositive ? "+" : ""}
-              {profitGrowth.toFixed(1)}% from last month
+              {isProfitPositive
+                ? t("dashboard.cards.profit.desc_positive", {
+                    value: profitGrowth.toFixed(1),
+                  })
+                : t("dashboard.cards.profit.desc_negative", {
+                    value: profitGrowth.toFixed(1),
+                  })}
             </p>
           </CardContent>
         </Card>
@@ -135,7 +148,9 @@ const DashboardPage = () => {
         {/* CARD 3: PRODUCTS SOLD  */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Products Sold</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.cards.products.title")}
+            </CardTitle>
             <ShoppingBag className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
@@ -143,7 +158,7 @@ const DashboardPage = () => {
               +{safeStats.cards.products_sold}
             </div>
             <p className="text-xs text-muted-foreground">
-              Items sold this month
+              {t("dashboard.cards.products.desc")}
             </p>
           </CardContent>
         </Card>
@@ -152,7 +167,7 @@ const DashboardPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Repairs
+              {t("dashboard.cards.active_repairs.title")}
             </CardTitle>
             <Activity className="h-4 w-4 text-blue-500" />
           </CardHeader>
@@ -161,7 +176,7 @@ const DashboardPage = () => {
               {safeStats.cards.active_services}
             </div>
             <p className="text-xs text-muted-foreground">
-              Currently in progress
+              {t("dashboard.cards.active_repairs.desc")}
             </p>
           </CardContent>
         </Card>
@@ -169,7 +184,9 @@ const DashboardPage = () => {
         {/* CARD 5: PENDING QUEUE */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Queue</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.cards.pending_queue.title")}
+            </CardTitle>
             <Wrench className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
@@ -177,7 +194,7 @@ const DashboardPage = () => {
               {safeStats.cards.pending_queue}
             </div>
             <p className="text-xs text-muted-foreground">
-              Waiting for technician
+              {t("dashboard.cards.pending_queue.desc")}
             </p>
           </CardContent>
         </Card>
@@ -185,7 +202,9 @@ const DashboardPage = () => {
         {/* CARD 6: FINISHED JOBS */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Finished Jobs</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.cards.finished_jobs.title")}
+            </CardTitle>
             <Users className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -193,7 +212,7 @@ const DashboardPage = () => {
               +{safeStats.cards.finished_jobs}
             </div>
             <p className="text-xs text-muted-foreground">
-              Jobs completed this period
+              {t("dashboard.cards.finished_jobs.desc")}
             </p>
           </CardContent>
         </Card>
@@ -202,10 +221,8 @@ const DashboardPage = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Revenue Overview</CardTitle>
-            <CardDescription>
-              Total income from finished services and product sales.
-            </CardDescription>
+            <CardTitle>{t("dashboard.chart.title")}</CardTitle>
+            <CardDescription>{t("dashboard.chart.desc")}</CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
             <OverviewChart data={safeStats.chart_data} />
@@ -214,8 +231,8 @@ const DashboardPage = () => {
 
         <Card className="col-span-2">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates.</CardDescription>
+            <CardTitle>{t("dashboard.activity.title")}</CardTitle>
+            <CardDescription>{t("dashboard.activity.desc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <RecentActivity data={safeStats.recent_activity} />

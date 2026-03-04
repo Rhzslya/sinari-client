@@ -26,9 +26,11 @@ import { CheckEmailCard } from "../fragments/CheckEmailCard";
 import type { ForgotPasswordRequest } from "@/model/user-model";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { isAxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 export function ForgotPasswordForm() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
   const [globalError, setGlobalError] = useState<string | null>(null);
@@ -78,7 +80,7 @@ export function ForgotPasswordForm() {
         if (match && match[1]) {
           const seconds = parseInt(match[1], 10);
           startBlockCooldown(seconds);
-          setGlobalError("Too many attempts. Please wait before trying again.");
+          setGlobalError(t("auth.common.too_many_attempts"));
           return;
         }
       }
@@ -160,15 +162,22 @@ export function ForgotPasswordForm() {
   };
 
   useEffect(() => {
-    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+    if (
+      blockCooldown === 0 &&
+      globalError === t("auth.common.too_many_attempts")
+    ) {
       setGlobalError(null);
     }
-  }, [blockCooldown, globalError]);
+  }, [blockCooldown, globalError, t]);
 
   if (isSuccess) {
     return (
       <CheckEmailCard
-        title={cardError ? "Failed to Send" : "Check Your Email"}
+        title={
+          cardError
+            ? t("auth.forgot.failed_title")
+            : t("auth.forgot.check_email_title")
+        }
         message={
           cardError ? (
             <div className="text-center">
@@ -180,18 +189,23 @@ export function ForgotPasswordForm() {
           ) : (
             <div className="text-center">
               <span>
-                Please check your email address for instructions to reset your
-                password.
-                <br />A reset link has been sent to{" "}
-                <strong>{email ? email : "your registered email"}</strong>.
+                {t("auth.forgot.check_email_msg_1")}
+                <br />
+                {t("auth.forgot.check_email_msg_2")}{" "}
+                <strong>
+                  {email ? email : t("auth.forgot.registered_email")}
+                </strong>
+                .
               </span>
             </div>
           )
         }
         buttonResend={
-          isDailyLimit ? "Daily Limit Reached" : "Resend Reset Link"
+          isDailyLimit
+            ? t("auth.forgot.limit_reached")
+            : t("auth.forgot.btn_resend")
         }
-        buttonNavigate="Back to Login"
+        buttonNavigate={t("auth.forgot.btn_back")}
         onActionResend={handleResend}
         onActionNavigate={handleBackToLogin}
         isLoading={resendLoading}
@@ -206,12 +220,12 @@ export function ForgotPasswordForm() {
       <Card className="bg-card-foreground border-none shadow-xl shadow-black/5">
         <CardHeader className="space-y-1">
           <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
-            Sinari Cell
+            {t("auth.forgot.title")}
           </CardTitle>
           <CardDescription className="text-center text-muted text-base">
-            Forgot your password?
+            {t("auth.forgot.subtitle_1")}
             <br />
-            Enter your email or username below.
+            {t("auth.forgot.subtitle_2")}
           </CardDescription>
         </CardHeader>
         <CardContent className="relative mt-6">
@@ -234,7 +248,7 @@ export function ForgotPasswordForm() {
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="Email or Username"
+                        placeholder={t("auth.forgot.identifier")}
                         {...field}
                         disabled={isLoading}
                         className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
@@ -260,9 +274,12 @@ export function ForgotPasswordForm() {
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
                 ) : blockCooldown > 0 ? (
-                  `Try again in ${blockCooldown}s`
+                  t("auth.common.try_again").replace(
+                    "{{seconds}}",
+                    String(blockCooldown),
+                  )
                 ) : (
-                  "Send Reset Link"
+                  t("auth.forgot.btn_submit")
                 )}
               </Button>
             </form>
@@ -275,7 +292,7 @@ export function ForgotPasswordForm() {
               onClick={handleBackToLogin}
             >
               <ArrowLeft className="size-4" />
-              Back to Login
+              {t("auth.forgot.btn_back")}
             </button>
           </div>
         </CardContent>

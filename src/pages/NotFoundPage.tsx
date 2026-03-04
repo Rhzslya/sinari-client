@@ -9,6 +9,7 @@ import {
   CloudOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface NotFoundPageProps {
   id?: string | number;
@@ -28,13 +29,17 @@ const NotFoundPage = ({
   onGoBack,
 }: NotFoundPageProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const targetUrl = backUrl || (isDashboard ? "/dashboard" : "/");
-  const buttonLabel = isDashboard ? "Dashboard" : "Home";
+  const buttonLabel = isDashboard
+    ? t("not_found.glass.btn_dashboard")
+    : t("not_found.glass.btn_home");
   const ButtonIcon = isDashboard ? LayoutDashboard : Home;
 
   const heightClass = isDashboard ? "h-full py-12" : "min-h-screen";
 
+  // Varian GLASS
   if (variant === "glass") {
     return (
       <div
@@ -46,7 +51,7 @@ const NotFoundPage = ({
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10 opacity-30">
           <div className="absolute h-75 w-75 rounded-full border border-muted-foreground/20" />
           <div className="absolute h-112.5 w-112.5 rounded-full border border-muted-foreground/20" />
-          <div className="absolute h-150 w-150rounded-full border border-muted-foreground/20" />
+          <div className="absolute h-150 w-150 rounded-full border border-muted-foreground/20" />
           <div className="absolute inset-0 bg-[radial-gradient(hsl(var(--border))_1px,transparent_1px)] bg-size-[20px_20px] mask-[radial-gradient(ellipse_60%_60%_at_50%_50%,#000_10%,transparent_100%)]" />
         </div>
 
@@ -58,18 +63,13 @@ const NotFoundPage = ({
           </div>
 
           <h1 className="mb-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            We couldn't find that {entityName.toLowerCase()}
+            {t("not_found.glass.title", { entity: entityName })}
           </h1>
 
           <p className="mb-8 text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
-            The {entityName.toLowerCase()}{" "}
-            {id && (
-              <span className="font-mono text-foreground bg-muted px-1 rounded border border-border">
-                #{id}
-              </span>
-            )}{" "}
-            is missing from our records. It may have been deleted or the ID is
-            incorrect.
+            {id
+              ? t("not_found.glass.message", { entity: entityName, id: id })
+              : t("not_found.glass.message_no_id", { entity: entityName })}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -80,7 +80,7 @@ const NotFoundPage = ({
               className="min-w-30 border-border text-foreground hover:bg-muted cursor-pointer duration-300"
             >
               <MoveLeft className="mr-2 h-4 w-4" />
-              Go Back
+              {t("not_found.glass.btn_back")}
             </Button>
             <Button
               variant="default"
@@ -96,6 +96,8 @@ const NotFoundPage = ({
       </div>
     );
   }
+
+  // Varian SPLIT
   if (variant === "split") {
     return (
       <div
@@ -108,20 +110,19 @@ const NotFoundPage = ({
           <div className="max-w-md mx-auto lg:mx-0">
             <div className="mb-6 inline-flex items-center rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-500">
               <CloudOff className="mr-1.5 h-3.5 w-3.5" />
-              404 Error
+              {t("not_found.split.badge")}
             </div>
             <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-              Missing Data
+              {t("not_found.split.title")}
             </h1>
             <p className="mb-8 text-lg text-muted-foreground">
-              Sorry, we couldn't locate the {entityName.toLowerCase()}. It might
-              have been moved, deleted, or you may have mistyped the ID.
+              {t("not_found.split.message", { entity: entityName })}
             </p>
 
             {id && (
               <div className="mb-8 rounded-lg border border-dashed border-border bg-muted/30 p-4">
                 <p className="text-xs font-bold uppercase text-muted-foreground">
-                  Searched ID
+                  {t("not_found.split.searched_id")}
                 </p>
                 <p className="font-mono text-lg font-medium text-foreground">
                   {id}
@@ -136,7 +137,7 @@ const NotFoundPage = ({
                 onClick={() => navigate(targetUrl)}
                 className="rounded-full px-8 text-foreground cursor-pointer duration-300"
               >
-                Back to {buttonLabel}
+                {t("not_found.split.btn_main", { target: buttonLabel })}
               </Button>
               <Button
                 variant="ghost"
@@ -144,7 +145,7 @@ const NotFoundPage = ({
                 onClick={() => (onGoBack ? onGoBack() : navigate(-1))}
                 className="rounded-full text-muted-foreground hover:text-foreground cursor-pointer duration-300"
               >
-                Go Back
+                {t("not_found.split.btn_ghost")}
               </Button>
             </div>
           </div>
@@ -167,6 +168,7 @@ const NotFoundPage = ({
     );
   }
 
+  // Varian MINIMAL (Default)
   return (
     <div
       className={cn(
@@ -179,11 +181,11 @@ const NotFoundPage = ({
       </h1>
       <div className="relative -mt-12 sm:-mt-16 md:-mt-20 space-y-4">
         <h2 className="text-3xl font-bold tracking-tighter text-foreground sm:text-4xl">
-          {entityName} not found
+          {t("not_found.minimal.title", { entity: entityName })}
         </h2>
         <p className="mx-auto max-w-125 text-muted-foreground md:text-lg">
-          We can't seem to find the page or data you're looking for.
-          {id && <span> (ID: {id})</span>}
+          {t("not_found.minimal.message")}
+          {id && <span> {t("not_found.minimal.id_label", { id: id })}</span>}
         </p>
 
         <div className="flex items-center justify-center gap-4 pt-4">
@@ -192,14 +194,14 @@ const NotFoundPage = ({
             variant="link"
             className="text-foreground underline-offset-4 cursor-pointer duration-300"
           >
-            Go Back
+            {t("not_found.minimal.btn_back")}
           </Button>
           <span className="text-border">|</span>
           <Button
             onClick={() => navigate(targetUrl)}
             className="rounded-full px-8 font-semibold text-foreground cursor-pointer duration-300"
           >
-            {buttonLabel}
+            {t("not_found.minimal.btn_main", { target: buttonLabel })}
           </Button>
         </div>
       </div>

@@ -1,7 +1,9 @@
 import { api } from "@/lib/axios";
 import {
+  toStoreSettingPublicResponse,
   toStoreSettingResponse,
   type ApiResponse,
+  type StoreSettingPublicResponse,
   type StoreSettingResponse,
   type UpdateStoreSettingRequest,
 } from "@/model/store-setting-model";
@@ -30,5 +32,13 @@ export class StoreSettingService {
       await api.get<ApiResponse<StoreSettingResponse>>("/store-setting");
 
     return toStoreSettingResponse(response.data.data);
+  }
+
+  static async getPublic(): Promise<StoreSettingPublicResponse> {
+    const response = await api.get<ApiResponse<StoreSettingPublicResponse>>(
+      "/public/store-setting",
+    );
+
+    return toStoreSettingPublicResponse(response.data.data);
   }
 }

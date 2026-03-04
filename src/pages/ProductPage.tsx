@@ -28,8 +28,11 @@ import { PaginationComponent } from "@/features/fragments/Pagination";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarFilters } from "@/features/fragments/SidebarFilter";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
+import { useTranslation } from "react-i18next";
 
 const ProductPage = () => {
+  const { t } = useTranslation();
+
   const [searchParams, setSearchParams] = useSearchParams();
 
   // --- QUERY PARAMS ---
@@ -202,7 +205,8 @@ const ProductPage = () => {
         <aside className="hidden md:block w-64 shrink-0 border-r border-border/40 min-h-[80vh]">
           <div className="sticky top-8">
             <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-              <SlidersHorizontal className="h-5 w-5" /> Filters
+              <SlidersHorizontal className="h-5 w-5" />{" "}
+              {t("catalog.filters.title")}
             </h2>
             <SidebarFilters {...sidebarProps} />
           </div>
@@ -212,7 +216,7 @@ const ProductPage = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Katalog Produk
+                {t("catalog.title")}
               </h1>
             </div>
 
@@ -225,7 +229,8 @@ const ProductPage = () => {
                       className="w-full gap-2 "
                       disabled={isDatabaseEmpty}
                     >
-                      <SlidersHorizontal className="h-4 w-4" /> Filter
+                      <SlidersHorizontal className="h-4 w-4" />{" "}
+                      {t("catalog.filters.title")}
                       {activeFiltersCount > 0 && `(${activeFiltersCount})`}
                     </Button>
                   </SheetTrigger>
@@ -234,7 +239,9 @@ const ProductPage = () => {
                     className="w-[85vw] sm:w-87.5 overflow-y-auto"
                   >
                     <div className="py-6">
-                      <h2 className="text-lg font-bold mb-6">Filters</h2>
+                      <h2 className="text-lg font-bold mb-6">
+                        {t("catalog.filters.title")}
+                      </h2>
                       <SidebarFilters {...sidebarProps} />
                     </div>
                   </SheetContent>
@@ -248,7 +255,7 @@ const ProductPage = () => {
                     className="flex-1 sm:flex-none gap-2 px-3 bg-muted/30"
                     disabled={products.length === 0}
                   >
-                    Sortir{" "}
+                    {t("catalog.sort.title")}{" "}
                     <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -256,7 +263,7 @@ const ProductPage = () => {
                   <DropdownMenuItem
                     onClick={() => handleSortChange("created_at", "desc")}
                   >
-                    Terbaru{" "}
+                    {t("catalog.sort.newest")}{" "}
                     {isSortActive("created_at", "desc") && (
                       <Check className="ml-auto h-4 w-4" />
                     )}
@@ -264,7 +271,7 @@ const ProductPage = () => {
                   <DropdownMenuItem
                     onClick={() => handleSortChange("created_at", "asc")}
                   >
-                    Terlama{" "}
+                    {t("catalog.sort.oldest")}{" "}
                     {isSortActive("created_at", "asc") && (
                       <Check className="ml-auto h-4 w-4" />
                     )}
@@ -273,7 +280,7 @@ const ProductPage = () => {
                   <DropdownMenuItem
                     onClick={() => handleSortChange("price", "asc")}
                   >
-                    Harga: Rendah - Tinggi{" "}
+                    {t("catalog.sort.price_asc")}{" "}
                     {isSortActive("price", "asc") && (
                       <Check className="ml-auto h-4 w-4" />
                     )}
@@ -281,7 +288,7 @@ const ProductPage = () => {
                   <DropdownMenuItem
                     onClick={() => handleSortChange("price", "desc")}
                   >
-                    Harga: Tinggi - Rendah{" "}
+                    {t("catalog.sort.price_desc")}{" "}
                     {isSortActive("price", "desc") && (
                       <Check className="ml-auto h-4 w-4" />
                     )}
@@ -293,14 +300,16 @@ const ProductPage = () => {
 
           {activeFiltersCount > 0 && (
             <div className="flex flex-wrap items-center gap-2 mb-6">
-              <span className="text-xs text-muted-foreground mr-1">Aktif:</span>
+              <span className="text-xs text-muted-foreground mr-1">
+                {t("catalog.filters.active")}
+              </span>
 
               {searchParam && (
                 <Badge
                   variant="secondary"
                   className="px-3 py-1 font-normal text-xs bg-muted/50 gap-1.5 rounded-md flex items-center"
                 >
-                  Pencarian: {searchParam}
+                  {t("catalog.filters.search")} {searchParam}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -310,7 +319,6 @@ const ProductPage = () => {
                       setSearchTerm("");
                     }}
                     className="ml-1 rounded-full hover:bg-muted p-0.5 focus:outline-none"
-                    aria-label="Hapus pencarian"
                   >
                     <X className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
                   </button>
@@ -322,7 +330,7 @@ const ProductPage = () => {
                   variant="secondary"
                   className="px-3 py-1 font-normal text-xs bg-muted/50 gap-1.5 rounded-md flex items-center"
                 >
-                  Kategori: {categoryParam}
+                  {t("catalog.filters.category")} {categoryParam}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -331,7 +339,6 @@ const ProductPage = () => {
                       updateFilter("category", null);
                     }}
                     className="ml-1 rounded-full hover:bg-muted p-0.5 focus:outline-none"
-                    aria-label="Hapus filter kategori"
                   >
                     <X className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
                   </button>
@@ -343,7 +350,7 @@ const ProductPage = () => {
                   variant="secondary"
                   className="px-3 py-1 font-normal text-xs bg-muted/50 gap-1.5 rounded-md flex items-center"
                 >
-                  Merek: {brandParam}
+                  {t("catalog.filters.brand")} {brandParam}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -352,7 +359,6 @@ const ProductPage = () => {
                       updateFilter("brand", null);
                     }}
                     className="ml-1 rounded-full hover:bg-muted p-0.5 focus:outline-none"
-                    aria-label="Hapus filter merek"
                   >
                     <X className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
                   </button>
@@ -364,7 +370,7 @@ const ProductPage = () => {
                   variant="secondary"
                   className="px-3 py-1 font-normal text-xs bg-muted/50 gap-1.5 rounded-md flex items-center"
                 >
-                  Ready Stock
+                  {t("catalog.filters.in_stock")}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -373,7 +379,6 @@ const ProductPage = () => {
                       updateFilter("in_stock_only", null);
                     }}
                     className="ml-1 rounded-full hover:bg-muted p-0.5 focus:outline-none"
-                    aria-label="Hapus filter stok"
                   >
                     <X className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
                   </button>
@@ -385,7 +390,7 @@ const ProductPage = () => {
                   variant="secondary"
                   className="px-3 py-1 font-normal text-xs bg-muted/50 gap-1.5 rounded-md flex items-center"
                 >
-                  Harga:{" "}
+                  {t("catalog.filters.price")}{" "}
                   {minPriceParam ? formatRupiah(Number(minPriceParam)) : "Rp 0"}{" "}
                   - {maxPriceParam ? formatRupiah(Number(maxPriceParam)) : "~"}
                   <button
@@ -403,7 +408,6 @@ const ProductPage = () => {
                       });
                     }}
                     className="ml-1 rounded-full hover:bg-muted p-0.5 focus:outline-none"
-                    aria-label="Hapus filter harga"
                   >
                     <X className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
                   </button>
@@ -418,7 +422,7 @@ const ProductPage = () => {
                 }}
                 className="text-xs text-muted-foreground hover:text-foreground ml-2 underline underline-offset-2 focus:outline-none"
               >
-                Hapus Semua
+                {t("catalog.filters.clear_all")}
               </button>
             </div>
           )}
@@ -431,11 +435,10 @@ const ProductPage = () => {
             <div className="flex flex-col items-center justify-center h-[50vh] rounded-2xl border border-dashed border-border bg-muted/10">
               <PackageSearch className="h-12 w-12 text-muted-foreground/40 mb-4" />
               <h3 className="text-lg font-medium">
-                Tidak ada produk ditemukan
+                {t("catalog.empty.title")}
               </h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-sm text-center">
-                Coba sesuaikan filter pencarian, hapus beberapa tag, atau cari
-                dengan kata kunci lain.
+                {t("catalog.empty.desc")}
               </p>
             </div>
           ) : (
@@ -462,13 +465,12 @@ const ProductPage = () => {
                       {product.stock <= 0 && (
                         <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
                           <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-4 py-1.5 rounded-full shadow-sm tracking-widest">
-                            HABIS
+                            {t("catalog.product.out_of_stock")}
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="flex flex-col flex-1 mt-auto pt-2">
-                      {/* Title */}
                       <TruncatedTooltip
                         text={product.name}
                         className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 leading-tight mb-1.5 group-hover:text-primary transition-colors duration-300"
@@ -487,7 +489,7 @@ const ProductPage = () => {
                       <div className="grid grid-cols-2 gap-2 mb-4">
                         <div className="flex flex-col border-l-2 border-primary/50 pl-2">
                           <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
-                            Merek
+                            {t("catalog.product.brand")}
                           </span>
                           <span className="text-xs font-semibold truncate text-foreground">
                             {product.brand}
@@ -495,7 +497,7 @@ const ProductPage = () => {
                         </div>
                         <div className="flex flex-col border-l-2 border-muted pl-2">
                           <span className="text-[9px] text-muted-foreground uppercase tracking-wider">
-                            Kategori
+                            {t("catalog.product.category")}
                           </span>
                           <span className="text-xs font-semibold truncate text-foreground">
                             {product.category}
@@ -503,13 +505,12 @@ const ProductPage = () => {
                         </div>
                       </div>
 
-                      {/* Bottom Price Block */}
                       <div className="mt-auto flex items-center justify-between bg-muted/40 p-2 sm:p-2.5 rounded-lg border border-border/50 group-hover:bg-primary/5 transition-colors">
                         <span className="font-bold text-sm sm:text-base text-foreground tracking-tight">
                           {formatRupiah(product.price)}
                         </span>
                         <span className="text-[10px] font-bold text-success bg-background px-2 py-1 rounded shadow-sm border border-border/50">
-                          Stok: {product.stock}
+                          {t("catalog.product.stock")} {product.stock}
                         </span>
                       </div>
                     </div>

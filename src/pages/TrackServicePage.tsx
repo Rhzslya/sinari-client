@@ -10,6 +10,7 @@ import { isAxiosError } from "axios";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 import RateLimitBanner from "@/features/fragments/RateLimitBanner";
 import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
+import { useTranslation } from "react-i18next";
 
 const PDF_COLORS = {
   primary: "#ef473a",
@@ -19,6 +20,7 @@ const PDF_COLORS = {
 };
 
 export default function TrackServicePage() {
+  const { t } = useTranslation();
   const { identifier } = useParams<{ identifier: string }>();
   const { useTrackPublic } = useServiceQueries();
   const { useGetSettings } = useStoreSettingQueries();
@@ -49,7 +51,7 @@ export default function TrackServicePage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-3">
         <Loader2 className="w-10 h-10 animate-spin text-slate-400" />
         <p className="text-sm text-slate-500 font-medium">
-          Tracking Service...
+          {t("track_service.loading")}
         </p>
       </div>
     );
@@ -67,7 +69,7 @@ export default function TrackServicePage() {
   if (!service) {
     return (
       <NotFoundPage
-        entityName="Service Tracking"
+        entityName={t("track_service.not_found_entity")}
         id={identifier}
         backUrl="/"
         variant="glass"
@@ -79,12 +81,8 @@ export default function TrackServicePage() {
   const storeAddress = storeData?.store_address || "Tangerang Selatan";
   const storePhone = storeData?.store_phone || "0812-3456-7890";
   const storeWebsite = storeData?.store_website || "";
-  const warrantyText =
-    storeData?.warranty_text ||
-    "Garansi 7 hari untuk kerusakan yang sama.\nWajib menunjukan invoice ini saat klaim.\nUnit > 30 hari tidak diambil diluar tanggung jawab.";
-  const paymentInfo = storeData?.payment_info || "BCA: 1234 5678 90 (Sinari)";
-
-  if (!service) return null;
+  const warrantyText = storeData?.warranty_text || "";
+  const paymentInfo = storeData?.payment_info || "";
 
   const isCancelled = service.status === ServiceStatus.CANCELLED;
 
@@ -107,7 +105,7 @@ export default function TrackServicePage() {
       {isRefetching && !isRateLimited && (
         <div className="w-full max-w-lg mb-4 flex items-center justify-center gap-2 text-sm text-slate-500 animate-pulse">
           <RefreshCcw className="h-4 w-4 animate-spin" />
-          <p>Memperbarui data terbaru...</p>
+          <p>{t("track_service.updating")}</p>
         </div>
       )}
       <div className="w-full max-w-lg bg-white shadow-2xl min-h-150 flex flex-col">
@@ -124,7 +122,7 @@ export default function TrackServicePage() {
                 className="text-[10px] uppercase tracking-widest"
                 style={{ color: PDF_COLORS.muted }}
               >
-                Professional Repair Service
+                {t("track_service.invoice.subtitle")}
               </p>
             </div>
             <div className="text-right">
@@ -151,7 +149,7 @@ export default function TrackServicePage() {
               className="text-xl font-bold tracking-widest uppercase"
               style={{ color: PDF_COLORS.dark }}
             >
-              INVOICE TRACKER
+              {t("track_service.invoice.title")}
             </h2>
             <div
               className="h-4 w-4"
@@ -165,7 +163,7 @@ export default function TrackServicePage() {
                 className="font-bold text-xs mb-1"
                 style={{ color: PDF_COLORS.dark }}
               >
-                Invoice to:
+                {t("track_service.invoice.info_to")}
               </p>
               <TruncatedTooltip
                 text={service.customer_name}
@@ -196,7 +194,7 @@ export default function TrackServicePage() {
                   className="font-bold text-xs"
                   style={{ color: PDF_COLORS.dark }}
                 >
-                  Inv#
+                  {t("track_service.invoice.inv_no")}
                 </span>
                 <span
                   className="text-xs font-mono"
@@ -210,7 +208,7 @@ export default function TrackServicePage() {
                   className="font-bold text-xs"
                   style={{ color: PDF_COLORS.dark }}
                 >
-                  Date
+                  {t("track_service.invoice.date")}
                 </span>
                 <span className="text-xs" style={{ color: PDF_COLORS.muted }}>
                   {format(new Date(service.created_at), "dd/MM/yy")}
@@ -221,7 +219,7 @@ export default function TrackServicePage() {
                   className="font-bold text-xs"
                   style={{ color: PDF_COLORS.dark }}
                 >
-                  Technician
+                  {t("track_service.invoice.technician")}
                 </span>
                 <span
                   className="text-xs font-medium"
@@ -240,10 +238,18 @@ export default function TrackServicePage() {
               className="flex text-[10px] font-bold py-2 px-2 uppercase text-white"
               style={{ backgroundColor: PDF_COLORS.dark }}
             >
-              <div className="w-10 text-center">No.</div>
-              <div className="flex-1">Description</div>
-              <div className="w-24 text-right">Price</div>
-              <div className="w-24 text-right hidden sm:block">Total</div>
+              <div className="w-10 text-center">
+                {t("track_service.invoice.table.no")}
+              </div>
+              <div className="flex-1">
+                {t("track_service.invoice.table.desc")}
+              </div>
+              <div className="w-24 text-right">
+                {t("track_service.invoice.table.price")}
+              </div>
+              <div className="w-24 text-right hidden sm:block">
+                {t("track_service.invoice.table.total")}
+              </div>
             </div>
 
             <div className="text-xs">
@@ -294,14 +300,14 @@ export default function TrackServicePage() {
             style={{ color: PDF_COLORS.muted }}
           >
             <p className="font-bold" style={{ color: PDF_COLORS.dark }}>
-              Terms & Conditions:
+              {t("track_service.invoice.footer.terms")}
             </p>
             <div className="whitespace-pre-wrap leading-relaxed">
               {warrantyText}
             </div>
 
             <p className="font-bold mt-3" style={{ color: PDF_COLORS.dark }}>
-              Payment Info:
+              {t("track_service.invoice.footer.payment")}
             </p>
             <div className="whitespace-pre-wrap leading-relaxed">
               {paymentInfo}
@@ -311,7 +317,7 @@ export default function TrackServicePage() {
           <div className="w-full md:w-56 text-xs space-y-2">
             <div className="flex justify-between">
               <span className="font-bold" style={{ color: PDF_COLORS.dark }}>
-                Sub Total
+                {t("track_service.invoice.footer.subtotal")}
               </span>
               <span
                 style={{ color: PDF_COLORS.muted }}
@@ -323,14 +329,19 @@ export default function TrackServicePage() {
 
             {!isCancelled && discountAmount > 0 && (
               <div className="flex justify-between text-red-500">
-                <span className="font-bold">Disc ({service.discount}%)</span>
+                <span className="font-bold">
+                  {t("track_service.invoice.footer.discount")} (
+                  {service.discount}%)
+                </span>
                 <span>- {formatRupiah(discountAmount)}</span>
               </div>
             )}
 
             {downPayment > 0 && (
               <div className="flex justify-between text-green-600">
-                <span className="font-bold">Down Payment</span>
+                <span className="font-bold">
+                  {t("track_service.invoice.footer.dp")}
+                </span>
                 <span>- {formatRupiah(downPayment)}</span>
               </div>
             )}
@@ -344,7 +355,9 @@ export default function TrackServicePage() {
               }}
             >
               <span className="font-bold uppercase text-[10px]">
-                {isCancelled ? "Amount Due" : "Total Due"}
+                {isCancelled
+                  ? t("track_service.invoice.footer.amount_due")
+                  : t("track_service.invoice.footer.total_due")}
               </span>
               <span className="font-bold text-sm">
                 {formatRupiah(Math.max(0, grandTotal))}
@@ -355,13 +368,12 @@ export default function TrackServicePage() {
               <div className="mt-3 border-2 border-dashed border-red-300 bg-red-50 p-2 rounded-sm text-[10px] leading-tight text-red-800">
                 <div className="flex items-center gap-1 mb-1 font-bold">
                   <RefreshCcw className="w-3 h-3" />
-                  <span>REFUND NOTICE</span>
+                  <span>{t("track_service.invoice.footer.refund_notice")}</span>
                 </div>
                 <p>
-                  Layanan dibatalkan. Silakan tunjukkan invoice ini ke kasir
-                  untuk pengembalian dana DP sebesar{" "}
-                  <span className="font-bold">{formatRupiah(downPayment)}</span>
-                  .
+                  {t("track_service.invoice.footer.refund_msg", {
+                    amount: formatRupiah(downPayment),
+                  })}
                 </p>
               </div>
             )}
@@ -389,7 +401,8 @@ export default function TrackServicePage() {
                 className="text-[10px] font-bold uppercase"
                 style={{ color: PDF_COLORS.dark }}
               >
-                {service.technician?.name || "Authorized Sign"}
+                {service.technician?.name ||
+                  t("track_service.invoice.footer.authorized_sign")}
               </p>
 
               {service.technician?.name && (

@@ -1,9 +1,10 @@
 import { Send, ShieldCheck, Banknote, Wrench, Smartphone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const InstagramIcon = () => (
   <svg
@@ -58,7 +59,24 @@ const TwitterIcon = () => (
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export function Footer() {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  const getLinkStyle = (path: string) => {
+    return `transition-colors block ${
+      isActive(path)
+        ? "text-primary font-semibold"
+        : "text-muted-foreground hover:text-primary"
+    }`;
+  };
 
   const handleConsultClick = () => {
     const phoneNumber = "6281234567890";
@@ -87,10 +105,10 @@ export function Footer() {
   };
 
   const serviceStandards = [
-    { icon: ShieldCheck, label: "Jaminan Garansi" },
-    { icon: Banknote, label: "Biaya Transparan" },
-    { icon: Wrench, label: "Teknisi Ahli" },
-    { icon: Smartphone, label: "Cek Status Daring" },
+    { icon: ShieldCheck, label: t("footer.standards.warranty") },
+    { icon: Banknote, label: t("footer.standards.transparent") },
+    { icon: Wrench, label: t("footer.standards.technician") },
+    { icon: Smartphone, label: t("footer.standards.tracking") },
   ];
 
   const inputStyle =
@@ -102,11 +120,10 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pb-12 border-b border-border/60">
           <div className="space-y-4">
             <h3 className="text-2xl font-bold text-foreground tracking-tight">
-              Dapatkan Info Promo Spesial
+              {t("footer.newsletter.title")}{" "}
             </h3>
             <p className="text-muted-foreground text-sm">
-              Berlangganan buletin kami agar tidak ketinggalan info layanan dan
-              aksesori terbaru.
+              {t("footer.newsletter.subtitle")}
             </p>
             <form
               onSubmit={handleSubscribe}
@@ -116,7 +133,7 @@ export function Footer() {
                 autoComplete="off"
                 type="email"
                 required
-                placeholder="Masukkan email Anda"
+                placeholder={t("footer.newsletter.placeholder")}
                 className={inputStyle}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -128,10 +145,13 @@ export function Footer() {
                 disabled={isSubmitting || !isValidEmail}
               >
                 {isSubmitting ? (
-                  <span className="animate-pulse">Memproses...</span>
+                  <span className="animate-pulse">
+                    {t("footer.newsletter.processing")}
+                  </span>
                 ) : (
                   <>
-                    Langganan <Send className="size-4" />
+                    {t("footer.newsletter.subscribe")}{" "}
+                    <Send className="size-4" />
                   </>
                 )}
               </Button>
@@ -140,7 +160,7 @@ export function Footer() {
 
           <div className="flex flex-col lg:items-end justify-center space-y-4">
             <p className="font-semibold text-foreground text-sm">
-              Standar Pelayanan Kami
+              {t("footer.standards.title")}
             </p>
             <div className="flex flex-wrap gap-4 lg:justify-end text-muted-foreground">
               {serviceStandards.map((item, index) => {
@@ -165,8 +185,7 @@ export function Footer() {
               Sinari Cell
             </h2>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-              Mitra terpercaya untuk perbaikan perangkat keras, pemeliharaan
-              perangkat lunak, dan penyedia aksesoris.
+              {t("footer.company_desc")}
             </p>
 
             <div className="flex gap-4">
@@ -191,14 +210,16 @@ export function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="font-bold text-foreground mb-4">Layanan Utama</h4>
+            <h4 className="font-bold text-foreground mb-4">
+              {t("footer.links.services.title")}
+            </h4>
             <ul className="space-y-3 text-sm">
               <li>
                 <button
                   className="text-muted-foreground hover:text-primary transition-colors p-0 h-auto font-normal text-sm cursor-pointer"
                   onClick={handleConsultClick}
                 >
-                  Konsultasi Kerusakan
+                  {t("footer.links.services.consultation")}
                 </button>
               </li>
               <li>
@@ -207,81 +228,61 @@ export function Footer() {
                   className="text-muted-foreground hover:text-primary transition-colors block"
                   onClick={() => {
                     const element = document.getElementById("track-srv");
-
                     if (element) {
                       element.scrollIntoView({ behavior: "smooth" });
                     }
                   }}
                 >
-                  Cek Status Servis
+                  {t("footer.links.services.tracking")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/products"
-                  className="text-muted-foreground hover:text-primary transition-colors block"
-                >
-                  Katalog Produk
+                <Link to="/products" className={getLinkStyle("/products")}>
+                  {t("footer.links.services.products")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-foreground mb-4">
-              Informasi Pelanggan
+              {t("footer.links.customer.title")}
             </h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link
-                  to="/about"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Tentang Kami
+                <Link to="/about" className={getLinkStyle("/about")}>
+                  {t("footer.links.customer.about")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/contact"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Hubungi Kami
+                <Link to="/contact" className={getLinkStyle("/contact")}>
+                  {t("footer.links.customer.contact")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/faq"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Pusat Bantuan (FAQ)
+                <Link to="/faq" className={getLinkStyle("/faq")}>
+                  {t("footer.links.customer.faq")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-bold text-foreground mb-4">Kebijakan</h4>
+            <h4 className="font-bold text-foreground mb-4">
+              {t("footer.links.policy.title")}
+            </h4>
             <ul className="space-y-3 text-sm">
               <li>
-                <Link
-                  to="/warranty"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Ketentuan Garansi
+                <Link to="/warranty" className={getLinkStyle("/warranty")}>
+                  {t("footer.links.policy.warranty")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/privacy"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Kebijakan Privasi
+                <Link to="/privacy" className={getLinkStyle("/privacy")}>
+                  {t("footer.links.policy.privacy")}
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/terms"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Syarat & Ketentuan
+                <Link to="/terms" className={getLinkStyle("/terms")}>
+                  {t("footer.links.policy.terms")}
                 </Link>
               </li>
             </ul>
@@ -290,8 +291,7 @@ export function Footer() {
 
         <div className="py-6 border-t border-border/60 text-center text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-center gap-4">
           <p>
-            &copy; {currentYear} Sinari Cell. Hak Cipta Dilindungi
-            Undang-Undang.
+            &copy; {currentYear} Sinari Cell. {t("footer.copyright")}
           </p>
           <div className="flex gap-4">
             <span className="text-xs font-medium">BCA</span>

@@ -22,6 +22,7 @@ export type ServiceResponse = {
   total_price: number;
   created_at: Date;
   updated_at?: Date;
+  is_anonymized: boolean;
   grace_period_start?: Date | null;
   tracking_token: string;
   technician: {
@@ -75,6 +76,10 @@ export type ServiceResponseMeta = {
   message?: string;
 };
 
+export type CustomerDataAnonymizationResponse = {
+  message: string;
+};
+
 export type DeleteServiceResponse = {
   message: string;
 };
@@ -109,6 +114,10 @@ export type UpdateServiceItemRequest = {
 
 export type TrackPublicServiceRequest = {
   identifier: string;
+};
+
+export type AnonymizeCustomerDataRequest = {
+  id: number;
 };
 
 export type CreateServiceRequest = {
@@ -184,6 +193,7 @@ export function toServiceResponse(
     total_price: service.total_price,
     created_at: service.created_at,
     updated_at: service.updated_at,
+    is_anonymized: service.is_anonymized,
     grace_period_start: service.grace_period_start
       ? new Date(service.grace_period_start)
       : null,

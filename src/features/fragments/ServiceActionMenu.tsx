@@ -15,6 +15,7 @@ import {
   RefreshCw,
   FileText,
   ArchiveRestore,
+  HatGlasses,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ interface ServiceActionMenuProps {
   onViewDetails: () => void;
   onEditService: () => void;
   onUpdateStatus: () => void;
+  onAnonymizeCustomerData: () => void;
   onDeleteService: () => void;
   onRestoreService: () => void;
   isTrashView: boolean;
@@ -40,6 +42,7 @@ export function ServiceActionMenu({
   onEditService,
   onUpdateStatus,
   onDeleteService,
+  onAnonymizeCustomerData,
   onRestoreService,
   isTrashView,
 }: ServiceActionMenuProps) {
@@ -56,6 +59,9 @@ export function ServiceActionMenu({
   const isDeleteDisabled =
     service.status !== ServiceStatus.CANCELLED &&
     service.status !== ServiceStatus.TAKEN;
+
+  const isAnonymizeDisabled =
+    isDeleteDisabled || service.is_anonymized === true;
 
   if (isSettingsLoading || !storeData) {
     return <div>Loading invoice data...</div>;
@@ -144,6 +150,14 @@ export function ServiceActionMenu({
                 </DropdownMenuItem>
               </>
             )}
+
+            <DropdownMenuItem
+              onClick={onAnonymizeCustomerData}
+              className="text-destructive focus:text-destructive cursor-pointer"
+              disabled={isAnonymizeDisabled}
+            >
+              <HatGlasses className="mr-2 h-4 w-4" /> Anonymize
+            </DropdownMenuItem>
           </>
         ) : (
           <DropdownMenuItem

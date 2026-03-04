@@ -3,8 +3,10 @@ import {
   toPublicServiceResponse,
   toServiceResponse,
   toServiceResponseMeta,
+  type AnonymizeCustomerDataRequest,
   type ApiResponse,
   type CreateServiceRequest,
+  type CustomerDataAnonymizationResponse,
   type DeleteServiceRequest,
   type DeleteServiceResponse,
   type DetailedServiceRequest,
@@ -52,6 +54,24 @@ export class RepairServices {
     );
 
     return response.data.data;
+  }
+
+  static async anonymizeCustomerData(
+    request: AnonymizeCustomerDataRequest,
+  ): Promise<CustomerDataAnonymizationResponse> {
+    if (isNaN(request.id)) {
+      throw new Error("Invalid service ID");
+    }
+
+    const response = await api.patch<ApiResponse<boolean>>(
+      `/services/${request.id}/anonymize-customer-data`,
+    );
+
+    return {
+      message:
+        response.data.message ||
+        `Customer data of service ${request.id} has been anonymized successfully.`,
+    };
   }
 
   static async remove(

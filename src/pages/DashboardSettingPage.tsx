@@ -39,8 +39,10 @@ import { PreviewSettingDialog } from "@/features/fragments/PreviewSettingDialog"
 import { useWhatsappQueries } from "@/hooks/whatsapp-queries";
 import { isAxiosError } from "axios";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
+import { useTranslation } from "react-i18next";
 
 const DashboardSettingPage = () => {
+  const { t } = useTranslation();
   const { useGetSettings, updateMutation } = useStoreSettingQueries();
   const [activeTab, setActiveTab] = useState<string>("store");
 
@@ -82,6 +84,7 @@ const DashboardSettingPage = () => {
       store_website: "",
       warranty_text: "",
       payment_info: "",
+      store_hours: "",
     },
   });
 
@@ -112,6 +115,7 @@ const DashboardSettingPage = () => {
     store_website: watchedValues.store_website || "",
     warranty_text: watchedValues.warranty_text || "",
     payment_info: watchedValues.payment_info || "",
+    store_hours: watchedValues.store_hours || "",
   };
 
   const isButtonDisabled =
@@ -122,7 +126,8 @@ const DashboardSettingPage = () => {
     !watchedValues.store_email ||
     !watchedValues.store_website ||
     !watchedValues.warranty_text ||
-    !watchedValues.payment_info;
+    !watchedValues.payment_info ||
+    !watchedValues.store_hours;
 
   const onHandlePreview = () => {
     setIsPreviewOpen(true);
@@ -209,9 +214,10 @@ const DashboardSettingPage = () => {
 
   return (
     <div className="flex flex-col h-full space-y-6">
-      <DashboardHeader title="Settings">
+      <DashboardHeader title={t("settings.header.title")}>
+        {" "}
         <p className="text-sm text-muted-foreground">
-          Manage your store details, integrations, and system preferences.
+          {t("settings.header.subtitle")}
         </p>
       </DashboardHeader>
 
@@ -228,24 +234,24 @@ const DashboardSettingPage = () => {
           >
             <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-1 p-1">
               <TabsTrigger value="store" className="gap-2 h-9">
-                <Store className="h-4 w-4" /> Store
+                <Store className="h-4 w-4" /> {t("settings.tabs.store")}
               </TabsTrigger>
               <TabsTrigger value="operational" className="gap-2 h-9">
-                <Settings2 className="h-4 w-4" /> Policy
+                <Settings2 className="h-4 w-4" /> {t("settings.tabs.policy")}
               </TabsTrigger>
               <TabsTrigger value="payment" className="gap-2 h-9">
-                <CreditCard className="h-4 w-4" /> Payment
+                <CreditCard className="h-4 w-4" /> {t("settings.tabs.payment")}
               </TabsTrigger>
               <TabsTrigger value="integrations" className="gap-2 h-9">
-                <Blocks className="h-4 w-4" /> Apps
+                <Blocks className="h-4 w-4" /> {t("settings.tabs.apps")}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="store" className="mt-4 space-y-4">
               <Card className="border-border/50 shadow-sm">
                 <CardHeader>
-                  <CardTitle>Store Profile</CardTitle>
+                  <CardTitle>{t("settings.store_profile.title")}</CardTitle>
                   <CardDescription>
-                    Public information for your receipts.
+                    {t("settings.store_profile.desc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -254,7 +260,9 @@ const DashboardSettingPage = () => {
                     name="store_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className={labelStyle}>Store Name</FormLabel>
+                        <FormLabel className={labelStyle}>
+                          {t("settings.store_profile.name")}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             autoComplete="off"
@@ -273,7 +281,9 @@ const DashboardSettingPage = () => {
                     name="store_address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className={labelStyle}>Address</FormLabel>
+                        <FormLabel className={labelStyle}>
+                          {t("settings.store_profile.address")}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             autoComplete="off"
@@ -294,7 +304,7 @@ const DashboardSettingPage = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className={labelStyle}>
-                            Phone Number
+                            {t("settings.store_profile.phone")}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -314,7 +324,9 @@ const DashboardSettingPage = () => {
                       name="store_email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className={labelStyle}>Email</FormLabel>
+                          <FormLabel className={labelStyle}>
+                            {t("settings.store_profile.email")}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               autoComplete="off"
@@ -330,6 +342,27 @@ const DashboardSettingPage = () => {
                       )}
                     />
                   </div>
+                  <FormField
+                    control={form.control}
+                    name="store_hours"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className={labelStyle}>
+                          {t("settings.store_profile.hours")}
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder="Senin - Sabtu: 09.00 - 21.00 WIB&#10;Minggu: Tutup"
+                            className={`${textareaStyle} min-h-20`}
+                            disabled={isStorePending}
+                            spellCheck={false}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -337,9 +370,9 @@ const DashboardSettingPage = () => {
             <TabsContent value="operational" className="mt-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Terms & Conditions</CardTitle>
+                  <CardTitle>{t("settings.operational.title")}</CardTitle>
                   <CardDescription>
-                    Default text for invoice footer.
+                    {t("settings.operational.desc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -349,7 +382,7 @@ const DashboardSettingPage = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className={labelStyle}>
-                          Warranty Policy
+                          {t("settings.operational.warranty_label")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
@@ -370,9 +403,9 @@ const DashboardSettingPage = () => {
             <TabsContent value="payment" className="mt-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Payment Information</CardTitle>
+                  <CardTitle>{t("settings.payment_info.title")}</CardTitle>
                   <CardDescription>
-                    Bank accounts or payment instructions.
+                    {t("settings.payment_info.desc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -382,7 +415,7 @@ const DashboardSettingPage = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className={labelStyle}>
-                          Bank Details
+                          {t("settings.payment_info.bank_label")}
                         </FormLabel>
                         <FormControl>
                           <Textarea
@@ -403,11 +436,11 @@ const DashboardSettingPage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Smartphone className="h-5 w-5" /> WhatsApp Integration
+                    <Smartphone className="h-5 w-5" />
+                    {t("settings.whatsapp.title")}
                   </CardTitle>
                   <CardDescription>
-                    Hubungkan nomor WhatsApp untuk mengirim notifikasi otomatis
-                    ke pelanggan.
+                    {t("settings.whatsapp.desc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -416,11 +449,10 @@ const DashboardSettingPage = () => {
                     <div className="flex flex-col items-center justify-center p-8 bg-muted/30 border border-dashed border-border rounded-lg text-center">
                       <Smartphone className="h-10 w-10 text-muted-foreground mb-3" />
                       <h3 className="text-sm font-semibold mb-1">
-                        WhatsApp is Idle
+                        {t("settings.whatsapp.idle_title")}
                       </h3>
                       <p className="text-xs text-muted-foreground max-w-sm mb-4">
-                        Klik tombol di bawah untuk mengecek status koneksi saat
-                        ini atau memunculkan QR Code baru.
+                        {t("settings.whatsapp.idle_desc")}
                       </p>
                       <Button
                         type="button"
@@ -430,7 +462,7 @@ const DashboardSettingPage = () => {
                         }}
                         variant="outline"
                       >
-                        Check Status / Connect Device
+                        {t("settings.whatsapp.btn_check")}
                       </Button>
                     </div>
                   ) : (
@@ -445,19 +477,17 @@ const DashboardSettingPage = () => {
                             }`}
                           />
                           <span className="font-semibold text-sm">
-                            Status:{" "}
+                            {t("settings.whatsapp.status_label")}:{" "}
                             {waData?.status === "connected"
-                              ? "Connected"
+                              ? t("settings.whatsapp.status_connected")
                               : waData?.status === "loading_qr"
-                                ? "Waiting for Scan..."
-                                : "Disconnected"}
+                                ? t("settings.whatsapp.status_waiting")
+                                : t("settings.whatsapp.status_disconnected")}
                           </span>
                         </div>
 
                         <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-                          Gunakan WhatsApp Bisnis atau WA reguler toko Anda.
-                          Jika nomor terblokir, klik "Disconnect" lalu scan
-                          ulang menggunakan nomor yang baru.
+                          {t("settings.whatsapp.instruction")}
                         </p>
 
                         <div className="pt-2 h-10 flex gap-2">
@@ -480,7 +510,7 @@ const DashboardSettingPage = () => {
                               ) : (
                                 <PowerOff className="h-4 w-4" />
                               )}
-                              Disconnect Device
+                              {t("settings.whatsapp.btn_disconnect")}
                             </Button>
                           ) : (
                             <Button
@@ -492,7 +522,7 @@ const DashboardSettingPage = () => {
                               variant="secondary"
                               size="sm"
                             >
-                              Stop Polling
+                              {t("settings.whatsapp.btn_stop")}
                             </Button>
                           )}
                         </div>
@@ -505,10 +535,10 @@ const DashboardSettingPage = () => {
                           <div className="flex flex-col items-center text-center p-2">
                             <Smartphone className="h-10 w-10 text-green-500 mb-2" />
                             <p className="text-xs font-bold text-green-500">
-                              Device Linked
+                              {t("settings.whatsapp.linked_title")}
                             </p>
                             <p className="text-[10px] text-muted-foreground mt-1">
-                              Ready to send messages
+                              {t("settings.whatsapp.linked_desc")}
                             </p>
                           </div>
                         ) : waData?.status === "loading_qr" &&
@@ -522,7 +552,7 @@ const DashboardSettingPage = () => {
                           <div className="flex flex-col items-center text-center p-4">
                             <QrCode className="h-10 w-10 text-muted-foreground/30 mb-2 animate-pulse" />
                             <p className="text-[10px] text-muted-foreground">
-                              Generating QR...
+                              {t("settings.whatsapp.generating_qr")}
                             </p>
                           </div>
                         )}
@@ -540,7 +570,7 @@ const DashboardSettingPage = () => {
               className="w-full sm:w-auto bg-primary text-foreground cursor-pointer"
             >
               <Eye className="mr-2 h-4 w-4" />
-              Preview Changes
+              {t("settings.footer.btn_preview")}
             </Button>
           </div>
         </form>

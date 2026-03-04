@@ -29,9 +29,11 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { clearAuthCache } from "@/components/utils/clearAuthCache";
 import { isAxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 export function LoginForm() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -96,7 +98,6 @@ export function LoginForm() {
 
   async function onSubmit(data: LoginUserRequest) {
     setIsLoading(true);
-    // Reset states
     setGlobalError(null);
     setShowUnverifiedCard(false);
     setEmail(null);
@@ -118,7 +119,7 @@ export function LoginForm() {
         if (match && match[1]) {
           const seconds = parseInt(match[1], 10);
           startBlockCooldown(seconds);
-          setGlobalError("Too many attempts. Please wait before trying again.");
+          setGlobalError(t("auth.common.too_many_attempts"));
           return;
         }
       }
@@ -190,7 +191,6 @@ export function LoginForm() {
 
       if (response && response.email) {
         setEmail(response.email);
-
         startCooldown(60, response.email);
       }
 
@@ -253,15 +253,18 @@ export function LoginForm() {
       }
     },
     onError: () => {
-      setGlobalError("Failed to connect to Google.");
+      setGlobalError(t("auth.common.google_failed"));
     },
   });
 
   useEffect(() => {
-    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+    if (
+      blockCooldown === 0 &&
+      globalError === t("auth.common.too_many_attempts")
+    ) {
       setGlobalError(null);
     }
-  }, [blockCooldown, globalError]);
+  }, [blockCooldown, globalError, t]);
 
   if (showUnverifiedCard) {
     const isWaitingEmail =
@@ -271,18 +274,18 @@ export function LoginForm() {
         variant="default"
         title={
           isVerifiedNow
-            ? "Account Verified!"
+            ? t("auth.verify.verified_title")
             : cardError
-              ? "Failed to Send"
+              ? t("auth.verify.failed_title")
               : isWaitingEmail
-                ? "Check Your Email"
-                : "Account Not Verified"
+                ? t("auth.verify.check_email_title")
+                : t("auth.verify.not_verified_title")
         }
         message={
           isVerifiedNow ? (
             <div className="text-center">
               <span className="text-sm text-muted-foreground mt-2 block">
-                Your account is active. Please login to continue.
+                {t("auth.verify.verified_msg")}
               </span>
             </div>
           ) : cardError ? (
@@ -296,11 +299,12 @@ export function LoginForm() {
           ) : isWaitingEmail ? (
             <div className="text-center">
               <span>
-                Please check your email to verify your account.
-                <br />A verification link has been sent to{" "}
+                {t("auth.verify.check_email_msg_1")}
+                <br />
+                {t("auth.verify.check_email_msg_2")}{" "}
                 <br className="sm:hidden" />
                 <strong className="break-all">
-                  {email ? email : "your registered email"}
+                  {email ? email : t("auth.verify.registered_email")}
                 </strong>
                 .
               </span>
@@ -308,26 +312,30 @@ export function LoginForm() {
           ) : (
             <div className="text-center px-1">
               <span>
-                Your account <strong className="break-all">{identifier}</strong>{" "}
-                is not verified yet.
+                {t("auth.verify.not_verified_msg_1")}{" "}
+                <strong className="break-all">{identifier}</strong>{" "}
+                {t("auth.verify.not_verified_msg_2")}
               </span>
 
               {email && (
                 <div className="mt-1">
-                  Linked email:
+                  {t("auth.verify.linked_email")}{" "}
                   <strong className="break-all">{maskEmail(email)}</strong>
                 </div>
               )}
 
               <p className="mt-2 text-sm text-muted-foreground">
-                Please check your inbox or click the button below to resend the
-                link.
+                {t("auth.verify.check_inbox")}
               </p>
             </div>
           )
         }
-        buttonResend={isVerifiedNow ? "Login Now" : "Resend Verification Email"}
-        buttonNavigate={isVerifiedNow ? null : "Back to Login"}
+        buttonResend={
+          isVerifiedNow
+            ? t("auth.verify.btn_login_now")
+            : t("auth.verify.btn_resend")
+        }
+        buttonNavigate={isVerifiedNow ? null : t("auth.verify.btn_back_login")}
         onActionResend={isVerifiedNow ? handleBackToLogin : handleResend}
         onActionNavigate={handleBackToLogin}
         isLoading={resendLoading}
@@ -342,10 +350,10 @@ export function LoginForm() {
       <Card className="bg-card-foreground border-none shadow-xl shadow-black/5">
         <CardHeader className="space-y-1">
           <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
-            Sinari Cell
+            {t("auth.login.title")}
           </CardTitle>
           <CardDescription className="text-center text-muted text-base">
-            Welcome back! Please sign in to continue.
+            {t("auth.login.subtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent className="relative mt-6">
@@ -368,10 +376,10 @@ export function LoginForm() {
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="Email or Username"
+                        placeholder={t("auth.login.identifier")}
                         {...field}
                         disabled={isLoading}
-                        className="bg-card-foreground  border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
+                        className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
                       />
                     </FormControl>
                     <FormMessage className="absolute -bottom-4 left-0 text-xs" />
@@ -389,7 +397,7 @@ export function LoginForm() {
                         <Input
                           autoComplete="off"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Password"
+                          placeholder={t("auth.login.password")}
                           {...field}
                           disabled={isLoading}
                           className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary pr-10 shadow-none"
@@ -415,7 +423,7 @@ export function LoginForm() {
                         className="text-xs text-muted font-medium hover:text-primary transition-colors cursor-pointer"
                         onClick={() => navigate("/forgot-password")}
                       >
-                        Forgot password?
+                        {t("auth.login.forgot_pwd")}
                       </button>
                     </div>
                   </FormItem>
@@ -434,9 +442,12 @@ export function LoginForm() {
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
                 ) : blockCooldown > 0 ? (
-                  `Try again in ${blockCooldown}s`
+                  t("auth.common.try_again").replace(
+                    "{{seconds}}",
+                    String(blockCooldown),
+                  )
                 ) : (
-                  "Sign In"
+                  t("auth.login.btn_submit")
                 )}
               </Button>
             </form>
@@ -453,12 +464,12 @@ export function LoginForm() {
       </Card>
 
       <nav className="w-full text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
+        {t("auth.login.no_account")}{" "}
         <button
           className="font-semibold text-primary hover:text-primary/80 hover:underline transition-all cursor-pointer"
           onClick={() => navigate("/register")}
         >
-          Create an account
+          {t("auth.login.create_account")}
         </button>
       </nav>
     </div>

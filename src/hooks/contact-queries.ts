@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ContactServices } from "@/services/contact-service";
 import type { ContactUsRequest } from "@/model/contact-model";
+import { handleApiError } from "@/lib/utils";
 
 export const useContactQueries = () => {
   return {
@@ -9,17 +10,12 @@ export const useContactQueries = () => {
       mutationFn: (request: ContactUsRequest) =>
         ContactServices.sendEmail(request),
       onSuccess: () => {
-        toast.success("Pesan Berhasil Terkirim!", {
+        toast.success("Message Sent Successfully!", {
           description:
-            "Tim Sinari Cell akan menghubungi Anda melalui WhatsApp/Email.",
+            "We will contact you as soon as possible. Thank you for your message!",
         });
       },
-      onError: (error) => {
-        console.error("EmailJS Error:", error);
-        toast.error("Gagal Mengirim Pesan", {
-          description: "Pastikan koneksi internet stabil atau coba lagi nanti.",
-        });
-      },
+      onError: (error) => handleApiError(error, "Failed to send email"),
     }),
   };
 };

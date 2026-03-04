@@ -28,9 +28,11 @@ import { GoogleSignInFragments } from "../fragments/GoogleSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { isAxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 export function RegisterForm() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -111,7 +113,7 @@ export function RegisterForm() {
         if (match && match[1]) {
           const seconds = parseInt(match[1], 10);
           startBlockCooldown(seconds);
-          setGlobalError("Too many attempts. Please wait before trying again.");
+          setGlobalError(t("auth.common.too_many_attempts"));
           return;
         }
       }
@@ -183,15 +185,18 @@ export function RegisterForm() {
       }
     },
     onError: () => {
-      setGlobalError("Failed to connect to Google.");
+      setGlobalError(t("auth.common.google_failed"));
     },
   });
 
   useEffect(() => {
-    if (blockCooldown === 0 && globalError?.includes("Too many attempts")) {
+    if (
+      blockCooldown === 0 &&
+      globalError === t("auth.common.too_many_attempts")
+    ) {
       setGlobalError(null);
     }
-  }, [blockCooldown, globalError]);
+  }, [blockCooldown, globalError, t]);
 
   if (isSuccess) {
     return (
@@ -199,17 +204,17 @@ export function RegisterForm() {
         variant="transparent"
         title={
           isVerifiedNow
-            ? "Account Verified!"
+            ? t("auth.verify.verified_title")
             : cardError
-              ? "Failed to Send"
-              : "Registration Success"
+              ? t("auth.verify.failed_title")
+              : t("auth.verify.reg_success_title")
         }
         message={
           isVerifiedNow ? (
             <div className="text-center">
               <br />
               <span className="text-sm text-muted-foreground mt-2 block">
-                Your account is active. You can now login.
+                {t("auth.verify.verified_reg_msg")}
               </span>
             </div>
           ) : cardError ? (
@@ -223,16 +228,21 @@ export function RegisterForm() {
           ) : (
             <div className="text-center">
               <span>
-                Please check your email to verify your account.
-                <br />A verification link has been sent to{" "}
+                {t("auth.verify.check_email_msg_1")}
+                <br />
+                {t("auth.verify.check_email_msg_2")}{" "}
                 <br className="sm:hidden" />
                 <strong className="break-all">{registeredEmail}</strong>.
               </span>
             </div>
           )
         }
-        buttonResend={isVerifiedNow ? "Login Now" : "Resend Verification Email"}
-        buttonNavigate={isVerifiedNow ? null : "Back to Login"}
+        buttonResend={
+          isVerifiedNow
+            ? t("auth.verify.btn_login_now")
+            : t("auth.verify.btn_resend")
+        }
+        buttonNavigate={isVerifiedNow ? null : t("auth.verify.btn_back_login")}
         onActionResend={isVerifiedNow ? () => navigate("/login") : handleResend}
         onActionNavigate={() => navigate("/login")}
         isLoading={resendLoading}
@@ -247,10 +257,10 @@ export function RegisterForm() {
       <Card className="bg-transparent border-none shadow-none text-foreground">
         <CardHeader>
           <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
-            Sinari Cell
+            {t("auth.register.title")}
           </CardTitle>
           <CardDescription className="text-center text-muted-foreground text-base">
-            Create your account to get started
+            {t("auth.register.subtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent className="relative mt-6">
@@ -273,7 +283,7 @@ export function RegisterForm() {
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="Email"
+                        placeholder={t("auth.register.email")}
                         {...field}
                         disabled={isLoading}
                         className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2"
@@ -292,7 +302,7 @@ export function RegisterForm() {
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="Username"
+                        placeholder={t("auth.register.username")}
                         {...field}
                         disabled={isLoading}
                         className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2"
@@ -311,7 +321,7 @@ export function RegisterForm() {
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="Full Name"
+                        placeholder={t("auth.register.name")}
                         {...field}
                         disabled={isLoading}
                         className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2"
@@ -357,7 +367,7 @@ export function RegisterForm() {
                         <Input
                           autoComplete="off"
                           type={showPassword ? "text" : "password"}
-                          placeholder="Password"
+                          placeholder={t("auth.register.password")}
                           {...field}
                           disabled={isLoading}
                           className="bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2"
@@ -382,7 +392,7 @@ export function RegisterForm() {
               />
 
               <Button
-                className="w-full mt-2 text-sm text-foreground font-semibold shadow-lg shadow-primary/20"
+                className="w-full mt-2 text-sm text-foreground font-semibold shadow-lg shadow-primary/20 cursor-pointer"
                 type="submit"
                 disabled={
                   !form.formState.isValid || isLoading || blockCooldown > 0
@@ -393,9 +403,12 @@ export function RegisterForm() {
                     <Loader2 className="mr-2 size-4 animate-spin" />
                   </>
                 ) : blockCooldown > 0 ? (
-                  `Try again in ${blockCooldown}s`
+                  t("auth.common.try_again").replace(
+                    "{{seconds}}",
+                    String(blockCooldown),
+                  )
                 ) : (
-                  "Sign Up"
+                  t("auth.register.btn_submit")
                 )}
               </Button>
             </form>
@@ -411,12 +424,12 @@ export function RegisterForm() {
       </Card>
 
       <nav className="w-full text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {t("auth.register.have_account")}{" "}
         <button
           className="font-semibold text-primary hover:text-primary/80 hover:underline transition-all cursor-pointer"
           onClick={() => navigate("/login")}
         >
-          Sign in
+          {t("auth.register.sign_in")}
         </button>
       </nav>
     </div>

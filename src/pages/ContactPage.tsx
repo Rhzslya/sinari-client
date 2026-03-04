@@ -6,8 +6,6 @@ import {
   Mail,
   Clock,
   Loader2,
-  Timer,
-  Send,
   AlertTriangle,
 } from "lucide-react";
 
@@ -27,8 +25,16 @@ import { useCooldown } from "@/hooks/use-cooldown";
 import type { ContactUsRequest } from "@/model/contact-model";
 import { isAxiosError } from "axios";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 
 const ContactPage = () => {
+  const { t } = useTranslation();
+
+  const { useGetPublicSettings } = useStoreSettingQueries();
+  const { data: storeData, isLoading: isStoreLoading } = useGetPublicSettings();
+
   const { sendEmailMutation } = useContactQueries();
   const {
     mutateAsync: sendEmail,
@@ -45,6 +51,12 @@ const ContactPage = () => {
   const isRateLimited =
     isError && isAxiosError(error) && error.response?.status === 429;
 
+  const location = useLocation();
+  const prefilledSubject = location.state?.defaultSubject || "";
+  const prefilledMessage = location.state?.defaultMessage || "";
+
+  const isPrivacyRequestMode = !!prefilledSubject && !!prefilledMessage;
+
   const form = useForm<ContactUsRequest>({
     resolver: zodResolver(UserValidation.CONTACT_US),
     mode: "onChange",
@@ -52,8 +64,8 @@ const ContactPage = () => {
       name: "",
       email: "",
       phone_number: "",
-      subject: "",
-      message: "",
+      subject: prefilledSubject,
+      message: prefilledMessage,
     },
   });
 
@@ -99,30 +111,31 @@ const ContactPage = () => {
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-            Hubungi Kami
+            {t("contact.title")}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Punya pertanyaan seputar kerusakan gadget atau ketersediaan suku
-            cadang? Tim kami siap membantu Anda dengan senang hati.
+            {t("contact.subtitle")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           <div className="space-y-8">
-            <h2 className="text-2xl font-bold mb-6">Informasi Toko</h2>
+            <h2 className="text-2xl font-bold mb-6">
+              {t("contact.info.title")}
+            </h2>
 
             <div className="flex items-start gap-4">
               <div className="p-3 bg-primary/10 rounded-xl text-primary shrink-0">
                 <MapPin className="size-6" />
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-1">Alamat Lengkap</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Ruko Grand Teknologi Blok A1
-                  <br />
-                  Jl. Raya Pusat Kota No. 123
-                  <br />
-                  Indonesia, 40123
+                <h3 className="font-bold text-lg mb-1">
+                  {t("contact.info.address")}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  {isStoreLoading
+                    ? t("contact.info.loading")
+                    : storeData?.store_address}
                 </p>
               </div>
             </div>
@@ -132,12 +145,13 @@ const ContactPage = () => {
                 <Clock className="size-6" />
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-1">Jam Operasional</h3>
-                <p className="text-muted-foreground">
-                  Senin - Sabtu: 09.00 - 21.00 WIB
-                </p>
-                <p className="text-muted-foreground">
-                  Minggu: 10.00 - 18.00 WIB
+                <h3 className="font-bold text-lg mb-1">
+                  {t("contact.info.hours")}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  {isStoreLoading
+                    ? t("contact.info.loading")
+                    : storeData?.store_hours}
                 </p>
               </div>
             </div>
@@ -147,8 +161,14 @@ const ContactPage = () => {
                 <Phone className="size-6" />
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-1">Telepon & WhatsApp</h3>
-                <p className="text-muted-foreground">0812-3456-7890</p>
+                <h3 className="font-bold text-lg mb-1">
+                  {t("contact.info.phone")}
+                </h3>
+                <p className="text-muted-foreground">
+                  {isStoreLoading
+                    ? t("contact.info.loading")
+                    : storeData?.store_phone}
+                </p>
               </div>
             </div>
 
@@ -157,14 +177,31 @@ const ContactPage = () => {
                 <Mail className="size-6" />
               </div>
               <div>
-                <h3 className="font-bold text-lg mb-1">Email</h3>
-                <p className="text-muted-foreground">cs@sinaricell.com</p>
+                <h3 className="font-bold text-lg mb-1">
+                  {t("contact.info.email")}
+                </h3>
+                <p className="text-muted-foreground">
+                  {isStoreLoading
+                    ? t("contact.info.loading")
+                    : storeData?.store_email}
+                </p>
               </div>
             </div>
           </div>
 
           <div className="bg-muted/20 border border-border/50 rounded-3xl p-8 shadow-sm h-fit">
-            <h2 className="text-2xl font-bold mb-6">Kirim Pesan</h2>
+            <h2 className="text-2xl font-bold mb-6">
+              {t("contact.form.title")}
+            </h2>
+
+            {isPrivacyRequestMode && (
+              <div
+                className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-xl text-sm text-foreground"
+                dangerouslySetInnerHTML={{
+                  __html: t("contact.form.privacy_mode"),
+                }}
+              />
+            )}
 
             <Form {...form}>
               <form
@@ -176,18 +213,21 @@ const ContactPage = () => {
                     <div className="space-y-1 flex flex-col justify-center items-center">
                       <AlertTriangle className="h-7 w-7 shrink-0" />
                       <p className="font-semibold text-xs uppercase">
-                        Action Paused
+                        {t("contact.form.rate_limit_title")}
                       </p>
-                      <p className="text-xs opacity-90">
-                        Too many attempts. Please wait{" "}
-                        <span className="font-bold tabular-nums">
-                          {String(cooldownRateLimit).padStart(2, "0")}s
-                        </span>{" "}
-                        before trying again.
-                      </p>
+                      <p
+                        className="text-xs opacity-90"
+                        dangerouslySetInnerHTML={{
+                          __html: t("contact.form.rate_limit_desc").replace(
+                            "{{seconds}}",
+                            String(cooldownRateLimit).padStart(2, "0"),
+                          ),
+                        }}
+                      />
                     </div>
                   </div>
                 )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -195,12 +235,12 @@ const ContactPage = () => {
                     render={({ field }) => (
                       <FormItem className="relative grid gap-2 space-y-0 mb-4">
                         <FormLabel className={labelStyle}>
-                          Nama Lengkap
+                          {t("contact.form.labels.name")}
                         </FormLabel>
                         <FormControl>
                           <Input
                             autoComplete="off"
-                            placeholder="Masukkan nama Anda"
+                            placeholder={t("contact.form.placeholders.name")}
                             disabled={isPending || cooldown > 0}
                             className={inputStyle}
                             {...field}
@@ -216,13 +256,13 @@ const ContactPage = () => {
                     render={({ field }) => (
                       <FormItem className="relative grid gap-2 space-y-0 mb-4">
                         <FormLabel className={labelStyle}>
-                          Alamat Email
+                          {t("contact.form.labels.email")}
                         </FormLabel>
                         <FormControl>
                           <Input
                             autoComplete="off"
                             type="email"
-                            placeholder="Email Kamu"
+                            placeholder={t("contact.form.placeholders.email")}
                             disabled={isPending || cooldown > 0}
                             className={inputStyle}
                             {...field}
@@ -241,13 +281,13 @@ const ContactPage = () => {
                     render={({ field }) => (
                       <FormItem className="relative grid gap-2 space-y-0 mb-4">
                         <FormLabel className={labelStyle}>
-                          Nomor WhatsApp (Opsional)
+                          {t("contact.form.labels.phone")}
                         </FormLabel>
                         <FormControl>
                           <Input
                             autoComplete="off"
                             type="tel"
-                            placeholder="Nomor Kamu"
+                            placeholder={t("contact.form.placeholders.phone")}
                             disabled={isPending || cooldown > 0}
                             className={inputStyle}
                             {...field}
@@ -263,13 +303,14 @@ const ContactPage = () => {
                     render={({ field }) => (
                       <FormItem className="relative grid gap-2 space-y-0 mb-4">
                         <FormLabel className={labelStyle}>
-                          Subjek Pesan
+                          {t("contact.form.labels.subject")}
                         </FormLabel>
                         <FormControl>
                           <Input
                             autoComplete="off"
-                            placeholder="Tanya Apa Saja"
+                            placeholder={t("contact.form.placeholders.subject")}
                             disabled={isPending || cooldown > 0}
+                            readOnly={isPrivacyRequestMode}
                             className={inputStyle}
                             {...field}
                           />
@@ -285,13 +326,21 @@ const ContactPage = () => {
                   name="message"
                   render={({ field }) => (
                     <FormItem className="relative grid gap-2 space-y-0 mb-8">
-                      <FormLabel className={labelStyle}>Pesan</FormLabel>{" "}
+                      <FormLabel className={labelStyle}>
+                        {t("contact.form.labels.message")}
+                      </FormLabel>
                       <FormControl>
                         <textarea
-                          rows={4}
-                          placeholder="Jelaskan detail pertanyaan atau kendala Anda"
+                          rows={isPrivacyRequestMode ? 12 : 4}
+                          placeholder={t("contact.form.placeholders.message")}
                           disabled={isPending || cooldown > 0}
-                          className={`${inputStyle} resize-none`}
+                          className={`${inputStyle} resize-none 
+                            [&::-webkit-scrollbar]:w-1 
+                            [&::-webkit-scrollbar-track]:bg-transparent 
+                            [&::-webkit-scrollbar-thumb]:bg-primary/20 
+                            [&::-webkit-scrollbar-thumb]:rounded-full 
+                            hover:[&::-webkit-scrollbar-thumb]:bg-primary 
+                            transition-colors`}
                           {...field}
                         />
                       </FormControl>
@@ -308,16 +357,15 @@ const ContactPage = () => {
                   {isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("contact.form.processing")}
                     </>
                   ) : cooldown > 0 ? (
-                    <>
-                      <Timer className="mr-2 h-4 w-4 animate-pulse text-muted-foreground" />
-                      Tunggu {cooldown}s
-                    </>
+                    t("contact.form.cooldown").replace(
+                      "{{seconds}}",
+                      String(cooldown),
+                    )
                   ) : (
-                    <>
-                      Kirim Pesan <Send className="ml-2 size-4" />
-                    </>
+                    t("contact.form.submit")
                   )}
                 </Button>
               </form>

@@ -1,0 +1,677 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "logout": "Log out",
+    "login": "Log in",
+    "signup": "Sign Up",
+    "sidebar": {
+      "label": "Application",
+      "overview": "Overview",
+      "users": "Users",
+      "technicians": "Technicians",
+      "products": "Products",
+      "services": "Services",
+      "settings": "Settings"
+    }
+  },
+  "home": {
+    "hero": {
+      "title_1": "The Ultimate",
+      "title_2": "Gadget Solution.",
+      "subtitle": "Your trusted center for smartphones, premium accessories, and reliable repair services in the city.",
+      "consult_btn": "Service Consultation"
+    },
+    "tracking": {
+      "title": "Track Your Repair Status",
+      "placeholder": "Enter Receipt Number / Service ID",
+      "example": "Example: SRV-2024001"
+    },
+    "services": {
+      "title": "Sinari Cell Services",
+      "subtitle": "How can we help you today?",
+      "items": {
+        "smartphone": {
+          "title": "Smartphones & Accessories",
+          "desc": "The latest smartphone collections and original accessories with official warranties."
+        },
+        "service_center": {
+          "title": "Service Center",
+          "desc": "Hardware and software repairs handled expertly by certified technicians."
+        },
+        "ppob": {
+          "title": "Top-ups & Bills",
+          "desc": "Fast and easy top-ups for mobile credits, data packages, and bill payments."
+        }
+      }
+    },
+    "products": {
+      "title": "Best-Selling Products",
+      "subtitle": "Customer favorites this week",
+      "see_all": "View All",
+      "see_all_mobile": "View All Products",
+      "empty_title": "No Products Available",
+      "empty_desc": "Products will be added to our catalog soon.",
+      "out_of_stock": "SOLD OUT",
+      "brand": "Brand",
+      "category": "Category"
+    },
+    "standards": {
+      "title_1": "Top Service Standards,",
+      "title_2": "Just for You.",
+      "subtitle": "We are committed to delivering transparent, fast, and reliable services. Your device is in safe hands with Sinari Cell.",
+      "trusted": "Trusted by Thousands of Customers",
+      "items": {
+        "warranty": {
+          "title": "Warranty Guarantee",
+          "desc": "Your peace of mind is our priority. Enjoy full after-sales service for every repair and purchase."
+        },
+        "tracking": {
+          "title": "Online Status Tracking",
+          "desc": "Monitor your device's repair progress from anywhere using our smart tracking feature."
+        },
+        "transparent": {
+          "title": "Transparent Pricing",
+          "desc": "Free initial consultation. All cost estimates for parts and services are provided before the work begins."
+        },
+        "technician": {
+          "title": "Expert Technicians",
+          "desc": "Carefully handled by professionals using high-quality, specialized equipment."
+        }
+      }
+    }
+  },
+  "footer": {
+    "newsletter": {
+      "title": "Get Special Promo Updates",
+      "subtitle": "Subscribe to our newsletter so you don't miss out on the latest service info and accessories.",
+      "placeholder": "Enter your email",
+      "processing": "Processing...",
+      "subscribe": "Subscribe",
+      "success_msg": "Successfully subscribed"
+    },
+    "standards": {
+      "title": "Our Service Standards",
+      "warranty": "Warranty Guarantee",
+      "transparent": "Transparent Pricing",
+      "technician": "Expert Technicians",
+      "tracking": "Online Status Tracking"
+    },
+    "company_desc": "Your trusted partner for hardware repairs, software maintenance, and premium accessories.",
+    "links": {
+      "services": {
+        "title": "Main Services",
+        "consultation": "Damage Consultation",
+        "tracking": "Track Repair Status",
+        "products": "Product Catalog"
+      },
+      "customer": {
+        "title": "Customer Info",
+        "about": "About Us",
+        "contact": "Contact Us",
+        "faq": "Help Center (FAQ)"
+      },
+      "policy": {
+        "title": "Policies",
+        "warranty": "Warranty Terms",
+        "privacy": "Privacy Policy",
+        "terms": "Terms & Conditions"
+      }
+    },
+    "copyright": "All Rights Reserved."
+  },
+  "terms": {
+    "title_1": "Terms of",
+    "title_2": "Service.",
+    "subtitle": "Five pillars of agreement between Sinari Cell and the Customer to ensure a secure, comfortable, and hassle-free transaction.",
+    "items": {
+      "01": {
+        "title": "Registration & Diagnostic Fees",
+        "desc": "We do not charge diagnostic fees. However, if the service is canceled <strong>after</strong> you have approved the cost (and the device has been disassembled), a minimum reassembly fee will apply. Special parts ordering requires a 50% down payment."
+      },
+      "02": {
+        "title": "Transaction Payments",
+        "desc": "Repaired or purchased items must be paid in full before being taken home. We do not accept personal credit or installment systems. Valid payments are made at the store cashier or via corporate bank transfer."
+      },
+      "03": {
+        "title": "Device Collection Limit",
+        "desc": "Devices must be collected within a maximum of <strong>30 Days</strong> after being confirmed as completed or canceled. After 90 days with no communication, the item is considered abandoned, and we reserve the right to auction it to cover our losses."
+      },
+      "04": {
+        "title": "Hardware Repair Risks",
+        "desc": "Units brought in with a history of being <strong>completely dead, liquid-damaged, or requiring IC/CPU repairs</strong> carry a risk of permanent failure or loss of certain features after disassembly. Our technicians work to the best of their abilities, but these risks are fully borne by the customer."
+      },
+      "05": {
+        "title": "Final Inspection (Handover)",
+        "desc": "Customers are required to physically inspect the screen, camera, and other accessories before leaving the counter. Complaints regarding cracks, scratches, or missing items after leaving the store premises are considered invalid."
+      }
+    },
+    "back_to_home": "Back to Home"
+  },
+  "privacy": {
+    "title": "Privacy & Data Security",
+    "subtitle": "We protect your personal data as carefully as we repair your devices.",
+    "items": {
+      "01": {
+        "title": "Information We Collect",
+        "desc": "We only request your Full Name, WhatsApp Number, and damage details for registration purposes. We will never ask for your ID card unless required to verify device ownership due to a lost receipt."
+      },
+      "02": {
+        "title": "Password Confidentiality",
+        "desc": "Your screen password or pattern is only requested if comprehensive hardware testing is necessary (e.g., full screen or audio tests). You reserve the right to decline, which may result in limited post-repair testing warranties."
+      },
+      "03": {
+        "title": "Strict Data Access Prohibition",
+        "desc": "Sinari Cell's Standard Operating Procedures strictly forbid technicians from opening customer messaging apps, photo galleries, or mobile banking. Any privacy violation by our staff will face severe legal action."
+      },
+      "04": {
+        "title": "Third Parties & Marketing",
+        "desc": "Your phone number is strictly used within our internal database for receipt tracking and after-sales service. We absolutely do not sell or share customer data with any telemarketing agencies."
+      },
+      "05": {
+        "title": "Use of Cookies",
+        "desc": "The Sinari Cell website uses minimal essential <i>Cookies</i> strictly to maintain your active login session (Login Token). We do not use third-party cookies to track your browsing activities for advertising purposes."
+      }
+    },
+    "delete_data": {
+      "title": "Delete Your Data",
+      "desc": "You have the absolute right to request the permanent deletion of your phone number and service history from our system once the warranty period has expired.",
+      "btn": "Request Deletion",
+      "email_subject": "Request for Personal Data Anonymization",
+      "email_body": "Hello Sinari Cell Team,\n\nIn accordance with the applicable privacy policy, I would like to request the anonymization of my personal data (masking my Name and WhatsApp Number) from the store's service history system.\n\nHere are my transaction details for verification purposes:\n\nService ID (SRV) :\nCustomer Name :\nRegistered WA Number :\n\nPlease confirm via this email once my identity data has been successfully deleted/masked from the database.\n\nThank you for your assistance."
+    }
+  },
+  "warranty": {
+    "title": "Warranty Policy",
+    "subtitle": "Transparent from the start. Know your rights and how to keep your device's warranty valid.",
+    "badges": {
+      "hardware": "Hardware: 30 Days",
+      "software": "Software: 7 Days"
+    },
+    "valid": {
+      "title": "Valid Warranty",
+      "desc": "Sinari Cell will repair or replace parts free of charge if:",
+      "list": {
+        "01": "The damage occurs on the <strong>exact same component</strong> that was previously repaired.",
+        "02": "The claim is made within the warranty period (calculated from the day the device was picked up).",
+        "03": "You bring the original service receipt and provide evidence of the issue (if any)."
+      }
+    },
+    "void": {
+      "title": "Void Warranty",
+      "desc": "Warranty claims will be rejected, and any further repairs will be charged at standard rates if:",
+      "list": {
+        "01": "<strong>Broken store seal:</strong> The warranty seal is torn, missing, or shows signs of tampering.",
+        "02": "<strong>Human Error:</strong> The device is dropped, bumped, crushed in a pocket, physically damaged, or exposed to liquid or sweat.",
+        "03": "<strong>Third-party intervention:</strong> The device has been repaired at another store after leaving Sinari Cell."
+      }
+    },
+    "claim": {
+      "title": "How to Claim",
+      "desc": "Bring your device and the original receipt, and show the issue to our technicians.",
+      "btn": "Claim Consultation"
+    }
+  },
+  "faq": {
+    "badge": "Help Center",
+    "title": "Sinari Cell FAQ",
+    "subtitle": "Everything you need to know about our services, warranties, and operational procedures.",
+    "not_found": "Haven't found the right answer?",
+    "btn_msg": "Send a Message",
+    "list": [
+      {
+        "question": "How long does the repair process take?",
+        "answer": "Minor repairs can be done while you wait (1-2 hours). For major hardware or motherboard issues, the estimated time is 1-3 business days."
+      },
+      {
+        "question": "Do you provide a warranty after the repair?",
+        "answer": "Yes, we offer a 30-day warranty for parts replacement and repair services, provided the warranty seal remains intact."
+      },
+      {
+        "question": "How can I track my device's repair status?",
+        "answer": "Please use the 'Track Repair Status' feature in the top menu and enter the Receipt ID provided by the cashier to monitor the progress in real-time."
+      },
+      {
+        "question": "What payment methods are accepted?",
+        "answer": "Our payment methods are highly flexible. We accept Cash, Bank Transfers (BCA, Mandiri), and QRIS (Gopay, OVO, DANA, etc.)."
+      },
+      {
+        "question": "Is my personal data secure?",
+        "answer": "Absolutely. Our technicians are strictly prohibited from accessing your gallery, messages, or other personal data without your permission. Your privacy is our priority."
+      },
+      {
+        "question": "Is there a fee for the initial consultation?",
+        "answer": "Not at all. Initial diagnostics and consultations regarding your device's issues, whether in-store or via WhatsApp, are completely free of charge."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have questions about device repairs or spare part availability? Our team is more than happy to assist you.",
+    "info": {
+      "title": "Store Information",
+      "address": "Full Address",
+      "hours": "Operational Hours",
+      "phone": "Phone & WhatsApp",
+      "email": "Email",
+      "loading": "Loading information..."
+    },
+    "form": {
+      "title": "Send a Message",
+      "privacy_mode": "<strong>Privacy Request Mode:</strong> Please complete the missing details in the message box below (Service ID, Name, and WA Number) so we can verify and process your data deletion request.",
+      "rate_limit_title": "Action Paused",
+      "rate_limit_desc": "Too many attempts. Please wait <span class=\"font-bold tabular-nums\">{{seconds}}s</span> before trying again.",
+      "labels": {
+        "name": "Full Name",
+        "email": "Email Address",
+        "phone": "WhatsApp Number (Optional)",
+        "subject": "Message Subject",
+        "message": "Message"
+      },
+      "placeholders": {
+        "name": "Enter your name",
+        "email": "Your email",
+        "phone": "Your number",
+        "subject": "Ask anything",
+        "message": "Explain your question or issue in detail"
+      },
+      "submit": "Send Message",
+      "processing": "Processing...",
+      "cooldown": "Wait {{seconds}}s"
+    }
+  },
+  "about": {
+    "title": "Our Journey",
+    "subtitle": "Sinari Cell was not built overnight. We emerged from the realization of how difficult it is to find honest, secure, and reliable device repair services.",
+    "timeline": [
+      {
+        "badge": "2013",
+        "title": "How It Started",
+        "desc": "Starting from a modest kiosk, we began offering minor repairs and software troubleshooting for the local community."
+      },
+      {
+        "badge": "2019",
+        "title": "Service & Product Expansion",
+        "desc": "As customer trust grew, we upgraded our facilities and began providing original spare parts alongside a comprehensive range of premium accessories."
+      },
+      {
+        "badge": "Today",
+        "title": "Digital Transformation",
+        "desc": "Introducing an online service tracking system, empowering customers to monitor their device's repair progress from anywhere with full transparency."
+      }
+    ]
+  },
+  "catalog": {
+    "title": "Product Catalog",
+    "filters": {
+      "title": "Filters",
+      "active": "Active:",
+      "clear_all": "Clear All",
+      "search": "Search:",
+      "category": "Category:",
+      "brand": "Brand:",
+      "in_stock": "In Stock Only",
+      "price": "Price:"
+    },
+    "sort": {
+      "title": "Sort By",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "price_asc": "Price: Low to High",
+      "price_desc": "Price: High to Low"
+    },
+    "empty": {
+      "title": "No products found",
+      "desc": "Try adjusting your search filters, removing some tags, or searching with different keywords."
+    },
+    "product": {
+      "out_of_stock": "SOLD OUT",
+      "brand": "Brand",
+      "category": "Category",
+      "stock": "Stock:"
+    },
+    "sidebar": {
+      "search": "Search",
+      "search_placeholder": "Search products",
+      "category": "Category",
+      "all_categories": "All Categories",
+      "price": "Price",
+      "min": "Min",
+      "max": "Max",
+      "apply_price": "Apply Price",
+      "brand_tags": "Brand (Tags)",
+      "in_stock_label": "Show only in-stock items"
+    }
+  },
+  "profile": {
+    "error": {
+      "title": "Failed to load profile.",
+      "btn": "Go to Login"
+    },
+    "header": {
+      "title": "Account Settings",
+      "subtitle": "Manage your profile and security preferences here."
+    },
+    "personal_info": {
+      "title": "Personal Information",
+      "name": "Full Name",
+      "username": "Username",
+      "email": "Registered Email",
+      "user_id": "User ID"
+    },
+    "security": {
+      "title": "Access & Security",
+      "change_pwd_title": "Change Password",
+      "change_pwd_desc": "Update your password regularly to maintain account security.",
+      "change_pwd_btn": "Change Password"
+    },
+    "session": {
+      "title": "Active Session",
+      "desc": "Sign out of the application on this device.",
+      "logout_btn": "Log Out Now"
+    },
+    "change_password": {
+      "trigger_btn": "Change Password",
+      "title": "Change Password",
+      "desc": "Enter your current password to verify, then enter your new password.",
+      "rate_limit_title": "Action Paused",
+      "rate_limit_desc": "Too many attempts. Please wait <span class=\"font-bold tabular-nums\">{{seconds}}s</span> before trying again.",
+      "labels": {
+        "old_password": "Current Password",
+        "new_password": "New Password",
+        "confirm_password": "Confirm New Password"
+      },
+      "placeholders": {
+        "old_password": "Enter current password",
+        "new_password": "Enter new password",
+        "confirm_password": "Repeat new password"
+      },
+      "btn_cancel": "Cancel",
+      "btn_save": "Save Password"
+    }
+  },
+  "dashboard": {
+    "loading": "Loading Dashboard...",
+    "error": {
+      "title": "Failed to load dashboard data.",
+      "btn": "Try Again"
+    },
+    "header": {
+      "title": "Dashboard Overview",
+      "export_btn": "Export Report"
+    },
+    "cards": {
+      "revenue": {
+        "title": "Gross Revenue (Month)",
+        "desc_positive": "+{{value}}% from last month",
+        "desc_negative": "{{value}}% from last month"
+      },
+      "profit": {
+        "title": "Net Profit",
+        "desc_positive": "+{{value}}% from last month",
+        "desc_negative": "{{value}}% from last month"
+      },
+      "products": {
+        "title": "Products Sold",
+        "desc": "Items sold this month"
+      },
+      "active_repairs": {
+        "title": "Active Repairs",
+        "desc": "Currently in progress"
+      },
+      "pending_queue": {
+        "title": "Pending Queue",
+        "desc": "Waiting for technician"
+      },
+      "finished_jobs": {
+        "title": "Finished Jobs",
+        "desc": "Jobs completed this period"
+      }
+    },
+    "chart": {
+      "title": "Revenue Overview",
+      "desc": "Total income from finished services and product sales."
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "desc": "Latest updates."
+    }
+  },
+  "auth": {
+    "common": {
+      "too_many_attempts": "Too many attempts. Please wait before trying again.",
+      "google_failed": "Failed to connect to Google.",
+      "try_again": "Try again in {{seconds}}s",
+      "copyright": "All rights reserved."
+    },
+    "login": {
+      "title": "Sinari Cell",
+      "subtitle": "Welcome back! Please sign in to continue.",
+      "identifier": "Email or Username",
+      "password": "Password",
+      "forgot_pwd": "Forgot password?",
+      "btn_submit": "Sign In",
+      "no_account": "Don't have an account?",
+      "create_account": "Create an account"
+    },
+    "register": {
+      "title": "Sinari Cell",
+      "subtitle": "Create your account to get started",
+      "email": "Email",
+      "username": "Username",
+      "name": "Full Name",
+      "password": "Password",
+      "btn_submit": "Sign Up",
+      "have_account": "Already have an account?",
+      "sign_in": "Sign in"
+    },
+    "verify": {
+      "verified_title": "Account Verified!",
+      "verified_msg": "Your account is active. Please login to continue.",
+      "verified_reg_msg": "Your account is active. You can now login.",
+      "failed_title": "Failed to Send",
+      "check_email_title": "Check Your Email",
+      "check_email_msg_1": "Please check your email to verify your account.",
+      "check_email_msg_2": "A verification link has been sent to",
+      "registered_email": "your registered email",
+      "not_verified_title": "Account Not Verified",
+      "not_verified_msg_1": "Your account",
+      "not_verified_msg_2": "is not verified yet.",
+      "linked_email": "Linked email:",
+      "check_inbox": "Please check your inbox or click the button below to resend the link.",
+      "reg_success_title": "Registration Success",
+      "btn_resend": "Resend Verification Email",
+      "btn_login_now": "Login Now",
+      "btn_back_login": "Back to Login"
+    },
+    "forgot": {
+      "title": "Sinari Cell",
+      "subtitle_1": "Forgot your password?",
+      "subtitle_2": "Enter your email or username below.",
+      "identifier": "Email or Username",
+      "btn_submit": "Send Reset Link",
+      "btn_back": "Back to Login",
+      "check_email_title": "Check Your Email",
+      "check_email_msg_1": "Please check your email address for instructions to reset your password.",
+      "check_email_msg_2": "A reset link has been sent to",
+      "registered_email": "your registered email",
+      "failed_title": "Failed to Send",
+      "btn_resend": "Resend Reset Link",
+      "limit_reached": "Daily Limit Reached"
+    },
+    "reset": {
+      "title": "Sinari Cell",
+      "subtitle": "Create New Password",
+      "invalid_link_title": "Invalid Link",
+      "invalid_link_desc": "The password reset link is invalid or missing. Please request a new one.",
+      "btn_back_forgot": "Back to Forgot Password",
+      "success_title": "Password Reset!",
+      "success_msg_1": "Your password has been successfully updated.",
+      "success_msg_2": "You can now login with your new password.",
+      "btn_go_login": "Go to Login",
+      "missing_token": "Invalid link. Token is missing.",
+      "failed_reset": "Failed to reset password",
+      "placeholders": {
+        "new_password": "New Password",
+        "confirm_password": "Confirm New Password"
+      },
+      "btn_submit": "Reset Password"
+    },
+    "card": {
+      "default_title": "Registration Success",
+      "default_message": "Please check your email to verify your account.",
+      "default_btn_resend": "Resend Verification Email",
+      "resend_in": "Resend in {{seconds}}s"
+    }
+  },
+  "not_found": {
+    "glass": {
+      "title": "We couldn't find that {{entity}}",
+      "message": "The {{entity}} with ID {{id}} is missing from our records. It may have been deleted or the ID is incorrect.",
+      "message_no_id": "The {{entity}} is missing from our records. It may have been deleted or the link is incorrect.",
+      "btn_back": "Go Back",
+      "btn_home": "Home",
+      "btn_dashboard": "Dashboard"
+    },
+    "split": {
+      "badge": "404 Error",
+      "title": "Missing Data",
+      "message": "Sorry, we couldn't locate the {{entity}}. It might have been moved, deleted, or you may have mistyped the ID.",
+      "searched_id": "Searched ID",
+      "btn_main": "Back to {{target}}",
+      "btn_ghost": "Go Back"
+    },
+    "minimal": {
+      "title": "{{entity}} not found",
+      "message": "We can't seem to find the page or data you're looking for.",
+      "id_label": "(ID: {{id}})",
+      "btn_back": "Go Back",
+      "btn_main": "{{target}}"
+    }
+  },
+  "product_detail": {
+    "loading": "Loading product details...",
+    "header": {
+      "title": "Product Details",
+      "subtitle": "Complete information and product specifications"
+    },
+    "status": {
+      "out_of_stock_badge": "SOLD OUT",
+      "out_of_stock_label": "OUT OF STOCK",
+      "low_stock": "Low stock in our store display."
+    },
+    "info": {
+      "price_label": "Product Price",
+      "specs_title": "Specifications",
+      "id_title": "Identification",
+      "category": "Category",
+      "brand": "Brand",
+      "manufacturer": "Manufacturer",
+      "sku": "Product SKU",
+      "unit_label": "Units in Store"
+    },
+    "cta": {
+      "wa_card_title": "Interested in this product?",
+      "wa_card_desc": "Ask about availability and further details directly to our admin.",
+      "wa_btn": "Ask via WhatsApp",
+      "wa_footer": "Or visit our offline store directly.",
+      "wa_message": "Hello Sinari Cell Admin, I am interested in the {{name}} product on your website. Is it still available with {{stock}} units in stock?",
+      "stock_title": "Stock Availability",
+      "stock_empty": "Empty",
+      "stock_safe": "Safe"
+    },
+    "store_info": {
+      "title": "Visit Us",
+      "physical_check": "In-Person Inspection",
+      "physical_check_desc": "Check the item quality directly before purchasing.",
+      "available_store": "In-Store Availability",
+      "available_store_desc": "This item is available at Sinari Cell offline display."
+    }
+  },
+  "track_service": {
+    "loading": "Tracking Service...",
+    "updating": "Updating latest data...",
+    "not_found_entity": "Service Tracking",
+    "invoice": {
+      "subtitle": "Professional Repair Service",
+      "title": "INVOICE TRACKER",
+      "info_to": "Invoice to:",
+      "inv_no": "Inv#",
+      "date": "Date",
+      "technician": "Technician",
+      "table": {
+        "no": "No.",
+        "desc": "Description",
+        "price": "Price",
+        "total": "Total"
+      },
+      "footer": {
+        "terms": "Terms & Conditions:",
+        "payment": "Payment Info:",
+        "subtotal": "Sub Total",
+        "discount": "Discount",
+        "dp": "Down Payment",
+        "amount_due": "Amount Due",
+        "total_due": "Total Due",
+        "refund_notice": "REFUND NOTICE",
+        "refund_msg": "Service cancelled. Please present this invoice to the cashier for a DP refund of {{amount}}.",
+        "authorized_sign": "Authorized Sign"
+      }
+    }
+  },
+  "settings": {
+    "header": {
+      "title": "Settings",
+      "subtitle": "Manage your store details, integrations, and system preferences."
+    },
+    "tabs": {
+      "store": "Store",
+      "policy": "Policy",
+      "payment": "Payment",
+      "apps": "Apps"
+    },
+    "store_profile": {
+      "title": "Store Profile",
+      "desc": "Public information for your receipts.",
+      "name": "Store Name",
+      "address": "Address",
+      "phone": "Phone Number",
+      "email": "Email",
+      "hours": "Operational Hours",
+      "hours_placeholder": "Mon - Sat: 09:00 - 21:00\nSun: Closed"
+    },
+    "operational": {
+      "title": "Terms & Conditions",
+      "desc": "Default text for invoice footer.",
+      "warranty_label": "Warranty Policy"
+    },
+    "payment_info": {
+      "title": "Payment Information",
+      "desc": "Bank accounts or payment instructions.",
+      "bank_label": "Bank Details"
+    },
+    "whatsapp": {
+      "title": "WhatsApp Integration",
+      "desc": "Connect a WhatsApp number to send automatic notifications to customers.",
+      "idle_title": "WhatsApp is Idle",
+      "idle_desc": "Click the button below to check current connection status or generate a new QR Code.",
+      "btn_check": "Check Status / Connect Device",
+      "status_label": "Status",
+      "status_connected": "Connected",
+      "status_waiting": "Waiting for Scan...",
+      "status_disconnected": "Disconnected",
+      "instruction": "Use your shop's Business or regular WhatsApp. If the number is blocked, click 'Disconnect' and scan again with a new number.",
+      "btn_disconnect": "Disconnect Device",
+      "btn_stop": "Stop Polling",
+      "linked_title": "Device Linked",
+      "linked_desc": "Ready to send messages",
+      "generating_qr": "Generating QR..."
+    },
+    "footer": {
+      "btn_preview": "Preview Changes",
+      "btn_save": "Save Settings"
+    }
+  }
+}

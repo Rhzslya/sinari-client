@@ -25,10 +25,12 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import { useProductQueries } from "@/hooks/product-queries";
+import { useTranslation } from "react-i18next";
 
 const ProductDetailPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const productQueries = useProductQueries();
 
   const id = Number(productId);
@@ -42,7 +44,7 @@ const ProductDetailPage = () => {
   if (isLoading)
     return (
       <div className="p-8 text-center text-muted-foreground animate-pulse">
-        Memuat detail produk...
+        {t("product_detail.loading")}
       </div>
     );
 
@@ -65,7 +67,11 @@ const ProductDetailPage = () => {
   else if (isLowStock) stockColor = "bg-amber-500";
 
   const handleWhatsAppClick = () => {
-    const message = `Halo Admin Sinari Cell, saya tertarik dengan produk ${product.name} yang ada di website. Apakah stoknya masih ${product.stock} unit?`;
+    // 👈 Gunakan interpolasi t() untuk pesan WA
+    const message = t("product_detail.cta.wa_message", {
+      name: product.name,
+      stock: product.stock,
+    });
     const whatsappUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(
       message,
     )}`;
@@ -76,13 +82,20 @@ const ProductDetailPage = () => {
     <div className="container mx-auto py-8 px-4 md:px-6 lg:px-8 max-w-7xl">
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="cursor-pointer"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight">Detail Produk</h1>
+            <h1 className="text-xl font-bold tracking-tight">
+              {t("product_detail.header.title")}
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Informasi lengkap dan spesifikasi produk
+              {t("product_detail.header.subtitle")}
             </p>
           </div>
         </div>
@@ -106,7 +119,7 @@ const ProductDetailPage = () => {
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
                           <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-3 py-1 rounded shadow-sm tracking-widest">
-                            HABIS
+                            {t("product_detail.status.out_of_stock_badge")}
                           </span>
                         </div>
                       )}
@@ -121,7 +134,7 @@ const ProductDetailPage = () => {
                         </Badge>
                         {isOutOfStock && (
                           <Badge variant="destructive" className="text-[10px]">
-                            OUT OF STOCK
+                            {t("product_detail.status.out_of_stock_label")}
                           </Badge>
                         )}
                       </div>
@@ -150,7 +163,7 @@ const ProductDetailPage = () => {
                 <CardContent className="p-6 md:p-8 bg-background">
                   <div className="space-y-2">
                     <label className="text-xs uppercase text-muted-foreground font-bold tracking-widest">
-                      Harga Produk
+                      {t("product_detail.info.price_label")}
                     </label>
                     <div className="text-4xl md:text-5xl font-black text-primary tracking-tighter">
                       {formatRupiah(product.price)}
@@ -163,13 +176,14 @@ const ProductDetailPage = () => {
                 <Card className="h-full flex flex-col shadow-sm border-border/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                      <ScanBarcode className="w-4 h-4" /> Spesifikasi
+                      <ScanBarcode className="w-4 h-4" />{" "}
+                      {t("product_detail.info.specs_title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 pt-4 flex-1 flex flex-col justify-center">
                     <div className="flex justify-between py-2 border-b border-dashed">
                       <span className="text-sm text-muted-foreground">
-                        Kategori
+                        {t("product_detail.info.category")}
                       </span>
                       <span className="text-sm font-bold">
                         {product.category}
@@ -177,13 +191,13 @@ const ProductDetailPage = () => {
                     </div>
                     <div className="flex justify-between py-2 border-b border-dashed">
                       <span className="text-sm text-muted-foreground">
-                        Merek
+                        {t("product_detail.info.brand")}
                       </span>
                       <span className="text-sm font-bold">{product.brand}</span>
                     </div>
                     <div className="flex justify-between items-center gap-4 py-2">
                       <span className="text-sm text-muted-foreground shrink-0">
-                        Pabrikan
+                        {t("product_detail.info.manufacturer")}
                       </span>
                       <span
                         className="text-sm font-bold truncate max-w-37.5 sm:max-w-50 text-right"
@@ -198,7 +212,8 @@ const ProductDetailPage = () => {
                 <Card className="h-full flex flex-col shadow-sm border-border/60">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                      <QrCode className="w-4 h-4" /> Identifikasi
+                      <QrCode className="w-4 h-4" />{" "}
+                      {t("product_detail.info.id_title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col items-center justify-center text-center space-y-4 pt-4">
@@ -207,7 +222,7 @@ const ProductDetailPage = () => {
                     </div>
                     <div className="space-y-1 w-full bg-muted/20 p-2 rounded-md border border-dashed">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
-                        SKU Produk
+                        {t("product_detail.info.sku")}
                       </p>
                       <p className="font-mono font-bold text-base tracking-widest text-foreground">
                         PRD-{product.id.toString().padStart(6, "0")}
@@ -218,30 +233,27 @@ const ProductDetailPage = () => {
               </div>
             </div>
 
-            {/* KOLOM KANAN (Actions, Status, Info) */}
             <div className="space-y-6 h-full flex flex-col">
-              {/* KOTAK KONTAK / WHATSAPP */}
               <Card className="h-fit border-t-4 border-t-green-500 shadow-md">
                 <CardHeader className="pb-4 bg-muted/10">
                   <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">
-                    Tertarik dengan produk ini?
+                    {t("product_detail.cta.wa_card_title")}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    Tanyakan ketersediaan dan detail lebih lanjut langsung
-                    kepada admin kami.
+                    {t("product_detail.cta.wa_card_desc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3 pt-6">
                   <Button
                     size="lg"
                     onClick={handleWhatsAppClick}
-                    className="w-full justify-center duration-300 font-bold shadow-md bg-green-600 hover:bg-green-700 text-white border-none"
+                    className="w-full justify-center duration-300 font-bold shadow-md bg-green-600 hover:bg-green-700 text-white border-none cursor-pointer"
                   >
-                    <MessageCircle className="mr-2 h-5 w-5" /> Tanya via
-                    WhatsApp
+                    <MessageCircle className="mr-2 h-5 w-5" />{" "}
+                    {t("product_detail.cta.wa_btn")}
                   </Button>
                   <p className="text-[10px] text-muted-foreground text-center mt-1">
-                    Atau kunjungi langsung toko offline kami.
+                    {t("product_detail.cta.wa_footer")}
                   </p>
                 </CardContent>
               </Card>
@@ -249,7 +261,8 @@ const ProductDetailPage = () => {
               <Card className="h-fit shadow-sm border-border/60">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
-                    <Box className="w-4 h-4" /> Ketersediaan Stok
+                    <Box className="w-4 h-4" />{" "}
+                    {t("product_detail.cta.stock_title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-4">
@@ -262,14 +275,14 @@ const ProductDetailPage = () => {
                       {product.stock}
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mt-1">
-                      Unit di Toko
+                      {t("product_detail.info.unit_label")}
                     </p>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                      <span>Habis</span>
-                      <span>Aman</span>
+                      <span>{t("product_detail.cta.stock_empty")}</span>
+                      <span>{t("product_detail.cta.stock_safe")}</span>
                     </div>
                     <div className="h-2.5 w-full bg-secondary rounded-full overflow-hidden border border-secondary">
                       <div
@@ -281,8 +294,8 @@ const ProductDetailPage = () => {
                     </div>
                     {isLowStock && !isOutOfStock && (
                       <p className="text-[11px] text-amber-600 font-medium flex items-center gap-1 mt-2">
-                        <AlertCircle className="w-3 h-3" /> Stok menipis di
-                        etalase toko.
+                        <AlertCircle className="w-3 h-3" />{" "}
+                        {t("product_detail.status.low_stock")}
                       </p>
                     )}
                   </div>
@@ -292,7 +305,8 @@ const ProductDetailPage = () => {
               <Card className="flex-1 shadow-sm border-border/60 bg-muted/10">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold flex gap-2 items-center text-muted-foreground uppercase tracking-wider">
-                    <Store className="w-4 h-4" /> Kunjungi Kami
+                    <Store className="w-4 h-4" />{" "}
+                    {t("product_detail.store_info.title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm h-full flex flex-col pt-4">
@@ -301,10 +315,11 @@ const ProductDetailPage = () => {
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">Cek Fisik Langsung</p>
+                      <p className="font-bold text-sm">
+                        {t("product_detail.store_info.physical_check")}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        Pastikan kualitas barang secara langsung sebelum
-                        membeli.
+                        {t("product_detail.store_info.physical_check_desc")}
                       </p>
                     </div>
                   </div>
@@ -314,9 +329,11 @@ const ProductDetailPage = () => {
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">Tersedia di Toko</p>
+                      <p className="font-bold text-sm">
+                        {t("product_detail.store_info.available_store")}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        Barang ini ada di etalase toko offline Sinari Cell.
+                        {t("product_detail.store_info.available_store_desc")}
                       </p>
                     </div>
                   </div>

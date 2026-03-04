@@ -33,10 +33,12 @@ import { useUserQueries } from "@/hooks/user-queries";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { isAxiosError } from "axios";
 import { getErrorMessage } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 type ChangePasswordRequest = z.infer<typeof UserValidation.CHANGE_PASSWORD>;
 
 export function ChangePasswordDialog() {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -59,7 +61,6 @@ export function ChangePasswordDialog() {
     "ratelimit_",
   );
 
-  // Pengecekan Rate Limit (Mirip UpdateRoleForm)
   const isRateLimited =
     isError && isAxiosError(error) && error.response?.status === 429;
 
@@ -119,18 +120,19 @@ export function ChangePasswordDialog() {
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="font-bold border-2 shrink-0">
-          <Key className="w-4 h-4 mr-2" /> Change Password
+          <Key className="w-4 h-4 mr-2" />{" "}
+          {t("profile.change_password.trigger_btn")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
-          <DialogTitle>Change Password</DialogTitle>
+          <DialogTitle>{t("profile.change_password.title")}</DialogTitle>
           <DialogDescription className="sr-only">
-            Enter your current password to verify, then enter your new password.
+            {t("profile.change_password.desc")}
           </DialogDescription>
         </DialogHeader>
 
-        {/* AREA PESAN GENERAL ERROR (Hanya jika cooldown = 0 tapi ada error salah password dll) */}
+        {/* AREA PESAN GENERAL ERROR */}
         <div className="min-h-13 w-full flex items-center -mb-2 mt-1">
           {generalError && cooldown === 0 ? (
             <div className="bg-destructive/10 w-full px-4 py-2.5 rounded-md text-destructive flex items-start gap-2 border border-destructive/20 shadow-sm animate-in fade-in zoom-in-95 duration-200">
@@ -141,8 +143,7 @@ export function ChangePasswordDialog() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground animate-in fade-in duration-300">
-              Enter your current password to verify, then enter your new
-              password.
+              {t("profile.change_password.desc")}
             </p>
           )}
         </div>
@@ -152,21 +153,24 @@ export function ChangePasswordDialog() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-3 pt-2"
           >
-            {/* AREA PERINGATAN COOLDOWN (Persis UpdateRoleForm) */}
             {(cooldown > 0 || isRateLimited) && (
               <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("profile.change_password.rate_limit_title")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "profile.change_password.rate_limit_desc",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
@@ -175,13 +179,17 @@ export function ChangePasswordDialog() {
               name="old_password"
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0 pb-5">
-                  <FormLabel className={labelStyle}>Current Password</FormLabel>
+                  <FormLabel className={labelStyle}>
+                    {t("profile.change_password.labels.old_password")}
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         autoComplete="off"
                         type={showOld ? "text" : "password"}
-                        placeholder="Enter current password"
+                        placeholder={t(
+                          "profile.change_password.placeholders.old_password",
+                        )}
                         disabled={isLoading || isSubmitting || cooldown > 0}
                         {...field}
                         className={inputStyle}
@@ -210,13 +218,17 @@ export function ChangePasswordDialog() {
               name="new_password"
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0 pb-5">
-                  <FormLabel className={labelStyle}>New Password</FormLabel>
+                  <FormLabel className={labelStyle}>
+                    {t("profile.change_password.labels.new_password")}
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         autoComplete="off"
                         type={showNew ? "text" : "password"}
-                        placeholder="Enter new password"
+                        placeholder={t(
+                          "profile.change_password.placeholders.new_password",
+                        )}
                         disabled={isLoading || isSubmitting || cooldown > 0}
                         {...field}
                         className={inputStyle}
@@ -246,14 +258,16 @@ export function ChangePasswordDialog() {
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0 pb-5">
                   <FormLabel className={labelStyle}>
-                    Confirm New Password
+                    {t("profile.change_password.labels.confirm_password")}
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         autoComplete="off"
                         type={showConfirm ? "text" : "password"}
-                        placeholder="Repeat new password"
+                        placeholder={t(
+                          "profile.change_password.placeholders.confirm_password",
+                        )}
                         disabled={isLoading || isSubmitting || cooldown > 0}
                         {...field}
                         className={inputStyle}
@@ -285,7 +299,7 @@ export function ChangePasswordDialog() {
                 onClick={() => handleOpenChange(false)}
                 disabled={isLoading || isSubmitting}
               >
-                Cancel
+                {t("profile.change_password.btn_cancel")}
               </Button>
               <Button
                 variant="default"
@@ -296,7 +310,7 @@ export function ChangePasswordDialog() {
                 {isLoading || isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  "Save Password"
+                  t("profile.change_password.btn_save")
                 )}
               </Button>
             </div>

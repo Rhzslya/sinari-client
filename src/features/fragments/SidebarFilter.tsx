@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { NumberStepper } from "@/components/utils/numberStepper";
 import { Brand, Category } from "@/enum/product-enum";
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface SidebarFiltersProps {
   searchTerm: string;
@@ -38,17 +39,19 @@ export const SidebarFilters = ({
   isLoading,
   isDatabaseEmpty,
 }: SidebarFiltersProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-8 pr-4">
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-          Pencarian
+          {t("catalog.sidebar.search")}
         </h3>
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Cari produk"
+            placeholder={t("catalog.sidebar.search_placeholder")}
             className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -61,7 +64,7 @@ export const SidebarFilters = ({
 
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-          Kategori
+          {t("catalog.sidebar.category")}
         </h3>
         <ul className="space-y-1.5 text-sm">
           <li>
@@ -74,7 +77,7 @@ export const SidebarFilters = ({
                   : "text-muted-foreground hover:bg-muted disabled:hover:bg-transparent"
               }`}
             >
-              Semua Kategori
+              {t("catalog.sidebar.all_categories")}
             </button>
           </li>
           {Object.values(Category).map((category) => (
@@ -97,7 +100,7 @@ export const SidebarFilters = ({
 
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-          Harga
+          {t("catalog.sidebar.price")}
         </h3>
         <div className="space-y-2">
           <NumberStepper
@@ -108,7 +111,7 @@ export const SidebarFilters = ({
             step={10000}
             min={0}
             prefix="Rp"
-            placeholder="Min"
+            placeholder={t("catalog.sidebar.min")}
             disabled={isDatabaseEmpty || isLoading}
           />
           <NumberStepper
@@ -119,7 +122,7 @@ export const SidebarFilters = ({
             step={10000}
             min={0}
             prefix="Rp"
-            placeholder="Max"
+            placeholder={t("catalog.sidebar.max")}
             disabled={isDatabaseEmpty || isLoading}
           />
           <Button
@@ -129,7 +132,7 @@ export const SidebarFilters = ({
             onClick={applyPriceFilter}
             disabled={isDatabaseEmpty || isLoading}
           >
-            Terapkan Harga
+            {t("catalog.sidebar.apply_price")}
           </Button>
         </div>
       </div>
@@ -137,7 +140,7 @@ export const SidebarFilters = ({
       {/* Tags (Brands) */}
       <div className="space-y-3">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-          Merek (Tags)
+          {t("catalog.sidebar.brand_tags")}
         </h3>
         <div className="flex flex-wrap gap-2">
           {Object.values(Brand).map((brand) => (
@@ -178,7 +181,7 @@ export const SidebarFilters = ({
                 : "text-muted-foreground cursor-pointer"
             }`}
           >
-            Hanya tampilkan stok tersedia
+            {t("catalog.sidebar.in_stock_label")}
           </label>
         </div>
       </div>

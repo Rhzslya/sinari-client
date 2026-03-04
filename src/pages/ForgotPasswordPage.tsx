@@ -1,6 +1,9 @@
 import { ForgotPasswordForm } from "@/features/components/ForgotPasswordForm";
+import { useTranslation } from "react-i18next";
 
 const ForgotPasswordPage = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="relative min-h-svh flex items-center justify-center bg-secondary-foreground p-4">
       <div className="w-full max-w-md space-y-4 z-10">
@@ -9,7 +12,8 @@ const ForgotPasswordPage = () => {
 
       <div className="absolute bottom-6 w-full text-center">
         <p className="text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Sinari Cell. All rights reserved.
+          &copy; {new Date().getFullYear()} Sinari Cell.{" "}
+          {t("auth.common.copyright")}
         </p>
       </div>
     </div>

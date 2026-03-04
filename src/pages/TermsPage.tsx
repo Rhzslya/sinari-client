@@ -1,16 +1,19 @@
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 const TermsPage = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background text-foreground animate-in fade-in duration-500 py-16">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="mb-20">
           <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 uppercase">
-            Ketentuan <br className="hidden md:block" /> Layanan.
+            {t("terms.title_1")} <br className="hidden md:block" />{" "}
+            {t("terms.title_2")}
           </h1>
           <p className="text-xl text-muted-foreground border-l-4 border-primary pl-4">
-            Lima pilar kesepakatan antara Sinari Cell dan Pelanggan untuk
-            memastikan transaksi yang aman, nyaman, dan bebas drama.
+            {t("terms.subtitle")}
           </p>
         </div>
 
@@ -22,14 +25,12 @@ const TermsPage = () => {
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl font-bold mb-4">
-                Pendaftaran & Biaya Diagnosa
+                {t("terms.items.01.title")}
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Kami tidak memungut biaya pengecekan. Namun, jika pengerjaan
-                dibatalkan <strong>setelah</strong> Anda menyetujui harga (dan
-                perangkat sudah dibongkar), akan dikenakan biaya perakitan ulang
-                minimum. Pemesanan suku cadang khusus wajib disertai DP 50%.
-              </p>
+              <p
+                className="text-muted-foreground leading-relaxed mb-4"
+                dangerouslySetInnerHTML={{ __html: t("terms.items.01.desc") }}
+              />
             </div>
           </div>
 
@@ -39,13 +40,13 @@ const TermsPage = () => {
               02
             </div>
             <div className="relative z-10">
-              <h2 className="text-2xl font-bold mb-4">Pembayaran Transaksi</h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Barang yang sudah diperbaiki atau dibeli wajib dilunasi sebelum
-                dibawa pulang. Kami tidak menerima sistem kasbon/cicilan
-                pribadi. Pembayaran valid dilakukan di area kasir toko atau
-                transfer rekening perusahaan.
-              </p>
+              <h2 className="text-2xl font-bold mb-4">
+                {t("terms.items.02.title")}
+              </h2>
+              <p
+                className="text-muted-foreground leading-relaxed mb-4"
+                dangerouslySetInnerHTML={{ __html: t("terms.items.02.desc") }}
+              />
             </div>
           </div>
 
@@ -56,14 +57,12 @@ const TermsPage = () => {
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl font-bold mb-4">
-                Batas Pengambilan Unit
+                {t("terms.items.03.title")}
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Perangkat maksimal diambil <strong>30 Hari</strong> setelah
-                dikonfirmasi selesai/batal. Melewati 90 hari tanpa kabar, kami
-                anggap barang tersebut tidak bertuan dan berhak kami lelang
-                untuk menutupi kerugian.
-              </p>
+              <p
+                className="text-muted-foreground leading-relaxed mb-4"
+                dangerouslySetInnerHTML={{ __html: t("terms.items.03.desc") }}
+              />
             </div>
           </div>
 
@@ -74,17 +73,12 @@ const TermsPage = () => {
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl font-bold text-destructive mb-4">
-                Risiko Servis Mesin
+                {t("terms.items.04.title")}
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Unit yang masuk dengan riwayat{" "}
-                <strong>
-                  mati total, terkena cairan, atau butuh servis IC/CPU
-                </strong>{" "}
-                memiliki risiko mati permanen atau kehilangan fitur tertentu
-                setelah dibongkar. Teknisi kami bekerja semaksimal mungkin,
-                namun risiko ini ditanggung sepenuhnya oleh pelanggan.
-              </p>
+              <p
+                className="text-muted-foreground leading-relaxed mb-4"
+                dangerouslySetInnerHTML={{ __html: t("terms.items.04.desc") }}
+              />
             </div>
           </div>
 
@@ -95,24 +89,24 @@ const TermsPage = () => {
             </div>
             <div className="relative z-10">
               <h2 className="text-2xl font-bold mb-4">
-                Pengecekan Akhir (Serah Terima)
+                {t("terms.items.05.title")}
               </h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Pelanggan wajib mengetes fisik layar, kamera, dan kelengkapan
-                lain sebelum meninggalkan kasir. Komplain mengenai retak, lecet,
-                atau hilang setelah keluar dari area toko dianggap tidak valid.
-              </p>
+              <p
+                className="text-muted-foreground leading-relaxed mb-4"
+                dangerouslySetInnerHTML={{ __html: t("terms.items.05.desc") }}
+              />
             </div>
           </div>
         </div>
 
         <div className="mt-12 flex justify-center">
           <Button
+            asChild
             variant="outline"
             size="lg"
             className="rounded-full px-8 cursor-pointer"
           >
-            Kembali ke Beranda
+            <Link to="/">{t("terms.back_to_home")}</Link>
           </Button>
         </div>
       </div>
