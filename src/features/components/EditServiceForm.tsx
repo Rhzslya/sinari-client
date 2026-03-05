@@ -46,6 +46,7 @@ import {
   type Resolver,
 } from "react-hook-form";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const MAX_SERVICE_ITEMS = 10;
@@ -61,6 +62,7 @@ export function EditServiceForm({
   onSuccess,
   onCancel,
 }: ServiceFormProps) {
+  const { t } = useTranslation();
   const { updateServiceMutation } = useServiceQueries();
 
   const {
@@ -232,9 +234,10 @@ export function EditServiceForm({
 
       if (meta.wa_status === "failed") {
         setTimeout(() => {
-          toast.warning("WhatsApp Notification Failed", {
+          toast.warning(t("services_management.forms.edit.toast_wa_failed"), {
             description:
-              meta.message || "Failed to send message to customer number",
+              meta.message ||
+              t("services_management.forms.edit.toast_wa_failed_desc"),
             duration: 3000,
           });
         }, 1500);
@@ -273,9 +276,9 @@ export function EditServiceForm({
           <Lock className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
             <span className="font-bold uppercase block mb-1">
-              Permanently Locked
+              {t("services_management.forms.edit.alert_locked_title")}
             </span>
-            Service items have been taken. Status cannot be changed anymore.
+            {t("services_management.forms.edit.alert_locked_desc")}
           </div>
         </div>
       );
@@ -287,9 +290,15 @@ export function EditServiceForm({
           <Lock className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
             <span className="font-bold uppercase block mb-1">
-              Editing Restricted
+              {t("services_management.forms.edit.alert_restricted_title")}
             </span>
-            Grace period ended. You can only change status to <b>TAKEN</b>.
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t(
+                  "services_management.forms.edit.alert_restricted_desc",
+                ),
+              }}
+            />
           </div>
         </div>
       );
@@ -301,13 +310,15 @@ export function EditServiceForm({
           <Clock className="w-4 h-4 mt-0.5 shrink-0 animate-pulse" />
           <div>
             <span className="font-bold uppercase block mb-1">
-              Grace Period Active
+              {t("services_management.forms.edit.alert_grace_title")}
             </span>
-            You can still undo/change this status for the next{" "}
-            <b className="tabular-nums">
-              {timeLeft.m}m {timeLeft.s.toString().padStart(2, "0")}s
-            </b>
-            .
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t("services_management.forms.edit.alert_grace_desc")
+                  .replace("{{minutes}}", String(timeLeft.m))
+                  .replace("{{seconds}}", String(timeLeft.s).padStart(2, "0")),
+              }}
+            />
           </div>
         </div>
       );
@@ -339,25 +350,30 @@ export function EditServiceForm({
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("services_management.forms.common.action_paused")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "services_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
+
             {/* SECTION 1: CUSTOMER & DEVICE */}
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                Customer & Device
+                {t("services_management.forms.edit.customer_device_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Edit customer details and device information.
+                {t("services_management.forms.edit.customer_device_desc")}
               </p>
             </div>
 
@@ -367,11 +383,15 @@ export function EditServiceForm({
                 name="customer_name"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Customer Name</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.customer_name")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="John Doe"
+                        placeholder={t(
+                          "services_management.forms.create.customer_placeholder",
+                        )}
                         className={inputStyle}
                         {...field}
                         disabled={
@@ -389,11 +409,15 @@ export function EditServiceForm({
                 name="phone_number"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Phone Number</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.phone_number")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="0812..."
+                        placeholder={t(
+                          "services_management.forms.create.phone_placeholder",
+                        )}
                         className={inputStyle}
                         {...field}
                         inputMode="numeric"
@@ -416,7 +440,9 @@ export function EditServiceForm({
                 name="brand"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Brand</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.brand_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -424,7 +450,11 @@ export function EditServiceForm({
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue placeholder="Select Brand" />
+                          <SelectValue
+                            placeholder={t(
+                              "services_management.forms.create.brand_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -445,11 +475,15 @@ export function EditServiceForm({
                 name="model"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Model / Type</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.model_label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="e.g. A51"
+                        placeholder={t(
+                          "services_management.forms.create.model_placeholder",
+                        )}
                         className={inputStyle}
                         {...field}
                         disabled={
@@ -468,7 +502,9 @@ export function EditServiceForm({
                 name="status"
                 render={({ field }) => (
                   <FormItem className="col-span-2 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Service Status</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.edit.status_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -476,7 +512,11 @@ export function EditServiceForm({
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue placeholder="Select Status" />
+                          <SelectValue
+                            placeholder={t(
+                              "services_management.forms.edit.status_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -497,10 +537,10 @@ export function EditServiceForm({
 
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                Service Details
+                {t("services_management.forms.edit.service_details_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Edit Problem description and technician assignment.
+                {t("services_management.forms.edit.service_details_desc")}
               </p>
             </div>
 
@@ -511,7 +551,7 @@ export function EditServiceForm({
                 render={({ field }) => (
                   <FormItem className="relative grid gap-1 space-y-0">
                     <FormLabel className={labelStyle}>
-                      Assign Technician
+                      {t("services_management.forms.create.assign_technician")}
                     </FormLabel>
                     <Select
                       onValueChange={(value) => {
@@ -532,8 +572,12 @@ export function EditServiceForm({
                           <SelectValue
                             placeholder={
                               isFetchingTechs
-                                ? "Loading..."
-                                : "Select Technician"
+                                ? t(
+                                    "services_management.forms.create.tech_loading",
+                                  )
+                                : t(
+                                    "services_management.forms.create.tech_select",
+                                  )
                             }
                           />
                         </SelectTrigger>
@@ -550,14 +594,19 @@ export function EditServiceForm({
                                     : "bg-muted text-muted-foreground"
                                 }`}
                               >
-                                {tech.active_jobs} antrean
+                                {tech.active_jobs}{" "}
+                                {t(
+                                  "services_management.forms.create.tech_queue",
+                                )}
                               </span>
                             </div>
                           </SelectItem>
                         ))}
                         {technicians?.length === 0 && !isFetchingTechs && (
                           <div className="p-2 text-xs text-muted-foreground text-center">
-                            No technicians found.
+                            {t(
+                              "services_management.forms.create.tech_not_found",
+                            )}
                           </div>
                         )}
                       </SelectContent>
@@ -573,11 +622,13 @@ export function EditServiceForm({
                 render={({ field }) => (
                   <FormItem className="relative grid gap-1 space-y-0">
                     <FormLabel className={labelStyle}>
-                      Problem Description
+                      {t("services_management.forms.create.description_label")}
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="e.g. LCD Pecah"
+                        placeholder={t(
+                          "services_management.forms.create.description_placeholder",
+                        )}
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
                         disabled={
@@ -596,11 +647,13 @@ export function EditServiceForm({
                 render={({ field }) => (
                   <FormItem className="relative grid gap-1 space-y-0">
                     <FormLabel className={labelStyle}>
-                      Technician Note (Internal)
+                      {t("services_management.forms.create.tech_note_label")}
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="e.g. Casing agak bengkok..."
+                        placeholder={t(
+                          "services_management.forms.create.tech_note_placeholder",
+                        )}
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
                         disabled={
@@ -620,17 +673,17 @@ export function EditServiceForm({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-semibold tracking-tight">
-                  Cost & Billing
+                  {t("services_management.forms.edit.cost_billing_title")}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Update services and pricing.
+                  {t("services_management.forms.edit.cost_billing_desc")}
                 </p>
               </div>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="h-7 text-xs gap-1"
+                className="h-7 text-xs gap-1 cursor-pointer"
                 onClick={() => append({ name: "", price: 0 })}
                 disabled={
                   isSubmitting ||
@@ -639,7 +692,8 @@ export function EditServiceForm({
                   isContentDisabled
                 }
               >
-                <Plus className="w-3 h-3" /> Add Item
+                <Plus className="w-3 h-3" />{" "}
+                {t("services_management.forms.create.add_item")}
                 <span className="ml-1 text-[10px] text-muted-foreground">
                   ({fields.length}/{MAX_SERVICE_ITEMS})
                 </span>
@@ -659,19 +713,24 @@ export function EditServiceForm({
                       <FormItem className="relative flex flex-col gap-1 space-y-0">
                         <div className="flex justify-between items-center">
                           <FormLabel className="text-[10px] uppercase text-muted-foreground font-semibold tracking-wider">
-                            Service Name #{index + 1}
+                            {t(
+                              "services_management.forms.create.service_name",
+                              { index: index + 1 },
+                            )}
                           </FormLabel>
                           {fields.length > 1 && (
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 -mr-1 -mt-1 text-muted-foreground hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                              className="h-6 w-6 -mr-1 -mt-1 text-muted-foreground hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer"
                               onClick={() => remove(index)}
                               disabled={
                                 isSubmitting || isPending || isContentDisabled
                               }
-                              title="Remove Item"
+                              title={t(
+                                "services_management.forms.create.remove_item",
+                              )}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
@@ -680,7 +739,9 @@ export function EditServiceForm({
                         <FormControl>
                           <Input
                             autoComplete="off"
-                            placeholder="e.g. Ganti LCD Samsung A51"
+                            placeholder={t(
+                              "services_management.forms.create.service_name_placeholder",
+                            )}
                             className={inputStyle}
                             {...field}
                             disabled={
@@ -699,7 +760,9 @@ export function EditServiceForm({
                     render={({ field }) => (
                       <FormItem className="relative flex flex-col gap-1 space-y-0">
                         <FormLabel className="text-[10px] uppercase text-muted-foreground font-semibold tracking-wider">
-                          Cost Estimation
+                          {t(
+                            "services_management.forms.create.cost_estimation",
+                          )}
                         </FormLabel>
                         <FormControl>
                           <NumberStepper
@@ -725,12 +788,16 @@ export function EditServiceForm({
             {/* Total Calculation Card */}
             <div className="bg-muted/30 p-4 rounded-lg border border-border/50 grid gap-3 mt-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">
+                  {t("services_management.forms.create.subtotal")}
+                </span>
                 <span className="font-mono">{formatRupiah(subTotal)}</span>
               </div>
 
               <div className="flex items-center justify-between text-sm gap-4">
-                <span className="text-muted-foreground">Discount (%)</span>
+                <span className="text-muted-foreground">
+                  {t("services_management.forms.create.discount")}
+                </span>
                 <div className="w-48">
                   <FormField
                     control={formUpdate.control}
@@ -741,24 +808,20 @@ export function EditServiceForm({
                           <NumberStepper
                             value={field.value}
                             onChange={(value) => {
-                              // 1. Clamping Nilai Diskon (0-100)
                               let newDiscount = value || 0;
                               if (newDiscount > 100) newDiscount = 100;
                               if (newDiscount < 0) newDiscount = 0;
 
                               field.onChange(newDiscount);
 
-                              // 2. Hitung ulang Max DP
                               const newDiscountAmount =
                                 (subTotal * newDiscount) / 100;
                               const newMaxDP = subTotal - newDiscountAmount;
 
-                              // 3. Cek apakah DP saat ini melebihi batas baru?
                               const currentDP =
                                 formUpdate.getValues("down_payment") || 0;
 
                               if (currentDP > newMaxDP) {
-                                // 4. Turunkan DP otomatis
                                 formUpdate.setValue("down_payment", newMaxDP, {
                                   shouldValidate: true,
                                 });
@@ -783,7 +846,9 @@ export function EditServiceForm({
 
               {/* DOWN PAYMENT FIELD */}
               <div className="flex items-center justify-between text-sm gap-4">
-                <span className="text-muted-foreground">Down Payment</span>
+                <span className="text-muted-foreground">
+                  {t("services_management.forms.create.down_payment")}
+                </span>
                 <div className="w-48">
                   <FormField
                     control={formUpdate.control}
@@ -796,7 +861,6 @@ export function EditServiceForm({
                             onChange={(value) => {
                               const inputDP = value || 0;
 
-                              // Clamping Nilai DP agar tidak melebihi total tagihan
                               if (inputDP > maxDownPayment) {
                                 field.onChange(maxDownPayment);
                               } else {
@@ -817,10 +881,11 @@ export function EditServiceForm({
                             className="text-right"
                           />
                         </FormControl>
-                        {/* Error Message visual jika entah bagaimana DP melebihi batas */}
                         {downPayment > maxDownPayment && (
                           <span className="text-[10px] text-destructive absolute right-0 -bottom-4">
-                            Max DP: {formatRupiah(maxDownPayment)}
+                            {t("services_management.forms.create.max_dp", {
+                              amount: formatRupiah(maxDownPayment),
+                            })}
                           </span>
                         )}
                       </FormItem>
@@ -832,7 +897,7 @@ export function EditServiceForm({
               <Separator className="bg-border/50" />
 
               <div className="flex items-center justify-between font-semibold">
-                <span>Total Bill</span>
+                <span>{t("services_management.forms.create.total_bill")}</span>
                 <span className="text-primary text-base font-mono">
                   {formatRupiah(grandTotal)}
                 </span>
@@ -854,7 +919,7 @@ export function EditServiceForm({
               onClick={handleResetToOriginal}
               disabled={isSubmitting || isPending}
             >
-              Reset
+              {t("services_management.forms.edit.btn_reset")}
             </Button>
           ) : (
             <Button
@@ -865,7 +930,7 @@ export function EditServiceForm({
               onClick={onCancel}
               disabled={isSubmitting || isPending}
             >
-              Cancel
+              {t("services_management.forms.edit.btn_cancel")}
             </Button>
           )}
 
@@ -878,7 +943,7 @@ export function EditServiceForm({
             {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Save Changes"
+              t("services_management.forms.edit.btn_save")
             )}
           </Button>
         </div>

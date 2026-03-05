@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const CATEGORY_OPTIONS = Object.values(Category);
@@ -44,6 +45,7 @@ interface ProductFormProps {
 }
 
 export function CreateProductForm({ onSuccess }: ProductFormProps) {
+  const { t } = useTranslation();
   const { createMutation } = useProductQueries();
   const {
     mutateAsync: createProduct,
@@ -204,25 +206,29 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("products_management.forms.common.action_paused")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "products_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
 
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                General Information
+                {t("products_management.forms.create.general_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Basic details about your product.
+                {t("products_management.forms.create.general_desc")}
               </p>
             </div>
 
@@ -231,11 +237,15 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0">
-                  <FormLabel className={labelStyle}>Product Name</FormLabel>
+                  <FormLabel className={labelStyle}>
+                    {t("products_management.forms.create.name_label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       autoComplete="off"
-                      placeholder="e.g. iPhone 15 Pro Titanium"
+                      placeholder={t(
+                        "products_management.forms.create.name_placeholder",
+                      )}
                       className={inputStyle}
                       {...field}
                       disabled={isPending}
@@ -252,7 +262,9 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                 name="brand"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0 py-0">
-                    <FormLabel className={labelStyle}>Brand</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.create.brand_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -260,7 +272,11 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue placeholder="Select Brand" />
+                          <SelectValue
+                            placeholder={t(
+                              "products_management.forms.create.brand_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -281,7 +297,9 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                 name="category"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Category</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.create.category_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -289,7 +307,11 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue placeholder="Select Category" />
+                          <SelectValue
+                            placeholder={t(
+                              "products_management.forms.create.category_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -312,7 +334,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
               render={({ field }) => (
                 <FormItem className="grid gap-1">
                   <FormLabel className={labelStyle}>
-                    Product Image (Optional)
+                    {t("products_management.forms.create.image_label")}
                   </FormLabel>
                   <FormControl>
                     {!preview ? (
@@ -326,10 +348,14 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                               <UploadCloud className="w-6 h-6 text-primary" />
                             </div>
                             <p className="text-sm font-medium text-foreground">
-                              Click to upload image
+                              {t(
+                                "products_management.forms.create.upload_prompt",
+                              )}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              SVG, PNG, JPG or WEBP (max. 5MB)
+                              {t(
+                                "products_management.forms.create.upload_format",
+                              )}
                             </p>
                           </div>
 
@@ -383,14 +409,18 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                               <div className="flex items-center gap-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground px-3 py-1.5 rounded-full shadow-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-500">
                                 <X className="w-3.5 h-3.5" />
                                 <span className="text-[10px] font-medium tracking-wide">
-                                  File too large (Max 5MB)
+                                  {t(
+                                    "products_management.forms.create.file_too_large",
+                                  )}
                                 </span>
                               </div>
                             ) : (
                               <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-500">
                                 <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 animate-pulse" />
                                 <span className="text-[10px] font-medium tracking-wide">
-                                  Background will be removed automatically
+                                  {t(
+                                    "products_management.forms.create.bg_remove_auto",
+                                  )}
                                 </span>
                               </div>
                             )}
@@ -422,7 +452,10 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                                   : "text-foreground"
                               }`}
                             >
-                              {(field.value as File)?.name || "Uploaded Image"}
+                              {(field.value as File)?.name ||
+                                t(
+                                  "products_management.forms.create.uploaded_image",
+                                )}
                             </p>
 
                             <p
@@ -434,7 +467,9 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                             >
                               {(field.value as File)?.size
                                 ? formatBytes((field.value as File).size)
-                                : "Ready to upload"}
+                                : t(
+                                    "products_management.forms.create.ready_to_upload",
+                                  )}
                             </p>
                           </div>
                         </div>
@@ -448,10 +483,10 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
 
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                Pricing & Inventory
+                {t("products_management.forms.create.pricing_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Manage prices and stock availability.
+                {t("products_management.forms.create.pricing_desc")}
               </p>
             </div>
 
@@ -461,7 +496,9 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                 name="price"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Selling Price</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.create.selling_price")}
+                    </FormLabel>
                     <FormControl>
                       <NumberStepper
                         value={field.value}
@@ -485,7 +522,9 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                 name="cost_price"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Cost Price</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.create.cost_price")}
+                    </FormLabel>
                     <FormControl>
                       <NumberStepper
                         value={field.value}
@@ -506,7 +545,9 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                 name="stock"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Initial Stock</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.create.initial_stock")}
+                    </FormLabel>
                     <FormControl>
                       <NumberStepper
                         value={field.value}
@@ -526,11 +567,15 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
                 name="manufacturer"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Manufacturer</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.create.manufacturer_label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="ORIGINAL"
+                        placeholder={t(
+                          "products_management.forms.create.manufacturer_placeholder",
+                        )}
                         className={inputStyle}
                         disabled={isSubmitting || isPending}
                         {...field}
@@ -555,7 +600,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
               onClick={handleReset}
               disabled={isSubmitting || isPending}
             >
-              Reset
+              {t("products_management.forms.create.btn_reset")}
             </Button>
           ) : (
             <Button
@@ -568,7 +613,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
               }}
               disabled={isSubmitting || isPending}
             >
-              Cancel
+              {t("products_management.forms.create.btn_cancel")}
             </Button>
           )}
           <Button
@@ -579,7 +624,7 @@ export function CreateProductForm({ onSuccess }: ProductFormProps) {
             {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Save Product"
+              t("products_management.forms.create.btn_save")
             )}
           </Button>
         </div>

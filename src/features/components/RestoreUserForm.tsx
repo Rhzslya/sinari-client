@@ -13,6 +13,7 @@ import type { NotPublicUserResponse } from "@/model/user-model";
 import { isAxiosError } from "axios";
 import { AlertTriangle, ArchiveRestore, Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface RestoreUserProps {
   user: NotPublicUserResponse | null;
@@ -27,6 +28,7 @@ const RestoreUserForm = ({
   onOpenChange,
   onSuccess,
 }: RestoreUserProps) => {
+  const { t } = useTranslation();
   const { restoreMutation } = useUserQueries();
 
   const {
@@ -86,13 +88,15 @@ const RestoreUserForm = ({
           </div>
 
           <div className="space-y-4 text-center">
-            <DialogTitle>Restore Product?</DialogTitle>
+            <DialogTitle>
+              {t("users_management.forms.restore.title")}
+            </DialogTitle>
             <DialogDescription>
-              Are you sure you want to restore{" "}
+              {t("users_management.forms.restore.desc_1")}{" "}
               <span className="font-semibold text-foreground">
                 {user?.name}
               </span>
-              ? This action cannot be undone.
+              {t("users_management.forms.restore.desc_2")}
             </DialogDescription>
           </div>
         </DialogHeader>
@@ -101,14 +105,17 @@ const RestoreUserForm = ({
           <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
             <div className="space-y-1 flex flex-col justify-center items-center">
               <AlertTriangle className="h-7 w-7 shrink-0" />
-              <p className="font-semibold text-xs uppercase">Action Paused</p>
-              <p className="text-xs opacity-90">
-                Too many attempts. Please wait{" "}
-                <span className="font-bold tabular-nums">
-                  {String(cooldown).padStart(2, "0")}s
-                </span>{" "}
-                before trying again.
+              <p className="font-semibold text-xs uppercase">
+                {t("users_management.forms.common.action_paused")}
               </p>
+              <p
+                className="text-xs opacity-90"
+                dangerouslySetInnerHTML={{
+                  __html: t(
+                    "users_management.forms.common.too_many_attempts",
+                  ).replace("{{seconds}}", String(cooldown).padStart(2, "0")),
+                }}
+              />
             </div>
           </div>
         )}
@@ -121,7 +128,7 @@ const RestoreUserForm = ({
             disabled={isPending}
             className="w-1/3 cursor-pointer duration-300"
           >
-            Cancel
+            {t("users_management.forms.restore.btn_cancel")}
           </Button>
 
           <Button
@@ -132,7 +139,7 @@ const RestoreUserForm = ({
             className="w-1/3 cursor-pointer duration-300 text-foreground"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            Restore
+            {t("users_management.forms.restore.btn_restore")}
           </Button>
         </DialogFooter>
       </DialogContent>

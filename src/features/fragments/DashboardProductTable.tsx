@@ -29,6 +29,7 @@ import { ProductActionMenu } from "./ProductActionMenu";
 import { ProductSkeletonTable } from "./Skeleton";
 import RestoreProductForm from "./RestoreProductForm";
 import NotFoundPage from "@/pages/NotFoundPage";
+import { useTranslation } from "react-i18next";
 
 export function DashboardProductTable({
   products,
@@ -37,6 +38,7 @@ export function DashboardProductTable({
   isTrashView,
 }: DashboardProductTableProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [showCost, setShowCost] = useState(false);
   const [isUpdateStockOpen, setIsUpdateStockOpen] = useState(false);
@@ -65,7 +67,7 @@ export function DashboardProductTable({
       <NotFoundPage
         variant="minimal"
         isDashboard={true}
-        entityName="Products"
+        entityName={t("products_management.table.not_found_entity")}
         onGoBack={() => navigate("/dashboard/products", { replace: true })}
       />
     );
@@ -94,21 +96,33 @@ export function DashboardProductTable({
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-14 font-bold border-r border-border/60 text-center">
-                  ID
+                  {t("products_management.table.headers.id")}
                 </TableHead>
-                <TableHead className="w-87.5 font-bold">Product Name</TableHead>
-                <TableHead className="w-37.5 font-bold">Brand</TableHead>
-                <TableHead className="w-37.5 font-bold">Category</TableHead>
-                <TableHead className="w-25 font-bold">Stock</TableHead>
+                <TableHead className="w-87.5 font-bold">
+                  {t("products_management.table.headers.name")}
+                </TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("products_management.table.headers.brand")}
+                </TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("products_management.table.headers.category")}
+                </TableHead>
+                <TableHead className="w-25 font-bold">
+                  {t("products_management.table.headers.stock")}
+                </TableHead>
                 <TableHead className="w-37.5 font-bold">
                   <div className="flex items-center gap-2">
-                    <span>Cost</span>
+                    <span>{t("products_management.table.headers.cost")}</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                      className="h-6 w-6 text-muted-foreground hover:text-foreground cursor-pointer"
                       onClick={() => setShowCost(!showCost)}
-                      title={showCost ? "Hide Cost" : "Show Cost"}
+                      title={
+                        showCost
+                          ? t("products_management.table.tooltips.hide_cost")
+                          : t("products_management.table.tooltips.show_cost")
+                      }
                     >
                       {showCost ? (
                         <Eye className="size-3.5" />
@@ -118,9 +132,11 @@ export function DashboardProductTable({
                     </Button>
                   </div>
                 </TableHead>
-                <TableHead className="w-37.5 font-bold">Price</TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("products_management.table.headers.price")}
+                </TableHead>
                 <TableHead className="w-12.5 text-right font-bold">
-                  Actions
+                  {t("products_management.table.headers.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -200,6 +216,7 @@ export function DashboardProductTable({
           </Table>
         </div>
       </TooltipProvider>
+
       <UpdateStockForm
         key={selectedProduct ? selectedProduct.id : "reset"}
         open={isUpdateStockOpen}
@@ -212,6 +229,7 @@ export function DashboardProductTable({
           }
         }}
       />
+
       <Sheet open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
         <SheetContent
           className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
@@ -219,11 +237,11 @@ export function DashboardProductTable({
         >
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle className="text-xl text-primary">
-              Edit Product
+              {t("products_management.sheet.edit_title")}
             </SheetTitle>
           </SheetHeader>
           <SheetDescription className="sr-only">
-            Form to add a new product
+            {t("products_management.sheet.edit_desc")}
           </SheetDescription>
 
           <div className="flex-1 overflow-hidden">

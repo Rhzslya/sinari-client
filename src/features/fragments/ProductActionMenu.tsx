@@ -10,6 +10,7 @@ import {
 import { ArchiveRestore, MoreHorizontalIcon } from "lucide-react";
 import type { ProductResponse } from "@/model/product-model";
 import { useUserQueries } from "@/hooks/user-queries";
+import { useTranslation } from "react-i18next";
 
 interface ProductActionMenuProps {
   product: ProductResponse;
@@ -30,6 +31,7 @@ export function ProductActionMenu({
   onRestoreProduct,
   isTrashView,
 }: ProductActionMenuProps) {
+  const { t } = useTranslation();
   const userQueries = useUserQueries();
 
   const { data: currentUser } = userQueries.useProfile();
@@ -53,7 +55,7 @@ export function ProductActionMenu({
       key={product.id}
     >
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-8">
+        <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
           <MoreHorizontalIcon className="size-4" />
           <span className="sr-only">Open menu</span>
         </Button>
@@ -66,32 +68,34 @@ export function ProductActionMenu({
               onClick={() => handleAction(onViewDetails)}
               className="cursor-pointer"
             >
-              View Details
+              {t("products_management.action_menu.view_details")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
               onSelect={() => {
                 handleAction(onUpdateStock);
               }}
+              className="cursor-pointer"
             >
-              Update Stock
+              {t("products_management.action_menu.update_stock")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
               onSelect={() => {
                 handleAction(onEditProduct);
               }}
+              className="cursor-pointer"
             >
-              Edit Product
+              {t("products_management.action_menu.edit_product")}
             </DropdownMenuItem>
             {isOwner && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onSelect={() => handleAction(onDeleteProduct)}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive cursor-pointer"
                 >
-                  Delete Product
+                  {t("products_management.action_menu.delete_product")}
                 </DropdownMenuItem>
               </>
             )}
@@ -103,7 +107,7 @@ export function ProductActionMenu({
             disabled={!isOwner}
           >
             <ArchiveRestore className="mr-2 h-4 w-4" />
-            Restore Data
+            {t("products_management.action_menu.restore_data")}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Timer, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const RateLimitBanner = ({
   seconds,
@@ -9,6 +10,7 @@ const RateLimitBanner = ({
   seconds: number;
   onRetry: () => void;
 }) => {
+  const { t } = useTranslation();
   const [targetTime] = useState(() => Date.now() + seconds * 1000);
   const [timeLeft, setTimeLeft] = useState(seconds);
 
@@ -39,15 +41,15 @@ const RateLimitBanner = ({
         </div>
         <div className="min-w-0">
           <h3 className="text-sm font-semibold text-orange-900 truncate">
-            Trafik sedang tinggi!
+            {t("rate_limit.banner_title")}
           </h3>
           <p className="text-xs text-orange-700/90 truncate">
-            Tunggu{" "}
+            {t("rate_limit.banner_desc")}{" "}
             <strong className="font-mono text-orange-800">
               {minutes.toString().padStart(2, "0")}:
               {remainingSeconds.toString().padStart(2, "0")}
             </strong>{" "}
-            sebelum refresh ulang.
+            {t("rate_limit.banner_desc_suffix")}
           </p>
         </div>
       </div>
@@ -57,12 +59,12 @@ const RateLimitBanner = ({
         onClick={onRetry}
         disabled={timeLeft > 0}
         variant={timeLeft > 0 ? "outline" : "default"}
-        className="shrink-0 h-8 bg-white"
+        className="shrink-0 h-8 bg-white cursor-pointer"
       >
         <RefreshCw
           className={`h-3.5 w-3.5 ${timeLeft === 0 ? "mr-1.5" : "animate-spin"}`}
         />
-        {timeLeft === 0 && <span>Refresh</span>}
+        {timeLeft === 0 && <span>{t("rate_limit.btn_refresh")}</span>}
       </Button>
     </div>
   );

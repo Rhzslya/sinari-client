@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface RecentActivityProps {
   data: {
@@ -21,6 +22,7 @@ interface RecentActivityProps {
 }
 
 export function RecentActivity({ data }: RecentActivityProps) {
+  const { t } = useTranslation();
   const getInitials = (name: string) =>
     name ? name.substring(0, 2).toUpperCase() : "??";
 
@@ -28,7 +30,7 @@ export function RecentActivity({ data }: RecentActivityProps) {
     <div className="space-y-8">
       {data.length === 0 && (
         <div className="text-center text-muted-foreground text-sm py-8">
-          No recent activity found.
+          {t("recent_activity.empty")}
         </div>
       )}
 

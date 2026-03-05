@@ -440,6 +440,8 @@
     }
   },
   "auth": {
+    "or_continue_with": "Or continue with",
+    "google": "Google",
     "common": {
       "too_many_attempts": "Too many attempts. Please wait before trying again.",
       "google_failed": "Failed to connect to Google.",
@@ -672,6 +674,751 @@
     "footer": {
       "btn_preview": "Preview Changes",
       "btn_save": "Save Settings"
+    }
+  },
+  "users_management": {
+    "title": "Users Management",
+    "search_placeholder": "Search users...",
+    "btn_sort": "Sort",
+    "btn_filter": "Filter",
+    "btn_trash": "Trash",
+    "btn_exit": "Exit",
+    "error_load": "Failed to load users.",
+    "unknown_error": "Unknown error occurred",
+    "btn_try_again": "Try Again",
+    "sort": {
+      "date_label": "Date",
+      "newest": "Newest Added",
+      "oldest": "Oldest Added",
+      "name_label": "Name",
+      "name_asc": "Name (A-Z)",
+      "name_desc": "Name (Z-A)"
+    },
+    "filter": {
+      "title": "Filters",
+      "desc": "Refine the user list.",
+      "role_label": "User Role",
+      "role_placeholder": "Select Role",
+      "roles": {
+        "all": "All Roles",
+        "admin": "Admin",
+        "customer": "Customer",
+        "owner": "Owner"
+      },
+      "online_label": "Show Online Users Only",
+      "online_desc": "Only show users currently active in session.",
+      "btn_apply": "Apply Filters",
+      "btn_clear": "Clear Filters"
+    },
+    "table": {
+      "not_found_entity": "User",
+      "headers": {
+        "id": "ID",
+        "email": "Email",
+        "username": "Username",
+        "role": "Role",
+        "status": "Status",
+        "created_at": "Created At",
+        "updated_at": "Updated At",
+        "actions": "Actions"
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline"
+      }
+    },
+    "action_menu": {
+      "view_details": "View Details",
+      "edit_role": "Edit Role",
+      "delete_user": "Delete User",
+      "restore_data": "Restore Data"
+    },
+    "detail": {
+      "not_found": "User Not Found",
+      "loading": "Loading...",
+      "header_title": "User Details",
+      "header_subtitle": "Manage information for ",
+      "profile": {
+        "email": "Email",
+        "user_id": "User ID",
+        "auth_method": "Auth Method",
+        "google_oauth": "Google OAuth",
+        "standard_email": "Standard Email",
+        "role": "Role"
+      },
+      "quick_actions": {
+        "title": "Quick Actions",
+        "resend_verify": "Resend Verification",
+        "already_verified": "Already Verified",
+        "resend_in": "Resend in {{seconds}}s",
+        "resend_reset": "Resend Reset Password",
+        "daily_limit": "Daily Limit Reached",
+        "change_role": "Change Role",
+        "delete_user": "Delete User"
+      },
+      "activity_limits": {
+        "title": "Activity Limits",
+        "verify_attempts": "Verify Attempts",
+        "reset_attempts": "Reset Attempts",
+        "last_attempt": "Last attempt:"
+      },
+      "system_time": {
+        "title": "System Time",
+        "created_at": "Created At",
+        "last_updated": "Last Updated",
+        "no_modifications": "No modifications",
+        "data_modified": "Data modified"
+      },
+      "toast": {
+        "wait_before_resend": "Please wait before resending again",
+        "verify_sent": "Verification email sent to {{email}}",
+        "cooldown_msg": "User is in cooldown. Try again in {{seconds}}s.",
+        "already_verified": "User is already verified.",
+        "rate_limit": "Rate limit reached. Try again in {{seconds}}s.",
+        "daily_limit": "Daily limit reached for this action.",
+        "reset_sent": "Reset password email sent to {{email}}",
+        "unexpected_error": "An unexpected error occurred"
+      }
+    },
+    "forms": {
+      "update_role": {
+        "title": "Update User Role",
+        "desc_1": "Change access level for",
+        "desc_2": "(Admin has full access, Customer has limited access)",
+        "current_role": "Current Role",
+        "select_role": "Select role",
+        "warn_high_privilege": "Warning: High Privilege",
+        "warn_high_privilege_desc": "You are granting full ownership access. This user will have equal rights to you.",
+        "warn_demote": "Warning: Demoting Owner",
+        "warn_demote_desc": "You are removing ownership access. Ensure there is at least one other Owner remaining.",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Changes",
+        "confirm_title": "Confirm Critical Action",
+        "confirm_promote_1": "You are about to promote",
+        "confirm_promote_2": "to",
+        "confirm_promote_3": ". They will have full control over the system, including the ability to manage other users.",
+        "confirm_demote_1": "You are about to demote",
+        "confirm_demote_2": "from",
+        "confirm_demote_3": ". They will lose administrative privileges.",
+        "confirm_proceed": "Are you sure you want to proceed?",
+        "btn_confirm": "Confirm Update"
+      },
+      "restore": {
+        "title": "Restore User?",
+        "desc_1": "Are you sure you want to restore",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_restore": "Restore"
+      },
+      "delete": {
+        "title": "Delete User?",
+        "desc_1": "Are you sure you want to delete",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_delete": "Delete"
+      },
+      "common": {
+        "action_paused": "Action Paused",
+        "too_many_attempts": "Too many attempts. Please wait <span class=\"font-bold tabular-nums\">{{seconds}}s</span> before trying again."
+      }
+    }
+  },
+  "technicians_management": {
+    "title": "Technicians Management",
+    "search_placeholder": "Search technician...",
+    "btn_sort": "Sort",
+    "btn_filter": "Filter",
+    "btn_add": "Add Technician",
+    "btn_trash": "Trash",
+    "btn_exit": "Exit",
+    "error_load": "Failed to load technicians.",
+    "unknown_error": "Unknown error occurred",
+    "btn_try_again": "Try Again",
+    "sort": {
+      "label": "Sort By",
+      "newest": "Newest Added",
+      "oldest": "Oldest Added",
+      "active_first": "Active First",
+      "inactive_first": "Inactive First"
+    },
+    "filter": {
+      "title": "Filters",
+      "desc": "Refine the technician list.",
+      "status_label": "Status",
+      "status_placeholder": "Select status",
+      "status_all": "All Status",
+      "status_active": "Active",
+      "status_inactive": "Inactive",
+      "btn_apply": "Apply Filters",
+      "btn_clear": "Clear Filters"
+    },
+    "action_menu": {
+      "edit_technician": "Edit Technician",
+      "delete_technician": "Delete Technician",
+      "restore_data": "Restore Data"
+    },
+    "sheet": {
+      "add_title": "Add New Technician",
+      "add_desc": "Form to add a new technician",
+      "edit_title": "Edit Technician",
+      "edit_desc": "Form to edit technician details"
+    },
+    "table": {
+      "not_found_entity": "Technician",
+      "headers": {
+        "id": "ID",
+        "name": "Technician Name",
+        "status": "Status",
+        "created_at": "Created At",
+        "updated_at": "Updated At",
+        "actions": "Actions"
+      },
+      "signature_available": "Signature Available",
+      "no_signature": "No Signature",
+      "status_active": "Active",
+      "status_inactive": "Inactive"
+    },
+    "forms": {
+      "common": {
+        "action_paused": "Action Paused",
+        "too_many_attempts": "Too many attempts. Please wait <span class=\"font-bold tabular-nums\">{{seconds}}s</span> before trying again."
+      },
+      "create": {
+        "identity_title": "Technician Identity",
+        "identity_desc": "Personal details and access status.",
+        "full_name": "Full Name",
+        "name_placeholder": "John Doe",
+        "active_status": "Active Status",
+        "active_status_desc": "Technician can be assigned to tasks.",
+        "signature_title": "Digital Signature",
+        "signature_desc": "Upload official signature for invoices.",
+        "signature_label": "Signature Image (Optional)",
+        "upload_prompt": "Click to upload signature",
+        "upload_format": "PNG (Transparent). Max 2MB.",
+        "click_to_change": "Click to change",
+        "file_too_large": "File too large (Max 2MB)",
+        "transparent_check": "Transparent background check",
+        "signature_file": "Signature File",
+        "click_to_replace": "Click to replace",
+        "btn_reset": "Reset",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Technician"
+      },
+      "edit": {
+        "general_title": "General Information",
+        "general_desc": "Basic details about your Technician.",
+        "name_label": "Technician Name",
+        "name_placeholder": "e.g. John Doe",
+        "signature_label": "Signature Image (Optional)",
+        "upload_prompt": "Click to upload image",
+        "upload_format": "SVG, PNG, JPG or WEBP (max. 2MB)",
+        "click_to_change": "Click to change",
+        "file_too_large": "File too large (Max 2MB)",
+        "bg_remove_auto": "Background will be removed automatically",
+        "current_image": "Current Image",
+        "click_to_replace": "Click image to replace",
+        "active_status": "Active Status",
+        "active_status_desc": "Technicians can be assigned to services when active.",
+        "btn_reset": "Reset",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Technician"
+      },
+      "delete": {
+        "title": "Delete Technician?",
+        "desc_1": "Are you sure you want to delete",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_delete": "Delete"
+      },
+      "restore": {
+        "title": "Restore Technician?",
+        "desc_1": "Are you sure you want to restore",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_restore": "Restore"
+      }
+    }
+  },
+  "products_management": {
+    "title": "Products Management",
+    "search_placeholder": "Search products...",
+    "btn_sort": "Sort",
+    "btn_filter": "Filter",
+    "btn_add": "Add Product",
+    "btn_trash": "Trash",
+    "btn_exit": "Exit",
+    "error_load": "Failed to load products.",
+    "unknown_error": "Unknown error occurred",
+    "btn_try_again": "Try Again",
+    "sort": {
+      "label": "Sort By",
+      "newest": "Newest Added",
+      "oldest": "Oldest Added",
+      "price_asc": "Price: Low - High",
+      "price_desc": "Price: High - Low",
+      "stock_asc": "Stock: Low - High",
+      "stock_desc": "Stock: High - Low"
+    },
+    "filter": {
+      "title": "Filters",
+      "desc": "Refine the product list.",
+      "brand_label": "Brand",
+      "brand_placeholder": "Select brand",
+      "brand_all": "All Brands",
+      "category_label": "Category",
+      "category_placeholder": "Select category",
+      "category_all": "All Categories",
+      "price_label": "Price",
+      "price_min": "Min",
+      "price_max": "Max",
+      "in_stock": "In Stock Only",
+      "btn_apply": "Apply Filters",
+      "btn_clear": "Clear Filters"
+    },
+    "sheet": {
+      "add_title": "Add New Product",
+      "add_desc": "Form to add a new product",
+      "edit_title": "Edit Product",
+      "edit_desc": "Form to edit product details"
+    },
+    "table": {
+      "not_found_entity": "Products",
+      "headers": {
+        "id": "ID",
+        "name": "Product Name",
+        "brand": "Brand",
+        "category": "Category",
+        "stock": "Stock",
+        "cost": "Cost",
+        "price": "Price",
+        "actions": "Actions"
+      },
+      "tooltips": {
+        "show_cost": "Show Cost",
+        "hide_cost": "Hide Cost"
+      }
+    },
+    "action_menu": {
+      "view_details": "View Details",
+      "update_stock": "Update Stock",
+      "edit_product": "Edit Product",
+      "delete_product": "Delete Product",
+      "restore_data": "Restore Data"
+    },
+    "detail": {
+      "loading": "Loading...",
+      "not_found_entity": "Product",
+      "header_title": "Product Details",
+      "header_subtitle": "Manage inventory for",
+      "out_of_stock_badge": "OUT OF STOCK",
+      "price_card": {
+        "selling_price": "Selling Price",
+        "cost_price": "Cost Price",
+        "hidden_cost": "•••••••••",
+        "profit_unit": "Profit / Unit",
+        "estimated": "Estimated",
+        "hidden_profit": "••••••",
+        "margin": "Margin",
+        "percentage": "Percentage",
+        "hidden_margin": "••%"
+      },
+      "specs": {
+        "title": "Specifications",
+        "category": "Category",
+        "brand": "Brand",
+        "manufacturer": "Manufacturer"
+      },
+      "identification": {
+        "title": "Identification",
+        "sku": "Generated SKU"
+      },
+      "quick_actions": {
+        "title": "Quick Actions",
+        "edit_product": "Edit Product",
+        "update_stock": "Update Stock",
+        "delete_product": "Delete Product"
+      },
+      "inventory_status": {
+        "title": "Inventory Status",
+        "available_units": "Available Units",
+        "critical": "Critical",
+        "healthy": "Healthy",
+        "target": "Target: 20+"
+      },
+      "metadata": {
+        "title": "Metadata",
+        "manufacturer": "Manufacturer",
+        "created": "Created",
+        "updated": "Updated"
+      }
+    },
+    "forms": {
+      "common": {
+        "action_paused": "Action Paused",
+        "too_many_attempts": "Too many attempts. Please wait <span class=\"font-bold tabular-nums\">{{seconds}}s</span> before trying again."
+      },
+      "create": {
+        "general_title": "General Information",
+        "general_desc": "Basic details about your product.",
+        "name_label": "Product Name",
+        "name_placeholder": "e.g. iPhone 15 Pro Titanium",
+        "brand_label": "Brand",
+        "brand_placeholder": "Select Brand",
+        "category_label": "Category",
+        "category_placeholder": "Select Category",
+        "image_label": "Product Image (Optional)",
+        "upload_prompt": "Click to upload image",
+        "upload_format": "SVG, PNG, JPG or WEBP (max. 5MB)",
+        "file_too_large": "File too large (Max 5MB)",
+        "bg_remove_auto": "Background will be removed automatically",
+        "uploaded_image": "Uploaded Image",
+        "ready_to_upload": "Ready to upload",
+        "pricing_title": "Pricing & Inventory",
+        "pricing_desc": "Manage prices and stock availability.",
+        "selling_price": "Selling Price",
+        "cost_price": "Cost Price",
+        "initial_stock": "Initial Stock",
+        "manufacturer_label": "Manufacturer",
+        "manufacturer_placeholder": "ORIGINAL",
+        "btn_reset": "Reset",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Product"
+      },
+      "edit": {
+        "general_title": "General Information",
+        "general_desc": "Basic details about your product.",
+        "name_label": "Product Name",
+        "name_placeholder": "e.g. iPhone 15 Pro Titanium",
+        "brand_label": "Brand",
+        "brand_placeholder": "Select Brand",
+        "category_label": "Category",
+        "category_placeholder": "Select Category",
+        "image_label": "Product Image (Optional)",
+        "upload_prompt": "Click to upload image",
+        "upload_format": "SVG, PNG, JPG or WEBP (max. 5MB)",
+        "file_too_large": "File too large (Max 5MB)",
+        "bg_remove_auto": "Background will be removed automatically",
+        "current_image": "Current Image",
+        "click_to_replace": "Click image to replace",
+        "pricing_title": "Pricing & Inventory",
+        "pricing_desc": "Manage prices and stock availability.",
+        "selling_price": "Selling Price",
+        "cost_price": "Cost Price",
+        "initial_stock": "Initial Stock",
+        "manufacturer_label": "Manufacturer",
+        "manufacturer_placeholder": "ORIGINAL",
+        "btn_reset": "Reset",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Product"
+      },
+      "update_stock": {
+        "title": "Update Stock",
+        "desc_1": "Adjust inventory level for",
+        "new_stock": "New Stock Value",
+        "current_label": "Current:",
+        "diff_label": "Diff:",
+        "reason_label": "Reason for Adjustment",
+        "reason_placeholder": "Select a reason",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Changes"
+      },
+      "delete": {
+        "title": "Delete Product?",
+        "desc_1": "Are you sure you want to delete",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_delete": "Delete"
+      },
+      "restore": {
+        "title": "Restore Product?",
+        "desc_1": "Are you sure you want to restore",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_restore": "Restore"
+      }
+    }
+  },
+  "services_management": {
+    "title": "Services Management",
+    "search_placeholder": "Search...",
+    "btn_sort": "Sort",
+    "btn_filter": "Filter",
+    "btn_add": "Add Service",
+    "btn_trash": "Trash",
+    "btn_exit": "Exit",
+    "error_load": "Failed to load services.",
+    "unknown_error": "Unknown error occurred",
+    "btn_try_again": "Try Again",
+    "sort": {
+      "label": "Sort By",
+      "newest": "Newest Added",
+      "oldest": "Oldest Added",
+      "price_asc": "Price: Low - High",
+      "price_desc": "Price: High - Low"
+    },
+    "filter": {
+      "title": "Filters",
+      "desc": "Refine the service list.",
+      "brand_label": "Brand",
+      "brand_placeholder": "Select brand",
+      "brand_all": "All Brands",
+      "status_label": "Status",
+      "status_placeholder": "Select status",
+      "status_all": "All Status",
+      "price_label": "Total Price",
+      "price_min": "Min",
+      "price_max": "Max",
+      "btn_apply": "Apply Filters",
+      "btn_clear": "Clear Filters"
+    },
+    "sheet": {
+      "add_title": "Add New Service",
+      "add_desc": "Form to create a new service",
+      "edit_title": "Edit Service",
+      "edit_desc": "Form to edit service details"
+    },
+    "table": {
+      "not_found_entity": "Services",
+      "headers": {
+        "service_id": "Service ID",
+        "customer": "Customer Info",
+        "brand": "Brand",
+        "device": "Device Name",
+        "status": "Status",
+        "price": "Total Price",
+        "technician": "Technician",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "badges": {
+        "cancelled": "VOID / CANCEL",
+        "paid_off": "PAID OFF"
+      }
+    },
+    "forms": {
+      "common": {
+        "action_paused": "Action Paused",
+        "too_many_attempts": "Too many attempts. Please wait <span class=\"font-bold tabular-nums\">{{seconds}}s</span> before trying again."
+      },
+      "create": {
+        "customer_device_title": "Customer & Device",
+        "customer_device_desc": "Who is the customer and what device are they bringing?",
+        "customer_name": "Customer Name",
+        "customer_placeholder": "John Doe",
+        "phone_number": "Phone Number",
+        "phone_placeholder": "0812xxxxxxx",
+        "brand_label": "Brand",
+        "brand_placeholder": "Select Brand",
+        "model_label": "Model / Type",
+        "model_placeholder": "e.g. A51, iPhone 11",
+        "service_details_title": "Service Details",
+        "service_details_desc": "Problem description and technician assignment.",
+        "assign_technician": "Assign Technician",
+        "tech_loading": "Loading...",
+        "tech_select": "Select Technician",
+        "tech_queue": "Queue",
+        "tech_not_found": "No technicians found.",
+        "description_label": "Problem Description",
+        "description_placeholder": "e.g. Broken LCD, Touchscreen error...",
+        "tech_note_label": "Technician Note (Internal)",
+        "tech_note_placeholder": "e.g. Case slightly bent...",
+        "cost_billing_title": "Cost & Billing",
+        "cost_billing_desc": "List of services performed and pricing.",
+        "add_item": "Add Item",
+        "remove_item": "Remove Item",
+        "service_name": "Service Name #{{index}}",
+        "service_name_placeholder": "e.g. Replace Samsung A51 LCD",
+        "cost_estimation": "Cost Estimation",
+        "subtotal": "Subtotal",
+        "discount": "Discount (%)",
+        "down_payment": "Down Payment",
+        "max_dp": "Max DP: {{amount}}",
+        "total_bill": "Total Bill",
+        "btn_reset": "Reset",
+        "btn_cancel": "Cancel",
+        "btn_save": "Create Service"
+      },
+      "edit": {
+        "alert_locked_title": "Permanently Locked",
+        "alert_locked_desc": "Service items have been taken. Status cannot be changed anymore.",
+        "alert_restricted_title": "Editing Restricted",
+        "alert_restricted_desc": "Grace period ended. You can only change status to <b>TAKEN</b>.",
+        "alert_grace_title": "Grace Period Active",
+        "alert_grace_desc": "You can still undo/change this status for the next <b class=\"tabular-nums\">{{minutes}}m {{seconds}}s</b>.",
+        "status_label": "Service Status",
+        "status_placeholder": "Select Status",
+        "customer_device_title": "Customer & Device",
+        "customer_device_desc": "Edit customer details and device information.",
+        "service_details_title": "Service Details",
+        "service_details_desc": "Edit problem description and technician assignment.",
+        "cost_billing_title": "Cost & Billing",
+        "cost_billing_desc": "Update services and pricing.",
+        "btn_reset": "Reset",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Changes",
+        "toast_wa_failed": "WhatsApp Notification Failed",
+        "toast_wa_failed_desc": "Failed to send message to customer number"
+      },
+      "update_status": {
+        "title": "Update Service Status",
+        "desc_1": "Change status for",
+        "desc_2": "(This may trigger an automatic WhatsApp notification)",
+        "status_label": "Current Status",
+        "status_placeholder": "Select status",
+        "btn_cancel": "Cancel",
+        "btn_save": "Save Changes",
+        "toast_wa_failed": "WhatsApp Notification Failed",
+        "toast_wa_failed_desc": "Failed to send message to customer number"
+      },
+      "delete": {
+        "title": "Delete Service?",
+        "desc_1": "Are you sure you want to delete",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_delete": "Delete"
+      },
+      "anonymize": {
+        "title": "Anonymize Customer Data?",
+        "desc_1": "Are you sure you want to anonymize",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_anonymize": "Anonymize Data"
+      },
+      "restore": {
+        "title": "Restore Service?",
+        "desc_1": "Are you sure you want to restore",
+        "desc_2": "? This action cannot be undone.",
+        "btn_cancel": "Cancel",
+        "btn_restore": "Restore"
+      }
+    },
+    "action_menu": {
+      "view_details": "View Details",
+      "download_pdf": "Download PDF",
+      "generating_pdf": "Generating...",
+      "edit_service": "Edit Service",
+      "update_status": "Update Status",
+      "delete": "Delete",
+      "anonymize": "Anonymize",
+      "restore_data": "Restore Data",
+      "loading_invoice": "Loading invoice data..."
+    },
+    "detail": {
+      "header_title": "Service Details",
+      "header_subtitle": "Manage repair service",
+      "device_card": {
+        "device": "Device",
+        "service_id": "Service ID",
+        "problem_desc": "Problem Description",
+        "no_description": "No description provided."
+      },
+      "cost_card": {
+        "title": "Cost & Billing",
+        "th_service_name": "Service Name",
+        "th_cost": "Cost",
+        "subtotal": "Subtotal",
+        "disc": "Disc",
+        "down_payment": "Down Payment",
+        "cancelled": "Cancelled",
+        "total_due": "Total Due"
+      },
+      "quick_actions": {
+        "title": "Quick Actions",
+        "edit_service": "Edit Service",
+        "update_status": "Update Status",
+        "download_pdf": "Download PDF",
+        "delete_service": "Delete Service"
+      },
+      "technician_card": {
+        "title": "Technician",
+        "inactive": "Inactive",
+        "signature": "Signature",
+        "no_signature": "No Signature",
+        "internal_note": "Internal Note",
+        "no_note": "No internal notes.",
+        "unassigned": "No technician assigned"
+      },
+      "system_info": {
+        "title": "System Info",
+        "tracking_token": "Tracking Token",
+        "created_at": "Created At",
+        "last_updated": "Last Updated"
+      },
+      "toast": {
+        "service_not_loaded": "Service data not loaded yet",
+        "settings_not_loaded": "Settings data not loaded yet. Please wait.",
+        "generating_pdf": "Generating Invoice PDF...",
+        "pdf_downloaded": "Invoice Downloaded!",
+        "pdf_failed": "Failed to generate PDF",
+        "token_copied": "Tracking link copied to clipboard!"
+      }
+    }
+  },
+  "activity_log": {
+    "title": "Activity Log",
+    "loading": "Loading logs...",
+    "error_load": "Failed to load logs.",
+    "empty": "No activity yet.",
+    "empty_desc": "No activity logs found.",
+    "voided_badge": "VOIDED",
+    "btn_void": "Void",
+    "confirm_void": "Are you sure you want to VOID this transaction?\n\nThis will reverse the stock changes and cannot be undone."
+  },
+  "recent_activity": {
+    "empty": "No recent activity found."
+  },
+  "rate_limit": {
+    "fallback_title": "Traffic is a bit high!",
+    "fallback_desc": "To ensure system stability, we've temporarily paused updates. Please wait before refreshing.",
+    "banner_title": "Traffic is currently high!",
+    "banner_desc": "Please wait",
+    "banner_desc_suffix": "before refreshing again.",
+    "btn_wait": "Please Wait",
+    "btn_refresh": "Refresh"
+  },
+  "preview_setting": {
+    "viewer_title": "Document Viewer",
+    "viewer_desc": "Preview of your store invoice settings",
+    "file_name": "invoice_layout.pdf",
+    "readonly_mode": "Read-Only Mode",
+    "btn_cancel": "Cancel",
+    "btn_save": "Save Settings",
+    "dummy": {
+      "customer_name": "Budi Customer",
+      "model": "Galaxy S23 Ultra",
+      "description": "LCD Replacement",
+      "technician_name": "Rizqi Technician",
+      "service_name": "Original LCD Replacement"
+    }
+  },
+  "invoice": {
+    "professional_repair": "Professional Repair Service",
+    "invoice_title": "INVOICE",
+    "invoice_to": "Invoice to:",
+    "inv_no": "Inv#",
+    "date": "Date",
+    "technician": "Technician",
+    "table_no": "No.",
+    "table_desc": "Description",
+    "table_price": "Price",
+    "table_total": "Total",
+    "tnc": "Terms & Conditions:",
+    "payment_info": "Payment Info:",
+    "sub_total": "Sub Total",
+    "disc": "Disc",
+    "down_payment": "Down Payment",
+    "amount_due": "Amount Due",
+    "total_due": "Total Due",
+    "refund_notice": "REFUND NOTICE",
+    "refund_desc": "Service cancelled. Please present this invoice for a DP refund of {{amount}}.",
+    "authorized_sign": "Authorized Sign",
+    "default_address": "Address not set",
+    "status": {
+      "PENDING": "PENDING",
+      "PROCESS": "PROCESS",
+      "FINISHED": "FINISHED",
+      "TAKEN": "TAKEN",
+      "CANCELLED": "CANCELLED"
     }
   }
 }

@@ -440,6 +440,8 @@
     }
   },
   "auth": {
+    "or_continue_with": "Atau lanjutkan dengan",
+    "google": "Google",
     "common": {
       "too_many_attempts": "Terlalu banyak percobaan. Harap tunggu sebelum mencoba lagi.",
       "google_failed": "Gagal terhubung ke Google.",
@@ -672,6 +674,751 @@
     "footer": {
       "btn_preview": "Pratinjau Perubahan",
       "btn_save": "Simpan Pengaturan"
+    }
+  },
+  "users_management": {
+    "title": "Manajemen Pengguna",
+    "search_placeholder": "Cari pengguna...",
+    "btn_sort": "Sortir",
+    "btn_filter": "Filter",
+    "btn_trash": "Sampah",
+    "btn_exit": "Keluar",
+    "error_load": "Gagal memuat data pengguna.",
+    "unknown_error": "Terjadi kesalahan yang tidak diketahui",
+    "btn_try_again": "Coba Lagi",
+    "sort": {
+      "date_label": "Tanggal",
+      "newest": "Terbaru Ditambahkan",
+      "oldest": "Terlama Ditambahkan",
+      "name_label": "Nama",
+      "name_asc": "Nama (A-Z)",
+      "name_desc": "Nama (Z-A)"
+    },
+    "filter": {
+      "title": "Filter",
+      "desc": "Saring daftar pengguna.",
+      "role_label": "Peran Pengguna",
+      "role_placeholder": "Pilih Peran",
+      "roles": {
+        "all": "Semua Peran",
+        "admin": "Admin",
+        "customer": "Pelanggan",
+        "owner": "Pemilik"
+      },
+      "online_label": "Hanya Tampilkan Pengguna Online",
+      "online_desc": "Hanya tampilkan pengguna yang aktif di sesi saat ini.",
+      "btn_apply": "Terapkan Filter",
+      "btn_clear": "Hapus Filter"
+    },
+    "table": {
+      "not_found_entity": "Pengguna",
+      "headers": {
+        "id": "ID",
+        "email": "Email",
+        "username": "Username",
+        "role": "Peran",
+        "status": "Status",
+        "created_at": "Dibuat Pada",
+        "updated_at": "Diperbarui Pada",
+        "actions": "Aksi"
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline"
+      }
+    },
+    "action_menu": {
+      "view_details": "Lihat Detail",
+      "edit_role": "Ubah Peran",
+      "delete_user": "Hapus Pengguna",
+      "restore_data": "Pulihkan Data"
+    },
+    "detail": {
+      "not_found": "Pengguna Tidak Ditemukan",
+      "loading": "Memuat...",
+      "header_title": "Detail Pengguna",
+      "header_subtitle": "Kelola informasi untuk ",
+      "profile": {
+        "email": "Email",
+        "user_id": "ID Pengguna",
+        "auth_method": "Metode Autentikasi",
+        "google_oauth": "Google OAuth",
+        "standard_email": "Email Standar",
+        "role": "Peran"
+      },
+      "quick_actions": {
+        "title": "Aksi Cepat",
+        "resend_verify": "Kirim Ulang Verifikasi",
+        "already_verified": "Sudah Terverifikasi",
+        "resend_in": "Kirim ulang dalam {{seconds}}d",
+        "resend_reset": "Kirim Ulang Reset Sandi",
+        "daily_limit": "Batas Harian Tercapai",
+        "change_role": "Ubah Peran",
+        "delete_user": "Hapus Pengguna"
+      },
+      "activity_limits": {
+        "title": "Batas Aktivitas",
+        "verify_attempts": "Percobaan Verifikasi",
+        "reset_attempts": "Percobaan Reset",
+        "last_attempt": "Percobaan terakhir:"
+      },
+      "system_time": {
+        "title": "Waktu Sistem",
+        "created_at": "Dibuat Pada",
+        "last_updated": "Terakhir Diperbarui",
+        "no_modifications": "Tidak ada modifikasi",
+        "data_modified": "Data telah dimodifikasi"
+      },
+      "toast": {
+        "wait_before_resend": "Harap tunggu sebelum mengirim ulang",
+        "verify_sent": "Email verifikasi dikirim ke {{email}}",
+        "cooldown_msg": "Pengguna dalam masa tunggu. Coba lagi dalam {{seconds}}d.",
+        "already_verified": "Pengguna sudah diverifikasi.",
+        "rate_limit": "Batas permintaan tercapai. Coba lagi dalam {{seconds}}d.",
+        "daily_limit": "Batas harian tercapai untuk aksi ini.",
+        "reset_sent": "Email reset sandi dikirim ke {{email}}",
+        "unexpected_error": "Terjadi kesalahan yang tidak terduga"
+      }
+    },
+    "forms": {
+      "update_role": {
+        "title": "Perbarui Peran Pengguna",
+        "desc_1": "Ubah tingkat akses untuk",
+        "desc_2": "(Admin memiliki akses penuh, Pelanggan memiliki akses terbatas)",
+        "current_role": "Peran Saat Ini",
+        "select_role": "Pilih peran",
+        "warn_high_privilege": "Peringatan: Hak Istimewa Tinggi",
+        "warn_high_privilege_desc": "Anda memberikan akses kepemilikan penuh. Pengguna ini akan memiliki hak yang sama dengan Anda.",
+        "warn_demote": "Peringatan: Penurunan Peran Pemilik",
+        "warn_demote_desc": "Anda akan menghapus akses kepemilikan. Pastikan ada setidaknya satu Pemilik (Owner) lain yang tersisa.",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Perubahan",
+        "confirm_title": "Konfirmasi Aksi Kritis",
+        "confirm_promote_1": "Anda akan mempromosikan",
+        "confirm_promote_2": "menjadi",
+        "confirm_promote_3": ". Mereka akan memiliki kontrol penuh atas sistem, termasuk kemampuan untuk mengelola pengguna lain.",
+        "confirm_demote_1": "Anda akan menurunkan peran",
+        "confirm_demote_2": "dari",
+        "confirm_demote_3": ". Mereka akan kehilangan hak istimewa administratif.",
+        "confirm_proceed": "Apakah Anda yakin ingin melanjutkan?",
+        "btn_confirm": "Konfirmasi Pembaruan"
+      },
+      "restore": {
+        "title": "Pulihkan Pengguna?",
+        "desc_1": "Apakah Anda yakin ingin memulihkan",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_restore": "Pulihkan"
+      },
+      "delete": {
+        "title": "Hapus Pengguna?",
+        "desc_1": "Apakah Anda yakin ingin menghapus",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_delete": "Hapus"
+      },
+      "common": {
+        "action_paused": "Aksi Dijeda",
+        "too_many_attempts": "Terlalu banyak percobaan. Harap tunggu <span class=\"font-bold tabular-nums\">{{seconds}}s</span> sebelum mencoba lagi."
+      }
+    }
+  },
+  "technicians_management": {
+    "title": "Manajemen Teknisi",
+    "search_placeholder": "Cari teknisi...",
+    "btn_sort": "Sortir",
+    "btn_filter": "Filter",
+    "btn_add": "Tambah Teknisi",
+    "btn_trash": "Sampah",
+    "btn_exit": "Keluar",
+    "error_load": "Gagal memuat data teknisi.",
+    "unknown_error": "Terjadi kesalahan yang tidak diketahui",
+    "btn_try_again": "Coba Lagi",
+    "sort": {
+      "label": "Sortir Berdasarkan",
+      "newest": "Terbaru Ditambahkan",
+      "oldest": "Terlama Ditambahkan",
+      "active_first": "Aktif Teratas",
+      "inactive_first": "Nonaktif Teratas"
+    },
+    "filter": {
+      "title": "Filter",
+      "desc": "Saring daftar teknisi.",
+      "status_label": "Status",
+      "status_placeholder": "Pilih status",
+      "status_all": "Semua Status",
+      "status_active": "Aktif",
+      "status_inactive": "Nonaktif",
+      "btn_apply": "Terapkan Filter",
+      "btn_clear": "Hapus Filter"
+    },
+    "action_menu": {
+      "edit_technician": "Edit Teknisi",
+      "delete_technician": "Hapus Teknisi",
+      "restore_data": "Pulihkan Data"
+    },
+    "sheet": {
+      "add_title": "Tambah Teknisi Baru",
+      "add_desc": "Formulir untuk menambahkan teknisi baru",
+      "edit_title": "Edit Teknisi",
+      "edit_desc": "Formulir untuk mengedit detail teknisi"
+    },
+    "table": {
+      "not_found_entity": "Teknisi",
+      "headers": {
+        "id": "ID",
+        "name": "Nama Teknisi",
+        "status": "Status",
+        "created_at": "Dibuat Pada",
+        "updated_at": "Diperbarui Pada",
+        "actions": "Aksi"
+      },
+      "signature_available": "Tanda Tangan Tersedia",
+      "no_signature": "Tidak Ada Tanda Tangan",
+      "status_active": "Aktif",
+      "status_inactive": "Nonaktif"
+    },
+    "forms": {
+      "common": {
+        "action_paused": "Aksi Dijeda",
+        "too_many_attempts": "Terlalu banyak percobaan. Harap tunggu <span class=\"font-bold tabular-nums\">{{seconds}}s</span> sebelum mencoba lagi."
+      },
+      "create": {
+        "identity_title": "Identitas Teknisi",
+        "identity_desc": "Detail pribadi dan status akses.",
+        "full_name": "Nama Lengkap",
+        "name_placeholder": "Budi Santoso",
+        "active_status": "Status Aktif",
+        "active_status_desc": "Teknisi dapat ditugaskan untuk pekerjaan.",
+        "signature_title": "Tanda Tangan Digital",
+        "signature_desc": "Unggah tanda tangan resmi untuk keperluan nota/invoice.",
+        "signature_label": "Gambar Tanda Tangan (Opsional)",
+        "upload_prompt": "Klik untuk mengunggah tanda tangan",
+        "upload_format": "PNG (Transparan). Maks 2MB.",
+        "click_to_change": "Klik untuk mengubah",
+        "file_too_large": "Berkas terlalu besar (Maks 2MB)",
+        "transparent_check": "Pemeriksaan latar belakang transparan",
+        "signature_file": "Berkas Tanda Tangan",
+        "click_to_replace": "Klik untuk mengganti",
+        "btn_reset": "Atur Ulang",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Teknisi"
+      },
+      "edit": {
+        "general_title": "Informasi Umum",
+        "general_desc": "Detail dasar tentang Teknisi Anda.",
+        "name_label": "Nama Teknisi",
+        "name_placeholder": "cth. Budi Santoso",
+        "signature_label": "Gambar Tanda Tangan (Opsional)",
+        "upload_prompt": "Klik untuk mengunggah gambar",
+        "upload_format": "SVG, PNG, JPG atau WEBP (maks. 2MB)",
+        "click_to_change": "Klik untuk mengubah",
+        "file_too_large": "Berkas terlalu besar (Maks 2MB)",
+        "bg_remove_auto": "Latar belakang akan dihapus secara otomatis",
+        "current_image": "Gambar Saat Ini",
+        "click_to_replace": "Klik gambar untuk mengganti",
+        "active_status": "Status Aktif",
+        "active_status_desc": "Teknisi dapat ditugaskan untuk layanan saat aktif.",
+        "btn_reset": "Atur Ulang",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Teknisi"
+      },
+      "delete": {
+        "title": "Hapus Teknisi?",
+        "desc_1": "Apakah Anda yakin ingin menghapus",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_delete": "Hapus"
+      },
+      "restore": {
+        "title": "Pulihkan Teknisi?",
+        "desc_1": "Apakah Anda yakin ingin memulihkan",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_restore": "Pulihkan"
+      }
+    }
+  },
+  "products_management": {
+    "title": "Manajemen Produk",
+    "search_placeholder": "Cari produk...",
+    "btn_sort": "Sortir",
+    "btn_filter": "Filter",
+    "btn_add": "Tambah Produk",
+    "btn_trash": "Sampah",
+    "btn_exit": "Keluar",
+    "error_load": "Gagal memuat data produk.",
+    "unknown_error": "Terjadi kesalahan yang tidak diketahui",
+    "btn_try_again": "Coba Lagi",
+    "sort": {
+      "label": "Sortir Berdasarkan",
+      "newest": "Terbaru Ditambahkan",
+      "oldest": "Terlama Ditambahkan",
+      "price_asc": "Harga: Rendah - Tinggi",
+      "price_desc": "Harga: Tinggi - Rendah",
+      "stock_asc": "Stok: Rendah - Tinggi",
+      "stock_desc": "Stok: Tinggi - Rendah"
+    },
+    "filter": {
+      "title": "Filter",
+      "desc": "Saring daftar produk.",
+      "brand_label": "Merek",
+      "brand_placeholder": "Pilih merek",
+      "brand_all": "Semua Merek",
+      "category_label": "Kategori",
+      "category_placeholder": "Pilih kategori",
+      "category_all": "Semua Kategori",
+      "price_label": "Harga",
+      "price_min": "Min",
+      "price_max": "Maks",
+      "in_stock": "Hanya Stok Tersedia",
+      "btn_apply": "Terapkan Filter",
+      "btn_clear": "Hapus Filter"
+    },
+    "sheet": {
+      "add_title": "Tambah Produk Baru",
+      "add_desc": "Formulir untuk menambahkan produk baru",
+      "edit_title": "Edit Produk",
+      "edit_desc": "Formulir untuk mengedit detail produk"
+    },
+    "table": {
+      "not_found_entity": "Produk",
+      "headers": {
+        "id": "ID",
+        "name": "Nama Produk",
+        "brand": "Merek",
+        "category": "Kategori",
+        "stock": "Stok",
+        "cost": "Harga Modal",
+        "price": "Harga Jual",
+        "actions": "Aksi"
+      },
+      "tooltips": {
+        "show_cost": "Tampilkan Harga Modal",
+        "hide_cost": "Sembunyikan Harga Modal"
+      }
+    },
+    "action_menu": {
+      "view_details": "Lihat Detail",
+      "update_stock": "Perbarui Stok",
+      "edit_product": "Edit Produk",
+      "delete_product": "Hapus Produk",
+      "restore_data": "Pulihkan Data"
+    },
+    "detail": {
+      "loading": "Memuat...",
+      "not_found_entity": "Produk",
+      "header_title": "Detail Produk",
+      "header_subtitle": "Kelola inventaris untuk",
+      "out_of_stock_badge": "HABIS",
+      "price_card": {
+        "selling_price": "Harga Jual",
+        "cost_price": "Harga Modal (HPP)",
+        "hidden_cost": "•••••••••",
+        "profit_unit": "Laba / Unit",
+        "estimated": "Estimasi",
+        "hidden_profit": "••••••",
+        "margin": "Margin",
+        "percentage": "Persentase",
+        "hidden_margin": "••%"
+      },
+      "specs": {
+        "title": "Spesifikasi",
+        "category": "Kategori",
+        "brand": "Merek",
+        "manufacturer": "Pabrikan"
+      },
+      "identification": {
+        "title": "Identifikasi",
+        "sku": "SKU Produk"
+      },
+      "quick_actions": {
+        "title": "Aksi Cepat",
+        "edit_product": "Edit Produk",
+        "update_stock": "Perbarui Stok",
+        "delete_product": "Hapus Produk"
+      },
+      "inventory_status": {
+        "title": "Status Inventaris",
+        "available_units": "Unit Tersedia",
+        "critical": "Kritis",
+        "healthy": "Aman",
+        "target": "Target: 20+"
+      },
+      "metadata": {
+        "title": "Metadata",
+        "manufacturer": "Pabrikan",
+        "created": "Dibuat",
+        "updated": "Diperbarui"
+      }
+    },
+    "forms": {
+      "common": {
+        "action_paused": "Aksi Dijeda",
+        "too_many_attempts": "Terlalu banyak percobaan. Harap tunggu <span class=\"font-bold tabular-nums\">{{seconds}}s</span> sebelum mencoba lagi."
+      },
+      "create": {
+        "general_title": "Informasi Umum",
+        "general_desc": "Detail dasar tentang produk Anda.",
+        "name_label": "Nama Produk",
+        "name_placeholder": "cth. iPhone 15 Pro Titanium",
+        "brand_label": "Merek",
+        "brand_placeholder": "Pilih Merek",
+        "category_label": "Kategori",
+        "category_placeholder": "Pilih Kategori",
+        "image_label": "Gambar Produk (Opsional)",
+        "upload_prompt": "Klik untuk mengunggah gambar",
+        "upload_format": "SVG, PNG, JPG atau WEBP (maks. 5MB)",
+        "file_too_large": "Berkas terlalu besar (Maks 5MB)",
+        "bg_remove_auto": "Latar belakang akan dihapus secara otomatis",
+        "uploaded_image": "Gambar Terunggah",
+        "ready_to_upload": "Siap untuk diunggah",
+        "pricing_title": "Harga & Inventaris",
+        "pricing_desc": "Kelola harga dan ketersediaan stok.",
+        "selling_price": "Harga Jual",
+        "cost_price": "Harga Modal",
+        "initial_stock": "Stok Awal",
+        "manufacturer_label": "Pabrikan",
+        "manufacturer_placeholder": "ORIGINAL",
+        "btn_reset": "Atur Ulang",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Produk"
+      },
+      "edit": {
+        "general_title": "Informasi Umum",
+        "general_desc": "Detail dasar tentang produk Anda.",
+        "name_label": "Nama Produk",
+        "name_placeholder": "cth. iPhone 15 Pro Titanium",
+        "brand_label": "Merek",
+        "brand_placeholder": "Pilih Merek",
+        "category_label": "Kategori",
+        "category_placeholder": "Pilih Kategori",
+        "image_label": "Gambar Produk (Opsional)",
+        "upload_prompt": "Klik untuk mengunggah gambar",
+        "upload_format": "SVG, PNG, JPG atau WEBP (maks. 5MB)",
+        "file_too_large": "Berkas terlalu besar (Maks 5MB)",
+        "bg_remove_auto": "Latar belakang akan dihapus secara otomatis",
+        "current_image": "Gambar Saat Ini",
+        "click_to_replace": "Klik gambar untuk mengganti",
+        "pricing_title": "Harga & Inventaris",
+        "pricing_desc": "Kelola harga dan ketersediaan stok.",
+        "selling_price": "Harga Jual",
+        "cost_price": "Harga Modal",
+        "initial_stock": "Stok Awal",
+        "manufacturer_label": "Pabrikan",
+        "manufacturer_placeholder": "ORIGINAL",
+        "btn_reset": "Atur Ulang",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Produk"
+      },
+      "update_stock": {
+        "title": "Perbarui Stok",
+        "desc_1": "Sesuaikan tingkat inventaris untuk",
+        "new_stock": "Nilai Stok Baru",
+        "current_label": "Saat ini:",
+        "diff_label": "Selisih:",
+        "reason_label": "Alasan Penyesuaian",
+        "reason_placeholder": "Pilih alasan",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Perubahan"
+      },
+      "delete": {
+        "title": "Hapus Produk?",
+        "desc_1": "Apakah Anda yakin ingin menghapus",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_delete": "Hapus"
+      },
+      "restore": {
+        "title": "Pulihkan Produk?",
+        "desc_1": "Apakah Anda yakin ingin memulihkan",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_restore": "Pulihkan"
+      }
+    }
+  },
+  "services_management": {
+    "title": "Manajemen Servis",
+    "search_placeholder": "Cari layanan...",
+    "btn_sort": "Sortir",
+    "btn_filter": "Filter",
+    "btn_add": "Tambah Servis",
+    "btn_trash": "Sampah",
+    "btn_exit": "Keluar",
+    "error_load": "Gagal memuat layanan.",
+    "unknown_error": "Terjadi kesalahan yang tidak diketahui",
+    "btn_try_again": "Coba Lagi",
+    "sort": {
+      "label": "Sortir Berdasarkan",
+      "newest": "Terbaru Ditambahkan",
+      "oldest": "Terlama Ditambahkan",
+      "price_asc": "Harga: Rendah - Tinggi",
+      "price_desc": "Harga: Tinggi - Rendah"
+    },
+    "filter": {
+      "title": "Filter",
+      "desc": "Saring daftar layanan.",
+      "brand_label": "Merek",
+      "brand_placeholder": "Pilih merek",
+      "brand_all": "Semua Merek",
+      "status_label": "Status",
+      "status_placeholder": "Pilih status",
+      "status_all": "Semua Status",
+      "price_label": "Total Harga",
+      "price_min": "Min",
+      "price_max": "Maks",
+      "btn_apply": "Terapkan Filter",
+      "btn_clear": "Hapus Filter"
+    },
+    "sheet": {
+      "add_title": "Tambah Servis Baru",
+      "add_desc": "Formulir untuk membuat layanan baru",
+      "edit_title": "Edit Servis",
+      "edit_desc": "Formulir untuk mengedit detail layanan"
+    },
+    "table": {
+      "not_found_entity": "Layanan",
+      "headers": {
+        "service_id": "ID Servis",
+        "customer": "Info Pelanggan",
+        "brand": "Merek",
+        "device": "Nama Perangkat",
+        "status": "Status",
+        "price": "Total Harga",
+        "technician": "Teknisi",
+        "date": "Tanggal",
+        "actions": "Aksi"
+      },
+      "badges": {
+        "cancelled": "BATAL",
+        "paid_off": "LUNAS"
+      }
+    },
+    "forms": {
+      "common": {
+        "action_paused": "Aksi Dijeda",
+        "too_many_attempts": "Terlalu banyak percobaan. Harap tunggu <span class=\"font-bold tabular-nums\">{{seconds}}s</span> sebelum mencoba lagi."
+      },
+      "create": {
+        "customer_device_title": "Pelanggan & Perangkat",
+        "customer_device_desc": "Siapa pelanggannya dan perangkat apa yang dibawa?",
+        "customer_name": "Nama Pelanggan",
+        "customer_placeholder": "Budi Santoso",
+        "phone_number": "Nomor Telepon",
+        "phone_placeholder": "0812xxxxxxx",
+        "brand_label": "Merek",
+        "brand_placeholder": "Pilih Merek",
+        "model_label": "Model / Tipe",
+        "model_placeholder": "cth. A51, iPhone 11",
+        "service_details_title": "Detail Servis",
+        "service_details_desc": "Deskripsi masalah dan penugasan teknisi.",
+        "assign_technician": "Tugaskan Teknisi",
+        "tech_loading": "Memuat...",
+        "tech_select": "Pilih Teknisi",
+        "tech_queue": "Antrean",
+        "tech_not_found": "Tidak ada teknisi ditemukan.",
+        "description_label": "Deskripsi Masalah",
+        "description_placeholder": "cth. LCD Pecah, Touchscreen error...",
+        "tech_note_label": "Catatan Teknisi (Internal)",
+        "tech_note_placeholder": "cth. Casing agak bengkok...",
+        "cost_billing_title": "Biaya & Tagihan",
+        "cost_billing_desc": "Daftar layanan yang dilakukan dan harga.",
+        "add_item": "Tambah Item",
+        "remove_item": "Hapus Item",
+        "service_name": "Nama Servis #{{index}}",
+        "service_name_placeholder": "cth. Ganti LCD Samsung A51",
+        "cost_estimation": "Estimasi Biaya",
+        "subtotal": "Subtotal",
+        "discount": "Diskon (%)",
+        "down_payment": "Uang Muka (DP)",
+        "max_dp": "Maks DP: {{amount}}",
+        "total_bill": "Total Tagihan",
+        "btn_reset": "Atur Ulang",
+        "btn_cancel": "Batal",
+        "btn_save": "Buat Servis"
+      },
+      "edit": {
+        "alert_locked_title": "Terkunci Permanen",
+        "alert_locked_desc": "Item servis telah diambil. Status tidak dapat diubah lagi.",
+        "alert_restricted_title": "Pengeditan Dibatasi",
+        "alert_restricted_desc": "Masa tenggang berakhir. Anda hanya dapat mengubah status menjadi <b>DIAMBIL</b>.",
+        "alert_grace_title": "Masa Tenggang Aktif",
+        "alert_grace_desc": "Anda masih dapat membatalkan/mengubah status ini selama <b class=\"tabular-nums\">{{minutes}}m {{seconds}}d</b> ke depan.",
+        "status_label": "Status Servis",
+        "status_placeholder": "Pilih Status",
+        "customer_device_title": "Pelanggan & Perangkat",
+        "customer_device_desc": "Edit detail pelanggan dan informasi perangkat.",
+        "service_details_title": "Detail Servis",
+        "service_details_desc": "Edit deskripsi masalah dan penugasan teknisi.",
+        "cost_billing_title": "Biaya & Tagihan",
+        "cost_billing_desc": "Perbarui layanan dan harga.",
+        "btn_reset": "Atur Ulang",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Perubahan",
+        "toast_wa_failed": "Notifikasi WhatsApp Gagal",
+        "toast_wa_failed_desc": "Gagal mengirim pesan ke nomor pelanggan"
+      },
+      "update_status": {
+        "title": "Perbarui Status Servis",
+        "desc_1": "Ubah status untuk",
+        "desc_2": "(Ini mungkin memicu notifikasi WhatsApp otomatis)",
+        "status_label": "Status Saat Ini",
+        "status_placeholder": "Pilih status",
+        "btn_cancel": "Batal",
+        "btn_save": "Simpan Perubahan",
+        "toast_wa_failed": "Notifikasi WhatsApp Gagal",
+        "toast_wa_failed_desc": "Gagal mengirim pesan ke nomor pelanggan"
+      },
+      "delete": {
+        "title": "Hapus Servis?",
+        "desc_1": "Apakah Anda yakin ingin menghapus",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_delete": "Hapus"
+      },
+      "anonymize": {
+        "title": "Anonimkan Data Pelanggan?",
+        "desc_1": "Apakah Anda yakin ingin menganonimkan data",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_anonymize": "Anonimkan Data"
+      },
+      "restore": {
+        "title": "Pulihkan Servis?",
+        "desc_1": "Apakah Anda yakin ingin memulihkan",
+        "desc_2": "? Tindakan ini tidak dapat dibatalkan.",
+        "btn_cancel": "Batal",
+        "btn_restore": "Pulihkan"
+      }
+    },
+    "action_menu": {
+      "view_details": "Lihat Detail",
+      "download_pdf": "Unduh PDF",
+      "generating_pdf": "Membuat PDF...",
+      "edit_service": "Edit Servis",
+      "update_status": "Perbarui Status",
+      "delete": "Hapus",
+      "anonymize": "Anonimkan",
+      "restore_data": "Pulihkan Data",
+      "loading_invoice": "Memuat data invoice..."
+    },
+    "detail": {
+      "header_title": "Detail Servis",
+      "header_subtitle": "Kelola layanan perbaikan",
+      "device_card": {
+        "device": "Perangkat",
+        "service_id": "ID Servis",
+        "problem_desc": "Deskripsi Masalah",
+        "no_description": "Tidak ada deskripsi."
+      },
+      "cost_card": {
+        "title": "Biaya & Tagihan",
+        "th_service_name": "Nama Servis",
+        "th_cost": "Biaya",
+        "subtotal": "Subtotal",
+        "disc": "Diskon",
+        "down_payment": "Uang Muka",
+        "cancelled": "Dibatalkan",
+        "total_due": "Sisa Tagihan"
+      },
+      "quick_actions": {
+        "title": "Aksi Cepat",
+        "edit_service": "Edit Servis",
+        "update_status": "Perbarui Status",
+        "download_pdf": "Unduh PDF",
+        "delete_service": "Hapus Servis"
+      },
+      "technician_card": {
+        "title": "Teknisi",
+        "inactive": "Nonaktif",
+        "signature": "Tanda Tangan",
+        "no_signature": "Tidak Ada Tanda Tangan",
+        "internal_note": "Catatan Internal",
+        "no_note": "Tidak ada catatan internal.",
+        "unassigned": "Tidak ada teknisi ditugaskan"
+      },
+      "system_info": {
+        "title": "Info Sistem",
+        "tracking_token": "Token Pelacakan",
+        "created_at": "Dibuat Pada",
+        "last_updated": "Terakhir Diperbarui"
+      },
+      "toast": {
+        "service_not_loaded": "Data servis belum dimuat",
+        "settings_not_loaded": "Data pengaturan belum dimuat. Harap tunggu.",
+        "generating_pdf": "Membuat PDF Invoice...",
+        "pdf_downloaded": "Invoice Diunduh!",
+        "pdf_failed": "Gagal membuat PDF",
+        "token_copied": "Tautan pelacakan disalin ke papan klip!"
+      }
+    }
+  },
+  "activity_log": {
+    "title": "Log Aktivitas",
+    "loading": "Memuat log...",
+    "error_load": "Gagal memuat log.",
+    "empty": "Belum ada aktivitas.",
+    "empty_desc": "Tidak ditemukan log aktivitas.",
+    "voided_badge": "DIBATALKAN",
+    "btn_void": "Batal",
+    "confirm_void": "Apakah Anda yakin ingin membatalkan (VOID) transaksi ini?\n\nTindakan ini akan mengembalikan perubahan stok dan tidak dapat dibatalkan."
+  },
+  "recent_activity": {
+    "empty": "Tidak ada aktivitas terbaru."
+  },
+  "rate_limit": {
+    "fallback_title": "Lalu lintas sedang tinggi!",
+    "fallback_desc": "Untuk menjaga stabilitas sistem, kami menjeda pembaruan sementara. Harap tunggu sebelum memuat ulang.",
+    "banner_title": "Trafik sedang tinggi!",
+    "banner_desc": "Tunggu",
+    "banner_desc_suffix": "sebelum refresh ulang.",
+    "btn_wait": "Harap Tunggu",
+    "btn_refresh": "Muat Ulang"
+  },
+  "preview_setting": {
+    "viewer_title": "Penampil Dokumen",
+    "viewer_desc": "Pratinjau pengaturan nota toko Anda",
+    "file_name": "layout_nota.pdf",
+    "readonly_mode": "Mode Hanya Baca",
+    "btn_cancel": "Batal",
+    "btn_save": "Simpan Pengaturan",
+    "dummy": {
+      "customer_name": "Budi Pelanggan",
+      "model": "Galaxy S23 Ultra",
+      "description": "Ganti LCD",
+      "technician_name": "Rizqi Teknisi",
+      "service_name": "Ganti LCD Original"
+    }
+  },
+  "invoice": {
+    "professional_repair": "Layanan Perbaikan Profesional",
+    "invoice_title": "NOTA SERVIS",
+    "invoice_to": "Ditagihkan ke:",
+    "inv_no": "No.Nota",
+    "date": "Tanggal",
+    "technician": "Teknisi",
+    "table_no": "No.",
+    "table_desc": "Deskripsi",
+    "table_price": "Harga",
+    "table_total": "Total",
+    "tnc": "Syarat & Ketentuan:",
+    "payment_info": "Info Pembayaran:",
+    "sub_total": "Subtotal",
+    "disc": "Diskon",
+    "down_payment": "Uang Muka (DP)",
+    "amount_due": "Sisa Tagihan",
+    "total_due": "Total Tagihan",
+    "refund_notice": "PEMBERITAHUAN PENGEMBALIAN DANA",
+    "refund_desc": "Layanan dibatalkan. Harap tunjukkan nota ini untuk pengembalian DP sebesar {{amount}}.",
+    "authorized_sign": "Tanda Tangan Sah",
+    "default_address": "Alamat belum diatur",
+    "status": {
+      "PENDING": "PENDING",
+      "PROCESS": "DIPROSES",
+      "FINISHED": "SELESAI",
+      "TAKEN": "DIAMBIL",
+      "CANCELLED": "BATAL"
     }
   }
 }

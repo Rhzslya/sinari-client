@@ -47,6 +47,7 @@ import { isAxiosError } from "axios";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 interface UpdateRoleFormProps {
   user: NotPublicUserResponse | DetailedUserResponse | null;
@@ -61,6 +62,7 @@ export default function UpdateRoleForm({
   onOpenChange,
   onSuccess,
 }: UpdateRoleFormProps) {
+  const { t } = useTranslation();
   const { updateRoleMutation } = useUserQueries();
   const {
     mutateAsync: updateRole,
@@ -167,21 +169,22 @@ export default function UpdateRoleForm({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-100">
           <DialogHeader>
-            <DialogTitle>Update User Role</DialogTitle>
+            <DialogTitle>
+              {t("users_management.forms.update_role.title")}
+            </DialogTitle>
             <DialogDescription asChild>
               <div className="flex flex-col gap-1">
                 <div className="flex flex-wrap items-center gap-1 text-muted-foreground text-sm">
-                  <span>Change access level for</span>
+                  <span>{t("users_management.forms.update_role.desc_1")}</span>
                   <TruncatedTooltip
                     text={user?.username || ""}
                     className="font-semibold text-foreground max-w-37.5 truncate"
                   />
-
                   <span>.</span>
                 </div>
 
                 <span className="text-xs text-muted-foreground">
-                  (Admin has full access, Customer has limited access)
+                  {t("users_management.forms.update_role.desc_2")}
                 </span>
               </div>
             </DialogDescription>
@@ -197,7 +200,9 @@ export default function UpdateRoleForm({
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={labelStyle}>Current Role</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("users_management.forms.update_role.current_role")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -205,7 +210,11 @@ export default function UpdateRoleForm({
                     >
                       <FormControl>
                         <SelectTrigger className={inputStyle}>
-                          <SelectValue placeholder="Select role" />
+                          <SelectValue
+                            placeholder={t(
+                              "users_management.forms.update_role.select_role",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -222,11 +231,14 @@ export default function UpdateRoleForm({
                           <AlertTriangle className="h-5 w-5 shrink-0" />
                           <div className="space-y-1">
                             <p className="font-semibold text-xs uppercase">
-                              Warning: High Privilege
+                              {t(
+                                "users_management.forms.update_role.warn_high_privilege",
+                              )}
                             </p>
                             <p className="text-xs opacity-90">
-                              You are granting full ownership access. This user
-                              will have equal rights to you.
+                              {t(
+                                "users_management.forms.update_role.warn_high_privilege_desc",
+                              )}
                             </p>
                           </div>
                         </div>
@@ -238,11 +250,14 @@ export default function UpdateRoleForm({
                           <AlertTriangle className="h-5 w-5 shrink-0" />
                           <div className="space-y-1">
                             <p className="font-semibold text-xs uppercase">
-                              Warning: Demoting Owner
+                              {t(
+                                "users_management.forms.update_role.warn_demote",
+                              )}
                             </p>
                             <p className="text-xs opacity-90">
-                              You are removing ownership access. Ensure there is
-                              at least one other Owner remaining.
+                              {t(
+                                "users_management.forms.update_role.warn_demote_desc",
+                              )}
                             </p>
                           </div>
                         </div>
@@ -257,15 +272,19 @@ export default function UpdateRoleForm({
                   <div className="space-y-1 flex flex-col justify-center items-center">
                     <AlertTriangle className="h-7 w-7 shrink-0" />
                     <p className="font-semibold text-xs uppercase">
-                      Action Paused
+                      {t("users_management.forms.common.action_paused")}
                     </p>
-                    <p className="text-xs opacity-90">
-                      Too many attempts. Please wait{" "}
-                      <span className="font-bold tabular-nums">
-                        {String(cooldown).padStart(2, "0")}s
-                      </span>{" "}
-                      before trying again.
-                    </p>
+                    <p
+                      className="text-xs opacity-90"
+                      dangerouslySetInnerHTML={{
+                        __html: t(
+                          "users_management.forms.common.too_many_attempts",
+                        ).replace(
+                          "{{seconds}}",
+                          String(cooldown).padStart(2, "0"),
+                        ),
+                      }}
+                    />
                   </div>
                 </div>
               )}
@@ -278,7 +297,7 @@ export default function UpdateRoleForm({
                   onClick={() => onOpenChange(false)}
                   disabled={isSubmitting || isPending}
                 >
-                  Cancel
+                  {t("users_management.forms.update_role.btn_cancel")}
                 </Button>
                 <Button
                   size="sm"
@@ -297,7 +316,7 @@ export default function UpdateRoleForm({
                   {isSubmitting || isPending || isError ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    "Save Changes"
+                    t("users_management.forms.update_role.btn_save")
                   )}
                 </Button>
               </DialogFooter>
@@ -310,32 +329,33 @@ export default function UpdateRoleForm({
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive flex items-center gap-2">
               <AlertTriangle className="h-5 w-5" />
-              Confirm Critical Action
+              {t("users_management.forms.update_role.confirm_title")}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm text-muted-foreground">
               {pendingData?.role === UserRole.OWNER ? (
                 <span>
-                  You are about to promote{" "}
+                  {t("users_management.forms.update_role.confirm_promote_1")}{" "}
                   <span className="font-bold text-foreground break-all">
                     {user?.username}
                   </span>{" "}
-                  to <strong className="text-white">OWNER</strong>. They will
-                  have full control over the system, including the ability to
-                  manage other users.
+                  {t("users_management.forms.update_role.confirm_promote_2")}{" "}
+                  <strong className="text-white">OWNER</strong>
+                  {t("users_management.forms.update_role.confirm_promote_3")}
                 </span>
               ) : (
                 <span>
-                  You are about to demote{" "}
+                  {t("users_management.forms.update_role.confirm_demote_1")}{" "}
                   <span className="font-bold text-foreground break-all">
                     {user?.username}
                   </span>{" "}
-                  from <strong className="text-white">OWNER</strong>. They will
-                  lose administrative privileges.
+                  {t("users_management.forms.update_role.confirm_demote_2")}{" "}
+                  <strong className="text-white">OWNER</strong>
+                  {t("users_management.forms.update_role.confirm_demote_3")}
                 </span>
               )}
               <br />
               <br />
-              Are you sure you want to proceed?
+              {t("users_management.forms.update_role.confirm_proceed")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -343,7 +363,7 @@ export default function UpdateRoleForm({
               className="cursor-pointer duration-300"
               disabled={isPending}
             >
-              Cancel
+              {t("users_management.forms.update_role.btn_cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               className="w-1/3 bg-destructive hover:bg-destructive/90 text-foreground! cursor-pointer duration-300"
@@ -356,7 +376,7 @@ export default function UpdateRoleForm({
               {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
-                "Confirm Update"
+                t("users_management.forms.update_role.btn_confirm")
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

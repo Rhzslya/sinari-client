@@ -32,8 +32,10 @@ import { isAxiosError } from "axios";
 import { ArrowUpDown, Check, Filter, Search, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const DashboardUserPage = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const isTrashMode = searchParams.get("is_deleted") === "true";
@@ -93,9 +95,9 @@ const DashboardUserPage = () => {
 
   useEffect(() => {
     if (isError) {
-      handleApiError(error, "Failed to load users");
+      handleApiError(error, t("users_management.error_load"));
     }
-  }, [isError, error]);
+  }, [isError, error, t]);
 
   const users = data?.data || [];
   const totalPage = data?.paging?.total_page || 0;
@@ -218,12 +220,16 @@ const DashboardUserPage = () => {
 
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
-        <p className="text-destructive font-medium">Failed to load users.</p>
+        <p className="text-destructive font-medium">
+          {t("users_management.error_load")}
+        </p>
         <p className="text-sm text-muted-foreground">
-          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+          {isAxiosError(error)
+            ? error.message
+            : t("users_management.unknown_error")}
         </p>
         <Button variant="outline" onClick={() => refetch()}>
-          Try Again
+          {t("users_management.btn_try_again")}
         </Button>
       </div>
     );
@@ -231,13 +237,13 @@ const DashboardUserPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <DashboardHeader title="Users Management">
+      <DashboardHeader title={t("users_management.title")}>
         {/* SEARCH BAR */}
         <div className="relative w-48 md:w-64 hidden md:block">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search users..."
+            placeholder={t("users_management.search_placeholder")}
             className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -249,7 +255,7 @@ const DashboardUserPage = () => {
             <button
               onClick={handleClearSearch}
               onMouseDown={(e) => e.preventDefault()}
-              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive transition-colors"
+              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
@@ -263,31 +269,33 @@ const DashboardUserPage = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 gap-1"
+              className="h-9 gap-1 cursor-pointer"
               disabled={users.length === 0}
             >
               <ArrowUpDown className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Sort
+                {t("users_management.btn_sort")}
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <div className="p-2 text-xs font-semibold text-muted-foreground">
-              Date
+              {t("users_management.sort.date_label")}
             </div>
             <DropdownMenuItem
               onClick={() => handleSortChange("created_at", "desc")}
+              className="cursor-pointer"
             >
-              Newest Added
+              {t("users_management.sort.newest")}
               {isSortActive("created_at", "desc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleSortChange("created_at", "asc")}
+              className="cursor-pointer"
             >
-              Oldest Added
+              {t("users_management.sort.oldest")}
               {isSortActive("created_at", "asc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -295,16 +303,22 @@ const DashboardUserPage = () => {
 
             <DropdownMenuSeparator />
             <div className="p-2 text-xs font-semibold text-muted-foreground">
-              Name
+              {t("users_management.sort.name_label")}
             </div>
-            <DropdownMenuItem onClick={() => handleSortChange("name", "asc")}>
-              Name (A-Z)
+            <DropdownMenuItem
+              onClick={() => handleSortChange("name", "asc")}
+              className="cursor-pointer"
+            >
+              {t("users_management.sort.name_asc")}
               {isSortActive("name", "asc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleSortChange("name", "desc")}>
-              Name (Z-A)
+            <DropdownMenuItem
+              onClick={() => handleSortChange("name", "desc")}
+              className="cursor-pointer"
+            >
+              {t("users_management.sort.name_desc")}
               {isSortActive("name", "desc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -312,17 +326,17 @@ const DashboardUserPage = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* FILTER MENU (UPDATED) */}
+        {/* FILTER MENU */}
         <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="h-9 gap-1"
+              className="h-9 gap-1 cursor-pointer"
               disabled={isDatabaseEmpty}
             >
               <Filter className="h-3.5 w-3.5" />
-              <span>Filter</span>
+              <span>{t("users_management.btn_filter")}</span>
               {activeFiltersCount > 0 && (
                 <span className="ml-1 rounded-sm bg-success px-1 font-normal text-foreground text-xs">
                   {activeFiltersCount}
@@ -333,24 +347,40 @@ const DashboardUserPage = () => {
           <PopoverContent className="w-80" align="end">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <h4 className="font-medium leading-none">Filters</h4>
+                <h4 className="font-medium leading-none">
+                  {t("users_management.filter.title")}
+                </h4>
                 <p className="text-sm text-muted-foreground">
-                  Refine the user list.
+                  {t("users_management.filter.desc")}
                 </p>
               </div>
 
               {/* FILTER ROLE */}
               <div className="space-y-2">
-                <Label htmlFor="role-filter">User Role</Label>
+                <Label htmlFor="role-filter">
+                  {t("users_management.filter.role_label")}
+                </Label>
                 <Select value={tempRole} onValueChange={setTempRole}>
                   <SelectTrigger id="role-filter" className="h-9">
-                    <SelectValue placeholder="Select Role" />
+                    <SelectValue
+                      placeholder={t(
+                        "users_management.filter.role_placeholder",
+                      )}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">All Roles</SelectItem>
-                    <SelectItem value="ADMIN">Admin</SelectItem>
-                    <SelectItem value="CUSTOMER">Customer</SelectItem>
-                    <SelectItem value="OWNER">Owner</SelectItem>
+                    <SelectItem value="ALL">
+                      {t("users_management.filter.roles.all")}
+                    </SelectItem>
+                    <SelectItem value="ADMIN">
+                      {t("users_management.filter.roles.admin")}
+                    </SelectItem>
+                    <SelectItem value="CUSTOMER">
+                      {t("users_management.filter.roles.customer")}
+                    </SelectItem>
+                    <SelectItem value="OWNER">
+                      {t("users_management.filter.roles.owner")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -367,10 +397,10 @@ const DashboardUserPage = () => {
                     htmlFor="online-mode"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    Show Online Users Only
+                    {t("users_management.filter.online_label")}
                   </Label>
                   <p className="text-[10px] text-muted-foreground">
-                    Only show users currently active in session.
+                    {t("users_management.filter.online_desc")}
                   </p>
                 </div>
               </div>
@@ -380,12 +410,11 @@ const DashboardUserPage = () => {
                   size="sm"
                   onClick={applyFilters}
                   className="w-1/2 text-foreground text-sm bg-success hover:bg-success/80 cursor-pointer"
-                  // Disable jika tidak ada perubahan
                   disabled={
                     tempOnline === isOnlineParam && tempRole === roleParam
                   }
                 >
-                  Apply Filters
+                  {t("users_management.filter.btn_apply")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -394,7 +423,7 @@ const DashboardUserPage = () => {
                   className="w-1/2 text-sm text-destructive hover:text-destructive cursor-pointer"
                   disabled={activeFiltersCount === 0}
                 >
-                  Clear Filters
+                  {t("users_management.filter.btn_clear")}
                 </Button>
               </div>
             </div>
@@ -403,18 +432,22 @@ const DashboardUserPage = () => {
         <Button
           variant="outline"
           size="sm"
-          className="h-9 gap-1 w-24 shrink-0"
+          className="h-9 gap-1 w-24 shrink-0 cursor-pointer"
           onClick={toggleTrashMode}
         >
           {isTrashMode ? (
             <>
               <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only">Exit</span>
+              <span className="sr-only sm:not-sr-only">
+                {t("users_management.btn_exit")}
+              </span>
             </>
           ) : (
             <>
               <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only">Trash</span>
+              <span className="sr-only sm:not-sr-only">
+                {t("users_management.btn_trash")}
+              </span>
             </>
           )}
         </Button>

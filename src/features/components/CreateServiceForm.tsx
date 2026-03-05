@@ -35,6 +35,7 @@ import {
   useWatch,
   type Resolver,
 } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const MAX_SERVICE_ITEMS = 10;
@@ -44,6 +45,7 @@ interface ServiceFormProps {
 }
 
 export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
+  const { t } = useTranslation();
   const { createMutation } = useServiceQueries();
 
   const {
@@ -219,24 +221,28 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("services_management.forms.common.action_paused")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "services_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                Customer & Device
+                {t("services_management.forms.create.customer_device_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Who is the customer and what device are they bringing?
+                {t("services_management.forms.create.customer_device_desc")}
               </p>
             </div>
 
@@ -246,11 +252,15 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 name="customer_name"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Customer Name</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.customer_name")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="John Doe"
+                        placeholder={t(
+                          "services_management.forms.create.customer_placeholder",
+                        )}
                         className={inputStyle}
                         {...field}
                         disabled={isSubmitting || isPending}
@@ -265,11 +275,15 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 name="phone_number"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Phone Number</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.phone_number")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="0812xxxxxxx"
+                        placeholder={t(
+                          "services_management.forms.create.phone_placeholder",
+                        )}
                         className={inputStyle}
                         {...field}
                         inputMode="numeric"
@@ -290,7 +304,9 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 name="brand"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Brand</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.brand_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -298,7 +314,11 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue placeholder="Select Brand" />
+                          <SelectValue
+                            placeholder={t(
+                              "services_management.forms.create.brand_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -318,11 +338,15 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 name="model"
                 render={({ field }) => (
                   <FormItem className="col-span-1 relative grid gap-1 space-y-0">
-                    <FormLabel className={labelStyle}>Model / Type</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("services_management.forms.create.model_label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="e.g. A51, iPhone 11"
+                        placeholder={t(
+                          "services_management.forms.create.model_placeholder",
+                        )}
                         className={inputStyle}
                         {...field}
                         disabled={isSubmitting || isPending}
@@ -337,10 +361,10 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
             <Separator />
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                Service Details
+                {t("services_management.forms.create.service_details_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Problem description and technician assignment.
+                {t("services_management.forms.create.service_details_desc")}
               </p>
             </div>
 
@@ -351,7 +375,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 render={({ field }) => (
                   <FormItem className="relative grid gap-1 space-y-0">
                     <FormLabel className={labelStyle}>
-                      Assign Technician
+                      {t("services_management.forms.create.assign_technician")}
                     </FormLabel>
                     <Select
                       onValueChange={(value) => {
@@ -367,8 +391,12 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                           <SelectValue
                             placeholder={
                               isFetchingTechs
-                                ? "Loading..."
-                                : "Select Technician"
+                                ? t(
+                                    "services_management.forms.create.tech_loading",
+                                  )
+                                : t(
+                                    "services_management.forms.create.tech_select",
+                                  )
                             }
                           />
                         </SelectTrigger>
@@ -385,14 +413,19 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                                     : "text-success"
                                 }`}
                               >
-                                {tech.active_jobs} Queue
+                                {tech.active_jobs}{" "}
+                                {t(
+                                  "services_management.forms.create.tech_queue",
+                                )}
                               </span>
                             </div>
                           </SelectItem>
                         ))}
                         {technicians?.length === 0 && !isFetchingTechs && (
                           <div className="p-2 text-xs text-muted-foreground text-center">
-                            No technicians found.
+                            {t(
+                              "services_management.forms.create.tech_not_found",
+                            )}
                           </div>
                         )}
                       </SelectContent>
@@ -408,11 +441,13 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 render={({ field }) => (
                   <FormItem className="relative grid gap-1 space-y-0">
                     <FormLabel className={labelStyle}>
-                      Problem Description
+                      {t("services_management.forms.create.description_label")}
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="e.g. LCD Pecah, Touchscreen error..."
+                        placeholder={t(
+                          "services_management.forms.create.description_placeholder",
+                        )}
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
                         disabled={isSubmitting || isPending}
@@ -429,11 +464,13 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                 render={({ field }) => (
                   <FormItem className="relative grid gap-1 space-y-0">
                     <FormLabel className={labelStyle}>
-                      Technician Note (Internal)
+                      {t("services_management.forms.create.tech_note_label")}
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="e.g. Casing agak bengkok..."
+                        placeholder={t(
+                          "services_management.forms.create.tech_note_placeholder",
+                        )}
                         className="resize-none min-h-15 text-sm bg-input/50"
                         {...field}
                         disabled={isSubmitting || isPending}
@@ -450,17 +487,17 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-semibold tracking-tight">
-                  Cost & Billing
+                  {t("services_management.forms.create.cost_billing_title")}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  List of services performed and pricing.
+                  {t("services_management.forms.create.cost_billing_desc")}
                 </p>
               </div>
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="h-7 text-xs gap-1"
+                className="h-7 text-xs gap-1 cursor-pointer"
                 onClick={() => append({ name: "", price: 0 })}
                 disabled={
                   isSubmitting ||
@@ -468,7 +505,8 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                   fields.length >= MAX_SERVICE_ITEMS
                 }
               >
-                <Plus className="w-3 h-3" /> Add Item
+                <Plus className="w-3 h-3" />{" "}
+                {t("services_management.forms.create.add_item")}
                 <span className="ml-1 text-[10px] text-muted-foreground">
                   ({fields.length}/{MAX_SERVICE_ITEMS})
                 </span>
@@ -488,17 +526,22 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                       <FormItem className="relative flex flex-col gap-1 space-y-0">
                         <div className="flex justify-between items-center">
                           <FormLabel className="text-[10px] uppercase text-muted-foreground font-semibold tracking-wider">
-                            Service Name #{index + 1}
+                            {t(
+                              "services_management.forms.create.service_name",
+                              { index: index + 1 },
+                            )}
                           </FormLabel>
                           {fields.length > 1 && (
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 -mr-1 -mt-1 text-muted-foreground hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                              className="h-6 w-6 -mr-1 -mt-1 text-muted-foreground hover:text-destructive opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer"
                               onClick={() => remove(index)}
                               disabled={isSubmitting || isPending}
-                              title="Remove Item"
+                              title={t(
+                                "services_management.forms.create.remove_item",
+                              )}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
@@ -507,7 +550,9 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         <FormControl>
                           <Input
                             autoComplete="off"
-                            placeholder="e.g. Ganti LCD Samsung A51"
+                            placeholder={t(
+                              "services_management.forms.create.service_name_placeholder",
+                            )}
                             className={inputStyle}
                             {...field}
                             disabled={isSubmitting || isPending}
@@ -522,9 +567,10 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                     name={`service_list.${index}.price`}
                     render={({ field }) => (
                       <FormItem className="relative flex flex-col gap-1 space-y-0">
-                        {" "}
                         <FormLabel className="text-[10px] uppercase text-muted-foreground font-semibold tracking-wider">
-                          Cost Estimation
+                          {t(
+                            "services_management.forms.create.cost_estimation",
+                          )}
                         </FormLabel>
                         <FormControl>
                           <NumberStepper
@@ -547,12 +593,16 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
 
             <div className="bg-muted/30 p-4 rounded-lg border border-border/50 grid gap-3 mt-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">
+                  {t("services_management.forms.create.subtotal")}
+                </span>
                 <span className="font-mono">{formatRupiah(subTotal)}</span>
               </div>
 
               <div className="flex items-center justify-between text-sm gap-4">
-                <span className="text-muted-foreground">Discount (%)</span>
+                <span className="text-muted-foreground">
+                  {t("services_management.forms.create.discount")}
+                </span>
                 <div className="w-48">
                   <FormField
                     control={formCreate.control}
@@ -598,7 +648,9 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
               </div>
 
               <div className="flex items-center justify-between text-sm gap-4">
-                <span className="text-muted-foreground">Down Payment</span>
+                <span className="text-muted-foreground">
+                  {t("services_management.forms.create.down_payment")}
+                </span>
                 <div className="w-48">
                   <FormField
                     control={formCreate.control}
@@ -630,7 +682,9 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
                         </FormControl>
                         {downPayment > maxDownPayment && (
                           <span className="text-[10px] text-destructive absolute right-0 -bottom-4">
-                            Max DP: {formatRupiah(maxDownPayment)}
+                            {t("services_management.forms.create.max_dp", {
+                              amount: formatRupiah(maxDownPayment),
+                            })}
                           </span>
                         )}
                       </FormItem>
@@ -642,7 +696,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
               <Separator className="bg-border/50" />
 
               <div className="flex items-center justify-between font-semibold">
-                <span>Total Bill</span>
+                <span>{t("services_management.forms.create.total_bill")}</span>
                 <span className="text-primary text-base font-mono">
                   {formatRupiah(grandTotal)}
                 </span>
@@ -663,7 +717,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
               onClick={handleReset}
               disabled={isSubmitting || isPending}
             >
-              Reset
+              {t("services_management.forms.create.btn_reset")}
             </Button>
           ) : (
             <Button
@@ -676,7 +730,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
               }}
               disabled={isSubmitting || isPending}
             >
-              Cancel
+              {t("services_management.forms.create.btn_cancel")}
             </Button>
           )}
           <Button
@@ -687,7 +741,7 @@ export function CreateServiceForm({ onSuccess }: ServiceFormProps) {
             {isSubmitting || isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Create Service"
+              t("services_management.forms.create.btn_save")
             )}
           </Button>
         </div>

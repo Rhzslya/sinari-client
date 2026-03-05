@@ -1,4 +1,3 @@
-// pages/DashboardProductPage.tsx
 import { DashboardProductTable } from "@/features/fragments/DashboardProductTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,8 +50,10 @@ import { handleApiError } from "@/lib/utils";
 import { useProductQueries } from "@/hooks/product-queries";
 import { isAxiosError } from "axios";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
+import { useTranslation } from "react-i18next";
 
 const DashboardProductPage = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const isTrashMode = searchParams.get("is_deleted") === "true";
@@ -107,9 +108,9 @@ const DashboardProductPage = () => {
 
   useEffect(() => {
     if (isError) {
-      handleApiError(error, "Failed to load services");
+      handleApiError(error, t("products_management.error_load"));
     }
-  }, [isError, error]);
+  }, [isError, error, t]);
 
   useEffect(() => {
     setSearchTerm(searchParam);
@@ -185,10 +186,6 @@ const DashboardProductPage = () => {
 
     setSearchTerm("");
   };
-
-  useEffect(() => {
-    setSearchTerm(searchParam);
-  }, [searchParam]);
 
   const applyFilters = () => {
     setSearchParams((prev) => {
@@ -285,21 +282,29 @@ const DashboardProductPage = () => {
 
   if (isError && !data) {
     if (isAxiosError(error) && error.response?.status === 429) {
-      const message = error.response?.data?.errors || "";
-      const match = message.match(/(\d+)(?:s| seconds)/);
-      const seconds = match ? parseInt(match[1]) : 60;
-
-      return <RateLimitFallback seconds={seconds} onRetry={() => refetch()} />;
+      const match = (error.response?.data?.errors || "").match(
+        /(\d+)(?:s| seconds)/,
+      );
+      return (
+        <RateLimitFallback
+          seconds={match ? parseInt(match[1]) : 60}
+          onRetry={() => refetch()}
+        />
+      );
     }
 
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
-        <p className="text-destructive font-medium">Failed to load products.</p>
+        <p className="text-destructive font-medium">
+          {t("products_management.error_load")}
+        </p>
         <p className="text-sm text-muted-foreground">
-          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+          {isAxiosError(error)
+            ? error.message
+            : t("products_management.unknown_error")}
         </p>
         <Button variant="outline" onClick={() => refetch()}>
-          Try Again
+          {t("products_management.btn_try_again")}
         </Button>
       </div>
     );
@@ -307,13 +312,13 @@ const DashboardProductPage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <DashboardHeader title="Products Management">
+      <DashboardHeader title={t("products_management.title")}>
         <div className="relative w-48 md:w-64 hidden md:block">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
 
           <Input
             type="search"
-            placeholder="Search products..."
+            placeholder={t("products_management.search_placeholder")}
             className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -326,7 +331,7 @@ const DashboardProductPage = () => {
             <button
               onClick={handleClearSearch}
               onMouseDown={(e) => e.preventDefault()}
-              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive transition-colors"
+              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
@@ -338,23 +343,24 @@ const DashboardProductPage = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 gap-1"
+              className="h-9 gap-1 cursor-pointer"
               disabled={products.length === 0}
             >
               <ArrowUpDown className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Sort
+                {t("products_management.btn_sort")}
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <div className="p-2 text-xs font-semibold text-muted-foreground">
-              Sort By
+              {t("products_management.sort.label")}
             </div>
             <DropdownMenuItem
               onClick={() => handleSortChange("created_at", "desc")}
+              className="cursor-pointer"
             >
-              Newest Added
+              {t("products_management.sort.newest")}
               {isSortActive("created_at", "desc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -362,8 +368,9 @@ const DashboardProductPage = () => {
 
             <DropdownMenuItem
               onClick={() => handleSortChange("created_at", "asc")}
+              className="cursor-pointer"
             >
-              Oldest Added
+              {t("products_management.sort.oldest")}
               {isSortActive("created_at", "asc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -371,15 +378,21 @@ const DashboardProductPage = () => {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => handleSortChange("price", "asc")}>
-              Price: Low - High
+            <DropdownMenuItem
+              onClick={() => handleSortChange("price", "asc")}
+              className="cursor-pointer"
+            >
+              {t("products_management.sort.price_asc")}
               {isSortActive("price", "asc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => handleSortChange("price", "desc")}>
-              Price: High - Low
+            <DropdownMenuItem
+              onClick={() => handleSortChange("price", "desc")}
+              className="cursor-pointer"
+            >
+              {t("products_management.sort.price_desc")}
               {isSortActive("price", "desc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -387,15 +400,21 @@ const DashboardProductPage = () => {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => handleSortChange("stock", "asc")}>
-              Stock: Low - High
+            <DropdownMenuItem
+              onClick={() => handleSortChange("stock", "asc")}
+              className="cursor-pointer"
+            >
+              {t("products_management.sort.stock_asc")}
               {isSortActive("stock", "asc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => handleSortChange("stock", "desc")}>
-              Stock: High - Low
+            <DropdownMenuItem
+              onClick={() => handleSortChange("stock", "desc")}
+              className="cursor-pointer"
+            >
+              {t("products_management.sort.stock_desc")}
               {isSortActive("stock", "desc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -407,11 +426,11 @@ const DashboardProductPage = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 gap-1"
+              className="h-9 gap-1 cursor-pointer"
               disabled={isDatabaseEmpty}
             >
               <Filter className="h-3.5 w-3.5" />
-              <span>Filter</span>
+              <span>{t("products_management.btn_filter")}</span>
               {activeFiltersCount > 0 && (
                 <span className="ml-1 rounded-sm bg-success px-1 font-normal text-foreground text-xs">
                   {activeFiltersCount}
@@ -422,26 +441,40 @@ const DashboardProductPage = () => {
           <PopoverContent className="w-80" align="end">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <h4 className="font-medium leading-none">Filters</h4>
+                <h4 className="font-medium leading-none">
+                  {t("products_management.filter.title")}
+                </h4>
                 <p className="text-sm text-muted-foreground">
-                  Refine the product list.
+                  {t("products_management.filter.desc")}
                 </p>
               </div>
 
               <div className="grid grid-cols-3 gap-4 items-center">
-                <Label htmlFor="brand">Brand</Label>
+                <Label htmlFor="brand">
+                  {t("products_management.filter.brand_label")}
+                </Label>
                 <div className="col-span-2">
                   <Select
                     value={tempBrand || "ALL"}
                     onValueChange={setTempBrand}
                   >
-                    <SelectTrigger className="h-8 w-full">
-                      <SelectValue placeholder="Select brand" />
+                    <SelectTrigger className="h-8 w-full cursor-pointer">
+                      <SelectValue
+                        placeholder={t(
+                          "products_management.filter.brand_placeholder",
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">All Brands</SelectItem>
+                      <SelectItem value="ALL" className="cursor-pointer">
+                        {t("products_management.filter.brand_all")}
+                      </SelectItem>
                       {Object.values(Brand).map((brand) => (
-                        <SelectItem key={brand} value={brand}>
+                        <SelectItem
+                          key={brand}
+                          value={brand}
+                          className="cursor-pointer"
+                        >
                           {brand}
                         </SelectItem>
                       ))}
@@ -449,19 +482,31 @@ const DashboardProductPage = () => {
                   </Select>
                 </div>
 
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">
+                  {t("products_management.filter.category_label")}
+                </Label>
                 <div className="col-span-2">
                   <Select
                     value={tempCategory || "ALL"}
                     onValueChange={setTempCategory}
                   >
-                    <SelectTrigger className="h-8 w-full">
-                      <SelectValue placeholder="Select category" />
+                    <SelectTrigger className="h-8 w-full cursor-pointer">
+                      <SelectValue
+                        placeholder={t(
+                          "products_management.filter.category_placeholder",
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">All Category</SelectItem>
+                      <SelectItem value="ALL" className="cursor-pointer">
+                        {t("products_management.filter.category_all")}
+                      </SelectItem>
                       {Object.values(Category).map((category) => (
-                        <SelectItem key={category} value={category}>
+                        <SelectItem
+                          key={category}
+                          value={category}
+                          className="cursor-pointer"
+                        >
                           {category}
                         </SelectItem>
                       ))}
@@ -470,7 +515,7 @@ const DashboardProductPage = () => {
                 </div>
 
                 <Label htmlFor="price" className="self-start mt-2">
-                  Price
+                  {t("products_management.filter.price_label")}
                 </Label>
                 <div className="col-span-2 grid gap-2">
                   <NumberStepper
@@ -481,7 +526,7 @@ const DashboardProductPage = () => {
                     step={10000}
                     min={0}
                     prefix="Rp"
-                    placeholder="Min"
+                    placeholder={t("products_management.filter.price_min")}
                   />
 
                   <NumberStepper
@@ -492,7 +537,7 @@ const DashboardProductPage = () => {
                     step={10000}
                     min={0}
                     prefix="Rp"
-                    placeholder="Max"
+                    placeholder={t("products_management.filter.price_max")}
                   />
                 </div>
               </div>
@@ -506,13 +551,13 @@ const DashboardProductPage = () => {
                   onCheckedChange={(checked) =>
                     setTempInStock(checked as boolean)
                   }
-                  className="data-[state=checked]:bg-success data-[state=checked]:border-success data-[state=checked]:text-foreground"
+                  className="data-[state=checked]:bg-success data-[state=checked]:border-success data-[state=checked]:text-foreground cursor-pointer"
                 />
                 <Label
                   htmlFor="in_stock"
-                  className="text-sm font-medium leading-none"
+                  className="text-sm font-medium leading-none cursor-pointer"
                 >
-                  In Stock Only
+                  {t("products_management.filter.in_stock")}
                 </Label>
               </div>
 
@@ -523,7 +568,7 @@ const DashboardProductPage = () => {
                   className="w-1/2 text-foreground text-sm bg-success hover:bg-success/80 cursor-pointer"
                   disabled={!hasChanges}
                 >
-                  Apply Filters
+                  {t("products_management.filter.btn_apply")}
                 </Button>
 
                 <Button
@@ -533,7 +578,7 @@ const DashboardProductPage = () => {
                   className="w-1/2 text-sm text-destructive hover:text-destructive cursor-pointer"
                   disabled={activeFiltersCount === 0}
                 >
-                  Clear Filters
+                  {t("products_management.filter.btn_clear")}
                 </Button>
               </div>
             </div>
@@ -549,7 +594,7 @@ const DashboardProductPage = () => {
               >
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Add Product
+                  {t("products_management.btn_add")}
                 </span>
               </Button>
             </SheetTrigger>
@@ -557,11 +602,11 @@ const DashboardProductPage = () => {
             <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
               <SheetHeader className="px-6 py-4 border-b">
                 <SheetTitle className="text-xl text-primary">
-                  Add New Product
+                  {t("products_management.sheet.add_title")}
                 </SheetTitle>
               </SheetHeader>
               <SheetDescription className="sr-only">
-                Form to add a new product
+                {t("products_management.sheet.add_desc")}
               </SheetDescription>
 
               <div className="flex-1 overflow-hidden">
@@ -573,18 +618,22 @@ const DashboardProductPage = () => {
         <Button
           variant="outline"
           size="sm"
-          className="h-9 gap-1 w-24 shrink-0"
+          className="h-9 gap-1 w-24 shrink-0 cursor-pointer"
           onClick={toggleTrashMode}
         >
           {isTrashMode ? (
             <>
               <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only">Exit</span>
+              <span className="sr-only sm:not-sr-only">
+                {t("products_management.btn_exit")}
+              </span>
             </>
           ) : (
             <>
               <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only">Trash</span>
+              <span className="sr-only sm:not-sr-only">
+                {t("products_management.btn_trash")}
+              </span>
             </>
           )}
         </Button>

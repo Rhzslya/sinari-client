@@ -7,6 +7,7 @@ import type { GetLogRequest } from "@/model/product-logs-model";
 import { format } from "date-fns";
 import { Ban, History, Loader2, User } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const VALID_VOID_ACTIONS = [
   ProductLogAction.ADJUST_DAMAGE,
@@ -16,6 +17,7 @@ const VALID_VOID_ACTIONS = [
 ];
 
 export const ProductLogTimeline = ({ productId }: { productId: number }) => {
+  const { t } = useTranslation();
   const { useLogList, voidLogMutation } = useProductLogQueries();
 
   const { data: logs, isLoading, isError } = useLogList({ id: productId });
@@ -23,9 +25,24 @@ export const ProductLogTimeline = ({ productId }: { productId: number }) => {
 
   const [voidingId, setVoidingId] = useState<number | null>(null);
 
-  if (isLoading) return <div>Loading logs...</div>;
-  if (isError) return <div>Failed to load logs.</div>;
-  if (!logs || logs.length === 0) return <div>No activity yet.</div>;
+  if (isLoading)
+    return (
+      <div className="p-4 text-sm text-muted-foreground">
+        {t("activity_log.loading")}
+      </div>
+    );
+  if (isError)
+    return (
+      <div className="p-4 text-sm text-destructive">
+        {t("activity_log.error_load")}
+      </div>
+    );
+  if (!logs || logs.length === 0)
+    return (
+      <div className="p-4 text-sm text-muted-foreground">
+        {t("activity_log.empty")}
+      </div>
+    );
 
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return "-";
@@ -33,11 +50,7 @@ export const ProductLogTimeline = ({ productId }: { productId: number }) => {
   };
 
   const handleVoid = async (request: GetLogRequest) => {
-    if (
-      window.confirm(
-        "Are you sure you want to VOID this transaction?\n\nThis will reverse the stock changes and cannot be undone.",
-      )
-    ) {
+    if (window.confirm(t("activity_log.confirm_void"))) {
       setVoidingId(request.id);
       try {
         await voidLog(request);
@@ -48,11 +61,12 @@ export const ProductLogTimeline = ({ productId }: { productId: number }) => {
       }
     }
   };
+
   return (
     <Card className="mt-6 border shadow-sm">
       <CardHeader className="bg-muted/5 py-4 border-b">
         <CardTitle className="text-base flex items-center gap-2">
-          <History className="w-4 h-4 text-primary" /> Activity Log
+          <History className="w-4 h-4 text-primary" /> {t("activity_log.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
@@ -108,7 +122,7 @@ export const ProductLogTimeline = ({ productId }: { productId: number }) => {
                           variant="destructive"
                           className="h-4 text-[9px] px-1"
                         >
-                          VOIDED
+                          {t("activity_log.voided_badge")}
                         </Badge>
                       )}
                     </div>
@@ -125,7 +139,7 @@ export const ProductLogTimeline = ({ productId }: { productId: number }) => {
                     <Button
                       variant="destructive"
                       size="sm"
-                      className="h-7 text-xs px-2 shrink-0"
+                      className="h-7 text-xs px-2 shrink-0 cursor-pointer"
                       disabled={isPending}
                       onClick={() => handleVoid({ id: log.id })}
                     >
@@ -134,7 +148,7 @@ export const ProductLogTimeline = ({ productId }: { productId: number }) => {
                       ) : (
                         <>
                           <Ban className="w-3.5 h-3.5 mr-1" />
-                          Void
+                          {t("activity_log.btn_void")}
                         </>
                       )}
                     </Button>

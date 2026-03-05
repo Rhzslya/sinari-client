@@ -51,14 +51,20 @@ import DeleteServiceForm from "@/features/fragments/DeleteServiceForm";
 import { useServiceQueries } from "@/hooks/repair-queries";
 import { ServiceLogTimeline } from "@/features/fragments/ServiceLogTimeline";
 import { useUserQueries } from "@/hooks/user-queries";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
+import { useTranslation } from "react-i18next";
 
 const DetailServicePage = () => {
   const { serviceId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { useDetail } = useServiceQueries();
+  const { useGetSettings } = useStoreSettingQueries();
 
   const id = Number(serviceId);
   const { data: service, isLoading, isError } = useDetail({ id });
+
+  const { data: settings } = useGetSettings();
 
   const userQueries = useUserQueries();
 
@@ -103,7 +109,7 @@ const DetailServicePage = () => {
     const baseUrl = window.location.origin;
     const fullUrl = `${baseUrl}/services/track/${token}`;
     navigator.clipboard.writeText(fullUrl);
-    toast.success("Tracking link copied to clipboard!");
+    toast.success(t("services_management.detail.toast.token_copied"));
   };
 
   const handleEditServiceOpen = (service: ServiceResponse) => {
@@ -117,15 +123,31 @@ const DetailServicePage = () => {
   };
 
   const handleDownloadPDF = async () => {
-    if (!service) {
-      toast.error("Service data not loaded yet");
+    if (!settings) {
+      toast.error(t("services_management.detail.toast.settings_not_loaded"));
       return;
     }
 
+    if (!service) {
+      toast.error(t("services_management.detail.toast.service_not_loaded"));
+      return;
+    }
+
+    // FIX TYPESCRIPT ERROR: Mapping the data
+    const formattedSettings = {
+      ...settings,
+      store_email: settings.store_email || "",
+      store_website: settings.store_website || "",
+    };
+
     setIsGeneratingPdf(true);
-    const toastId = toast.loading("Generating Invoice PDF...");
+    const toastId = toast.loading(
+      t("services_management.detail.toast.generating_pdf"),
+    );
     try {
-      const blob = await pdf(<ServiceInvoicePDF service={service} />).toBlob();
+      const blob = await pdf(
+        <ServiceInvoicePDF service={service} settings={formattedSettings} />,
+      ).toBlob();
 
       const url = URL.createObjectURL(blob);
 
@@ -136,10 +158,14 @@ const DetailServicePage = () => {
       link.click();
       document.body.removeChild(link);
 
-      toast.success("Invoice Downloaded!", { id: toastId });
+      toast.success(t("services_management.detail.toast.pdf_downloaded"), {
+        id: toastId,
+      });
     } catch (error) {
       console.error("PDF Error:", error);
-      toast.error("Failed to generate PDF", { id: toastId });
+      toast.error(t("services_management.detail.toast.pdf_failed"), {
+        id: toastId,
+      });
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -180,7 +206,7 @@ const DetailServicePage = () => {
       <NotFoundPage
         isDashboard={true}
         id={serviceId}
-        entityName="Service"
+        entityName={t("services_management.table.not_found_entity")}
         backUrl="/dashboard/services"
       />
     );
@@ -206,15 +232,17 @@ const DetailServicePage = () => {
             variant="outline"
             size="icon"
             onClick={() => navigate("/dashboard/services")}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
             <h1 className="text-xl font-bold tracking-tight">
-              Service Details
+              {t("services_management.detail.header_title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Manage repair service {service.service_id}
+              {t("services_management.detail.header_subtitle")}{" "}
+              {service.service_id}
             </p>
           </div>
         </div>
@@ -249,7 +277,8 @@ const DetailServicePage = () => {
                 <div className="bg-card border rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
                     <label className="text-xs uppercase text-muted-foreground font-semibold flex items-center gap-2">
-                      <Smartphone className="w-3.5 h-3.5" /> Device
+                      <Smartphone className="w-3.5 h-3.5" />{" "}
+                      {t("services_management.detail.device_card.device")}
                     </label>
                     <div className="font-medium flex items-center gap-2 min-w-0">
                       <span className="whitespace-nowrap shrink-0">
@@ -267,7 +296,8 @@ const DetailServicePage = () => {
 
                   <div className="space-y-1">
                     <label className="text-xs uppercase text-muted-foreground font-semibold flex items-center gap-2">
-                      <Tag className="w-3.5 h-3.5" /> Service ID
+                      <Tag className="w-3.5 h-3.5" />{" "}
+                      {t("services_management.detail.device_card.service_id")}
                     </label>
                     <div className="font-medium font-mono text-sm bg-muted/50 w-fit px-2 py-0.5 rounded border">
                       {service.service_id}
@@ -276,12 +306,17 @@ const DetailServicePage = () => {
 
                   <div className="space-y-1 md:col-span-2">
                     <label className="text-xs uppercase text-muted-foreground font-semibold flex items-center gap-2">
-                      <ClipboardList className="w-3.5 h-3.5" /> Problem
-                      Description
+                      <ClipboardList className="w-3.5 h-3.5" />{" "}
+                      {t("services_management.detail.device_card.problem_desc")}
                     </label>
                     <div className="font-medium bg-muted/30 p-3 rounded-md border text-sm mt-1">
                       <TruncatedTooltip
-                        text={service.model || "No description provided."}
+                        text={
+                          service.description ||
+                          t(
+                            "services_management.detail.device_card.no_description",
+                          )
+                        }
                         className="truncate min-w-0"
                       />
                     </div>
@@ -291,8 +326,8 @@ const DetailServicePage = () => {
                 <Card className="flex flex-col mt-6 border shadow-sm overflow-hidden">
                   <CardHeader className="bg-muted/5 py-4 border-b">
                     <CardTitle className="text-base flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-primary" /> Cost &
-                      Billing
+                      <CreditCard className="w-4 h-4 text-primary" />{" "}
+                      {t("services_management.detail.cost_card.title")}
                     </CardTitle>
                   </CardHeader>
 
@@ -311,8 +346,16 @@ const DetailServicePage = () => {
                         <thead className="text-foreground font-medium border-b sticky top-0 z-10 bg-primary">
                           <tr>
                             <th className="px-6 py-3 w-12 text-center">#</th>
-                            <th className="px-6 py-3">Service Name</th>
-                            <th className="px-6 py-3 text-right">Cost</th>
+                            <th className="px-6 py-3">
+                              {t(
+                                "services_management.detail.cost_card.th_service_name",
+                              )}
+                            </th>
+                            <th className="px-6 py-3 text-right">
+                              {t(
+                                "services_management.detail.cost_card.th_cost",
+                              )}
+                            </th>
                           </tr>
                         </thead>
 
@@ -342,7 +385,9 @@ const DetailServicePage = () => {
                         <tfoot className="font-medium">
                           <tr>
                             <td className="px-6 py-2 text-left text-sm text-muted-foreground">
-                              Subtotal
+                              {t(
+                                "services_management.detail.cost_card.subtotal",
+                              )}
                             </td>
                             <td className="px-6 py-2 text-right font-mono text-sm w-fit whitespace-nowrap">
                               {formatRupiah(subTotal)}
@@ -353,7 +398,10 @@ const DetailServicePage = () => {
                             <tr className="text-emerald-600">
                               <td className="px-6 py-1 text-left text-sm">
                                 <span className="font-bold">
-                                  Disc ({service.discount}%)
+                                  {t(
+                                    "services_management.detail.cost_card.disc",
+                                  )}{" "}
+                                  ({service.discount}%)
                                 </span>
                               </td>
                               <td className="px-6 py-1 text-right font-mono text-sm whitespace-nowrap">
@@ -365,7 +413,9 @@ const DetailServicePage = () => {
                           {downPayment > 0 && (
                             <tr className="text-blue-600">
                               <td className="px-6 py-1 text-left text-sm">
-                                Down Payment
+                                {t(
+                                  "services_management.detail.cost_card.down_payment",
+                                )}
                               </td>
                               <td className="px-6 py-1 text-right font-mono text-sm whitespace-nowrap">
                                 - {formatRupiah(downPayment)}
@@ -384,7 +434,13 @@ const DetailServicePage = () => {
                               <span
                                 className={`font-bold uppercase ${isCancelled ? "text-red-600" : ""}`}
                               >
-                                {isCancelled ? "Cancelled" : "Total Due"}
+                                {isCancelled
+                                  ? t(
+                                      "services_management.detail.cost_card.cancelled",
+                                    )
+                                  : t(
+                                      "services_management.detail.cost_card.total_due",
+                                    )}
                               </span>
                             </td>
                             <td className="px-6 py-3 text-right text-lg font-bold font-mono text-primary whitespace-nowrap">
@@ -411,7 +467,9 @@ const DetailServicePage = () => {
           <div className="space-y-6">
             <Card className="bg-muted/40 h-fit">
               <CardHeader>
-                <CardTitle className="text-base">Quick Actions</CardTitle>
+                <CardTitle className="text-base">
+                  {t("services_management.detail.quick_actions.title")}
+                </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 <Button
@@ -419,14 +477,16 @@ const DetailServicePage = () => {
                   className="w-full justify-start duration-300 cursor-pointer"
                   onClick={() => handleEditServiceOpen(service)}
                 >
-                  <Edit className="mr-2 h-4 w-4" /> Edit Service
+                  <Edit className="mr-2 h-4 w-4" />{" "}
+                  {t("services_management.detail.quick_actions.edit_service")}
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full justify-start duration-300 cursor-pointer"
                   onClick={() => handleUpdateStatusOpen(service)}
                 >
-                  <RefreshCw className="mr-2 h-4 w-4" /> Update Status
+                  <RefreshCw className="mr-2 h-4 w-4" />{" "}
+                  {t("services_management.detail.quick_actions.update_status")}
                 </Button>
                 <Button
                   variant="outline"
@@ -435,7 +495,11 @@ const DetailServicePage = () => {
                   disabled={isGeneratingPdf}
                 >
                   <Printer className="mr-2 h-4 w-4" />{" "}
-                  {isGeneratingPdf ? "Generating..." : "Download PDF"}
+                  {isGeneratingPdf
+                    ? t("services_management.action_menu.generating_pdf")
+                    : t(
+                        "services_management.detail.quick_actions.download_pdf",
+                      )}
                 </Button>
 
                 {isOwner && (
@@ -447,7 +511,10 @@ const DetailServicePage = () => {
                       onClick={() => handleDeleteServiceOpen(service)}
                       disabled={isDeleteDisabled}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" /> Delete Service
+                      <Trash2 className="mr-2 h-4 w-4" />{" "}
+                      {t(
+                        "services_management.detail.quick_actions.delete_service",
+                      )}
                     </Button>
                   </>
                 )}
@@ -457,7 +524,8 @@ const DetailServicePage = () => {
             <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <User className="w-4 h-4 text-primary" /> Technician
+                  <User className="w-4 h-4 text-primary" />{" "}
+                  {t("services_management.detail.technician_card.title")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -481,7 +549,9 @@ const DetailServicePage = () => {
 
                           {!service.technician.is_active && (
                             <span className="text-[10px] font-semibold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded shrink-0">
-                              Inactive
+                              {t(
+                                "services_management.detail.technician_card.inactive",
+                              )}
                             </span>
                           )}
                         </div>
@@ -496,7 +566,9 @@ const DetailServicePage = () => {
 
                     <div className="space-y-2">
                       <p className="text-xs font-semibold text-muted-foreground uppercase">
-                        Signature
+                        {t(
+                          "services_management.detail.technician_card.signature",
+                        )}
                       </p>
                       <div className="rounded-md border-2 border-dashed border-muted bg-muted/10 p-4 flex items-center justify-center min-h-20">
                         {service.technician.signature_url ? (
@@ -507,7 +579,9 @@ const DetailServicePage = () => {
                           />
                         ) : (
                           <span className="text-xs text-muted-foreground italic">
-                            No Signature
+                            {t(
+                              "services_management.detail.technician_card.no_signature",
+                            )}
                           </span>
                         )}
                       </div>
@@ -516,14 +590,19 @@ const DetailServicePage = () => {
                     {/* Internal Note */}
                     <div className="space-y-1">
                       <span className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-1">
-                        <Wrench className="w-3 h-3" /> Internal Note
+                        <Wrench className="w-3 h-3" />{" "}
+                        {t(
+                          "services_management.detail.technician_card.internal_note",
+                        )}
                       </span>
 
                       <div className="text-xs bg-amber-50 dark:bg-amber-900/20 text-amber-900 dark:text-amber-100 p-2 rounded border border-amber-100 dark:border-amber-800 w-full">
                         {service.technician_note ? (
                           <TruncatedTooltip text={service.technician_note} />
                         ) : (
-                          "No internal notes."
+                          t(
+                            "services_management.detail.technician_card.no_note",
+                          )
                         )}
                       </div>
                     </div>
@@ -531,7 +610,11 @@ const DetailServicePage = () => {
                 ) : (
                   <div className="text-center py-4 text-muted-foreground">
                     <User className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">No technician assigned</p>
+                    <p className="text-sm">
+                      {t(
+                        "services_management.detail.technician_card.unassigned",
+                      )}
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -541,15 +624,16 @@ const DetailServicePage = () => {
             <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="text-base flex gap-2 items-center">
-                  <CalendarClock className="w-5 h-5 text-blue-600" /> System
-                  Info
+                  <CalendarClock className="w-5 h-5 text-blue-600" />{" "}
+                  {t("services_management.detail.system_info.title")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Tracking Token */}
                 <div className="space-y-1">
                   <label className="text-xs uppercase text-muted-foreground font-semibold flex items-center gap-1">
-                    <ClipboardList className="w-3.5 h-3.5" /> Tracking Token
+                    <ClipboardList className="w-3.5 h-3.5" />{" "}
+                    {t("services_management.detail.system_info.tracking_token")}
                   </label>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 bg-muted/50 border px-2 py-1 rounded text-xs font-mono truncate select-all">
@@ -558,7 +642,7 @@ const DetailServicePage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-6 w-6 cursor-pointer"
                       onClick={() => handleCopyToken(service.tracking_token)}
                     >
                       <Copy className="h-3 w-3" />
@@ -566,7 +650,7 @@ const DetailServicePage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6"
+                      className="h-6 w-6 cursor-pointer"
                       onClick={() =>
                         window.open(
                           `/services/track/${service.tracking_token}`,
@@ -583,7 +667,7 @@ const DetailServicePage = () => {
 
                 <div className="space-y-1">
                   <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    Created At
+                    {t("services_management.detail.system_info.created_at")}
                   </label>
                   <p className="font-medium text-sm border-b pb-2">
                     {formatDate(service.created_at)}
@@ -592,7 +676,7 @@ const DetailServicePage = () => {
 
                 <div className="space-y-1">
                   <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    Last Updated
+                    {t("services_management.detail.system_info.last_updated")}
                   </label>
                   <p className="font-medium text-sm border-b pb-2">
                     {formatDate(service.updated_at)}
@@ -612,11 +696,11 @@ const DetailServicePage = () => {
         >
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle className="text-xl text-primary">
-              Edit Service
+              {t("services_management.sheet.edit_title")}
             </SheetTitle>
           </SheetHeader>
           <SheetDescription className="sr-only">
-            Form to add a new product
+            {t("services_management.sheet.edit_desc")}
           </SheetDescription>
 
           <div className="flex-1 overflow-hidden">

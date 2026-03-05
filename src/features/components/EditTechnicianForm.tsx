@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 interface EditTechnicianFormProps {
   technician: TechnicianResponse;
@@ -44,6 +45,7 @@ export function EditTechnicianForm({
   onSuccess,
   onCancel,
 }: EditTechnicianFormProps) {
+  const { t } = useTranslation();
   const { updateTechnicianMutation } = useTechnicianQueries();
   const {
     mutateAsync: updateTechnician,
@@ -218,25 +220,29 @@ export function EditTechnicianForm({
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("technicians_management.forms.common.action_paused")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "technicians_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
 
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                General Information
+                {t("technicians_management.forms.edit.general_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Basic details about your Technician.
+                {t("technicians_management.forms.edit.general_desc")}
               </p>
             </div>
 
@@ -245,11 +251,15 @@ export function EditTechnicianForm({
               name="name"
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0">
-                  <FormLabel className={labelStyle}>Technician Name</FormLabel>
+                  <FormLabel className={labelStyle}>
+                    {t("technicians_management.forms.edit.name_label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       autoComplete="off"
-                      placeholder="e.g. John Doe"
+                      placeholder={t(
+                        "technicians_management.forms.edit.name_placeholder",
+                      )}
                       className={inputStyle}
                       {...field}
                       disabled={isPending}
@@ -266,7 +276,7 @@ export function EditTechnicianForm({
               render={({ field }) => (
                 <FormItem className="grid gap-1">
                   <FormLabel className={labelStyle}>
-                    Signature Image (Optional)
+                    {t("technicians_management.forms.edit.signature_label")}
                   </FormLabel>
                   <FormControl>
                     <div
@@ -293,10 +303,14 @@ export function EditTechnicianForm({
                                 <UploadCloud className="w-6 h-6 text-primary" />
                               </div>
                               <p className="text-sm font-medium text-foreground">
-                                Click to upload image
+                                {t(
+                                  "technicians_management.forms.edit.upload_prompt",
+                                )}
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
-                                SVG, PNG, JPG or WEBP (max. 2MB)
+                                {t(
+                                  "technicians_management.forms.edit.upload_format",
+                                )}
                               </p>
                             </div>
                           </div>
@@ -319,7 +333,9 @@ export function EditTechnicianForm({
                             <div className="absolute inset-0 z-20 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <PenLine className="w-8 h-8 text-white mb-2" />
                               <span className="text-white text-xs font-medium">
-                                Click to change
+                                {t(
+                                  "technicians_management.forms.edit.click_to_change",
+                                )}
                               </span>
                             </div>
                             <div className="absolute top-2 right-2 flex gap-1 z-30">
@@ -341,14 +357,18 @@ export function EditTechnicianForm({
                                 <div className="flex items-center gap-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground px-3 py-1.5 rounded-full shadow-lg border border-white/10">
                                   <X className="w-3.5 h-3.5" />
                                   <span className="text-[10px] font-medium tracking-wide">
-                                    File too large (Max 2MB)
+                                    {t(
+                                      "technicians_management.forms.edit.file_too_large",
+                                    )}
                                   </span>
                                 </div>
                               ) : imageValue instanceof File ? (
                                 <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-500">
                                   <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 animate-pulse" />
                                   <span className="text-[10px] font-medium tracking-wide">
-                                    Background will be removed automatically
+                                    {t(
+                                      "technicians_management.forms.edit.bg_remove_auto",
+                                    )}
                                   </span>
                                 </div>
                               ) : null}
@@ -369,14 +389,18 @@ export function EditTechnicianForm({
                               >
                                 {imageValue instanceof File
                                   ? imageValue.name
-                                  : "Current Image"}
+                                  : t(
+                                      "technicians_management.forms.edit.current_image",
+                                    )}
                               </p>
                               <p
                                 className={`text-xs absolute -bottom-4 left-0 ${isImageOversized ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                               >
                                 {imageValue instanceof File
                                   ? formatBytes(imageValue.size)
-                                  : "Click image to replace"}
+                                  : t(
+                                      "technicians_management.forms.edit.click_to_replace",
+                                    )}
                               </p>
                             </div>
                           </div>
@@ -395,9 +419,13 @@ export function EditTechnicianForm({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Active Status</FormLabel>
+                    <FormLabel className="text-base">
+                      {t("technicians_management.forms.edit.active_status")}
+                    </FormLabel>
                     <FormDescription>
-                      Technicians can be assigned to services when active.
+                      {t(
+                        "technicians_management.forms.edit.active_status_desc",
+                      )}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -425,7 +453,7 @@ export function EditTechnicianForm({
               onClick={handleResetToOriginal}
               disabled={isPending}
             >
-              Reset
+              {t("technicians_management.forms.edit.btn_reset")}
             </Button>
           ) : (
             <Button
@@ -436,7 +464,7 @@ export function EditTechnicianForm({
               onClick={onCancel}
               disabled={isPending}
             >
-              Cancel
+              {t("technicians_management.forms.edit.btn_cancel")}
             </Button>
           )}
 
@@ -449,7 +477,7 @@ export function EditTechnicianForm({
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Save Technician"
+              t("technicians_management.forms.edit.btn_save")
             )}
           </Button>
         </div>

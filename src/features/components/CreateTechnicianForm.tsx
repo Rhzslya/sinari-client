@@ -29,12 +29,14 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 interface CreateTechnicianFormProps {
   onSuccess?: () => void;
 }
 
 export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
+  const { t } = useTranslation();
   const { createMutation } = useTechnicianQueries();
   const {
     mutateAsync: createTechnician,
@@ -153,7 +155,6 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
         onSubmit={(e) => void formCreate.handleSubmit(onSubmit)(e)}
         className="flex flex-col h-full"
       >
-        {" "}
         <div
           className="flex-1 overflow-y-auto px-6 py-6 
             [&::-webkit-scrollbar]:w-1
@@ -169,25 +170,29 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("technicians_management.forms.common.action_paused")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "technicians_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
 
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                Technician Identity
+                {t("technicians_management.forms.create.identity_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Personal details and access status.
+                {t("technicians_management.forms.create.identity_desc")}
               </p>
             </div>
 
@@ -196,11 +201,15 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0">
-                  <FormLabel className={labelStyle}>Full Name</FormLabel>
+                  <FormLabel className={labelStyle}>
+                    {t("technicians_management.forms.create.full_name")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       autoComplete="off"
-                      placeholder="John Doe"
+                      placeholder={t(
+                        "technicians_management.forms.create.name_placeholder",
+                      )}
                       className={inputStyle}
                       {...field}
                       disabled={isSubmitting || isPending}
@@ -217,9 +226,13 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-input/20 p-3 shadow-sm">
                   <div className="space-y-0.5">
-                    <FormLabel className={labelStyle}>Active Status</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("technicians_management.forms.create.active_status")}
+                    </FormLabel>
                     <FormDescription className="text-[10px]">
-                      Technician can be assigned to tasks.
+                      {t(
+                        "technicians_management.forms.create.active_status_desc",
+                      )}
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -235,10 +248,10 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
 
             <div className="mt-2">
               <h3 className="text-base font-semibold tracking-tight">
-                Digital Signature
+                {t("technicians_management.forms.create.signature_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Upload official signature for invoices.
+                {t("technicians_management.forms.create.signature_desc")}
               </p>
             </div>
 
@@ -248,7 +261,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
               render={({ field }) => (
                 <FormItem className="grid gap-1">
                   <FormLabel className={labelStyle}>
-                    Signature Image (Optional)
+                    {t("technicians_management.forms.create.signature_label")}
                   </FormLabel>
                   <FormControl>
                     <div className="w-full max-w-100mx-auto">
@@ -272,10 +285,14 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                                 <UploadCloud className="w-6 h-6 text-primary" />
                               </div>
                               <p className="text-sm font-medium text-foreground">
-                                Click to upload signature
+                                {t(
+                                  "technicians_management.forms.create.upload_prompt",
+                                )}
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
-                                PNG (Transparent). Max 2MB.
+                                {t(
+                                  "technicians_management.forms.create.upload_format",
+                                )}
                               </p>
                             </div>
                           </div>
@@ -301,7 +318,9 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                             <div className="absolute inset-0 z-20 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <PenLine className="w-8 h-8 text-white mb-2" />
                               <span className="text-white text-xs font-medium">
-                                Click to change
+                                {t(
+                                  "technicians_management.forms.create.click_to_change",
+                                )}
                               </span>
                             </div>
 
@@ -310,7 +329,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                                 type="button"
                                 variant="destructive"
                                 size="icon"
-                                className="h-6 w-6 rounded-md shadow-sm transition-transform hover:scale-110"
+                                className="h-6 w-6 rounded-md shadow-sm transition-transform hover:scale-110 cursor-pointer"
                                 onClick={(e) =>
                                   handleRemoveImage(e, field.onChange)
                                 }
@@ -325,14 +344,18 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                                 <div className="flex items-center gap-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground px-3 py-1.5 rounded-full shadow-lg border border-white/10">
                                   <X className="w-3.5 h-3.5" />
                                   <span className="text-[10px] font-medium tracking-wide">
-                                    File too large (Max 2MB)
+                                    {t(
+                                      "technicians_management.forms.create.file_too_large",
+                                    )}
                                   </span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-500">
                                   <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 animate-pulse" />
                                   <span className="text-[10px] font-medium tracking-wide">
-                                    Transparent background check
+                                    {t(
+                                      "technicians_management.forms.create.transparent_check",
+                                    )}
                                   </span>
                                 </div>
                               )}
@@ -365,7 +388,9 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                               >
                                 {signatureValue instanceof File
                                   ? signatureValue.name
-                                  : "Signature File"}
+                                  : t(
+                                      "technicians_management.forms.create.signature_file",
+                                    )}
                               </p>
                               <p
                                 className={`text-xs absolute -bottom-4 left-0 ${
@@ -376,7 +401,9 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
                               >
                                 {signatureValue instanceof File
                                   ? formatBytes(signatureValue.size)
-                                  : "Click to replace"}
+                                  : t(
+                                      "technicians_management.forms.create.click_to_replace",
+                                    )}
                               </p>
                             </div>
                           </div>
@@ -400,7 +427,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
               onClick={handleReset}
               disabled={isSubmitting || isPending}
             >
-              Reset
+              {t("technicians_management.forms.create.btn_reset")}
             </Button>
           ) : (
             <Button
@@ -410,7 +437,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
               className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
               disabled={isSubmitting || isPending}
             >
-              Cancel
+              {t("technicians_management.forms.create.btn_cancel")}
             </Button>
           )}
 
@@ -423,7 +450,7 @@ export function CreateTechnicianForm({ onSuccess }: CreateTechnicianFormProps) {
             {isPending || isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Save Technician"
+              t("technicians_management.forms.create.btn_save")
             )}
           </Button>
         </div>

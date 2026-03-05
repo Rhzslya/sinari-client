@@ -22,6 +22,7 @@ import { getRoleBadgeColor } from "@/components/utils/roleBadge";
 import { UserSkeletonTable } from "./Skeleton";
 import RestoreUserForm from "../components/RestoreUserForm";
 import NotFoundPage from "@/pages/NotFoundPage";
+import { useTranslation } from "react-i18next";
 
 const DashboardUserTable = ({
   users,
@@ -31,6 +32,7 @@ const DashboardUserTable = ({
   isTrashView,
 }: ExtendedTableProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [selectedUser, setSelectedUser] =
     useState<NotPublicUserResponse | null>(null);
@@ -76,7 +78,7 @@ const DashboardUserTable = ({
       <NotFoundPage
         variant="minimal"
         isDashboard={true}
-        entityName="User"
+        entityName={t("users_management.table.not_found_entity")}
         onGoBack={() => navigate("/dashboard/users", { replace: true })}
       />
     );
@@ -90,26 +92,34 @@ const DashboardUserTable = ({
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-11 font-bold border-r border-border/60 text-center">
-                  ID
+                  {t("users_management.table.headers.id")}
                 </TableHead>
 
-                <TableHead className="w-50 font-bold">Email</TableHead>
+                <TableHead className="w-50 font-bold">
+                  {t("users_management.table.headers.email")}
+                </TableHead>
 
-                <TableHead className="w-37.5 font-bold">Username</TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("users_management.table.headers.username")}
+                </TableHead>
 
                 <TableHead className="w-30 text-center font-bold">
-                  Role
+                  {t("users_management.table.headers.role")}
                 </TableHead>
 
                 <TableHead className="w-30 text-center font-bold">
-                  Status
+                  {t("users_management.table.headers.status")}
                 </TableHead>
 
-                <TableHead className="w-30 font-bold">Created At</TableHead>
-                <TableHead className="w-30 font-bold">Updated At</TableHead>
+                <TableHead className="w-30 font-bold">
+                  {t("users_management.table.headers.created_at")}
+                </TableHead>
+                <TableHead className="w-30 font-bold">
+                  {t("users_management.table.headers.updated_at")}
+                </TableHead>
 
                 <TableHead className="w-15 text-right font-bold">
-                  Actions
+                  {t("users_management.table.headers.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -173,7 +183,9 @@ const DashboardUserTable = ({
                               }`}
                             ></span>
                           </span>
-                          {user.is_online ? "Online" : "Offline"}
+                          {user.is_online
+                            ? t("users_management.table.status.online")
+                            : t("users_management.table.status.offline")}
                         </div>
                       </div>
                     </TableCell>

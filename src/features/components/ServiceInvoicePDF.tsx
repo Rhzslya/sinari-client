@@ -11,6 +11,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 const COLORS = {
   primary: "#ef473a",
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     backgroundColor: COLORS.primary,
-    paddingVertical: 4, // Padding kotak total diperkecil
+    paddingVertical: 4,
     paddingHorizontal: 5,
     marginTop: 2,
     alignItems: "center",
@@ -253,13 +254,13 @@ const styles = StyleSheet.create({
 
   // FOOTER & SIGN
   signArea: {
-    marginTop: 8, // 🌟 6. Jarak area tanda tangan ditekan
+    marginTop: 8,
     width: "80%",
     alignSelf: "center",
     alignItems: "center",
   },
   signatureImage: {
-    height: 18, // Gambar tanda tangan dikecilkan
+    height: 18,
     width: "80%",
     objectFit: "contain",
     marginBottom: 1,
@@ -289,7 +290,6 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     paddingBottom: 10,
     paddingHorizontal: 10,
-
     flexWrap: "wrap",
   },
   footerText: {
@@ -305,6 +305,7 @@ interface InvoiceProps {
 }
 
 export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
+  const { t } = useTranslation();
   const isCancelled = service.status === ServiceStatus.CANCELLED;
 
   const subTotal = service.service_list.reduce(
@@ -321,11 +322,17 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
   };
 
   const storeName = settings?.store_name || "SINARI CELL";
-  const storeAddress = settings?.store_address || "Alamat belum diatur";
+  const storeAddress = settings?.store_address || t("invoice.default_address");
   const storePhone = settings?.store_phone || "-";
   const storeWebsite = settings?.store_website || "";
   const warrantyText = settings?.warranty_text || "-";
   const paymentInfo = settings?.payment_info || "-";
+
+  // Translate status text safely
+  const rawStatus = service.status;
+  const translatedStatus = t(`invoice.status.${rawStatus}`, {
+    defaultValue: rawStatus.replace("_", " "),
+  });
 
   return (
     <Document>
@@ -334,13 +341,13 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
           <View style={styles.headerTop}>
             <View style={styles.logoSection}>
               <Text style={styles.logoText}>{storeName}</Text>
-              <Text style={styles.logoSub}>Professional Repair Service</Text>
+              <Text style={styles.logoSub}>
+                {t("invoice.professional_repair")}
+              </Text>
             </View>
             <View style={styles.statusBadgeWrapper}>
               <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>
-                  {service.status.replace("_", " ")}
-                </Text>
+                <Text style={styles.statusText}>{translatedStatus}</Text>
               </View>
             </View>
           </View>
@@ -348,13 +355,15 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
           {/* ACCENT BAR */}
           <View style={styles.accentBar}>
             <View style={styles.primaryStrip} />
-            <Text style={styles.invoiceTitleLarge}>INVOICE</Text>
+            <Text style={styles.invoiceTitleLarge}>
+              {t("invoice.invoice_title")}
+            </Text>
             <View style={styles.primarySquare} />
           </View>
 
           <View style={styles.infoContainer}>
             <View style={styles.infoColLeft}>
-              <Text style={styles.labelBold}>Invoice to:</Text>
+              <Text style={styles.labelBold}>{t("invoice.invoice_to")}</Text>
               <Text
                 style={[
                   styles.textNormal,
@@ -375,20 +384,24 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
 
             <View style={styles.infoColRight}>
               <View style={styles.metaRow}>
-                <Text style={[styles.metaLabel, { fontSize: 6 }]}>Inv#</Text>
+                <Text style={[styles.metaLabel, { fontSize: 6 }]}>
+                  {t("invoice.inv_no")}
+                </Text>
                 <Text style={[styles.metaValue, { fontSize: 6 }]}>
                   {service.service_id}
                 </Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={[styles.metaLabel, { fontSize: 6 }]}>Date</Text>
+                <Text style={[styles.metaLabel, { fontSize: 6 }]}>
+                  {t("invoice.date")}
+                </Text>
                 <Text style={[styles.metaValue, { fontSize: 6 }]}>
                   {format(new Date(service.created_at), "dd/MM/yy")}
                 </Text>
               </View>
               <View style={styles.metaRow}>
                 <Text style={[styles.metaLabel, { fontSize: 6 }]}>
-                  Technician
+                  {t("invoice.technician")}
                 </Text>
                 <Text style={[styles.metaValue, { fontSize: 6 }]}>
                   {truncate(service.technician?.name || "-", 15)}
@@ -399,7 +412,9 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
 
           <View style={styles.tableContainer}>
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderText, styles.colSL]}>No.</Text>
+              <Text style={[styles.tableHeaderText, styles.colSL]}>
+                {t("invoice.table_no")}
+              </Text>
               <Text
                 style={[
                   styles.tableHeaderText,
@@ -407,7 +422,7 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
                   { color: COLORS.white },
                 ]}
               >
-                Description
+                {t("invoice.table_desc")}
               </Text>
               <Text
                 style={[
@@ -416,7 +431,7 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
                   { color: COLORS.white },
                 ]}
               >
-                Price
+                {t("invoice.table_price")}
               </Text>
               <Text
                 style={[
@@ -425,7 +440,7 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
                   { color: COLORS.white },
                 ]}
               >
-                Total
+                {t("invoice.table_total")}
               </Text>
             </View>
 
@@ -460,18 +475,18 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
           {/* BOTTOM (T&C DAN TOTALS) */}
           <View style={styles.bottomContainer}>
             <View style={styles.bottomLeft}>
-              <Text style={styles.sectionTitle}>Terms & Conditions:</Text>
+              <Text style={styles.sectionTitle}>{t("invoice.tnc")}</Text>
               <Text style={styles.smallText}>{warrantyText}</Text>
 
               <Text style={[styles.sectionTitle, { marginTop: 6 }]}>
-                Payment Info:
+                {t("invoice.payment_info")}
               </Text>
               <Text style={styles.smallText}>{paymentInfo}</Text>
             </View>
 
             <View style={styles.bottomRight}>
               <View style={styles.totalRow}>
-                <Text style={styles.labelBold}>Sub Total</Text>
+                <Text style={styles.labelBold}>{t("invoice.sub_total")}</Text>
                 <Text
                   style={[
                     styles.textNormal,
@@ -485,7 +500,7 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
               {!isCancelled && discountPercent > 0 && (
                 <View style={styles.totalRow}>
                   <Text style={styles.labelBold}>
-                    Disc ({discountPercent}%)
+                    {t("invoice.disc")} ({discountPercent}%)
                   </Text>
                   <Text style={[styles.textNormal, { color: COLORS.red500 }]}>
                     - {formatRupiah(discountAmount)}
@@ -495,7 +510,9 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
 
               {downPayment > 0 && (
                 <View style={styles.totalRow}>
-                  <Text style={styles.labelBold}>Down Payment</Text>
+                  <Text style={styles.labelBold}>
+                    {t("invoice.down_payment")}
+                  </Text>
                   <Text style={[styles.textNormal, { color: COLORS.green600 }]}>
                     - {formatRupiah(downPayment)}
                   </Text>
@@ -509,7 +526,9 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
                 ]}
               >
                 <Text style={styles.grandTotalLabel}>
-                  {isCancelled ? "Amount Due" : "Total Due"}
+                  {isCancelled
+                    ? t("invoice.amount_due")
+                    : t("invoice.total_due")}
                 </Text>
                 <Text style={styles.grandTotalValue}>
                   {formatRupiah(Math.max(0, grandTotal))}
@@ -518,10 +537,13 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
 
               {isCancelled && downPayment > 0 && (
                 <View style={styles.refundBox}>
-                  <Text style={styles.refundTitle}>REFUND NOTICE</Text>
+                  <Text style={styles.refundTitle}>
+                    {t("invoice.refund_notice")}
+                  </Text>
                   <Text style={styles.refundText}>
-                    Layanan dibatalkan. Harap tunjukkan nota ini untuk
-                    pengembalian DP sebesar {formatRupiah(downPayment)}.
+                    {t("invoice.refund_desc", {
+                      amount: formatRupiah(downPayment),
+                    })}
                   </Text>
                 </View>
               )}
@@ -537,7 +559,7 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
                 )}
                 <View style={styles.signLine} />
                 <Text style={styles.technicianName}>
-                  {service.technician?.name || "Authorized Sign"}
+                  {service.technician?.name || t("invoice.authorized_sign")}
                 </Text>
                 {service.technician?.name && (
                   <Text
@@ -546,7 +568,7 @@ export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
                       { textAlign: "center", fontSize: 5 },
                     ]}
                   >
-                    Technician
+                    {t("invoice.technician")}
                   </Text>
                 )}
               </View>

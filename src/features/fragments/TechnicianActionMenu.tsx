@@ -10,8 +10,9 @@ import {
 import { ArchiveRestore, MoreHorizontalIcon } from "lucide-react";
 import type { TechnicianResponse } from "@/model/technician-model";
 import { useUserQueries } from "@/hooks/user-queries";
+import { useTranslation } from "react-i18next";
 
-interface ProductActionMenuProps {
+interface TechnicianActionMenuProps {
   technician: TechnicianResponse;
   onEditTechnician: () => void;
   onDeleteTechnician: () => void;
@@ -25,7 +26,8 @@ export function TechnicianActionMenu({
   onDeleteTechnician,
   onRestoreTechnician,
   isTrashView,
-}: ProductActionMenuProps) {
+}: TechnicianActionMenuProps) {
+  const { t } = useTranslation();
   const userQueries = useUserQueries();
 
   const { data: currentUser } = userQueries.useProfile();
@@ -49,7 +51,7 @@ export function TechnicianActionMenu({
       key={technician.id}
     >
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-8">
+        <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
           <MoreHorizontalIcon className="size-4" />
           <span className="sr-only">Open menu</span>
         </Button>
@@ -62,8 +64,9 @@ export function TechnicianActionMenu({
               onSelect={() => {
                 handleAction(onEditTechnician);
               }}
+              className="cursor-pointer"
             >
-              Edit Technician
+              {t("technicians_management.action_menu.edit_technician")}
             </DropdownMenuItem>
 
             {isOwner && (
@@ -71,9 +74,9 @@ export function TechnicianActionMenu({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onSelect={() => handleAction(onDeleteTechnician)}
-                  className="text-destructive focus:text-destructive"
+                  className="text-destructive focus:text-destructive cursor-pointer"
                 >
-                  Delete Technician
+                  {t("technicians_management.action_menu.delete_technician")}
                 </DropdownMenuItem>
               </>
             )}
@@ -85,7 +88,7 @@ export function TechnicianActionMenu({
             disabled={!isOwner}
           >
             <ArchiveRestore className="mr-2 h-4 w-4" />
-            Restore Data
+            {t("technicians_management.action_menu.restore_data")}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

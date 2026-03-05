@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArchiveRestore, MoreHorizontalIcon } from "lucide-react";
 import type { NotPublicUserResponse, UserResponse } from "@/model/user-model";
+import { useTranslation } from "react-i18next";
 
 interface UserActionMenuProps {
   user: NotPublicUserResponse;
@@ -31,6 +32,7 @@ export function UserActionMenu({
   isTrashView,
   onRestoreUser,
 }: UserActionMenuProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const isTargetOwner = user.role === "OWNER";
@@ -63,7 +65,7 @@ export function UserActionMenu({
       key={user.id}
     >
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-8">
+        <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
           <MoreHorizontalIcon className="size-4" />
           <span className="sr-only">Open menu</span>
         </Button>
@@ -76,7 +78,7 @@ export function UserActionMenu({
               onClick={() => handleAction(onViewDetails)}
               className="cursor-pointer"
             >
-              View Details
+              {t("users_management.action_menu.view_details")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -90,7 +92,7 @@ export function UserActionMenu({
                   : "cursor-pointer"
               }
             >
-              Edit Role
+              {t("users_management.action_menu.edit_role")}
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -103,7 +105,7 @@ export function UserActionMenu({
                   : "cursor-pointer"
               }`}
             >
-              Delete User
+              {t("users_management.action_menu.delete_user")}
             </DropdownMenuItem>
           </>
         ) : (
@@ -113,7 +115,7 @@ export function UserActionMenu({
             disabled={!isCurrentUserOwner}
           >
             <ArchiveRestore className="mr-2 h-4 w-4" />
-            Restore Data
+            {t("users_management.action_menu.restore_data")}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

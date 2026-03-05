@@ -4,15 +4,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useServiceLogQueries } from "@/hooks/repair-log-queries";
 import { format } from "date-fns";
 import { History, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const ServiceLogTimeline = ({ serviceId }: { serviceId: number }) => {
+  const { t } = useTranslation();
   const { useLogList } = useServiceLogQueries();
 
   const { data: logs, isLoading, isError } = useLogList({ id: serviceId });
 
-  if (isLoading) return <div>Loading logs...</div>;
-  if (isError) return <div>Failed to load logs.</div>;
-  if (!logs || logs.length === 0) return <div>No activity yet.</div>;
+  if (isLoading)
+    return (
+      <div className="p-4 text-sm text-muted-foreground">
+        {t("activity_log.loading")}
+      </div>
+    );
+  if (isError)
+    return (
+      <div className="p-4 text-sm text-destructive">
+        {t("activity_log.error_load")}
+      </div>
+    );
+  if (!logs || logs.length === 0)
+    return (
+      <div className="p-4 text-sm text-muted-foreground">
+        {t("activity_log.empty")}
+      </div>
+    );
 
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) return "-";
@@ -23,7 +40,7 @@ export const ServiceLogTimeline = ({ serviceId }: { serviceId: number }) => {
     <Card className="mt-6 border shadow-sm">
       <CardHeader className="bg-muted/5 py-4 border-b">
         <CardTitle className="text-base flex items-center gap-2">
-          <History className="w-4 h-4 text-primary" /> Activity Log
+          <History className="w-4 h-4 text-primary" /> {t("activity_log.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
@@ -35,7 +52,7 @@ export const ServiceLogTimeline = ({ serviceId }: { serviceId: number }) => {
         ) : !logs || logs.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             <History className="w-8 h-8 mx-auto mb-2 opacity-20" />
-            <p className="text-sm">No activity logs found.</p>
+            <p className="text-sm">{t("activity_log.empty_desc")}</p>
           </div>
         ) : (
           <div

@@ -26,6 +26,7 @@ import { TechnicianSkeletonTable } from "./Skeleton";
 import RestoreTechnicianForm from "./RestoreTechnicianForm";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const DashboardTechnicianTable = ({
   technicians,
@@ -34,6 +35,7 @@ const DashboardTechnicianTable = ({
   isTrashView,
 }: DashboardTechnicianTableProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [selectedTechnician, setSelectedTechnician] =
     useState<TechnicianResponse | null>(null);
@@ -65,7 +67,7 @@ const DashboardTechnicianTable = ({
       <NotFoundPage
         variant="glass"
         isDashboard={true}
-        entityName="Technician"
+        entityName={t("technicians_management.table.not_found_entity")}
         onGoBack={() => navigate("/dashboard/technicians", { replace: true })}
       />
     );
@@ -79,18 +81,22 @@ const DashboardTechnicianTable = ({
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-14 font-bold border-r border-border/60 text-center">
-                  ID
+                  {t("technicians_management.table.headers.id")}
                 </TableHead>
                 <TableHead className="w-54 font-bold">
-                  Technician Name
+                  {t("technicians_management.table.headers.name")}
                 </TableHead>
                 <TableHead className="w-37.5 font-bold text-center">
-                  Status
+                  {t("technicians_management.table.headers.status")}
                 </TableHead>
-                <TableHead className="w-37.5 font-bold">Created At</TableHead>
-                <TableHead className="w-37.5 font-bold">Updated At</TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("technicians_management.table.headers.created_at")}
+                </TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("technicians_management.table.headers.updated_at")}
+                </TableHead>
                 <TableHead className="w-12.5 text-right font-bold">
-                  Actions
+                  {t("technicians_management.table.headers.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -111,8 +117,10 @@ const DashboardTechnicianTable = ({
                       />
                       <span className="text-xs text-muted-foreground truncate max-w-[320px]">
                         {technician.signature_url
-                          ? "Signature Available"
-                          : "No Signature"}
+                          ? t(
+                              "technicians_management.table.signature_available",
+                            )
+                          : t("technicians_management.table.no_signature")}
                       </span>
                     </div>
                   </TableCell>
@@ -125,7 +133,9 @@ const DashboardTechnicianTable = ({
                             : "bg-destructive/10 text-destructive"
                         }`}
                       >
-                        {technician.is_active ? "Active" : "Inactive"}
+                        {technician.is_active
+                          ? t("technicians_management.table.status_active")
+                          : t("technicians_management.table.status_inactive")}
                       </div>
                     </div>
                   </TableCell>
@@ -164,6 +174,7 @@ const DashboardTechnicianTable = ({
         </div>
       </TooltipProvider>
 
+      {/* EDIT TECHNICIAN SHEET */}
       <Sheet open={isEditTechnicianOpen} onOpenChange={setIsEditTechnicianOpen}>
         <SheetContent
           className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
@@ -171,11 +182,11 @@ const DashboardTechnicianTable = ({
         >
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle className="text-xl text-primary">
-              Edit Technician
+              {t("technicians_management.sheet.edit_title")}
             </SheetTitle>
           </SheetHeader>
           <SheetDescription className="sr-only">
-            Form to edit technician details
+            {t("technicians_management.sheet.edit_desc")}
           </SheetDescription>
 
           <div className="flex-1 overflow-hidden">

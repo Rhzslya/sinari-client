@@ -47,10 +47,12 @@ import UpdateStockForm from "@/features/fragments/UpdateStockForm";
 import DeleteProductForm from "@/features/fragments/DeleteProductForm";
 import { ProductLogTimeline } from "@/features/fragments/ProductLogTimeline";
 import { useUserQueries } from "@/hooks/user-queries";
+import { useTranslation } from "react-i18next";
 
 const DetailProductPage = () => {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { useDetail } = useProductQueries();
 
   const id = Number(productId);
@@ -95,13 +97,14 @@ const DetailProductPage = () => {
     setIsDeleteProductOpen(true);
   };
 
-  if (isLoading) return <div className="">Loading</div>;
+  if (isLoading)
+    return <div className="p-4">{t("products_management.detail.loading")}</div>;
   if (isError || !product)
     return (
       <NotFoundPage
         isDashboard={true}
         id={productId}
-        entityName="Product"
+        entityName={t("products_management.detail.not_found_entity")}
         backUrl="/dashboard/products"
         variant="minimal"
       />
@@ -126,15 +129,16 @@ const DetailProductPage = () => {
             variant="outline"
             size="icon"
             onClick={() => navigate("/dashboard/products")}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
             <h1 className="text-xl font-bold tracking-tight">
-              Product Details
+              {t("products_management.detail.header_title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Manage inventory for {product.name}
+              {t("products_management.detail.header_subtitle")} {product.name}
             </p>
           </div>
         </div>
@@ -163,7 +167,7 @@ const DetailProductPage = () => {
                         </Badge>
                         {isOutOfStock && (
                           <Badge variant="destructive" className="text-[10px]">
-                            OUT OF STOCK
+                            {t("products_management.detail.out_of_stock_badge")}
                           </Badge>
                         )}
                       </div>
@@ -195,7 +199,10 @@ const DetailProductPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-1">
                       <label className="text-xs uppercase text-muted-foreground font-semibold flex items-center gap-2">
-                        <DollarSign className="w-3.5 h-3.5" /> Selling Price
+                        <DollarSign className="w-3.5 h-3.5" />{" "}
+                        {t(
+                          "products_management.detail.price_card.selling_price",
+                        )}
                       </label>
                       <div className="text-3xl font-bold font-mono text-primary">
                         {formatRupiah(product.price)}
@@ -205,11 +212,14 @@ const DetailProductPage = () => {
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">
                         <label className="text-xs uppercase text-muted-foreground font-semibold flex items-center gap-2">
-                          <Tag className="w-3.5 h-3.5" /> Cost Price (HPP)
+                          <Tag className="w-3.5 h-3.5" />{" "}
+                          {t(
+                            "products_management.detail.price_card.cost_price",
+                          )}
                         </label>
                         <button
                           onClick={() => setShowCost(!showCost)}
-                          className="text-muted-foreground hover:text-foreground transition-colors"
+                          className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                         >
                           {showCost ? (
                             <EyeOff className="w-4 h-4" />
@@ -221,7 +231,9 @@ const DetailProductPage = () => {
                       <div className="text-2xl font-medium font-mono">
                         {showCost
                           ? formatRupiah(product.cost_price)
-                          : "•••••••••"}
+                          : t(
+                              "products_management.detail.price_card.hidden_cost",
+                            )}
                       </div>
                     </div>
                   </div>
@@ -234,15 +246,23 @@ const DetailProductPage = () => {
                         </div>
                         <div>
                           <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase">
-                            Profit / Unit
+                            {t(
+                              "products_management.detail.price_card.profit_unit",
+                            )}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Estimated
+                            {t(
+                              "products_management.detail.price_card.estimated",
+                            )}
                           </p>
                         </div>
                       </div>
                       <div className="font-mono font-bold text-lg text-emerald-800 dark:text-emerald-300">
-                        {showCost ? `+${formatRupiah(profit)}` : "••••••"}
+                        {showCost
+                          ? `+${formatRupiah(profit)}`
+                          : t(
+                              "products_management.detail.price_card.hidden_profit",
+                            )}
                       </div>
                     </div>
 
@@ -253,15 +273,21 @@ const DetailProductPage = () => {
                         </div>
                         <div>
                           <p className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase">
-                            Margin
+                            {t("products_management.detail.price_card.margin")}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Percentage
+                            {t(
+                              "products_management.detail.price_card.percentage",
+                            )}
                           </p>
                         </div>
                       </div>
                       <div className="font-mono font-bold text-lg text-blue-800 dark:text-blue-300">
-                        {showCost ? `${marginPercentage.toFixed(1)}%` : "••%"}
+                        {showCost
+                          ? `${marginPercentage.toFixed(1)}%`
+                          : t(
+                              "products_management.detail.price_card.hidden_margin",
+                            )}
                       </div>
                     </div>
                   </div>
@@ -272,13 +298,14 @@ const DetailProductPage = () => {
                 <Card className="h-full flex flex-col">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                      <ScanBarcode className="w-4 h-4" /> Specifications
+                      <ScanBarcode className="w-4 h-4" />{" "}
+                      {t("products_management.detail.specs.title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 pt-4 flex-1 flex flex-col justify-center">
                     <div className="flex justify-between py-1 border-b border-dashed">
                       <span className="text-sm text-muted-foreground">
-                        Category
+                        {t("products_management.detail.specs.category")}
                       </span>
                       <span className="text-sm font-medium">
                         {product.category}
@@ -286,7 +313,7 @@ const DetailProductPage = () => {
                     </div>
                     <div className="flex justify-between py-1 border-b border-dashed">
                       <span className="text-sm text-muted-foreground">
-                        Brand
+                        {t("products_management.detail.specs.brand")}
                       </span>
                       <span className="text-sm font-medium">
                         {product.brand}
@@ -294,7 +321,7 @@ const DetailProductPage = () => {
                     </div>
                     <div className="flex justify-between items-center gap-4 py-1">
                       <span className="text-sm text-muted-foreground shrink-0">
-                        Manufacturer
+                        {t("products_management.detail.specs.manufacturer")}
                       </span>
                       <span
                         className="text-sm font-medium truncate max-w-37.5 sm:max-w-50 text-right"
@@ -309,7 +336,8 @@ const DetailProductPage = () => {
                 <Card className="h-full flex flex-col">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                      <QrCode className="w-4 h-4" /> Identification
+                      <QrCode className="w-4 h-4" />{" "}
+                      {t("products_management.detail.identification.title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col items-center justify-center text-center space-y-3 pt-4">
@@ -318,7 +346,7 @@ const DetailProductPage = () => {
                     </div>
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground">
-                        Generated SKU
+                        {t("products_management.detail.identification.sku")}
                       </p>
                       <p className="font-mono font-bold text-lg tracking-widest bg-muted px-3 py-1 rounded border">
                         PRD-{product.id.toString().padStart(6, "0")}
@@ -333,7 +361,7 @@ const DetailProductPage = () => {
               <Card className="bg-muted/40 h-fit border-l-4 border-l-primary">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                    Quick Actions
+                    {t("products_management.detail.quick_actions.title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
@@ -342,8 +370,8 @@ const DetailProductPage = () => {
                     className="w-full justify-start duration-300 cursor-pointer"
                     onClick={() => handleEditProductOpen(product)}
                   >
-                    <Edit className="mr-2 h-4 w-4 text-muted-foreground" /> Edit
-                    Product
+                    <Edit className="mr-2 h-4 w-4 text-muted-foreground" />{" "}
+                    {t("products_management.detail.quick_actions.edit_product")}
                   </Button>
                   <Button
                     variant="outline"
@@ -351,23 +379,31 @@ const DetailProductPage = () => {
                     onClick={() => handleUpdateStockOpen(product)}
                   >
                     <PackagePlus className="mr-2 h-4 w-4 text-blue-600" />{" "}
-                    Update Stock
+                    {t("products_management.detail.quick_actions.update_stock")}
                   </Button>
-                  <Separator className="my-1" />
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
-                    onClick={() => handleDeleteProductOpen(product)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete Product
-                  </Button>
+                  {isOwner && (
+                    <>
+                      <Separator className="my-1" />
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
+                        onClick={() => handleDeleteProductOpen(product)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />{" "}
+                        {t(
+                          "products_management.detail.quick_actions.delete_product",
+                        )}
+                      </Button>
+                    </>
+                  )}
                 </CardContent>
               </Card>
 
               <Card className="h-fit">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <Box className="w-4 h-4" /> Inventory Status
+                    <Box className="w-4 h-4" />{" "}
+                    {t("products_management.detail.inventory_status.title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -376,13 +412,23 @@ const DetailProductPage = () => {
                       {product.stock}
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mt-1">
-                      Available Units
+                      {t(
+                        "products_management.detail.inventory_status.available_units",
+                      )}
                     </p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-[10px] font-medium text-muted-foreground uppercase">
-                      <span>Critical</span>
-                      <span>Healthy</span>
+                      <span>
+                        {t(
+                          "products_management.detail.inventory_status.critical",
+                        )}
+                      </span>
+                      <span>
+                        {t(
+                          "products_management.detail.inventory_status.healthy",
+                        )}
+                      </span>
                     </div>
                     <div className="h-2.5 w-full bg-secondary rounded-full overflow-hidden border border-secondary">
                       <div
@@ -393,7 +439,7 @@ const DetailProductPage = () => {
                       />
                     </div>
                     <p className="text-xs text-right text-muted-foreground">
-                      Target: 20+
+                      {t("products_management.detail.inventory_status.target")}
                     </p>
                   </div>
                 </CardContent>
@@ -402,13 +448,15 @@ const DetailProductPage = () => {
               <Card className="flex-1">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium flex gap-2 items-center">
-                    <CalendarClock className="w-4 h-4" /> Metadata
+                    <CalendarClock className="w-4 h-4" />{" "}
+                    {t("products_management.detail.metadata.title")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm h-full flex flex-col justify-center">
                   <div className="flex justify-between items-center gap-4">
                     <span className="text-muted-foreground flex items-center gap-2 text-xs shrink-0">
-                      <Factory className="w-3.5 h-3.5" /> Manufacturer
+                      <Factory className="w-3.5 h-3.5" />{" "}
+                      {t("products_management.detail.metadata.manufacturer")}
                     </span>
                     <span
                       className="font-medium truncate max-w-37.5 text-right"
@@ -420,11 +468,15 @@ const DetailProductPage = () => {
                   <Separator />
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Created</span>
+                      <span className="text-muted-foreground">
+                        {t("products_management.detail.metadata.created")}
+                      </span>
                       <span>{formatDate(product.created_at)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Updated</span>
+                      <span className="text-muted-foreground">
+                        {t("products_management.detail.metadata.updated")}
+                      </span>
                       <span>{formatDate(product.updated_at)}</span>
                     </div>
                   </div>
@@ -435,6 +487,7 @@ const DetailProductPage = () => {
         </div>
         {isOwner && <ProductLogTimeline productId={product.id} />}
       </div>
+
       <Sheet open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
         <SheetContent
           className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
@@ -442,11 +495,11 @@ const DetailProductPage = () => {
         >
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle className="text-xl text-primary">
-              Edit Product
+              {t("products_management.sheet.edit_title")}
             </SheetTitle>
           </SheetHeader>
           <SheetDescription className="sr-only">
-            Form to add a new product
+            {t("products_management.sheet.edit_desc")}
           </SheetDescription>
 
           <div className="flex-1 overflow-hidden">
@@ -463,6 +516,7 @@ const DetailProductPage = () => {
           </div>
         </SheetContent>
       </Sheet>
+
       <UpdateStockForm
         key={selectedProduct ? selectedProduct.id : "reset"}
         open={isUpdateStockOpen}
@@ -472,6 +526,7 @@ const DetailProductPage = () => {
           setIsUpdateStockOpen(false);
         }}
       />
+
       <DeleteProductForm
         open={isDeleteProductOpen}
         onOpenChange={setIsDeleteProductOpen}

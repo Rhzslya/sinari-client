@@ -29,11 +29,12 @@ import { type ServiceResponse } from "@/model/repair-model";
 import { RepairValidation } from "@/validation/repair-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
-import { Clock, Loader2, Lock } from "lucide-react";
+import { Clock, Loader2, Lock, AlertTriangle } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
+import { useTranslation } from "react-i18next";
 
 const statusSchema = RepairValidation.UPDATE.pick({
   status: true,
@@ -54,6 +55,7 @@ export function UpdateStatusDialog({
   onOpenChange,
   onSuccess,
 }: UpdateStatusDialogProps) {
+  const { t } = useTranslation();
   const { updateStatusMutation } = useServiceQueries();
   const {
     mutateAsync: updateStatus,
@@ -114,11 +116,17 @@ export function UpdateStatusDialog({
 
       if (meta.wa_status === "failed") {
         setTimeout(() => {
-          toast.warning("WhatsApp Notification Failed", {
-            description:
-              meta.message || "Failed to send message to customer number",
-            duration: 3000,
-          });
+          toast.warning(
+            t("services_management.forms.update_status.toast_wa_failed"),
+            {
+              description:
+                meta.message ||
+                t(
+                  "services_management.forms.update_status.toast_wa_failed_desc",
+                ),
+              duration: 3000,
+            },
+          );
         }, 1500);
       }
 
@@ -160,9 +168,9 @@ export function UpdateStatusDialog({
           <Lock className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
             <span className="font-bold uppercase block mb-1">
-              Permanently Locked
+              {t("services_management.forms.edit.alert_locked_title")}
             </span>
-            Service items have been taken. Status cannot be changed anymore.
+            {t("services_management.forms.edit.alert_locked_desc")}
           </div>
         </div>
       );
@@ -174,9 +182,15 @@ export function UpdateStatusDialog({
           <Lock className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
             <span className="font-bold uppercase block mb-1">
-              Editing Restricted
+              {t("services_management.forms.edit.alert_restricted_title")}
             </span>
-            Grace period ended. You can only change status to <b>TAKEN</b>.
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t(
+                  "services_management.forms.edit.alert_restricted_desc",
+                ),
+              }}
+            />
           </div>
         </div>
       );
@@ -188,13 +202,15 @@ export function UpdateStatusDialog({
           <Clock className="w-4 h-4 mt-0.5 shrink-0 animate-pulse" />
           <div>
             <span className="font-bold uppercase block mb-1">
-              Grace Period Active
+              {t("services_management.forms.edit.alert_grace_title")}
             </span>
-            You can still undo/change this status for the next{" "}
-            <b className="tabular-nums">
-              {timeLeft.m}m {timeLeft.s.toString().padStart(2, "0")}s
-            </b>
-            .
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t("services_management.forms.edit.alert_grace_desc")
+                  .replace("{{minutes}}", String(timeLeft.m))
+                  .replace("{{seconds}}", String(timeLeft.s).padStart(2, "0")),
+              }}
+            />
           </div>
         </div>
       );
@@ -206,16 +222,18 @@ export function UpdateStatusDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-100">
         <DialogHeader>
-          <DialogTitle>Update Service Status</DialogTitle>
+          <DialogTitle>
+            {t("services_management.forms.update_status.title")}
+          </DialogTitle>
           <DialogDescription>
-            Change status for{" "}
+            {t("services_management.forms.update_status.desc_1")}{" "}
             <span className="font-semibold text-foreground">
               {service?.service_id}
             </span>
             .
             <br />
             <span className="text-xs text-muted-foreground">
-              (This may trigger an automatic WhatsApp notification)
+              {t("services_management.forms.update_status.desc_2")}
             </span>
           </DialogDescription>
         </DialogHeader>
@@ -231,7 +249,9 @@ export function UpdateStatusDialog({
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={labelStyle}>Current Status</FormLabel>
+                  <FormLabel className={labelStyle}>
+                    {t("services_management.forms.update_status.status_label")}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -239,7 +259,11 @@ export function UpdateStatusDialog({
                   >
                     <FormControl>
                       <SelectTrigger className={inputStyle}>
-                        <SelectValue placeholder="Select status" />
+                        <SelectValue
+                          placeholder={t(
+                            "services_management.forms.update_status.status_placeholder",
+                          )}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -254,6 +278,29 @@ export function UpdateStatusDialog({
                 </FormItem>
               )}
             />
+
+            {(cooldown > 0 || isRateLimited) && (
+              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
+                <div className="space-y-1 flex flex-col justify-center items-center">
+                  <AlertTriangle className="h-7 w-7 shrink-0" />
+                  <p className="font-semibold text-xs uppercase">
+                    {t("services_management.forms.common.action_paused")}
+                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "services_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
             <DialogFooter>
               <Button
                 size="sm"
@@ -263,7 +310,7 @@ export function UpdateStatusDialog({
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting || isPending}
               >
-                Cancel
+                {t("services_management.forms.update_status.btn_cancel")}
               </Button>
               <Button
                 size="sm"
@@ -277,11 +324,11 @@ export function UpdateStatusDialog({
                   cooldown > 0
                 }
               >
-                Save Changes
-                {isSubmitting ||
-                  (isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ))}
+                {isSubmitting || isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  t("services_management.forms.update_status.btn_save")
+                )}
               </Button>
             </DialogFooter>
           </form>

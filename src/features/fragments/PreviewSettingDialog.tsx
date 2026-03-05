@@ -11,6 +11,7 @@ import type { UpdateStoreSettingRequest } from "@/model/store-setting-model";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { ServiceStatus } from "@/enum/product-enum";
 import type { ServiceResponse } from "@/model/repair-model";
+import { useTranslation } from "react-i18next";
 
 interface PreviewSettingDialogProps {
   open: boolean;
@@ -20,32 +21,6 @@ interface PreviewSettingDialogProps {
   data: Partial<UpdateStoreSettingRequest>;
 }
 
-const DUMMY_SERVICE: ServiceResponse = {
-  id: 1,
-  service_id: "SRV-S4MPL3",
-  customer_name: "Budi Pelanggan",
-  phone_number: "081234567890",
-  brand: "SAMSUNG",
-  model: "Galaxy S23 Ultra",
-  description: "Ganti LCD",
-  status: ServiceStatus.FINISHED,
-  total_price: 1000000,
-  discount: 10,
-  down_payment: 500000,
-  total_items: 1,
-  tracking_token: "TOKEN123",
-  created_at: new Date(),
-  updated_at: new Date(),
-  is_anonymized: false,
-  technician: {
-    id: 1,
-    name: "Rizqi Technician",
-    is_active: true,
-    signature_url: null,
-  },
-  service_list: [{ id: 1, name: "Ganti LCD Original", price: 1500000 }],
-};
-
 export function PreviewSettingDialog({
   open,
   onOpenChange,
@@ -53,6 +28,36 @@ export function PreviewSettingDialog({
   isPending,
   data,
 }: PreviewSettingDialogProps) {
+  const { t } = useTranslation();
+
+  const DUMMY_SERVICE: ServiceResponse = {
+    id: 1,
+    service_id: "SRV-S4MPL3",
+    customer_name: t("preview_setting.dummy.customer_name"),
+    phone_number: "081234567890",
+    brand: "SAMSUNG",
+    model: t("preview_setting.dummy.model"),
+    description: t("preview_setting.dummy.description"),
+    status: ServiceStatus.FINISHED,
+    total_price: 1000000,
+    discount: 10,
+    down_payment: 500000,
+    total_items: 1,
+    tracking_token: "TOKEN123",
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_anonymized: false,
+    technician: {
+      id: 1,
+      name: t("preview_setting.dummy.technician_name"),
+      is_active: true,
+      signature_url: null,
+    },
+    service_list: [
+      { id: 1, name: t("preview_setting.dummy.service_name"), price: 1500000 },
+    ],
+  };
+
   const sanitizedSettings = {
     id: data.id || 1,
     store_name: data.store_name || "SINARI CELL",
@@ -80,20 +85,22 @@ export function PreviewSettingDialog({
           </div>
 
           <DialogTitle className="flex-1 flex justify-center text-foreground font-semibold text-xs tracking-wide pointer-events-none">
-            Document Viewer
+            {t("preview_setting.viewer_title")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Preview of your store invoice settings
+            {t("preview_setting.viewer_desc")}
           </DialogDescription>
         </div>
 
         <div className="h-12 bg-background border-b border-border flex items-center px-4 justify-between z-10">
           <div className="flex items-center gap-3 text-foreground">
             <Eye className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">invoice_layout.pdf</span>
+            <span className="text-sm font-medium">
+              {t("preview_setting.file_name")}
+            </span>
           </div>
           <div className="text-[11px] font-mono text-muted-foreground bg-muted px-2 py-1 rounded border border-border shadow-sm">
-            Read-Only Mode
+            {t("preview_setting.readonly_mode")}
           </div>
         </div>
 
@@ -122,7 +129,7 @@ export function PreviewSettingDialog({
             disabled={isPending}
             className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
           >
-            Cancel
+            {t("preview_setting.btn_cancel")}
           </Button>
           <Button
             onClick={onConfirm}
@@ -132,7 +139,7 @@ export function PreviewSettingDialog({
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              "Save Settings"
+              t("preview_setting.btn_save")
             )}
           </Button>
         </div>

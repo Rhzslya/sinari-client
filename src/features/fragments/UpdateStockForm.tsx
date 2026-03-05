@@ -36,6 +36,7 @@ import { isAxiosError } from "axios";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 const formatActionLabel = (action: string) => {
   return action.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
@@ -58,6 +59,7 @@ const UpdateStockForm = ({
   onOpenChange,
   onSuccess,
 }: UpdateStockFormProps) => {
+  const { t } = useTranslation();
   const { updateStockMutation } = useProductQueries();
   const {
     mutateAsync: updateStock,
@@ -178,9 +180,11 @@ const UpdateStockForm = ({
         className="sm:max-w-106.25"
       >
         <DialogHeader>
-          <DialogTitle>Update Stock</DialogTitle>
+          <DialogTitle>
+            {t("products_management.forms.update_stock.title")}
+          </DialogTitle>
           <DialogDescription>
-            Adjust inventory level for{" "}
+            {t("products_management.forms.update_stock.desc_1")}{" "}
             <span className="font-semibold text-foreground">
               {product?.name}
             </span>
@@ -202,7 +206,9 @@ const UpdateStockForm = ({
 
                   return (
                     <FormItem>
-                      <FormLabel>New Stock Value</FormLabel>
+                      <FormLabel>
+                        {t("products_management.forms.update_stock.new_stock")}
+                      </FormLabel>
                       <FormControl>
                         <NumberStepper
                           placeholder="0"
@@ -226,7 +232,11 @@ const UpdateStockForm = ({
                         />
                       </FormControl>
                       <div className="text-xs text-muted-foreground mt-1 text-right">
-                        Current: {originalStock} | Diff:{" "}
+                        {t(
+                          "products_management.forms.update_stock.current_label",
+                        )}{" "}
+                        {originalStock} |{" "}
+                        {t("products_management.forms.update_stock.diff_label")}{" "}
                         <span
                           className={
                             currentStockValue > originalStock
@@ -246,13 +256,14 @@ const UpdateStockForm = ({
                 }}
               />
 
-              {/* FIELD STOCK ACTION (Dropdown) */}
               <FormField
                 control={form.control}
                 name="stock_action"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Reason for Adjustment</FormLabel>
+                    <FormLabel>
+                      {t("products_management.forms.update_stock.reason_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value}
@@ -260,7 +271,11 @@ const UpdateStockForm = ({
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a reason" />
+                          <SelectValue
+                            placeholder={t(
+                              "products_management.forms.update_stock.reason_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -282,15 +297,19 @@ const UpdateStockForm = ({
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("products_management.forms.common.action_paused")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "products_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
@@ -303,7 +322,7 @@ const UpdateStockForm = ({
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting || isPending}
               >
-                Cancel
+                {t("products_management.forms.update_stock.btn_cancel")}
               </Button>
               <Button
                 size="sm"
@@ -311,7 +330,7 @@ const UpdateStockForm = ({
                 type="submit"
                 disabled={isSubmitting || !isDirty || isPending || cooldown > 0}
               >
-                Save Changes
+                {t("products_management.forms.update_stock.btn_save")}
                 {isSubmitting ||
                   isPending ||
                   (isError && (

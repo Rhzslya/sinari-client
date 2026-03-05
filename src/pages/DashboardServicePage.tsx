@@ -49,8 +49,10 @@ import { handleApiError } from "@/lib/utils";
 import { useServiceQueries } from "@/hooks/repair-queries";
 import { isAxiosError } from "axios";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
+import { useTranslation } from "react-i18next";
 
 const DashboardServicePage = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const isTrashMode = searchParams.get("is_deleted") === "true";
@@ -99,9 +101,9 @@ const DashboardServicePage = () => {
 
   useEffect(() => {
     if (isError) {
-      handleApiError(error, "Failed to load services");
+      handleApiError(error, t("services_management.error_load"));
     }
-  }, [isError, error]);
+  }, [isError, error, t]);
 
   useEffect(() => {
     setSearchTerm(searchParam);
@@ -169,10 +171,6 @@ const DashboardServicePage = () => {
 
     setSearchTerm("");
   };
-
-  useEffect(() => {
-    setSearchTerm(searchParam);
-  }, [searchParam]);
 
   const applyFilters = () => {
     setSearchParams((prev) => {
@@ -269,12 +267,16 @@ const DashboardServicePage = () => {
 
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
-        <p className="text-destructive font-medium">Failed to load services.</p>
+        <p className="text-destructive font-medium">
+          {t("services_management.error_load")}
+        </p>
         <p className="text-sm text-muted-foreground">
-          {isAxiosError(error) ? error.message : "Unknown error occurred"}
+          {isAxiosError(error)
+            ? error.message
+            : t("services_management.unknown_error")}
         </p>
         <Button variant="outline" onClick={() => refetch()}>
-          Try Again
+          {t("services_management.btn_try_again")}
         </Button>
       </div>
     );
@@ -282,12 +284,12 @@ const DashboardServicePage = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <DashboardHeader title="Services Management">
+      <DashboardHeader title={t("services_management.title")}>
         <div className="relative w-48 md:w-64 hidden md:block">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search"
+            placeholder={t("services_management.search_placeholder")}
             className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -299,7 +301,7 @@ const DashboardServicePage = () => {
             <button
               onClick={handleClearSearch}
               onMouseDown={(e) => e.preventDefault()}
-              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive transition-colors"
+              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
@@ -311,31 +313,33 @@ const DashboardServicePage = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 gap-1"
+              className="h-9 gap-1 cursor-pointer"
               disabled={services.length === 0}
             >
               <ArrowUpDown className="h-3.5 w-3.5" />
               <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Sort
+                {t("services_management.btn_sort")}
               </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <div className="p-2 text-xs font-semibold text-muted-foreground">
-              Sort By
+              {t("services_management.sort.label")}
             </div>
             <DropdownMenuItem
               onClick={() => handleSortChange("created_at", "desc")}
+              className="cursor-pointer"
             >
-              Newest Added
+              {t("services_management.sort.newest")}
               {isSortActive("created_at", "desc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleSortChange("created_at", "asc")}
+              className="cursor-pointer"
             >
-              Oldest Added
+              {t("services_management.sort.oldest")}
               {isSortActive("created_at", "asc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -343,16 +347,18 @@ const DashboardServicePage = () => {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => handleSortChange("total_price", "asc")}
+              className="cursor-pointer"
             >
-              Price: Low - High
+              {t("services_management.sort.price_asc")}
               {isSortActive("total_price", "asc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleSortChange("total_price", "desc")}
+              className="cursor-pointer"
             >
-              Price: High - Low
+              {t("services_management.sort.price_desc")}
               {isSortActive("total_price", "desc") && (
                 <Check className="ml-auto h-4 w-4" />
               )}
@@ -364,11 +370,11 @@ const DashboardServicePage = () => {
             <Button
               variant="outline"
               size="sm"
-              className="h-9 gap-1"
+              className="h-9 gap-1 cursor-pointer"
               disabled={isDatabaseEmpty}
             >
               <Filter className="h-3.5 w-3.5" />
-              <span>Filter</span>
+              <span>{t("services_management.btn_filter")}</span>
               {activeFiltersCount > 0 && (
                 <span className="ml-1 rounded-sm bg-success px-1 font-normal text-foreground text-xs">
                   {activeFiltersCount}
@@ -379,45 +385,71 @@ const DashboardServicePage = () => {
           <PopoverContent className="w-80" align="end">
             <div className="grid gap-4">
               <div className="space-y-2">
-                <h4 className="font-medium leading-none">Filters</h4>
+                <h4 className="font-medium leading-none">
+                  {t("services_management.filter.title")}
+                </h4>
                 <p className="text-sm text-muted-foreground">
-                  Refine the service list.
+                  {t("services_management.filter.desc")}
                 </p>
               </div>
 
               <div className="grid grid-cols-3 gap-4 items-center">
-                <Label htmlFor="brand">Brand</Label>
+                <Label htmlFor="brand">
+                  {t("services_management.filter.brand_label")}
+                </Label>
                 <div className="col-span-2">
                   <Select
                     value={tempBrand || "ALL"}
                     onValueChange={setTempBrand}
                   >
-                    <SelectTrigger className="h-8 w-full">
-                      <SelectValue placeholder="Select brand" />
+                    <SelectTrigger className="h-8 w-full cursor-pointer">
+                      <SelectValue
+                        placeholder={t(
+                          "services_management.filter.brand_placeholder",
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">All Brands</SelectItem>
+                      <SelectItem value="ALL" className="cursor-pointer">
+                        {t("services_management.filter.brand_all")}
+                      </SelectItem>
                       {Object.values(Brand).map((brand) => (
-                        <SelectItem key={brand} value={brand}>
+                        <SelectItem
+                          key={brand}
+                          value={brand}
+                          className="cursor-pointer"
+                        >
                           {brand}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">
+                  {t("services_management.filter.status_label")}
+                </Label>
                 <div className="col-span-2">
                   <Select
                     value={tempStatus || "ALL"}
                     onValueChange={setTempStatus}
                   >
-                    <SelectTrigger className="h-8 w-full">
-                      <SelectValue placeholder="Select status" />
+                    <SelectTrigger className="h-8 w-full cursor-pointer">
+                      <SelectValue
+                        placeholder={t(
+                          "services_management.filter.status_placeholder",
+                        )}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ALL">All Status</SelectItem>
+                      <SelectItem value="ALL" className="cursor-pointer">
+                        {t("services_management.filter.status_all")}
+                      </SelectItem>
                       {Object.values(ServiceStatus).map((status) => (
-                        <SelectItem key={status} value={status}>
+                        <SelectItem
+                          key={status}
+                          value={status}
+                          className="cursor-pointer"
+                        >
                           {status}
                         </SelectItem>
                       ))}
@@ -425,7 +457,7 @@ const DashboardServicePage = () => {
                   </Select>
                 </div>
                 <Label htmlFor="price" className="self-start mt-2">
-                  Total Price
+                  {t("services_management.filter.price_label")}
                 </Label>
                 <div className="col-span-2 grid gap-2">
                   <NumberStepper
@@ -436,7 +468,7 @@ const DashboardServicePage = () => {
                     step={10000}
                     min={0}
                     prefix="Rp"
-                    placeholder="Min"
+                    placeholder={t("services_management.filter.price_min")}
                   />
                   <NumberStepper
                     value={tempMaxPrice ? Number(tempMaxPrice) : undefined}
@@ -446,7 +478,7 @@ const DashboardServicePage = () => {
                     step={10000}
                     min={0}
                     prefix="Rp"
-                    placeholder="Max"
+                    placeholder={t("services_management.filter.price_max")}
                   />
                 </div>
               </div>
@@ -458,7 +490,7 @@ const DashboardServicePage = () => {
                   className="w-1/2 text-foreground text-sm bg-success hover:bg-success/80 cursor-pointer"
                   disabled={!hasChanges}
                 >
-                  Apply Filters
+                  {t("services_management.filter.btn_apply")}
                 </Button>
                 <Button
                   variant="ghost"
@@ -467,7 +499,7 @@ const DashboardServicePage = () => {
                   className="w-1/2 text-sm text-destructive hover:text-destructive cursor-pointer"
                   disabled={activeFiltersCount === 0}
                 >
-                  Clear Filters
+                  {t("services_management.filter.btn_clear")}
                 </Button>
               </div>
             </div>
@@ -484,7 +516,7 @@ const DashboardServicePage = () => {
               >
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Add Service
+                  {t("services_management.btn_add")}
                 </span>
               </Button>
             </SheetTrigger>
@@ -495,11 +527,11 @@ const DashboardServicePage = () => {
                   tabIndex={-1}
                   className="text-xl text-primary outline-none"
                 >
-                  Add New Service
+                  {t("services_management.sheet.add_title")}
                 </SheetTitle>
               </SheetHeader>
               <SheetDescription className="sr-only">
-                Form to create a new service
+                {t("services_management.sheet.add_desc")}
               </SheetDescription>
 
               <div className="flex-1 overflow-hidden">
@@ -511,18 +543,22 @@ const DashboardServicePage = () => {
         <Button
           variant="outline"
           size="sm"
-          className="h-9 gap-1 w-24 shrink-0"
+          className="h-9 gap-1 w-24 shrink-0 cursor-pointer"
           onClick={toggleTrashMode}
         >
           {isTrashMode ? (
             <>
               <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only">Exit</span>
+              <span className="sr-only sm:not-sr-only">
+                {t("services_management.btn_exit")}
+              </span>
             </>
           ) : (
             <>
               <Trash2 className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only">Trash</span>
+              <span className="sr-only sm:not-sr-only">
+                {t("services_management.btn_trash")}
+              </span>
             </>
           )}
         </Button>

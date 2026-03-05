@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const CATEGORY_OPTIONS = Object.values(Category);
@@ -54,6 +55,7 @@ export function EditProductForm({
   onSuccess,
   onCancel,
 }: ProductFormProps) {
+  const { t } = useTranslation();
   const { updateProductMutation } = useProductQueries();
 
   const {
@@ -231,16 +233,10 @@ export function EditProductForm({
       >
         <div
           className="flex-1 overflow-y-auto px-6 py-6 
-            /* Lebar scrollbar */
             [&::-webkit-scrollbar]:w-1
-            
-            /* Track (Jalur) transparan */
             [&::-webkit-scrollbar-track]:bg-transparent
-            
-            /* Thumb (Batang) warna primary transparan & bulat */
             [&::-webkit-scrollbar-thumb]:bg-primary/20 
             [&::-webkit-scrollbar-thumb]:rounded-full
-            
             hover:[&::-webkit-scrollbar-thumb]:bg-primary
             transition-colors"
         >
@@ -250,25 +246,29 @@ export function EditProductForm({
                 <div className="space-y-1 flex flex-col justify-center items-center">
                   <AlertTriangle className="h-7 w-7 shrink-0" />
                   <p className="font-semibold text-xs uppercase">
-                    Action Paused
+                    {t("products_management.forms.common.action_paused")}
                   </p>
-                  <p className="text-xs opacity-90">
-                    Too many attempts. Please wait{" "}
-                    <span className="font-bold tabular-nums">
-                      {String(cooldown).padStart(2, "0")}s
-                    </span>{" "}
-                    before trying again.
-                  </p>
+                  <p
+                    className="text-xs opacity-90"
+                    dangerouslySetInnerHTML={{
+                      __html: t(
+                        "products_management.forms.common.too_many_attempts",
+                      ).replace(
+                        "{{seconds}}",
+                        String(cooldown).padStart(2, "0"),
+                      ),
+                    }}
+                  />
                 </div>
               </div>
             )}
 
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                General Information
+                {t("products_management.forms.edit.general_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Basic details about your product.
+                {t("products_management.forms.edit.general_desc")}
               </p>
             </div>
 
@@ -277,11 +277,15 @@ export function EditProductForm({
               name="name"
               render={({ field }) => (
                 <FormItem className="relative grid gap-2 space-y-0">
-                  <FormLabel className={labelStyle}>Product Name</FormLabel>
+                  <FormLabel className={labelStyle}>
+                    {t("products_management.forms.edit.name_label")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       autoComplete="off"
-                      placeholder="e.g. iPhone 15 Pro Titanium"
+                      placeholder={t(
+                        "products_management.forms.edit.name_placeholder",
+                      )}
                       className={inputStyle}
                       {...field}
                       disabled={isPending}
@@ -298,7 +302,9 @@ export function EditProductForm({
                 name="brand"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0 py-0">
-                    <FormLabel className={labelStyle}>Brand</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.edit.brand_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -306,7 +312,11 @@ export function EditProductForm({
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue placeholder="Select Brand" />
+                          <SelectValue
+                            placeholder={t(
+                              "products_management.forms.edit.brand_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -327,7 +337,9 @@ export function EditProductForm({
                 name="category"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Category</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.edit.category_label")}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -335,7 +347,11 @@ export function EditProductForm({
                     >
                       <FormControl>
                         <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue placeholder="Select Category" />
+                          <SelectValue
+                            placeholder={t(
+                              "products_management.forms.edit.category_placeholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -358,7 +374,7 @@ export function EditProductForm({
               render={({ field }) => (
                 <FormItem className="grid gap-1">
                   <FormLabel className={labelStyle}>
-                    Product Image (Optional)
+                    {t("products_management.forms.edit.image_label")}
                   </FormLabel>
                   <FormControl>
                     <div key={product.id}>
@@ -382,10 +398,14 @@ export function EditProductForm({
                                 <UploadCloud className="w-6 h-6 text-primary" />
                               </div>
                               <p className="text-sm font-medium text-foreground">
-                                Click to upload image
+                                {t(
+                                  "products_management.forms.edit.upload_prompt",
+                                )}
                               </p>
                               <p className="text-xs text-muted-foreground mt-1">
-                                SVG, PNG, JPG or WEBP (max. 5MB)
+                                {t(
+                                  "products_management.forms.edit.upload_format",
+                                )}
                               </p>
                             </div>
                           </div>
@@ -409,7 +429,9 @@ export function EditProductForm({
                             <div className="absolute inset-0 z-20 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <PenLine className="w-8 h-8 text-white mb-2" />
                               <span className="text-white text-xs font-medium">
-                                Click to change
+                                {t(
+                                  "products_management.forms.edit.click_to_change",
+                                )}
                               </span>
                             </div>
 
@@ -433,14 +455,18 @@ export function EditProductForm({
                                 <div className="flex items-center gap-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground px-3 py-1.5 rounded-full shadow-lg border border-white/10">
                                   <X className="w-3.5 h-3.5" />
                                   <span className="text-[10px] font-medium tracking-wide">
-                                    File too large (Max 5MB)
+                                    {t(
+                                      "products_management.forms.edit.file_too_large",
+                                    )}
                                   </span>
                                 </div>
                               ) : imageValue instanceof File ? (
                                 <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-500">
                                   <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 animate-pulse" />
                                   <span className="text-[10px] font-medium tracking-wide">
-                                    Background will be removed automatically
+                                    {t(
+                                      "products_management.forms.edit.bg_remove_auto",
+                                    )}
                                   </span>
                                 </div>
                               ) : null}
@@ -461,14 +487,18 @@ export function EditProductForm({
                               >
                                 {imageValue instanceof File
                                   ? imageValue.name
-                                  : "Current Image"}
+                                  : t(
+                                      "products_management.forms.edit.current_image",
+                                    )}
                               </p>
                               <p
                                 className={`text-xs absolute -bottom-4 left-0 ${isImageOversized ? "text-destructive font-semibold" : "text-muted-foreground"}`}
                               >
                                 {imageValue instanceof File
                                   ? formatBytes(imageValue.size)
-                                  : "Click image to replace"}
+                                  : t(
+                                      "products_management.forms.edit.click_to_replace",
+                                    )}
                               </p>
                             </div>
                           </div>
@@ -483,10 +513,10 @@ export function EditProductForm({
 
             <div>
               <h3 className="text-base font-semibold tracking-tight">
-                Pricing & Inventory
+                {t("products_management.forms.edit.pricing_title")}
               </h3>
               <p className="text-xs text-muted-foreground">
-                Manage prices and stock availability.
+                {t("products_management.forms.edit.pricing_desc")}
               </p>
             </div>
 
@@ -496,7 +526,9 @@ export function EditProductForm({
                 name="price"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Selling Price</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.edit.selling_price")}
+                    </FormLabel>
                     <FormControl>
                       <NumberStepper
                         value={field.value}
@@ -520,7 +552,9 @@ export function EditProductForm({
                 name="cost_price"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Cost Price</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.edit.cost_price")}
+                    </FormLabel>
                     <FormControl>
                       <NumberStepper
                         value={field.value}
@@ -541,7 +575,9 @@ export function EditProductForm({
                 name="stock"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Initial Stock</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.edit.initial_stock")}
+                    </FormLabel>
                     <FormControl>
                       <NumberStepper
                         value={field.value}
@@ -561,11 +597,15 @@ export function EditProductForm({
                 name="manufacturer"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>Manufacturer</FormLabel>
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.edit.manufacturer_label")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
-                        placeholder="ORIGINAL"
+                        placeholder={t(
+                          "products_management.forms.edit.manufacturer_placeholder",
+                        )}
                         className={inputStyle}
                         disabled={isPending}
                         {...field}
@@ -590,7 +630,7 @@ export function EditProductForm({
               onClick={handleResetToOriginal}
               disabled={isPending}
             >
-              Reset
+              {t("products_management.forms.edit.btn_reset")}
             </Button>
           ) : (
             <Button
@@ -601,7 +641,7 @@ export function EditProductForm({
               onClick={onCancel}
               disabled={isPending}
             >
-              Cancel
+              {t("products_management.forms.edit.btn_cancel")}
             </Button>
           )}
 
@@ -614,7 +654,7 @@ export function EditProductForm({
             {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              "Save Product"
+              t("products_management.forms.edit.btn_save")
             )}
           </Button>
         </div>

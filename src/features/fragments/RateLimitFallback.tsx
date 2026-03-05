@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Timer, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const RateLimitFallback = ({
   seconds,
@@ -9,6 +10,7 @@ const RateLimitFallback = ({
   seconds: number;
   onRetry: () => void;
 }) => {
+  const { t } = useTranslation();
   const [targetTime] = useState(() => Date.now() + seconds * 1000);
   const [timeLeft, setTimeLeft] = useState(seconds);
 
@@ -43,10 +45,11 @@ const RateLimitFallback = ({
         <Timer className="h-8 w-8 text-destructive" />
       </div>
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Traffic is a bit high!</h3>
+        <h3 className="text-lg font-semibold">
+          {t("rate_limit.fallback_title")}
+        </h3>
         <p className="text-muted-foreground max-w-xs mx-auto text-sm">
-          To ensure system stability, we've temporarily paused updates. Please
-          wait before refreshing.
+          {t("rate_limit.fallback_desc")}
         </p>
       </div>
 
@@ -64,7 +67,7 @@ const RateLimitFallback = ({
         <RefreshCw
           className={`mr-2 h-4 w-4 text-foreground ${timeLeft === 0 ? "" : "animate-spin"}`}
         />
-        {timeLeft > 0 ? "Please Wait" : "Refresh"}
+        {timeLeft > 0 ? t("rate_limit.btn_wait") : t("rate_limit.btn_refresh")}
       </Button>
     </div>
   );

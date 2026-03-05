@@ -31,6 +31,7 @@ import { UpdateStatusDialog } from "./UpdateStatusForm";
 import RestoreServiceForm from "./RestoreServiceForm";
 import NotFoundPage from "@/pages/NotFoundPage";
 import AnonymizeForm from "./AnonymizeForm";
+import { useTranslation } from "react-i18next";
 
 const DashboardServiceTable = ({
   services,
@@ -39,6 +40,7 @@ const DashboardServiceTable = ({
   isTrashView,
 }: DashboardServiceTableProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [selectedService, setSelectedService] =
     useState<ServiceResponse | null>(null);
@@ -111,7 +113,7 @@ const DashboardServiceTable = ({
       <NotFoundPage
         variant="minimal"
         isDashboard={true}
-        entityName="Services"
+        entityName={t("services_management.table.not_found_entity")}
         onGoBack={() => navigate("/dashboard/services", { replace: true })}
       />
     );
@@ -125,21 +127,31 @@ const DashboardServiceTable = ({
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-32 font-bold border-r border-border/60 text-center">
-                  Service ID
+                  {t("services_management.table.headers.service_id")}
                 </TableHead>
-                <TableHead className="w-54 font-bold">Customer Info</TableHead>
-                <TableHead className="w-37.5 font-bold">Brand</TableHead>
-                <TableHead className="w-37.5 font-bold">Device Name</TableHead>
+                <TableHead className="w-54 font-bold">
+                  {t("services_management.table.headers.customer")}
+                </TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("services_management.table.headers.brand")}
+                </TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("services_management.table.headers.device")}
+                </TableHead>
                 <TableHead className="w-32 font-bold text-center">
-                  Status
+                  {t("services_management.table.headers.status")}
                 </TableHead>
                 <TableHead className="w-37.5 font-bold text-center">
-                  Total Price
+                  {t("services_management.table.headers.price")}
                 </TableHead>
-                <TableHead className="w-37.5 font-bold">Technician</TableHead>
-                <TableHead className="w-37.5 font-bold">Date</TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("services_management.table.headers.technician")}
+                </TableHead>
+                <TableHead className="w-37.5 font-bold">
+                  {t("services_management.table.headers.date")}
+                </TableHead>
                 <TableHead className="w-12.5 text-right font-bold">
-                  Actions
+                  {t("services_management.table.headers.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -186,7 +198,7 @@ const DashboardServiceTable = ({
                           variant="outline"
                           className="bg-slate-100 text-slate-500 border-slate-200 flex items-center gap-1 whitespace-nowrap"
                         >
-                          VOID / CANCEL
+                          {t("services_management.table.badges.cancelled")}
                         </Badge>
                       ) : service.total_price <= 0 ? (
                         // KONDISI 2: LUNAS (Warna Hijau)
@@ -194,7 +206,7 @@ const DashboardServiceTable = ({
                           variant="outline"
                           className="bg-emerald-50 text-emerald-700 border-emerald-200 flex items-center gap-1 whitespace-nowrap"
                         >
-                          PAID OFF
+                          {t("services_management.table.badges.paid_off")}
                         </Badge>
                       ) : (
                         // KONDISI 3: BELUM LUNAS (Text Orange)
@@ -262,11 +274,11 @@ const DashboardServiceTable = ({
         >
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle className="text-xl text-primary">
-              Edit Service
+              {t("services_management.sheet.edit_title")}
             </SheetTitle>
           </SheetHeader>
           <SheetDescription className="sr-only">
-            Form to add a new service
+            {t("services_management.sheet.edit_desc")}
           </SheetDescription>
 
           <div className="flex-1 overflow-hidden">

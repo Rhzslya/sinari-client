@@ -33,10 +33,12 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const DetailUserPage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { useDetail, useProfile } = useUserQueries();
 
   const { data: currentUser } = useProfile();
@@ -63,18 +65,13 @@ const DetailUserPage = () => {
     null,
   );
 
-  //Delete User States
   const [isDeleteUserOpen, setIsDeleteUserOpen] = useState(false);
-
-  //Update Role States
   const [isUpdateRoleOpen, setIsUpdateRoleOpen] = useState(false);
 
-  //Send Verification Email States
   const { cooldown: verifyCooldown, startCooldown: startVerifyCooldown } =
     useCooldown(`admin_resend_verify_${user?.email}`);
   const [verifyLoading, setVerifyLoading] = useState(false);
 
-  //Resend Reset Password States
   const { cooldown: resetCooldown, startCooldown: startResetCooldown } =
     useCooldown(`admin_resend_reset_${user?.email}`);
   const [resetLoading, setResetLoading] = useState(false);
@@ -111,7 +108,7 @@ const DetailUserPage = () => {
     if (!user?.email) return;
 
     if (verifyCooldown > 0) {
-      toast.error("Please wait before resending again");
+      toast.error(t("users_management.detail.toast.wait_before_resend"));
       return;
     }
 
@@ -119,7 +116,9 @@ const DetailUserPage = () => {
 
     try {
       await AuthServices.resendVerification({ identifier: user.email });
-      toast.success(`Verification email sent to ${user.email}`);
+      toast.success(
+        t("users_management.detail.toast.verify_sent", { email: user.email }),
+      );
       startVerifyCooldown(60);
 
       refetch();
@@ -133,18 +132,24 @@ const DetailUserPage = () => {
           const match = mainMessage.match(/(\d+) seconds/);
           if (match && match[1]) {
             startVerifyCooldown(parseInt(match[1], 10));
-            toast.error(`User is in cooldown. Try again in ${match[1]}s.`);
+            toast.error(
+              t("users_management.detail.toast.cooldown_msg", {
+                seconds: match[1],
+              }),
+            );
           }
         } else if (
           status === 400 &&
           mainMessage.toLowerCase().includes("verified")
         ) {
-          toast.info("User is already verified.");
+          toast.info(t("users_management.detail.toast.already_verified"));
         } else if (status === 429) {
           const match = mainMessage.match(/(\d+)s|(\d+) seconds/);
           const seconds = match ? parseInt(match[1] || match[2], 10) : 60;
           startVerifyCooldown(seconds);
-          toast.error(`Rate limit reached. Try again in ${seconds}s.`);
+          toast.error(
+            t("users_management.detail.toast.rate_limit", { seconds: seconds }),
+          );
         } else {
           toast.error(mainMessage);
         }
@@ -158,7 +163,7 @@ const DetailUserPage = () => {
     if (!user?.email) return;
 
     if (resetCooldown > 0) {
-      toast.error("Please wait before resending again");
+      toast.error(t("users_management.detail.toast.wait_before_resend"));
       return;
     }
 
@@ -166,7 +171,9 @@ const DetailUserPage = () => {
 
     try {
       await AuthServices.forgotPassword({ identifier: user.email });
-      toast.success(`Reset password email sent to ${user.email}`);
+      toast.success(
+        t("users_management.detail.toast.reset_sent", { email: user.email }),
+      );
       startResetCooldown(60);
       refetch();
     } catch (error) {
@@ -181,7 +188,11 @@ const DetailUserPage = () => {
           if (match && match[1]) {
             const seconds = parseInt(match[1], 10);
             startResetCooldown(seconds);
-            toast.error(`User is in cooldown. Try again in ${seconds}s.`);
+            toast.error(
+              t("users_management.detail.toast.cooldown_msg", {
+                seconds: seconds,
+              }),
+            );
           }
         } else if (status === 429) {
           const match = mainMessage.match(/(\d+)s|(\d+) seconds/);
@@ -189,15 +200,19 @@ const DetailUserPage = () => {
           startResetCooldown(seconds);
 
           if (mainMessage.toLowerCase().includes("daily")) {
-            toast.error("Daily limit reached for this action.");
+            toast.error(t("users_management.detail.toast.daily_limit"));
           } else {
-            toast.error(`Rate limit reached. Try again in ${seconds}s.`);
+            toast.error(
+              t("users_management.detail.toast.rate_limit", {
+                seconds: seconds,
+              }),
+            );
           }
         } else {
           toast.error(mainMessage);
         }
       } else {
-        toast.error("An unexpected error occurred");
+        toast.error(t("users_management.detail.toast.unexpected_error"));
       }
     } finally {
       setResetLoading(false);
@@ -206,9 +221,11 @@ const DetailUserPage = () => {
 
   const haveGoogleAuth = user?.google_id !== null;
 
-  if (isError || !user) return <div>User Not Found</div>;
+  if (isError || !user)
+    return <div className="p-4">{t("users_management.detail.not_found")}</div>;
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return <div className="p-4">{t("users_management.detail.loading")}</div>;
 
   return (
     <>
@@ -218,13 +235,16 @@ const DetailUserPage = () => {
             variant="outline"
             size="icon"
             onClick={() => navigate("/dashboard/users")}
+            className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold tracking-tight">User Details</h1>
+            <h1 className="text-xl font-bold tracking-tight">
+              {t("users_management.detail.header_title")}
+            </h1>
             <span className="text-sm text-muted-foreground truncate max-w-[320px]">
-              Manage information for{" "}
+              {t("users_management.detail.header_subtitle")}
             </span>
             <span className="inline-flex align-middle max-w-37.5">
               <TruncatedTooltip
@@ -236,7 +256,6 @@ const DetailUserPage = () => {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 auto-rows-fr">
-          {/* 1. Main Profile Card  */}
           <Card className="xl:col-span-2 h-full flex flex-col">
             <CardHeader className="bg-muted/10 pb-8">
               <div className="flex items-center gap-4">
@@ -257,10 +276,12 @@ const DetailUserPage = () => {
                         variant="outline"
                         className="text-green-600 bg-green-50 border-green-200"
                       >
-                        Online
+                        {t("users_management.table.status.online")}
                       </Badge>
                     ) : (
-                      <Badge variant="outline">Offline</Badge>
+                      <Badge variant="outline">
+                        {t("users_management.table.status.offline")}
+                      </Badge>
                     )}
                   </CardDescription>
                 </div>
@@ -270,7 +291,7 @@ const DetailUserPage = () => {
               <div className="bg-card border rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
                 <div className="space-y-1">
                   <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    Email
+                    {t("users_management.detail.profile.email")}
                   </label>
                   <div className="font-medium flex items-center gap-2">
                     <TruncatedTooltip text={user.email} className="max-w-100" />
@@ -282,7 +303,7 @@ const DetailUserPage = () => {
 
                 <div className="space-y-1 text-center">
                   <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    User ID
+                    {t("users_management.detail.profile.user_id")}
                   </label>
                   <div className="font-medium font-mono text-sm bg-muted/50 w-fit mx-auto px-2 py-0.5 rounded border">
                     #{user.id}
@@ -291,7 +312,7 @@ const DetailUserPage = () => {
 
                 <div className="space-y-1">
                   <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    Auth Method
+                    {t("users_management.detail.profile.auth_method")}
                   </label>
                   <div className="font-medium flex items-center gap-2">
                     {user.google_id ? (
@@ -299,12 +320,14 @@ const DetailUserPage = () => {
                     ) : (
                       <Mail className="w-4 h-4 text-muted-foreground" />
                     )}
-                    {user.google_id ? "Google OAuth" : "Standard Email"}
+                    {user.google_id
+                      ? t("users_management.detail.profile.google_oauth")
+                      : t("users_management.detail.profile.standard_email")}
                   </div>
                 </div>
                 <div className="space-y-1 text-center">
                   <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    Role
+                    {t("users_management.detail.profile.role")}
                   </label>
                   <div className="font-medium">
                     <Badge
@@ -321,7 +344,9 @@ const DetailUserPage = () => {
 
           <Card className="bg-muted/40 h-full flex flex-col">
             <CardHeader>
-              <CardTitle className="text-base">Quick Actions</CardTitle>
+              <CardTitle className="text-base">
+                {t("users_management.detail.quick_actions.title")}
+              </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-3 flex-1">
               <Button
@@ -343,10 +368,14 @@ const DetailUserPage = () => {
                 )}
 
                 {verifyCooldown > 0
-                  ? `Resend in ${verifyCooldown}s`
+                  ? t("users_management.detail.quick_actions.resend_in", {
+                      seconds: verifyCooldown,
+                    })
                   : user.is_verified
-                    ? "Already Verified"
-                    : "Resend Verification"}
+                    ? t(
+                        "users_management.detail.quick_actions.already_verified",
+                      )
+                    : t("users_management.detail.quick_actions.resend_verify")}
               </Button>
               <Button
                 className="w-full justify-start duration-300 cursor-pointer"
@@ -367,10 +396,12 @@ const DetailUserPage = () => {
                 )}
 
                 {isRateLimited(user.pass_reset_count)
-                  ? "Daily Limit Reached"
+                  ? t("users_management.detail.quick_actions.daily_limit")
                   : resetCooldown > 0
-                    ? `Resend in ${resetCooldown}s`
-                    : "Resend Reset Password"}
+                    ? t("users_management.detail.quick_actions.resend_in", {
+                        seconds: resetCooldown,
+                      })
+                    : t("users_management.detail.quick_actions.resend_reset")}
               </Button>
               <Button
                 onClick={() => handleUpdateRoleOpen(user)}
@@ -378,7 +409,8 @@ const DetailUserPage = () => {
                 variant="outline"
                 disabled={isChangeRoleDisabled}
               >
-                <Pen className="mr-2 h-4 w-4" /> Change Role
+                <Pen className="mr-2 h-4 w-4" />{" "}
+                {t("users_management.detail.quick_actions.change_role")}
               </Button>
               <Button
                 onClick={() => handleDeleteUserOpen(user)}
@@ -386,16 +418,17 @@ const DetailUserPage = () => {
                 variant="outline"
                 disabled={isDeleteDisabled}
               >
-                <Trash2 className="mr-2 h-4 w-4" /> Delete User
+                <Trash2 className="mr-2 h-4 w-4" />{" "}
+                {t("users_management.detail.quick_actions.delete_user")}
               </Button>
             </CardContent>
           </Card>
 
-          {/* 3. Activity Limits */}
           <Card className="xl:col-span-2 h-full flex flex-col">
             <CardHeader>
               <CardTitle className="text-lg flex gap-2 items-center">
-                <Activity className="w-5 h-5 text-orange-600" /> Activity Limits
+                <Activity className="w-5 h-5 text-orange-600" />{" "}
+                {t("users_management.detail.activity_limits.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1">
@@ -403,7 +436,9 @@ const DetailUserPage = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Verify Attempts
+                      {t(
+                        "users_management.detail.activity_limits.verify_attempts",
+                      )}
                     </span>
                     <span
                       className={
@@ -426,14 +461,17 @@ const DetailUserPage = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground text-right">
-                    Last attempt: {formatDate(user.last_resend_time)}
+                    {t("users_management.detail.activity_limits.last_attempt")}{" "}
+                    {formatDate(user.last_resend_time)}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Reset Attempts
+                      {t(
+                        "users_management.detail.activity_limits.reset_attempts",
+                      )}
                     </span>
                     <span
                       className={
@@ -458,24 +496,25 @@ const DetailUserPage = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground text-right">
-                    Last attempt: {formatDate(user.pass_reset_last_time)}
+                    {t("users_management.detail.activity_limits.last_attempt")}{" "}
+                    {formatDate(user.pass_reset_last_time)}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* 4. System Time */}
           <Card className="h-full flex flex-col">
             <CardHeader>
               <CardTitle className="text-base flex gap-2 items-center">
-                <CalendarClock className="w-5 h-5 text-blue-600" /> System Time
+                <CalendarClock className="w-5 h-5 text-blue-600" />{" "}
+                {t("users_management.detail.system_time.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 flex-1">
               <div className="space-y-1">
                 <label className="text-xs uppercase text-muted-foreground font-semibold">
-                  Created At
+                  {t("users_management.detail.system_time.created_at")}
                 </label>
                 <p className="font-medium text-sm border-b pb-2">
                   {formatDate(user.created_at)}
@@ -484,7 +523,7 @@ const DetailUserPage = () => {
 
               <div className="space-y-1">
                 <label className="text-xs uppercase text-muted-foreground font-semibold">
-                  Last Updated
+                  {t("users_management.detail.system_time.last_updated")}
                 </label>
                 <p className="font-medium text-sm border-b pb-2">
                   {formatDate(user.updated_at)}
@@ -497,8 +536,8 @@ const DetailUserPage = () => {
                 ></div>
                 <span className="text-xs text-muted-foreground">
                   {user.updated_at === user.created_at
-                    ? "No modifications"
-                    : "Data modified"}
+                    ? t("users_management.detail.system_time.no_modifications")
+                    : t("users_management.detail.system_time.data_modified")}
                 </span>
               </div>
             </CardContent>

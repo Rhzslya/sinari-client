@@ -24,6 +24,7 @@ import { pdf } from "@react-pdf/renderer";
 import { useUserQueries } from "@/hooks/user-queries";
 import { ServiceStatus } from "@/enum/product-enum";
 import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
+import { useTranslation } from "react-i18next";
 
 interface ServiceActionMenuProps {
   service: ServiceResponse;
@@ -46,6 +47,7 @@ export function ServiceActionMenu({
   onRestoreService,
   isTrashView,
 }: ServiceActionMenuProps) {
+  const { t } = useTranslation();
   const userQueries = useUserQueries();
   const { useGetSettings } = useStoreSettingQueries();
 
@@ -64,15 +66,25 @@ export function ServiceActionMenu({
     isDeleteDisabled || service.is_anonymized === true;
 
   if (isSettingsLoading || !storeData) {
-    return <div>Loading invoice data...</div>;
+    return <div>{t("services_management.action_menu.loading_invoice")}</div>;
   }
 
   const handleDownloadPDF = async () => {
     setIsGeneratingPdf(true);
-    const toastId = toast.loading("Generating Invoice PDF...");
+    const toastId = toast.loading(
+      t("services_management.detail.toast.generating_pdf"),
+    );
+
+    // FIX TYPESCRIPT ERROR: Mapping the data
+    const formattedSettings = {
+      ...storeData,
+      store_email: storeData.store_email || "",
+      store_website: storeData.store_website || "",
+    };
+
     try {
       const blob = await pdf(
-        <ServiceInvoicePDF service={service} settings={storeData} />,
+        <ServiceInvoicePDF service={service} settings={formattedSettings} />,
       ).toBlob();
 
       const url = URL.createObjectURL(blob);
@@ -84,10 +96,14 @@ export function ServiceActionMenu({
       link.click();
       document.body.removeChild(link);
 
-      toast.success("Invoice Downloaded!", { id: toastId });
+      toast.success(t("services_management.detail.toast.pdf_downloaded"), {
+        id: toastId,
+      });
     } catch (error) {
       console.error("PDF Error:", error);
-      toast.error("Failed to generate PDF", { id: toastId });
+      toast.error(t("services_management.detail.toast.pdf_failed"), {
+        id: toastId,
+      });
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -96,7 +112,7 @@ export function ServiceActionMenu({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
           <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
         </Button>
@@ -109,7 +125,7 @@ export function ServiceActionMenu({
               className="cursor-pointer"
             >
               <Eye className="mr-2 h-4 w-4" />
-              View Details
+              {t("services_management.action_menu.view_details")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -118,7 +134,9 @@ export function ServiceActionMenu({
               className="cursor-pointer"
             >
               <FileText className="mr-2 h-4 w-4" />
-              {isGeneratingPdf ? "Generating..." : "Download PDF"}
+              {isGeneratingPdf
+                ? t("services_management.action_menu.generating_pdf")
+                : t("services_management.action_menu.download_pdf")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -126,7 +144,7 @@ export function ServiceActionMenu({
               className="cursor-pointer"
             >
               <Pencil className="mr-2 h-4 w-4" />
-              Edit Service
+              {t("services_management.action_menu.edit_service")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -134,7 +152,7 @@ export function ServiceActionMenu({
               className="cursor-pointer"
             >
               <RefreshCw className="mr-2 h-4 w-4" />
-              Update Status
+              {t("services_management.action_menu.update_status")}
             </DropdownMenuItem>
 
             {isOwner && (
@@ -146,7 +164,7 @@ export function ServiceActionMenu({
                   disabled={isDeleteDisabled}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
+                  {t("services_management.action_menu.delete")}
                 </DropdownMenuItem>
               </>
             )}
@@ -156,7 +174,8 @@ export function ServiceActionMenu({
               className="text-destructive focus:text-destructive cursor-pointer"
               disabled={isAnonymizeDisabled}
             >
-              <HatGlasses className="mr-2 h-4 w-4" /> Anonymize
+              <HatGlasses className="mr-2 h-4 w-4" />{" "}
+              {t("services_management.action_menu.anonymize")}
             </DropdownMenuItem>
           </>
         ) : (
@@ -166,7 +185,7 @@ export function ServiceActionMenu({
             disabled={!isOwner}
           >
             <ArchiveRestore className="mr-2 h-4 w-4" />
-            Restore Data
+            {t("services_management.action_menu.restore_data")}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
