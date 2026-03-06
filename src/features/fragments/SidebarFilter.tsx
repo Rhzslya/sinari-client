@@ -42,17 +42,17 @@ export const SidebarFilters = ({
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-8 pr-4">
-      <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+    <div className="space-y-6 sm:space-y-8 pr-1 sm:pr-4">
+      <div className="space-y-2 sm:space-y-3">
+        <h3 className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-widest">
           {t("catalog.sidebar.search")}
         </h3>
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-2.5 sm:top-3 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder={t("catalog.sidebar.search_placeholder")}
-            className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none"
+            className="pl-8 pr-8 bg-input/50 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-2 [&::-webkit-search-cancel-button]:appearance-none h-9 sm:h-10 text-xs sm:text-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -62,16 +62,16 @@ export const SidebarFilters = ({
         </div>
       </div>
 
-      <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+      <div className="space-y-2 sm:space-y-3">
+        <h3 className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-widest">
           {t("catalog.sidebar.category")}
         </h3>
-        <ul className="space-y-1.5 text-sm">
+        <ul className="space-y-1 sm:space-y-1.5 text-xs sm:text-sm">
           <li>
             <button
               onClick={() => updateFilter("category", "ALL")}
               disabled={isDatabaseEmpty || isLoading}
-              className={`w-full text-left px-2 py-1.5 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full text-left px-2 py-1.5 sm:py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                 !categoryParam
                   ? "bg-primary/10 text-primary font-semibold"
                   : "text-muted-foreground hover:bg-muted disabled:hover:bg-transparent"
@@ -85,7 +85,7 @@ export const SidebarFilters = ({
               <button
                 onClick={() => updateFilter("category", category)}
                 disabled={isDatabaseEmpty || isLoading}
-                className={`w-full text-left px-2 py-1.5 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`w-full text-left px-2 py-1.5 sm:py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   categoryParam === category
                     ? "bg-primary/10 text-primary font-semibold"
                     : "text-muted-foreground hover:bg-muted disabled:hover:bg-transparent"
@@ -98,8 +98,8 @@ export const SidebarFilters = ({
         </ul>
       </div>
 
-      <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+      <div className="space-y-2 sm:space-y-3">
+        <h3 className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-widest">
           {t("catalog.sidebar.price")}
         </h3>
         <div className="space-y-2">
@@ -128,7 +128,7 @@ export const SidebarFilters = ({
           <Button
             size="sm"
             variant="secondary"
-            className="w-full text-xs"
+            className="w-full text-xs h-9 sm:h-8"
             onClick={applyPriceFilter}
             disabled={isDatabaseEmpty || isLoading}
           >
@@ -138,11 +138,11 @@ export const SidebarFilters = ({
       </div>
 
       {/* Tags (Brands) */}
-      <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+      <div className="space-y-2 sm:space-y-3">
+        <h3 className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-widest">
           {t("catalog.sidebar.brand_tags")}
         </h3>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {Object.values(Brand).map((brand) => (
             <button
               key={brand}
@@ -150,7 +150,7 @@ export const SidebarFilters = ({
               onClick={() =>
                 updateFilter("brand", brandParam === brand ? "ALL" : brand)
               }
-              className={`px-3 py-1.5 text-xs rounded-md border transition-all ${
+              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs rounded-md border transition-all ${
                 brandParam === brand
                   ? "bg-primary text-primary-foreground border-primary font-medium"
                   : "bg-transparent border-border/50 text-muted-foreground hover:border-border"
@@ -163,7 +163,7 @@ export const SidebarFilters = ({
       </div>
 
       {/* Stock */}
-      <div className="space-y-3 pt-2">
+      <div className="space-y-2 sm:space-y-3 pt-2">
         <div className="flex items-center space-x-2">
           <Checkbox
             id="in_stock"
@@ -172,10 +172,11 @@ export const SidebarFilters = ({
               updateFilter("in_stock_only", checked ? "true" : null)
             }
             disabled={isDatabaseEmpty || isLoading}
+            className="size-4 sm:size-5"
           />
           <label
             htmlFor="in_stock"
-            className={`text-sm font-medium leading-none ${
+            className={`text-xs sm:text-sm font-medium leading-none ${
               isDatabaseEmpty || isLoading
                 ? "text-muted-foreground/50 cursor-not-allowed"
                 : "text-muted-foreground cursor-pointer"

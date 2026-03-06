@@ -18,7 +18,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { maskEmail, type LoginUserRequest } from "@/model/user-model";
 import { AuthServices } from "@/services/user-services";
 import { UserValidation } from "@/validation/user-validation";
-import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { AlertCircle, AlertTriangle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +30,23 @@ import { useCooldown } from "@/hooks/use-cooldown";
 import { clearAuthCache } from "@/components/utils/clearAuthCache";
 import { isAxiosError } from "axios";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -112,17 +129,20 @@ export function LoginForm() {
       clearAuthCache(data.identifier);
       navigate("/");
     } catch (error) {
-      const message = getErrorMessage(error);
-
       if (isAxiosError(error) && error.response?.status === 429) {
-        const match = message.match(/(\d+) seconds/);
-        if (match && match[1]) {
-          const seconds = parseInt(match[1], 10);
-          startBlockCooldown(seconds);
-          setGlobalError(t("auth.common.too_many_attempts"));
-          return;
-        }
+        const rawMessage =
+          error.response.data?.errors || getErrorMessage(error);
+
+        const match = rawMessage.match(/(\d+)(?:s|\s+seconds)/i);
+
+        const seconds = match && match[1] ? parseInt(match[1], 10) : 60;
+
+        startBlockCooldown(seconds);
+        setGlobalError(null);
+        return;
       }
+
+      const message = getErrorMessage(error);
 
       if (isAxiosError(error) && error.response?.status === 403) {
         if (message.toLowerCase().includes("not verified")) {
@@ -147,7 +167,7 @@ export function LoginForm() {
               if (status === 400 && resendMsg.toLowerCase().includes("wait")) {
                 const [cooldownMsg, cachedEmail] = resendMsg.split("|");
 
-                const match = cooldownMsg.match(/(\d+) seconds/);
+                const match = cooldownMsg.match(/(\d+)(?:s|\s+seconds)/i);
                 if (match && match[1]) {
                   startCooldown(parseInt(match[1], 10), data.identifier);
 
@@ -270,208 +290,271 @@ export function LoginForm() {
     const isWaitingEmail =
       !isVerifiedNow && !cardError && (cooldown > 0 || showInitialCheckEmail);
     return (
-      <CheckEmailCard
-        variant="default"
-        title={
-          isVerifiedNow
-            ? t("auth.verify.verified_title")
-            : cardError
-              ? t("auth.verify.failed_title")
-              : isWaitingEmail
-                ? t("auth.verify.check_email_title")
-                : t("auth.verify.not_verified_title")
-        }
-        message={
-          isVerifiedNow ? (
-            <div className="text-center">
-              <span className="text-sm text-muted-foreground mt-2 block">
-                {t("auth.verify.verified_msg")}
-              </span>
-            </div>
-          ) : cardError ? (
-            <div className="text-center">
-              <span className="text-destructive font-medium flex items-center justify-center gap-2">
-                <AlertCircle className="size-4" />
-                {cardError}
-              </span>
-              <br />
-            </div>
-          ) : isWaitingEmail ? (
-            <div className="text-center">
-              <span>
-                {t("auth.verify.check_email_msg_1")}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        <CheckEmailCard
+          variant="default"
+          title={
+            isVerifiedNow
+              ? t("auth.verify.verified_title")
+              : cardError
+                ? t("auth.verify.failed_title")
+                : isWaitingEmail
+                  ? t("auth.verify.check_email_title")
+                  : t("auth.verify.not_verified_title")
+          }
+          message={
+            isVerifiedNow ? (
+              <div className="text-center">
+                <span className="text-sm text-muted-foreground mt-2 block">
+                  {t("auth.verify.verified_msg")}
+                </span>
+              </div>
+            ) : cardError ? (
+              <div className="text-center">
+                <span className="text-destructive font-medium flex items-center justify-center gap-2">
+                  <AlertCircle className="size-4" />
+                  {cardError}
+                </span>
                 <br />
-                {t("auth.verify.check_email_msg_2")}{" "}
-                <br className="sm:hidden" />
-                <strong className="break-all">
-                  {email ? email : t("auth.verify.registered_email")}
-                </strong>
-                .
-              </span>
-            </div>
-          ) : (
-            <div className="text-center px-1">
-              <span>
-                {t("auth.verify.not_verified_msg_1")}{" "}
-                <strong className="break-all">{identifier}</strong>{" "}
-                {t("auth.verify.not_verified_msg_2")}
-              </span>
+              </div>
+            ) : isWaitingEmail ? (
+              <div className="text-center">
+                <span>
+                  {t("auth.verify.check_email_msg_1")}
+                  <br />
+                  {t("auth.verify.check_email_msg_2")}{" "}
+                  <br className="sm:hidden" />
+                  <strong className="break-all">
+                    {email ? email : t("auth.verify.registered_email")}
+                  </strong>
+                  .
+                </span>
+              </div>
+            ) : (
+              <div className="text-center px-1">
+                <span>
+                  {t("auth.verify.not_verified_msg_1")}{" "}
+                  <strong className="break-all">{identifier}</strong>{" "}
+                  {t("auth.verify.not_verified_msg_2")}
+                </span>
 
-              {email && (
-                <div className="mt-1">
-                  {t("auth.verify.linked_email")}{" "}
-                  <strong className="break-all">{maskEmail(email)}</strong>
-                </div>
-              )}
+                {email && (
+                  <div className="mt-1">
+                    {t("auth.verify.linked_email")}{" "}
+                    <strong className="break-all">{maskEmail(email)}</strong>
+                  </div>
+                )}
 
-              <p className="mt-2 text-sm text-muted-foreground">
-                {t("auth.verify.check_inbox")}
-              </p>
-            </div>
-          )
-        }
-        buttonResend={
-          isVerifiedNow
-            ? t("auth.verify.btn_login_now")
-            : t("auth.verify.btn_resend")
-        }
-        buttonNavigate={isVerifiedNow ? null : t("auth.verify.btn_back_login")}
-        onActionResend={isVerifiedNow ? handleBackToLogin : handleResend}
-        onActionNavigate={handleBackToLogin}
-        isLoading={resendLoading}
-        cooldown={cooldown}
-        isDisabled={isDailyLimit}
-      />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t("auth.verify.check_inbox")}
+                </p>
+              </div>
+            )
+          }
+          buttonResend={
+            isVerifiedNow
+              ? t("auth.verify.btn_login_now")
+              : t("auth.verify.btn_resend")
+          }
+          buttonNavigate={
+            isVerifiedNow ? null : t("auth.verify.btn_back_login")
+          }
+          onActionResend={isVerifiedNow ? handleBackToLogin : handleResend}
+          onActionNavigate={handleBackToLogin}
+          isLoading={resendLoading}
+          cooldown={cooldown}
+          isDisabled={isDailyLimit}
+        />
+      </motion.div>
     );
   }
 
+  const isFormDisabled = isLoading || blockCooldown > 0;
+
   return (
-    <div className="w-full max-w-md mx-auto space-y-6">
-      <Card className="bg-card-foreground border-none shadow-xl shadow-black/5">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-center text-3xl font-bold text-primary tracking-tight">
-            {t("auth.login.title")}
-          </CardTitle>
-          <CardDescription className="text-center text-muted text-base">
-            {t("auth.login.subtitle")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="relative mt-6">
-          {globalError && (
-            <div className="absolute -top-10 flex justify-center left-0 w-full px-6 z-50 animate-in fade-in slide-in-from-top-2">
-              <div className="bg-destructive/20 w-full px-4 py-2 rounded-md text-destructive flex items-center justify-center gap-2 border border-destructive/20 shadow-sm">
-                <AlertCircle className="size-4" />
-                <span className="text-xs font-medium">{globalError}</span>
-              </div>
-            </div>
-          )}
+    <motion.div
+      className="w-full max-w-md mx-auto space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <Card className="bg-card-foreground border-none shadow-2xl shadow-black/10">
+        <motion.div variants={itemVariants}>
+          <CardHeader className="space-y-1 sm:space-y-2 pt-8">
+            <CardTitle className="text-center text-2xl sm:text-3xl font-bold text-primary tracking-tight">
+              {t("auth.login.title")}
+            </CardTitle>
+            <CardDescription className="text-center text-muted text-sm sm:text-base px-2">
+              {t("auth.login.subtitle")}
+            </CardDescription>
+          </CardHeader>
+        </motion.div>
+
+        <CardContent className="relative mt-2 sm:mt-6 pb-8">
+          {/* Animated Error Banner */}
+          <AnimatePresence initial={false}>
+            {globalError && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: "auto", marginBottom: 24 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="bg-destructive/15 px-4 py-3 rounded-lg text-destructive flex items-start gap-3 border border-destructive/20 shadow-sm">
+                  <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm font-medium leading-relaxed">
+                    {globalError}
+                  </span>
+                </div>
+              </motion.div>
+            )}
+            {blockCooldown > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: "auto", marginBottom: 24 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="flex justify-center gap-2 rounded-lg bg-destructive/15 p-4 text-sm text-destructive border border-destructive/20 shadow-sm">
+                  <div className="space-y-1 flex flex-col justify-center items-center">
+                    <AlertTriangle className="h-6 w-6 shrink-0 mb-1" />
+                    <p className="font-semibold text-xs uppercase text-center tracking-wider">
+                      {t("auth.login.rate_limit_title")}
+                    </p>
+                    <p
+                      className="text-xs opacity-90 text-center font-medium"
+                      dangerouslySetInnerHTML={{
+                        __html: t("auth.login.rate_limit_desc").replace(
+                          "{{seconds}}",
+                          String(blockCooldown),
+                        ),
+                      }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="identifier"
-                render={({ field }) => (
-                  <FormItem className="relative mb-8">
-                    <FormControl>
-                      <Input
-                        autoComplete="off"
-                        placeholder={t("auth.login.identifier")}
-                        {...field}
-                        disabled={isLoading}
-                        className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none"
-                      />
-                    </FormControl>
-                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="relative mb-8">
-                    <FormControl>
-                      <div className="relative">
+              <motion.div variants={itemVariants}>
+                <FormField
+                  control={form.control}
+                  name="identifier"
+                  render={({ field }) => (
+                    <FormItem className="relative mb-6 sm:mb-8">
+                      <FormControl>
                         <Input
                           autoComplete="off"
-                          type={showPassword ? "text" : "password"}
-                          placeholder={t("auth.login.password")}
+                          placeholder={t("auth.login.identifier")}
                           {...field}
                           disabled={isLoading}
-                          className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary pr-10 shadow-none"
+                          className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary shadow-none h-11 sm:h-10 text-base sm:text-sm"
                         />
+                      </FormControl>
+                      <FormMessage className="absolute -bottom-5 sm:-bottom-4 left-0 text-[10px] sm:text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="relative mb-8 sm:mb-8">
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            autoComplete="off"
+                            type={showPassword ? "text" : "password"}
+                            placeholder={t("auth.login.password")}
+                            {...field}
+                            disabled={isLoading}
+                            className="bg-card-foreground border-muted text-background placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 focus-visible:border-primary pr-10 shadow-none h-11 sm:h-10 text-base sm:text-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-3 sm:top-2.5 text-muted-foreground hover:text-primary transition-colors outline-none cursor-pointer"
+                            tabIndex={-1}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="size-5" />
+                            ) : (
+                              <Eye className="size-5" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage className="absolute top-11 sm:top-10 left-0 text-[10px] sm:text-xs" />
+                      <div className="text-right mt-1 sm:mt-1.5">
                         <button
                           type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-2.5 text-muted-foreground hover:text-primary transition-colors outline-none"
-                          tabIndex={-1}
+                          className="text-[11px] sm:text-xs text-muted font-medium hover:text-primary transition-colors cursor-pointer outline-none focus-visible:underline"
+                          onClick={() => navigate("/forgot-password")}
                         >
-                          {showPassword ? (
-                            <EyeOff className="size-5" />
-                          ) : (
-                            <Eye className="size-5" />
-                          )}
+                          {t("auth.login.forgot_pwd")}
                         </button>
                       </div>
-                    </FormControl>
-                    <FormMessage className="absolute top-10 left-0 text-xs" />
-                    <div className="text-right mt-1">
-                      <button
-                        type="button"
-                        className="text-xs text-muted font-medium hover:text-primary transition-colors cursor-pointer"
-                        onClick={() => navigate("/forgot-password")}
-                      >
-                        {t("auth.login.forgot_pwd")}
-                      </button>
-                    </div>
-                  </FormItem>
-                )}
-              />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
 
-              <Button
-                className={`w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-secondary-foreground`}
-                type="submit"
-                disabled={
-                  !form.formState.isValid || isLoading || blockCooldown > 0
-                }
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                  </>
-                ) : blockCooldown > 0 ? (
-                  t("auth.common.try_again").replace(
-                    "{{seconds}}",
-                    String(blockCooldown),
-                  )
-                ) : (
-                  t("auth.login.btn_submit")
-                )}
-              </Button>
+              <motion.div variants={itemVariants}>
+                <Button
+                  className="w-full mt-2 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-secondary-foreground h-11 sm:h-10"
+                  type="submit"
+                  disabled={!form.formState.isValid || isFormDisabled}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    </>
+                  ) : blockCooldown > 0 ? (
+                    t("auth.common.try_again").replace(
+                      "{{seconds}}",
+                      String(blockCooldown),
+                    )
+                  ) : (
+                    t("auth.login.btn_submit")
+                  )}
+                </Button>
+              </motion.div>
             </form>
           </Form>
 
-          <div className="mt-6">
+          <motion.div variants={itemVariants} className="mt-6">
             <GoogleSignInFragments
               onClick={handleGoogleLogin}
-              isLoading={isGoogleLoading || isLoading}
+              isLoading={isGoogleLoading || isFormDisabled}
               variant="light"
             />
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
 
-      <nav className="w-full text-center text-sm text-muted-foreground">
+      <motion.nav
+        variants={itemVariants}
+        className="w-full text-center text-xs sm:text-sm text-muted-foreground mt-4"
+      >
         {t("auth.login.no_account")}{" "}
         <button
-          className="font-semibold text-primary hover:text-primary/80 hover:underline transition-all cursor-pointer"
+          className="font-semibold text-primary hover:text-primary/80 hover:underline transition-all cursor-pointer outline-none focus-visible:ring-1 rounded px-1"
           onClick={() => navigate("/register")}
         >
           {t("auth.login.create_account")}
         </button>
-      </nav>
-    </div>
+      </motion.nav>
+    </motion.div>
   );
 }

@@ -10,7 +10,8 @@ import {
   Timer,
   X,
 } from "lucide-react";
-import { useTranslation } from "react-i18next"; // 👈 Import ini
+import { useTranslation } from "react-i18next";
+import { motion, type Variants } from "framer-motion";
 
 interface CheckEmailCardProps {
   title?: string;
@@ -24,6 +25,31 @@ interface CheckEmailCardProps {
   isDisabled?: boolean;
   variant?: "default" | "transparent";
 }
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
+
+const iconVariants: Variants = {
+  hidden: { scale: 0.5, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 250, damping: 15 },
+  },
+};
 
 export function CheckEmailCard({
   title,
@@ -78,96 +104,116 @@ export function CheckEmailCard({
   const cardStyles =
     variant === "transparent"
       ? "bg-transparent border-none shadow-none text-foreground"
-      : "bg-card-foreground border-none shadow-xl shadow-black/5";
+      : "bg-card-foreground border-none shadow-2xl shadow-black/10"; // Dipertegas shadow-nya agar mirip form auth
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <motion.div
+      className="w-full max-w-md mx-auto"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <Card className={cn("transition-all duration-300", cardStyles)}>
-        <CardHeader className="pb-1">
+        <CardHeader className="pb-2 pt-6 sm:pt-8">
           <CardTitle
-            className={`text-center flex flex-col items-center gap-2 text-2xl font-bold tracking-tight ${titleColor}`}
+            className={`text-center flex flex-col items-center gap-3 sm:gap-4 text-xl sm:text-2xl font-bold tracking-tight ${titleColor}`}
           >
-            {isSuccessTitle && (
-              <div className="p-3 bg-green-50 rounded-full">
-                <Check className="size-12 text-green-600" strokeWidth={2} />
-              </div>
-            )}
+            {/* Animasi memantul pada Icon */}
+            <motion.div variants={iconVariants}>
+              {isSuccessTitle && (
+                <div className="p-3 sm:p-4 bg-green-50 rounded-full shadow-sm border border-green-100">
+                  <Check
+                    className="size-10 sm:size-12 text-green-600"
+                    strokeWidth={2.5}
+                  />
+                </div>
+              )}
 
-            {isErrorTitle && (
-              <div className="p-3 bg-destructive/10 rounded-full">
-                <X className="size-12 text-destructive" strokeWidth={2} />
-              </div>
-            )}
+              {isErrorTitle && (
+                <div className="p-3 sm:p-4 bg-destructive/10 rounded-full shadow-sm border border-destructive/20">
+                  <X
+                    className="size-10 sm:size-12 text-destructive"
+                    strokeWidth={2.5}
+                  />
+                </div>
+              )}
 
-            {isMailSent && (
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Mail className="size-12 text-primary" strokeWidth={2} />
-              </div>
-            )}
+              {isMailSent && (
+                <div className="p-3 sm:p-4 bg-primary/10 rounded-full shadow-sm border border-primary/20">
+                  <Mail
+                    className="size-10 sm:size-12 text-primary"
+                    strokeWidth={2.5}
+                  />
+                </div>
+              )}
 
-            {!isSuccessTitle && !isErrorTitle && !isMailSent && (
-              <div className="p-3 bg-primary/10 rounded-full">
-                <CheckCircle2
-                  className="size-12 text-primary"
-                  strokeWidth={2}
-                />
-              </div>
-            )}
+              {!isSuccessTitle && !isErrorTitle && !isMailSent && (
+                <div className="p-3 sm:p-4 bg-primary/10 rounded-full shadow-sm border border-primary/20">
+                  <CheckCircle2
+                    className="size-10 sm:size-12 text-primary"
+                    strokeWidth={2.5}
+                  />
+                </div>
+              )}
+            </motion.div>
 
-            <span>{displayTitle}</span>
+            <motion.span variants={itemVariants}>{displayTitle}</motion.span>
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="text-center space-y-6">
-          <div
+        <CardContent className="text-center space-y-6 pb-6 sm:pb-8">
+          <motion.div
+            variants={itemVariants}
             className={cn(
-              "text-sm leading-relaxed",
+              "text-xs sm:text-sm leading-relaxed px-2 sm:px-6",
               variant === "transparent"
                 ? "text-muted-foreground"
                 : "text-muted",
             )}
           >
             {displayMessage}
-          </div>
+          </motion.div>
 
           {onActionResend && (
-            <Button
-              className="w-full h-10 text-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all cursor-pointer"
-              onClick={onActionResend}
-              disabled={isLoading || cooldown > 0 || isDisabled}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                </>
-              ) : cooldown > 0 ? (
-                <span className="flex items-center gap-2">
-                  <Timer className="size-4 animate-pulse" />
-                  {t("auth.card.resend_in").replace(
-                    "{{seconds}}",
-                    String(cooldown),
-                  )}
-                </span>
-              ) : (
-                displayBtnResend
-              )}
-            </Button>
+            <motion.div variants={itemVariants} className="px-4 sm:px-8">
+              <Button
+                className="w-full h-11 sm:h-10 text-foreground text-sm font-semibold shadow-lg shadow-primary/20 transition-all cursor-pointer"
+                onClick={onActionResend}
+                disabled={isLoading || cooldown > 0 || isDisabled}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 sm:size-5 animate-spin" />
+                  </>
+                ) : cooldown > 0 ? (
+                  <span className="flex items-center gap-2">
+                    <Timer className="size-4 animate-pulse" />
+                    {t("auth.card.resend_in").replace(
+                      "{{seconds}}",
+                      String(cooldown),
+                    )}
+                  </span>
+                ) : (
+                  displayBtnResend
+                )}
+              </Button>
+            </motion.div>
           )}
 
-          <div className="pt-2">
+          <motion.div variants={itemVariants} className="pt-2 px-4 sm:px-8">
             {buttonNavigate && (
               <button
                 type="button"
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2 mx-auto cursor-pointer"
+                className="text-xs sm:text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-2 mx-auto cursor-pointer outline-none focus-visible:ring-1 rounded px-2 py-1"
                 onClick={onActionNavigate}
               >
                 <ArrowLeft className="size-4" />
                 {buttonNavigate}
               </button>
             )}
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }

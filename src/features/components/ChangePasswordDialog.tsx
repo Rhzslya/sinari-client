@@ -34,6 +34,7 @@ import { useCooldown } from "@/hooks/use-cooldown";
 import { isAxiosError } from "axios";
 import { getErrorMessage } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 type ChangePasswordRequest = z.infer<typeof UserValidation.CHANGE_PASSWORD>;
 
@@ -112,73 +113,102 @@ export function ChangePasswordDialog() {
   }, [isRateLimited, error, cooldown, startCooldown, reset]);
 
   const inputStyle =
-    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-10 sm:h-9"; // 👈 Diperbesar untuk mobile
   const labelStyle =
-    "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+    "text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider";
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="font-bold border-2 shrink-0">
+        <Button
+          variant="outline"
+          className="font-bold border-2 shrink-0 w-full sm:w-auto cursor-pointer"
+        >
           <Key className="w-4 h-4 mr-2" />{" "}
           {t("profile.change_password.trigger_btn")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-106.25">
+
+      <DialogContent className="w-[95vw] sm:max-w-106.25 rounded-xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t("profile.change_password.title")}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">
+            {t("profile.change_password.title")}
+          </DialogTitle>
           <DialogDescription className="sr-only">
             {t("profile.change_password.desc")}
           </DialogDescription>
         </DialogHeader>
 
-        {/* AREA PESAN GENERAL ERROR */}
-        <div className="min-h-13 w-full flex items-center -mb-2 mt-1">
-          {generalError && cooldown === 0 ? (
-            <div className="bg-destructive/10 w-full px-4 py-2.5 rounded-md text-destructive flex items-start gap-2 border border-destructive/20 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <span className="text-sm font-medium leading-tight">
-                {generalError}
-              </span>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground animate-in fade-in duration-300">
-              {t("profile.change_password.desc")}
-            </p>
-          )}
+        <div className="min-h-12 w-full flex items-center -mb-2 mt-1">
+          <AnimatePresence mode="wait">
+            {generalError && cooldown === 0 ? (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-destructive/10 w-full px-4 py-2.5 rounded-md text-destructive flex items-start gap-2 border border-destructive/20 shadow-sm"
+              >
+                <AlertCircle className="size-4 shrink-0 mt-0.5" />
+                <span className="text-xs sm:text-sm font-medium leading-tight">
+                  {generalError}
+                </span>
+              </motion.div>
+            ) : (
+              <motion.p
+                key="desc"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-xs sm:text-sm text-muted-foreground"
+              >
+                {t("profile.change_password.desc")}
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-3 pt-2"
+            className="space-y-4 pt-2"
           >
-            {(cooldown > 0 || isRateLimited) && (
-              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
-                <div className="space-y-1 flex flex-col justify-center items-center">
-                  <AlertTriangle className="h-7 w-7 shrink-0" />
-                  <p className="font-semibold text-xs uppercase">
-                    {t("profile.change_password.rate_limit_title")}
-                  </p>
-                  <p
-                    className="text-xs opacity-90"
-                    dangerouslySetInnerHTML={{
-                      __html: t(
-                        "profile.change_password.rate_limit_desc",
-                      ).replace(
-                        "{{seconds}}",
-                        String(cooldown).padStart(2, "0"),
-                      ),
-                    }}
-                  />
-                </div>
-              </div>
-            )}
+            <AnimatePresence>
+              {(cooldown > 0 || isRateLimited) && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex justify-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 shadow-sm">
+                    <div className="space-y-1 flex flex-col justify-center items-center">
+                      <AlertTriangle className="h-6 w-6 shrink-0 mb-1" />
+                      <p className="font-semibold text-[10px] sm:text-xs uppercase text-center">
+                        {t("profile.change_password.rate_limit_title")}
+                      </p>
+                      <p
+                        className="text-[10px] sm:text-xs opacity-90 text-center"
+                        dangerouslySetInnerHTML={{
+                          __html: t(
+                            "profile.change_password.rate_limit_desc",
+                          ).replace(
+                            "{{seconds}}",
+                            String(cooldown).padStart(2, "0"),
+                          ),
+                        }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <FormField
               control={form.control}
               name="old_password"
               render={({ field }) => (
-                <FormItem className="relative grid gap-2 space-y-0 pb-5">
+                <FormItem className="relative grid gap-1 sm:gap-2 space-y-0 pb-4 sm:pb-5">
                   <FormLabel className={labelStyle}>
                     {t("profile.change_password.labels.old_password")}
                   </FormLabel>
@@ -198,17 +228,17 @@ export function ChangePasswordDialog() {
                         type="button"
                         tabIndex={-1}
                         onClick={() => setShowOld(!showOld)}
-                        className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground outline-none"
+                        className="absolute right-3 top-2.5 sm:top-2 text-muted-foreground hover:text-foreground outline-none cursor-pointer"
                       >
                         {showOld ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                         )}
                       </button>
                     </div>
                   </FormControl>
-                  <FormMessage className="absolute bottom-0 left-0 text-xs" />
+                  <FormMessage className="absolute bottom-0 left-0 text-[10px] sm:text-xs" />
                 </FormItem>
               )}
             />
@@ -217,7 +247,7 @@ export function ChangePasswordDialog() {
               control={form.control}
               name="new_password"
               render={({ field }) => (
-                <FormItem className="relative grid gap-2 space-y-0 pb-5">
+                <FormItem className="relative grid gap-1 sm:gap-2 space-y-0 pb-4 sm:pb-5">
                   <FormLabel className={labelStyle}>
                     {t("profile.change_password.labels.new_password")}
                   </FormLabel>
@@ -237,17 +267,17 @@ export function ChangePasswordDialog() {
                         type="button"
                         tabIndex={-1}
                         onClick={() => setShowNew(!showNew)}
-                        className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground outline-none"
+                        className="absolute right-3 top-2.5 sm:top-2 text-muted-foreground hover:text-foreground outline-none cursor-pointer"
                       >
                         {showNew ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                         )}
                       </button>
                     </div>
                   </FormControl>
-                  <FormMessage className="absolute bottom-0 left-0 text-xs" />
+                  <FormMessage className="absolute bottom-0 left-0 text-[10px] sm:text-xs" />
                 </FormItem>
               )}
             />
@@ -256,7 +286,7 @@ export function ChangePasswordDialog() {
               control={form.control}
               name="confirm_new_password"
               render={({ field }) => (
-                <FormItem className="relative grid gap-2 space-y-0 pb-5">
+                <FormItem className="relative grid gap-1 sm:gap-2 space-y-0 pb-4 sm:pb-5">
                   <FormLabel className={labelStyle}>
                     {t("profile.change_password.labels.confirm_password")}
                   </FormLabel>
@@ -276,26 +306,26 @@ export function ChangePasswordDialog() {
                         type="button"
                         tabIndex={-1}
                         onClick={() => setShowConfirm(!showConfirm)}
-                        className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground outline-none"
+                        className="absolute right-3 top-2.5 sm:top-2 text-muted-foreground hover:text-foreground outline-none cursor-pointer"
                       >
                         {showConfirm ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
                         )}
                       </button>
                     </div>
                   </FormControl>
-                  <FormMessage className="absolute bottom-0 left-0 text-xs" />
+                  <FormMessage className="absolute bottom-0 left-0 text-[10px] sm:text-xs" />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-border/50">
               <Button
                 type="button"
-                variant="outline"
-                className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer duration-300"
+                variant="ghost"
+                className="w-full sm:w-auto text-sm font-semibold cursor-pointer"
                 onClick={() => handleOpenChange(false)}
                 disabled={isLoading || isSubmitting}
               >
@@ -303,7 +333,7 @@ export function ChangePasswordDialog() {
               </Button>
               <Button
                 variant="default"
-                className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
+                className="w-full sm:w-auto text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground px-6"
                 type="submit"
                 disabled={isLoading || isSubmitting || !isValid || cooldown > 0}
               >

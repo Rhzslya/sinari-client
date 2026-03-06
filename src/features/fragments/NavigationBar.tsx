@@ -14,13 +14,31 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { navigationMenuTriggerStyle } from "@/components/utils/navigationMenuTriggerStyle";
 import { UserRole } from "@/enum/product-enum";
 import { useUserQueries } from "@/hooks/user-queries";
 import { AuthServices } from "@/services/user-services";
-import { LayoutDashboard, Loader2, LogOut, UserIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  Menu,
+  UserIcon,
+  Home,
+  Package,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 const NavigationBar = () => {
   const navigate = useNavigate();
@@ -31,6 +49,8 @@ const NavigationBar = () => {
 
   const { useProfile } = useUserQueries();
   const { data: user, isLoading: isLoadingUser } = useProfile();
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -64,9 +84,19 @@ const NavigationBar = () => {
     i18n.changeLanguage(newLang);
   };
 
+  const handleMobileNav = (path: string) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
+  };
+
+  const isPrivilegedUser =
+    user && [UserRole.ADMIN, UserRole.OWNER].includes(user.role as UserRole);
+
   const renderAuthSection = () => {
     if (isLoadingUser) {
-      return <Loader2 className="animate-spin text-white/70 size-6" />;
+      return (
+        <Loader2 className="animate-spin text-white/70 size-5 md:size-6" />
+      );
     }
 
     if (user) {
@@ -75,10 +105,10 @@ const NavigationBar = () => {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="relative h-10 w-10 rounded-full cursor-pointer bg-white focus-visible:ring-0 focus-visible:ring-offset-0 border-primary border-2"
+              className="relative p-0 h-8 w-8 md:h-10 md:w-10 rounded-full cursor-pointer bg-white focus-visible:ring-0 focus-visible:ring-offset-0 border-primary border-2 shrink-0 overflow-hidden"
             >
-              <Avatar className="h-9 w-9 border-none transition-opacity hover:opacity-80">
-                <AvatarFallback className="bg-white/10 border-none text-primary text-sm font-bold">
+              <Avatar className="h-full w-full border-none transition-opacity hover:opacity-80">
+                <AvatarFallback className="bg-white/10 border-none text-primary text-xs md:text-sm font-bold flex items-center justify-center">
                   {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
@@ -100,9 +130,7 @@ const NavigationBar = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
 
-            {[UserRole.ADMIN, UserRole.OWNER].includes(
-              user.role as UserRole,
-            ) && (
+            {isPrivilegedUser && (
               <DropdownMenuItem
                 onClick={() => navigate("/dashboard")}
                 className="cursor-pointer"
@@ -133,17 +161,19 @@ const NavigationBar = () => {
     }
 
     return (
-      <div className="flex gap-2">
+      <div className="flex gap-1.5 md:gap-2">
         <Button
           asChild
           variant="ghost"
-          className="cursor-pointer hover:bg-white/10 text-white"
+          size="sm"
+          className="cursor-pointer hover:bg-white/10 text-white text-xs md:text-sm px-2 md:px-4"
         >
           <Link to="/login">{t("nav.login")}</Link>
         </Button>
         <Button
           asChild
-          className="cursor-pointer bg-white text-primary hover:bg-white/90"
+          size="sm"
+          className="cursor-pointer bg-white text-primary hover:bg-white/90 text-xs md:text-sm px-3 md:px-4"
         >
           <Link to="/register">{t("nav.signup")}</Link>
         </Button>
@@ -152,15 +182,77 @@ const NavigationBar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-linear-to-l from-primary from-30% to-(--gradient-primary)">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link
-          to="/"
-          className="font-bold text-xl text-white tracking-tight cursor-pointer"
-        >
-          Sinari Cell
-        </Link>
+    <header className="sticky top-0 z-50 w-full border-b bg-linear-to-l from-primary from-30% to-(--gradient-primary) shadow-sm">
+      <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-4">
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden text-white hover:bg-white/20 shrink-0"
+              >
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="w-[80vw] max-w-75 sm:max-w-sm flex flex-col p-0"
+            >
+              <SheetHeader className="p-6 text-left border-b bg-muted/20">
+                <SheetTitle className="text-xl font-bold text-primary tracking-tight">
+                  Sinari Cell
+                </SheetTitle>
+                <SheetDescription className="text-xs sr-only">
+                  {t("home.hero.subtitle", {
+                    defaultValue: "Professional Repair Service",
+                  })}
+                </SheetDescription>
+              </SheetHeader>
 
+              <div className="flex flex-col py-4 px-3 gap-2 flex-1">
+                <Button
+                  variant={isActive("/") ? "secondary" : "ghost"}
+                  className={`justify-start w-full cursor-pointer ${isActive("/") ? "bg-primary/10 text-primary" : ""}`}
+                  onClick={() => handleMobileNav("/")}
+                >
+                  <Home className="mr-3 h-4 w-4" /> {t("nav.home")}
+                </Button>
+                <Button
+                  variant={isActive("/products") ? "secondary" : "ghost"}
+                  className={`justify-start w-full cursor-pointer ${isActive("/products") ? "bg-primary/10 text-primary" : ""}`}
+                  onClick={() => handleMobileNav("/products")}
+                >
+                  <Package className="mr-3 h-4 w-4" /> {t("nav.products")}
+                </Button>
+
+                {isPrivilegedUser && (
+                  <Button
+                    variant={isActive("/dashboard") ? "secondary" : "ghost"}
+                    className={`justify-start w-full cursor-pointer ${isActive("/dashboard") ? "bg-primary/10 text-primary" : ""}`}
+                    onClick={() => handleMobileNav("/dashboard")}
+                  >
+                    <LayoutDashboard className="mr-3 h-4 w-4" />{" "}
+                    {t("nav.dashboard")}
+                  </Button>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <Link to="/" className="flex items-center">
+            <motion.span
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="font-extrabold text-lg md:text-xl text-white tracking-tight cursor-pointer whitespace-nowrap"
+            >
+              Sinari Cell
+            </motion.span>
+          </Link>
+        </div>
+
+        {/* TENGAH: Desktop Nav (Hidden on Mobile) */}
         <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
@@ -183,30 +275,32 @@ const NavigationBar = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            {user &&
-              [UserRole.ADMIN, UserRole.OWNER].includes(
-                user.role as UserRole,
-              ) && (
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    asChild
-                    className={navigationMenuTriggerStyle()}
-                    active={isActive("/dashboard")}
-                  >
-                    <Link to="/dashboard">{t("nav.dashboard")}</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              )}
+            {isPrivilegedUser && (
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className={navigationMenuTriggerStyle()}
+                  active={isActive("/dashboard")}
+                >
+                  <Link to="/dashboard">{t("nav.dashboard")}</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="flex items-center gap-4">
+        {/* KANAN: Lang Toggle & Auth */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex items-center gap-2 md:gap-4"
+        >
           <button
             onClick={toggleLanguage}
-            className="flex items-center p-0.5 rounded-full bg-black/15 border border-white/20 cursor-pointer transition-all hover:bg-black/25 shadow-inner"
+            className="flex items-center p-0.5 rounded-full bg-black/15 border border-white/20 cursor-pointer transition-all hover:bg-black/25 shadow-inner shrink-0"
           >
             <span
-              className={`px-2.5 py-1 text-[10px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
+              className={`px-2 md:px-2.5 py-1 text-[9px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
                 isId
                   ? "bg-white text-primary shadow-sm"
                   : "text-white/70 hover:text-white"
@@ -215,7 +309,7 @@ const NavigationBar = () => {
               ID
             </span>
             <span
-              className={`px-2.5 py-1 text-[10px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
+              className={`px-2 md:px-2.5 py-1 text-[9px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
                 !isId
                   ? "bg-white text-primary shadow-sm"
                   : "text-white/70 hover:text-white"
@@ -225,7 +319,7 @@ const NavigationBar = () => {
             </span>
           </button>
           {renderAuthSection()}
-        </div>
+        </motion.div>
       </div>
     </header>
   );

@@ -398,6 +398,30 @@
       "title": "Gagal memuat data dashboard.",
       "btn": "Coba Lagi"
     },
+    "export": {
+      "btn": "Ekspor Laporan",
+      "pdf": "Ekspor sebagai PDF",
+      "csv": "Ekspor Data (CSV)",
+      "generating_pdf": "Menyiapkan PDF...",
+      "pdf_success": "Laporan PDF berhasil diunduh!",
+      "pdf_failed": "Gagal membuat PDF",
+      "csv_success": "Data CSV berhasil diunduh!",
+      "csv_failed": "Gagal mengekspor CSV",
+      "no_data": "Tidak ada data untuk diekspor"
+    },
+    "report_pdf": {
+      "title": "Laporan Ringkasan Bisnis",
+      "printed_on": "Tanggal Cetak",
+      "revenue": "Total Pendapatan",
+      "profit": "Keuntungan Bersih",
+      "products_sold": "Produk Terjual",
+      "active_repairs": "Servis Aktif",
+      "table_title": "Aktivitas Terakhir",
+      "th_date": "Waktu",
+      "th_user": "Pengguna",
+      "th_action": "Aksi",
+      "th_desc": "Deskripsi"
+    },
     "header": {
       "title": "Ringkasan Dashboard",
       "export_btn": "Ekspor Laporan"
@@ -456,7 +480,9 @@
       "forgot_pwd": "Lupa kata sandi?",
       "btn_submit": "Masuk",
       "no_account": "Belum punya akun?",
-      "create_account": "Buat akun baru"
+      "create_account": "Buat akun baru",
+      "rate_limit_title": "Terlalu Banyak Percobaan",
+      "rate_limit_desc": "Harap tunggu <strong class='font-bold text-sm'>{{seconds}}</strong> detik sebelum mencoba lagi."
     },
     "register": {
       "title": "Sinari Cell",

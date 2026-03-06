@@ -56,8 +56,8 @@ export function PaginationComponent({
   };
 
   return (
-    <Pagination className="mt-4 justify-center">
-      <PaginationContent>
+    <Pagination className="mt-2 sm:mt-4 justify-center">
+      <PaginationContent className="flex-wrap gap-1 sm:gap-2">
         <PaginationItem>
           <PaginationPrevious
             href="#"
@@ -66,16 +66,16 @@ export function PaginationComponent({
               handlePageChange(currentPage - 1);
             }}
             aria-disabled={currentPage === 1}
-            className={
+            className={`h-8 sm:h-9 px-2 sm:px-4 text-xs sm:text-sm ${
               currentPage === 1 ? "pointer-events-none opacity-50" : ""
-            }
+            }`}
           />
         </PaginationItem>
 
         {getPageNumbers().map((page, index) => (
           <PaginationItem key={index}>
             {page === "ellipsis" ? (
-              <PaginationEllipsis />
+              <PaginationEllipsis className="h-8 w-8 sm:h-9 sm:w-9" />
             ) : (
               <PaginationLink
                 href="#"
@@ -84,6 +84,7 @@ export function PaginationComponent({
                   e.preventDefault();
                   handlePageChange(page as number);
                 }}
+                className="h-8 w-8 sm:h-9 sm:w-9 text-xs sm:text-sm"
               >
                 {page}
               </PaginationLink>
@@ -99,9 +100,9 @@ export function PaginationComponent({
               handlePageChange(currentPage + 1);
             }}
             aria-disabled={currentPage === totalPages}
-            className={
+            className={`h-8 sm:h-9 px-2 sm:px-4 text-xs sm:text-sm ${
               currentPage === totalPages ? "pointer-events-none opacity-50" : ""
-            }
+            }`}
           />
         </PaginationItem>
       </PaginationContent>

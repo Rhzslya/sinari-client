@@ -25,7 +25,6 @@ import DashboardTechnicianPage from "./pages/DashboardTechnicianPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import DetailUserPage from "./pages/DetailUserPage";
 import DashboardSettingPage from "./pages/DashboardSettingPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
@@ -33,6 +32,7 @@ import FaqPage from "./pages/FaqPage";
 import WarrantyPage from "./pages/WarrantyPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
+import DetailProductPublicPage from "./pages/DetailProductPublicPage";
 
 function App() {
   return (
@@ -45,7 +45,10 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/products" element={<ProductPage />} />
-          <Route path="/products/:productId" element={<ProductDetailPage />} />
+          <Route
+            path="/products/:productId"
+            element={<DetailProductPublicPage />}
+          />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/faq" element={<FaqPage />} />

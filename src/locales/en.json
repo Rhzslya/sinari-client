@@ -398,6 +398,30 @@
       "title": "Failed to load dashboard data.",
       "btn": "Try Again"
     },
+    "export": {
+      "btn": "Export Report",
+      "pdf": "Export as PDF",
+      "csv": "Export Data (CSV)",
+      "generating_pdf": "Generating PDF...",
+      "pdf_success": "PDF Report Downloaded!",
+      "pdf_failed": "Failed to generate PDF",
+      "csv_success": "CSV Data Downloaded!",
+      "csv_failed": "Failed to export CSV",
+      "no_data": "No data available to export"
+    },
+    "report_pdf": {
+      "title": "Business Summary Report",
+      "printed_on": "Printed On",
+      "revenue": "Total Revenue",
+      "profit": "Net Profit",
+      "products_sold": "Products Sold",
+      "active_repairs": "Active Repairs",
+      "table_title": "Recent Activities",
+      "th_date": "Time",
+      "th_user": "User",
+      "th_action": "Action",
+      "th_desc": "Description"
+    },
     "header": {
       "title": "Dashboard Overview",
       "export_btn": "Export Report"
@@ -456,7 +480,9 @@
       "forgot_pwd": "Forgot password?",
       "btn_submit": "Sign In",
       "no_account": "Don't have an account?",
-      "create_account": "Create an account"
+      "create_account": "Create an account",
+      "rate_limit_title": "Too Many Attempts",
+      "rate_limit_desc": "Please wait <strong class='font-bold text-sm'>{{seconds}}</strong> seconds before trying again."
     },
     "register": {
       "title": "Sinari Cell",

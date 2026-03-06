@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { motion, type Variants } from "framer-motion";
 
 const InstagramIcon = () => (
   <svg
@@ -58,6 +59,22 @@ const TwitterIcon = () => (
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+// --- ANIMATION VARIANTS ---
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
 export function Footer() {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
@@ -71,7 +88,7 @@ export function Footer() {
   };
 
   const getLinkStyle = (path: string) => {
-    return `transition-colors block ${
+    return `transition-colors block py-1 ${
       isActive(path)
         ? "text-primary font-semibold"
         : "text-muted-foreground hover:text-primary"
@@ -112,22 +129,29 @@ export function Footer() {
   ];
 
   const inputStyle =
-    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-9";
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-10 md:h-9";
 
   return (
-    <footer className="bg-muted/20 border-t border-border mt-auto pt-16">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pb-12 border-b border-border/60">
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-foreground tracking-tight">
-              {t("footer.newsletter.title")}{" "}
+    <footer className="bg-muted/20 border-t border-border mt-auto pt-12 md:pt-16 overflow-hidden">
+      <motion.div
+        className="container mx-auto px-4 sm:px-6 lg:px-8"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={staggerContainer}
+      >
+        {/* SECTION 1: Newsletter & Standards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 pb-10 md:pb-12 border-b border-border/60">
+          <motion.div variants={fadeInUp} className="space-y-4">
+            <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
+              {t("footer.newsletter.title")}
             </h3>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-sm max-w-md">
               {t("footer.newsletter.subtitle")}
             </p>
             <form
               onSubmit={handleSubscribe}
-              className="flex gap-2 max-w-md mt-4"
+              className="flex flex-col sm:flex-row gap-2 max-w-md mt-4"
             >
               <Input
                 autoComplete="off"
@@ -141,7 +165,7 @@ export function Footer() {
               />
               <Button
                 type="submit"
-                className="shrink-0 gap-2 cursor-pointer text-foreground"
+                className="shrink-0 gap-2 cursor-pointer text-foreground h-10 md:h-9 w-full sm:w-auto"
                 disabled={isSubmitting || !isValidEmail}
               >
                 {isSubmitting ? (
@@ -150,73 +174,90 @@ export function Footer() {
                   </span>
                 ) : (
                   <>
-                    {t("footer.newsletter.subscribe")}{" "}
+                    {t("footer.newsletter.subscribe")}
                     <Send className="size-4" />
                   </>
                 )}
               </Button>
             </form>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col lg:items-end justify-center space-y-4">
+          <motion.div
+            variants={fadeInUp}
+            className="flex flex-col lg:items-end justify-center space-y-4"
+          >
             <p className="font-semibold text-foreground text-sm">
               {t("footer.standards.title")}
             </p>
-            <div className="flex flex-wrap gap-4 lg:justify-end text-muted-foreground">
+            <div className="flex flex-wrap gap-2 md:gap-4 lg:justify-end text-muted-foreground">
               {serviceStandards.map((item, index) => {
                 const Icon = item.icon;
                 return (
-                  <div
+                  <motion.div
                     key={index}
+                    whileHover={{ scale: 1.05 }}
                     className="flex items-center gap-2 bg-background px-3 py-2 rounded-md border border-border shadow-sm cursor-default hover:border-primary/50 transition-colors"
                   >
-                    <Icon className="size-5 text-primary" />
-                    <span className="text-xs font-medium">{item.label}</span>
-                  </div>
+                    <Icon className="size-4 md:size-5 text-primary shrink-0" />
+                    <span className="text-xs font-medium whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  </motion.div>
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12">
-          <div className="col-span-2 md:col-span-1">
+        {/* SECTION 2: Navigation Links */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 py-10 md:py-12">
+          <motion.div variants={fadeInUp} className="col-span-2 md:col-span-1">
             <h2 className="text-2xl font-black text-primary mb-4 tracking-tighter">
               Sinari Cell
             </h2>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
+            <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-6 max-w-xs">
               {t("footer.company_desc")}
             </p>
 
-            <div className="flex gap-4">
-              <a
+            <div className="flex gap-3">
+              <motion.a
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                whileTap={{ scale: 0.9 }}
                 href="#"
                 className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="Instagram"
               >
                 <InstagramIcon />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
                 href="#"
                 className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="Facebook"
               >
                 <FacebookIcon />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                whileTap={{ scale: 0.9 }}
                 href="#"
                 className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="Twitter"
               >
                 <TwitterIcon />
-              </a>
+              </motion.a>
             </div>
-          </div>
-          <div>
-            <h4 className="font-bold text-foreground mb-4">
+          </motion.div>
+
+          <motion.div variants={fadeInUp}>
+            <h4 className="font-bold text-foreground mb-4 text-sm md:text-base">
               {t("footer.links.services.title")}
             </h4>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-2 text-sm">
               <li>
                 <button
-                  className="text-muted-foreground hover:text-primary transition-colors p-0 h-auto font-normal text-sm cursor-pointer"
+                  className="text-muted-foreground hover:text-primary transition-colors p-0 h-auto font-normal text-sm cursor-pointer py-1"
                   onClick={handleConsultClick}
                 >
                   {t("footer.links.services.consultation")}
@@ -225,7 +266,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/#track-srv"
-                  className="text-muted-foreground hover:text-primary transition-colors block"
+                  className="text-muted-foreground hover:text-primary transition-colors block py-1"
                   onClick={() => {
                     const element = document.getElementById("track-srv");
                     if (element) {
@@ -242,12 +283,13 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-foreground mb-4">
+          </motion.div>
+
+          <motion.div variants={fadeInUp}>
+            <h4 className="font-bold text-foreground mb-4 text-sm md:text-base">
               {t("footer.links.customer.title")}
             </h4>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/about" className={getLinkStyle("/about")}>
                   {t("footer.links.customer.about")}
@@ -264,12 +306,13 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
-          <div>
-            <h4 className="font-bold text-foreground mb-4">
+          </motion.div>
+
+          <motion.div variants={fadeInUp}>
+            <h4 className="font-bold text-foreground mb-4 text-sm md:text-base">
               {t("footer.links.policy.title")}
             </h4>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/warranty" className={getLinkStyle("/warranty")}>
                   {t("footer.links.policy.warranty")}
@@ -286,21 +329,33 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </motion.div>
         </div>
 
-        <div className="py-6 border-t border-border/60 text-center text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* SECTION 3: Copyright & Payments */}
+        <motion.div
+          variants={fadeInUp}
+          className="py-6 border-t border-border/60 text-center text-xs md:text-sm text-muted-foreground flex flex-col-reverse md:flex-row justify-between items-center gap-4"
+        >
           <p>
             &copy; {currentYear} Sinari Cell. {t("footer.copyright")}
           </p>
-          <div className="flex gap-4">
-            <span className="text-xs font-medium">BCA</span>
-            <span className="text-xs font-medium">Mandiri</span>
-            <span className="text-xs font-medium">QRIS</span>
-            <span className="text-xs font-medium">Gopay</span>
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
+              BCA
+            </span>
+            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
+              MANDIRI
+            </span>
+            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
+              QRIS
+            </span>
+            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
+              GOPAY
+            </span>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </footer>
   );
 }
