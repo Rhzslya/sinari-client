@@ -289,7 +289,6 @@ const NavigationBar = () => {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* KANAN: Lang Toggle & Auth */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -300,7 +299,7 @@ const NavigationBar = () => {
             className="flex items-center p-0.5 rounded-full bg-black/15 border border-white/20 cursor-pointer transition-all hover:bg-black/25 shadow-inner shrink-0"
           >
             <span
-              className={`px-2 md:px-2.5 py-1 text-[9px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
+              className={`inline-block px-2 md:px-2.5 pt-1.25 pb-0.75 md:py-1 leading-none text-[9px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
                 isId
                   ? "bg-white text-primary shadow-sm"
                   : "text-white/70 hover:text-white"
@@ -309,7 +308,7 @@ const NavigationBar = () => {
               ID
             </span>
             <span
-              className={`px-2 md:px-2.5 py-1 text-[9px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
+              className={`inline-block px-2 md:px-2.5 pt-1.25 pb-0.75 md:py-1 leading-none text-[9px] md:text-xs font-bold rounded-full transition-colors duration-300 ${
                 !isId
                   ? "bg-white text-primary shadow-sm"
                   : "text-white/70 hover:text-white"

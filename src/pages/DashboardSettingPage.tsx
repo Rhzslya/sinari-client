@@ -40,6 +40,20 @@ import { useWhatsappQueries } from "@/hooks/whatsapp-queries";
 import { isAxiosError } from "axios";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 import { useTranslation } from "react-i18next";
+import { motion, type Variants } from "framer-motion";
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
 
 const DashboardSettingPage = () => {
   const { t } = useTranslation();
@@ -60,6 +74,7 @@ const DashboardSettingPage = () => {
     error: storeError,
     refetch: refetchStore,
   } = useGetSettings();
+
   const {
     data: waData,
     isLoading: isWaLoading,
@@ -149,24 +164,16 @@ const DashboardSettingPage = () => {
     }
   };
 
-  if (isStoreLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (isStoreLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
   const hasError = isStoreError || isWaError;
   const anyError = storeError || waError;
+
+  if (isStoreLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (hasError) {
     if (isAxiosError(anyError) && anyError.response?.status === 429) {
@@ -186,8 +193,8 @@ const DashboardSettingPage = () => {
     }
 
     return (
-      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
-        <p className="text-destructive font-medium">
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4 px-4 text-center">
+        <p className="text-destructive font-medium text-lg">
           Failed to load settings data.
         </p>
         <p className="text-sm text-muted-foreground">
@@ -199,112 +206,100 @@ const DashboardSettingPage = () => {
             if (isStoreError) refetchStore();
             if (isWaError) refetchWa();
           }}
+          className="text-foreground cursor-pointer duration-300"
         >
           Try Again
         </Button>
       </div>
     );
   }
+
+  // GLOBAL STYLES
   const inputStyle =
-    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-xs sm:text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-9";
   const labelStyle =
-    "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+    "text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider";
   const textareaStyle =
-    "flex w-full bg-input/50 border border-border rounded-md px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 resize-none";
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-2 text-xs sm:text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 resize-none leading-relaxed";
 
   return (
-    <div className="flex flex-col h-full space-y-6">
-      <DashboardHeader title={t("settings.header.title")}>
-        {" "}
-        <p className="text-sm text-muted-foreground">
-          {t("settings.header.subtitle")}
-        </p>
-      </DashboardHeader>
+    <motion.div
+      className="flex flex-col h-full space-y-4 sm:space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
+        <DashboardHeader title={t("settings.header.title")}>
+          <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
+            {t("settings.header.subtitle")}
+          </p>
+        </DashboardHeader>
+      </motion.div>
 
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onHandlePreview)}
-          className="flex flex-col flex-1 space-y-6"
+          className="flex flex-col flex-1"
         >
-          <Tabs
-            defaultValue="store"
-            className="w-full"
-            value={activeTab}
-            onValueChange={setActiveTab}
-          >
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-1 p-1">
-              <TabsTrigger value="store" className="gap-2 h-9">
-                <Store className="h-4 w-4" /> {t("settings.tabs.store")}
-              </TabsTrigger>
-              <TabsTrigger value="operational" className="gap-2 h-9">
-                <Settings2 className="h-4 w-4" /> {t("settings.tabs.policy")}
-              </TabsTrigger>
-              <TabsTrigger value="payment" className="gap-2 h-9">
-                <CreditCard className="h-4 w-4" /> {t("settings.tabs.payment")}
-              </TabsTrigger>
-              <TabsTrigger value="integrations" className="gap-2 h-9">
-                <Blocks className="h-4 w-4" /> {t("settings.tabs.apps")}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="store" className="mt-4 space-y-4">
-              <Card className="border-border/50 shadow-sm">
-                <CardHeader>
-                  <CardTitle>{t("settings.store_profile.title")}</CardTitle>
-                  <CardDescription>
-                    {t("settings.store_profile.desc")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="store_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={labelStyle}>
-                          {t("settings.store_profile.name")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            autoComplete="off"
-                            {...field}
-                            className={inputStyle}
-                            disabled={isStorePending}
-                            spellCheck={false}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="store_address"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={labelStyle}>
-                          {t("settings.store_profile.address")}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            autoComplete="off"
-                            {...field}
-                            className={inputStyle}
-                            disabled={isStorePending}
-                            spellCheck={false}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
+          <motion.div variants={itemVariants} className="flex-1">
+            <Tabs
+              defaultValue="store"
+              className="w-full flex flex-col"
+              value={activeTab}
+              onValueChange={setActiveTab}
+            >
+              {/* TABS MENU */}
+              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 gap-1 p-1 h-auto shrink-0 mb-2">
+                <TabsTrigger
+                  value="store"
+                  className="gap-2 h-9 sm:h-10 text-[10px] sm:text-xs font-medium cursor-pointer"
+                >
+                  <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="truncate">{t("settings.tabs.store")}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="operational"
+                  className="gap-2 h-9 sm:h-10 text-[10px] sm:text-xs font-medium cursor-pointer"
+                >
+                  <Settings2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="truncate">{t("settings.tabs.policy")}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="payment"
+                  className="gap-2 h-9 sm:h-10 text-[10px] sm:text-xs font-medium cursor-pointer"
+                >
+                  <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="truncate">{t("settings.tabs.payment")}</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="integrations"
+                  className="gap-2 h-9 sm:h-10 text-[10px] sm:text-xs font-medium cursor-pointer"
+                >
+                  <Blocks className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="truncate">{t("settings.tabs.apps")}</span>
+                </TabsTrigger>
+              </TabsList>
+
+              {/* TABS CONTENT: STORE */}
+              <TabsContent value="store" className="mt-2 outline-none">
+                <Card className="border-border/50 shadow-sm">
+                  <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-border/30">
+                    <CardTitle className="text-base sm:text-lg">
+                      {t("settings.store_profile.title")}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                      {t("settings.store_profile.desc")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 space-y-4">
                     <FormField
                       control={form.control}
-                      name="store_phone"
+                      name="store_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className={labelStyle}>
-                            {t("settings.store_profile.phone")}
+                            {t("settings.store_profile.name")}
                           </FormLabel>
                           <FormControl>
                             <Input
@@ -315,266 +310,341 @@ const DashboardSettingPage = () => {
                               spellCheck={false}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-[10px] sm:text-xs" />
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
-                      name="store_email"
+                      name="store_address"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className={labelStyle}>
-                            {t("settings.store_profile.email")}
+                            {t("settings.store_profile.address")}
                           </FormLabel>
                           <FormControl>
                             <Input
                               autoComplete="off"
-                              className={inputStyle}
                               {...field}
-                              value={field.value || ""}
+                              className={inputStyle}
                               disabled={isStorePending}
                               spellCheck={false}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-[10px] sm:text-xs" />
                         </FormItem>
                       )}
                     />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="store_hours"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={labelStyle}>
-                          {t("settings.store_profile.hours")}
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder="Senin - Sabtu: 09.00 - 21.00 WIB&#10;Minggu: Tutup"
-                            className={`${textareaStyle} min-h-20`}
-                            disabled={isStorePending}
-                            spellCheck={false}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            {/* OPERATIONAL TAB */}
-            <TabsContent value="operational" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("settings.operational.title")}</CardTitle>
-                  <CardDescription>
-                    {t("settings.operational.desc")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="warranty_text"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={labelStyle}>
-                          {t("settings.operational.warranty_label")}
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className={`${textareaStyle} min-h-37.5`}
-                            disabled={isStorePending}
-                            spellCheck={false}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            {/* PAYMENT TAB */}
-            <TabsContent value="payment" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("settings.payment_info.title")}</CardTitle>
-                  <CardDescription>
-                    {t("settings.payment_info.desc")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="payment_info"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={labelStyle}>
-                          {t("settings.payment_info.bank_label")}
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            className={`${textareaStyle} min-h-25`}
-                            disabled={isStorePending}
-                            spellCheck={false}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="integrations" className="mt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Smartphone className="h-5 w-5" />
-                    {t("settings.whatsapp.title")}
-                  </CardTitle>
-                  <CardDescription>
-                    {t("settings.whatsapp.desc")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {/* LOGIKA TAMPILAN BARU */}
-                  {!isWaActive ? (
-                    <div className="flex flex-col items-center justify-center p-8 bg-muted/30 border border-dashed border-border rounded-lg text-center">
-                      <Smartphone className="h-10 w-10 text-muted-foreground mb-3" />
-                      <h3 className="text-sm font-semibold mb-1">
-                        {t("settings.whatsapp.idle_title")}
-                      </h3>
-                      <p className="text-xs text-muted-foreground max-w-sm mb-4">
-                        {t("settings.whatsapp.idle_desc")}
-                      </p>
-                      <Button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsWaActive(true);
-                        }}
-                        variant="outline"
-                      >
-                        {t("settings.whatsapp.btn_check")}
-                      </Button>
+
+                    {/* Split 2 Kolom di Desktop, Atas-Bawah di Mobile */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="store_phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className={labelStyle}>
+                              {t("settings.store_profile.phone")}
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                autoComplete="off"
+                                {...field}
+                                className={inputStyle}
+                                disabled={isStorePending}
+                                spellCheck={false}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-[10px] sm:text-xs" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="store_email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className={labelStyle}>
+                              {t("settings.store_profile.email")}
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                autoComplete="off"
+                                className={inputStyle}
+                                {...field}
+                                value={field.value || ""}
+                                disabled={isStorePending}
+                                spellCheck={false}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-[10px] sm:text-xs" />
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                  ) : (
-                    <div className="flex flex-col md:flex-row items-start gap-6 bg-muted/30 p-6 rounded-lg border border-border/50">
-                      <div className="flex-1 space-y-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`h-3 w-3 rounded-full ${
-                              waData?.status === "connected"
-                                ? "bg-green-500 animate-pulse"
-                                : "bg-destructive"
-                            }`}
-                          />
-                          <span className="font-semibold text-sm">
-                            {t("settings.whatsapp.status_label")}:{" "}
-                            {waData?.status === "connected"
-                              ? t("settings.whatsapp.status_connected")
-                              : waData?.status === "loading_qr"
-                                ? t("settings.whatsapp.status_waiting")
-                                : t("settings.whatsapp.status_disconnected")}
-                          </span>
+
+                    <FormField
+                      control={form.control}
+                      name="store_hours"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelStyle}>
+                            {t("settings.store_profile.hours")}
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              placeholder="Senin - Sabtu: 09.00 - 21.00 WIB&#10;Minggu: Tutup"
+                              className={`${textareaStyle} min-h-25`}
+                              disabled={isStorePending}
+                              spellCheck={false}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-[10px] sm:text-xs" />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* TABS CONTENT: OPERATIONAL */}
+              <TabsContent value="operational" className="mt-2 outline-none">
+                <Card className="border-border/50 shadow-sm">
+                  <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-border/30">
+                    <CardTitle className="text-base sm:text-lg">
+                      {t("settings.operational.title")}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                      {t("settings.operational.desc")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6">
+                    <FormField
+                      control={form.control}
+                      name="warranty_text"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelStyle}>
+                            {t("settings.operational.warranty_label")}
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className={`${textareaStyle} min-h-37.5 sm:min-h-50`}
+                              disabled={isStorePending}
+                              spellCheck={false}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-[10px] sm:text-xs" />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* TABS CONTENT: PAYMENT */}
+              <TabsContent value="payment" className="mt-2 outline-none">
+                <Card className="border-border/50 shadow-sm">
+                  <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-border/30">
+                    <CardTitle className="text-base sm:text-lg">
+                      {t("settings.payment_info.title")}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                      {t("settings.payment_info.desc")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6">
+                    <FormField
+                      control={form.control}
+                      name="payment_info"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className={labelStyle}>
+                            {t("settings.payment_info.bank_label")}
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              {...field}
+                              className={`${textareaStyle} min-h-37.5 sm:min-h-50`}
+                              disabled={isStorePending}
+                              spellCheck={false}
+                            />
+                          </FormControl>
+                          <FormMessage className="text-[10px] sm:text-xs" />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* TABS CONTENT: INTEGRATIONS */}
+              <TabsContent value="integrations" className="mt-2 outline-none">
+                <Card className="border-border/50 shadow-sm overflow-hidden">
+                  <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-border/30 bg-muted/10">
+                    <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                      <Smartphone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
+                      {t("settings.whatsapp.title")}
+                    </CardTitle>
+                    <CardDescription className="text-xs sm:text-sm">
+                      {t("settings.whatsapp.desc")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6">
+                    {!isWaActive ? (
+                      <div className="flex flex-col items-center justify-center p-6 sm:p-10 bg-muted/20 border border-dashed border-border/60 rounded-xl text-center transition-colors hover:bg-muted/30">
+                        <Smartphone className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50 mb-4" />
+                        <h3 className="text-sm sm:text-base font-semibold mb-1">
+                          {t("settings.whatsapp.idle_title")}
+                        </h3>
+                        <p className="text-xs text-muted-foreground max-w-sm mb-6 leading-relaxed">
+                          {t("settings.whatsapp.idle_desc")}
+                        </p>
+                        <Button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setIsWaActive(true);
+                          }}
+                          className="w-full sm:w-auto cursor-pointer text-foreground duration-300"
+                        >
+                          {t("settings.whatsapp.btn_check")}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 bg-muted/10 p-5 sm:p-8 rounded-xl border border-border/50 shadow-inner">
+                        {/* Info Section */}
+                        <div className="flex-1 space-y-4 w-full text-center md:text-left">
+                          <div className="flex items-center justify-center md:justify-start gap-2.5">
+                            <span className="relative flex h-3 w-3">
+                              {waData?.status === "connected" && (
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                              )}
+                              <span
+                                className={`relative inline-flex rounded-full h-3 w-3 ${
+                                  waData?.status === "connected"
+                                    ? "bg-green-500"
+                                    : "bg-destructive"
+                                }`}
+                              ></span>
+                            </span>
+                            <span className="font-semibold text-xs sm:text-sm">
+                              {t("settings.whatsapp.status_label")}:{" "}
+                              {waData?.status === "connected"
+                                ? t("settings.whatsapp.status_connected")
+                                : waData?.status === "loading_qr"
+                                  ? t("settings.whatsapp.status_waiting")
+                                  : t("settings.whatsapp.status_disconnected")}
+                            </span>
+                          </div>
+
+                          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed md:max-w-sm mx-auto md:mx-0">
+                            {t("settings.whatsapp.instruction")}
+                          </p>
+
+                          <div className="pt-2 flex gap-3 justify-center md:justify-start w-full">
+                            {waData?.status === "connected" ? (
+                              <Button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  disconnectMutation.mutate(undefined, {
+                                    onSuccess: () => setIsWaActive(false),
+                                  });
+                                }}
+                                disabled={disconnectMutation.isPending}
+                                variant="destructive"
+                                size="sm"
+                                className="gap-2 cursor-pointer w-full sm:w-auto h-9 duration-300"
+                              >
+                                {disconnectMutation.isPending ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <PowerOff className="h-4 w-4" />
+                                )}
+                                <span className="text-xs sm:text-sm">
+                                  {t("settings.whatsapp.btn_disconnect")}
+                                </span>
+                              </Button>
+                            ) : (
+                              <Button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setIsWaActive(false);
+                                }}
+                                variant="secondary"
+                                size="sm"
+                                className="w-full sm:w-auto h-9 cursor-pointer duration-300 text-foreground"
+                              >
+                                <span className="text-xs sm:text-sm">
+                                  {t("settings.whatsapp.btn_stop")}
+                                </span>
+                              </Button>
+                            )}
+                          </div>
                         </div>
 
-                        <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-                          {t("settings.whatsapp.instruction")}
-                        </p>
-
-                        <div className="pt-2 h-10 flex gap-2">
-                          {waData?.status === "connected" ? (
-                            <Button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                disconnectMutation.mutate(undefined, {
-                                  onSuccess: () => setIsWaActive(false),
-                                });
-                              }}
-                              disabled={disconnectMutation.isPending}
-                              variant="destructive"
-                              size="sm"
-                              className="gap-2 cursor-pointer"
-                            >
-                              {disconnectMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <PowerOff className="h-4 w-4" />
-                              )}
-                              {t("settings.whatsapp.btn_disconnect")}
-                            </Button>
+                        {/* QR Code Section */}
+                        <div className="w-48 sm:w-56 shrink-0 aspect-square bg-white border border-border/80 rounded-2xl flex items-center justify-center shadow-sm overflow-hidden p-3 transition-all duration-500">
+                          {isWaLoading ? (
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                          ) : waData?.status === "connected" ? (
+                            <div className="flex flex-col items-center text-center p-2">
+                              <Smartphone className="h-10 w-10 sm:h-12 sm:w-12 text-green-500 mb-2 sm:mb-3 drop-shadow-sm" />
+                              <p className="text-xs sm:text-sm font-bold text-green-600">
+                                {t("settings.whatsapp.linked_title")}
+                              </p>
+                              <p className="text-[10px] sm:text-xs text-muted-foreground/80 mt-1 leading-tight">
+                                {t("settings.whatsapp.linked_desc")}
+                              </p>
+                            </div>
+                          ) : waData?.status === "loading_qr" &&
+                            waData.qr_code ? (
+                            <img
+                              src={waData.qr_code}
+                              alt="WhatsApp QR Code"
+                              className="w-full h-full object-contain rounded-lg"
+                            />
                           ) : (
-                            <Button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setIsWaActive(false);
-                              }}
-                              variant="secondary"
-                              size="sm"
-                            >
-                              {t("settings.whatsapp.btn_stop")}
-                            </Button>
+                            <div className="flex flex-col items-center text-center p-4">
+                              <QrCode className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/20 mb-2 sm:mb-3 animate-pulse" />
+                              <p className="text-[10px] sm:text-xs text-muted-foreground/60 leading-tight">
+                                {t("settings.whatsapp.generating_qr")}
+                              </p>
+                            </div>
                           )}
                         </div>
                       </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </motion.div>
 
-                      <div className="w-full md:w-48 aspect-square bg-white border border-border rounded-xl flex items-center justify-center shadow-inner overflow-hidden p-2">
-                        {isWaLoading ? (
-                          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                        ) : waData?.status === "connected" ? (
-                          <div className="flex flex-col items-center text-center p-2">
-                            <Smartphone className="h-10 w-10 text-green-500 mb-2" />
-                            <p className="text-xs font-bold text-green-500">
-                              {t("settings.whatsapp.linked_title")}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-1">
-                              {t("settings.whatsapp.linked_desc")}
-                            </p>
-                          </div>
-                        ) : waData?.status === "loading_qr" &&
-                          waData.qr_code ? (
-                          <img
-                            src={waData.qr_code}
-                            alt="WhatsApp QR Code"
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center text-center p-4">
-                            <QrCode className="h-10 w-10 text-muted-foreground/30 mb-2 animate-pulse" />
-                            <p className="text-[10px] text-muted-foreground">
-                              {t("settings.whatsapp.generating_qr")}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-          <div className="mt-auto sticky bottom-0 z-20 flex justify-end gap-3 bg-background py-4 border-t border-border">
+          {/* FOOTER ACTION (STICKY) */}
+          <motion.div
+            variants={itemVariants}
+            className="sticky bottom-0 z-30 pt-4 pb-2 sm:py-4 mt-6 bg-background/95 backdrop-blur border-t border-border flex justify-end px-1"
+          >
             <Button
               type="submit"
               disabled={!form.formState.isDirty || isButtonDisabled}
-              className="w-full sm:w-auto bg-primary text-foreground cursor-pointer"
+              className="w-full sm:w-auto bg-primary text-foreground cursor-pointer h-10 sm:h-11 font-medium shadow-sm transition-all duration-300 active:scale-[0.98]"
             >
               <Eye className="mr-2 h-4 w-4" />
-              {t("settings.footer.btn_preview")}
+              <span className="text-sm">
+                {t("settings.footer.btn_preview")}
+              </span>
             </Button>
-          </div>
+          </motion.div>
         </form>
       </Form>
+
       <PreviewSettingDialog
         open={isPreviewOpen}
         onOpenChange={setIsPreviewOpen}
@@ -582,7 +652,7 @@ const DashboardSettingPage = () => {
         isPending={updateMutation.isPending}
         data={currentFormData}
       />
-    </div>
+    </motion.div>
   );
 };
 

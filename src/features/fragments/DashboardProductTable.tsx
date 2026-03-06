@@ -30,6 +30,16 @@ import { ProductSkeletonTable } from "./Skeleton";
 import RestoreProductForm from "./RestoreProductForm";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { useTranslation } from "react-i18next";
+import { motion, type Variants } from "framer-motion";
+
+const tableRowVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
+};
 
 export function DashboardProductTable({
   products,
@@ -58,21 +68,6 @@ export function DashboardProductTable({
     setIsUpdateStockOpen(true);
   };
 
-  if (isLoading) {
-    return <ProductSkeletonTable />;
-  }
-
-  if (products.length === 0) {
-    return (
-      <NotFoundPage
-        variant="minimal"
-        isDashboard={true}
-        entityName={t("products_management.table.not_found_entity")}
-        onGoBack={() => navigate("/dashboard/products", { replace: true })}
-      />
-    );
-  }
-
   const handleEditProductOpen = (product: ProductResponse) => {
     setSelectedProduct(product);
     setIsEditProductOpen(true);
@@ -88,11 +83,30 @@ export function DashboardProductTable({
     setIsRestoreProductOpen(true);
   };
 
+  if (isLoading) {
+    return <ProductSkeletonTable />;
+  }
+
+  if (products.length === 0) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <NotFoundPage
+          variant="minimal"
+          isDashboard={true}
+          entityName={t("products_management.table.not_found_entity")}
+          onGoBack={() => navigate("/dashboard/products", { replace: true })}
+        />
+      </motion.div>
+    );
+  }
+
   return (
     <>
       <TooltipProvider>
-        <div className="rounded-md border bg-card">
-          <Table className="min-w-200">
+        {/* Responsive Wrapper */}
+        <div className="rounded-md border bg-card overflow-x-auto w-full shadow-sm custom-scrollbar">
+          {/* Lebar Kolom Asli Dipertahankan */}
+          <Table className="min-w-200 w-full text-sm table-fixed">
             <TableHeader>
               <TableRow className="hover:bg-transparent">
                 <TableHead className="w-14 font-bold border-r border-border/60 text-center">
@@ -118,11 +132,6 @@ export function DashboardProductTable({
                       size="icon"
                       className="h-6 w-6 text-muted-foreground hover:text-foreground cursor-pointer"
                       onClick={() => setShowCost(!showCost)}
-                      title={
-                        showCost
-                          ? t("products_management.table.tooltips.hide_cost")
-                          : t("products_management.table.tooltips.show_cost")
-                      }
                     >
                       {showCost ? (
                         <Eye className="size-3.5" />
@@ -135,14 +144,21 @@ export function DashboardProductTable({
                 <TableHead className="w-37.5 font-bold">
                   {t("products_management.table.headers.price")}
                 </TableHead>
-                <TableHead className="w-12.5 text-right font-bold">
+                <TableHead className="w-12.5 text-right pr-6 font-bold">
                   {t("products_management.table.headers.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id}>
+              {products.map((product, index) => (
+                <motion.tr
+                  key={product.id}
+                  className="border-b border-border transition-colors hover:bg-muted/50"
+                  variants={tableRowVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: index * 0.03 }}
+                >
                   <TableCell className="border-r border-border/60 text-center font-medium">
                     <span className="text-xs text-muted-foreground">
                       {product.id}
@@ -184,10 +200,9 @@ export function DashboardProductTable({
                       {product.stock}
                     </span>
                   </TableCell>
-
                   <TableCell className="text-muted-foreground font-mono text-sm truncate">
                     {showCost ? (
-                      formatRupiah(product.cost_price)
+                      formatRupiah(product.cost_price ?? 0)
                     ) : (
                       <span className="tracking-widest text-muted-foreground/50 select-none">
                         •••••••
@@ -199,24 +214,29 @@ export function DashboardProductTable({
                     {formatRupiah(product.price)}
                   </TableCell>
 
-                  <TableCell className="text-right">
-                    <ProductActionMenu
-                      product={product}
-                      onViewDetails={() => handleViewDetail(product)}
-                      onEditProduct={() => handleEditProductOpen(product)}
-                      onUpdateStock={() => handleUpdateStockOpen(product)}
-                      onDeleteProduct={() => handleDeleteProductOpen(product)}
-                      onRestoreProduct={() => handleRestoreProductOpen(product)}
-                      isTrashView={isTrashView ?? false}
-                    />
+                  <TableCell className="text-right pr-6">
+                    <div className="flex justify-end">
+                      <ProductActionMenu
+                        product={product}
+                        onViewDetails={() => handleViewDetail(product)}
+                        onEditProduct={() => handleEditProductOpen(product)}
+                        onUpdateStock={() => handleUpdateStockOpen(product)}
+                        onDeleteProduct={() => handleDeleteProductOpen(product)}
+                        onRestoreProduct={() =>
+                          handleRestoreProductOpen(product)
+                        }
+                        isTrashView={isTrashView ?? false}
+                      />
+                    </div>
                   </TableCell>
-                </TableRow>
+                </motion.tr>
               ))}
             </TableBody>
           </Table>
         </div>
       </TooltipProvider>
 
+      {/* Modals & Forms Dipertahankan Ukuran/Style Aslinya */}
       <UpdateStockForm
         key={selectedProduct ? selectedProduct.id : "reset"}
         open={isUpdateStockOpen}
@@ -224,9 +244,7 @@ export function DashboardProductTable({
         product={selectedProduct}
         onSuccess={() => {
           setIsUpdateStockOpen(false);
-          if (onSuccess) {
-            onSuccess();
-          }
+          if (onSuccess) onSuccess();
         }}
       />
 
@@ -258,15 +276,14 @@ export function DashboardProductTable({
           </div>
         </SheetContent>
       </Sheet>
+
       <DeleteProductForm
         open={isDeleteProductOpen}
         onOpenChange={setIsDeleteProductOpen}
         product={selectedProduct}
         onSuccess={() => {
           setIsDeleteProductOpen(false);
-          if (onSuccess) {
-            onSuccess();
-          }
+          if (onSuccess) onSuccess();
         }}
       />
 
@@ -276,9 +293,7 @@ export function DashboardProductTable({
         product={selectedProduct}
         onSuccess={() => {
           setIsRestoreProductOpen(false);
-          if (onSuccess) {
-            onSuccess();
-          }
+          if (onSuccess) onSuccess();
         }}
       />
     </>

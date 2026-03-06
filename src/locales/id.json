@@ -708,10 +708,13 @@
     "btn_sort": "Sortir",
     "btn_filter": "Filter",
     "btn_trash": "Sampah",
+
     "btn_exit": "Keluar",
     "error_load": "Gagal memuat data pengguna.",
     "unknown_error": "Terjadi kesalahan yang tidak diketahui",
     "btn_try_again": "Coba Lagi",
+    "controls_title": "Filter & Opsi",
+
     "sort": {
       "date_label": "Tanggal",
       "newest": "Terbaru Ditambahkan",
@@ -734,7 +737,9 @@
       "online_label": "Hanya Tampilkan Pengguna Online",
       "online_desc": "Hanya tampilkan pengguna yang aktif di sesi saat ini.",
       "btn_apply": "Terapkan Filter",
-      "btn_clear": "Hapus Filter"
+      "btn_clear": "Hapus Filter",
+      "preferences": "Preferensi",
+      "trash_desc": "Tampilkan pengguna yang dihapus/dihapuskan"
     },
     "table": {
       "not_found_entity": "Pengguna",
@@ -928,7 +933,7 @@
         "click_to_replace": "Klik untuk mengganti",
         "btn_reset": "Atur Ulang",
         "btn_cancel": "Batal",
-        "btn_save": "Simpan Teknisi"
+        "btn_save": "Simpan"
       },
       "edit": {
         "general_title": "Informasi Umum",
@@ -947,7 +952,7 @@
         "active_status_desc": "Teknisi dapat ditugaskan untuk layanan saat aktif.",
         "btn_reset": "Atur Ulang",
         "btn_cancel": "Batal",
-        "btn_save": "Simpan Teknisi"
+        "btn_save": "Simpan"
       },
       "delete": {
         "title": "Hapus Teknisi?",

@@ -16,7 +16,8 @@ export function NumberStepper({
   onBlur,
   onKeyDown,
   onFocus,
-}: NumberStepperProps) {
+  className,
+}: NumberStepperProps & { className?: string }) {
   const safeValue = value ?? 0;
   const displayValue = safeValue === 0 ? "" : safeValue;
 
@@ -51,16 +52,16 @@ export function NumberStepper({
         type="button"
         variant="ghost"
         size="icon"
-        className="h-6 w-6 shrink-0 rounded-r-none border-r-0"
+        className="h-8 w-8 shrink-0 rounded-r-none border-r-0"
         onClick={handleDecrement}
         disabled={disabled || safeValue <= min}
       >
-        <Minus className="size-3" />
+        <Minus className="size-3.5" />
       </Button>
 
       <div className="relative flex-1">
         {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs font-medium text-muted-foreground pointer-events-none">
             {prefix}
           </span>
         )}
@@ -68,9 +69,10 @@ export function NumberStepper({
         <Input
           type="number"
           className={cn(
-            "h-8 rounded-none bg-input/50 border-border text-center",
+            "h-8 rounded-none bg-input/50 border-border text-center", // Base class
             "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none", // Hapus panah bawaan browser
             "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
+            className,
           )}
           placeholder={placeholder}
           value={displayValue}
@@ -81,7 +83,7 @@ export function NumberStepper({
           onFocus={onFocus}
         />
         {suffix && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium pointer-events-none select-none">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-muted-foreground font-medium pointer-events-none select-none">
             {suffix}
           </div>
         )}
@@ -91,11 +93,11 @@ export function NumberStepper({
         type="button"
         variant="ghost"
         size="icon"
-        className="h-6 w-6 shrink-0 rounded-l-none border-l-0"
+        className="h-8 w-8 shrink-0 rounded-l-none border-l-0"
         onClick={handleIncrement}
         disabled={disabled}
       >
-        <Plus className="size-3" />
+        <Plus className="size-3.5" />
       </Button>
     </div>
   );

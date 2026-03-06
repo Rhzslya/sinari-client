@@ -712,6 +712,7 @@
     "error_load": "Failed to load users.",
     "unknown_error": "Unknown error occurred",
     "btn_try_again": "Try Again",
+    "controls_title": "Filters & Options",
     "sort": {
       "date_label": "Date",
       "newest": "Newest Added",
@@ -734,7 +735,9 @@
       "online_label": "Show Online Users Only",
       "online_desc": "Only show users currently active in session.",
       "btn_apply": "Apply Filters",
-      "btn_clear": "Clear Filters"
+      "btn_clear": "Clear Filters",
+      "preferences": "Preferences",
+      "trash_desc": "Show deleted or removed users."
     },
     "table": {
       "not_found_entity": "User",
@@ -928,7 +931,7 @@
         "click_to_replace": "Click to replace",
         "btn_reset": "Reset",
         "btn_cancel": "Cancel",
-        "btn_save": "Save Technician"
+        "btn_save": "Save"
       },
       "edit": {
         "general_title": "General Information",
@@ -947,7 +950,7 @@
         "active_status_desc": "Technicians can be assigned to services when active.",
         "btn_reset": "Reset",
         "btn_cancel": "Cancel",
-        "btn_save": "Save Technician"
+        "btn_save": "Save"
       },
       "delete": {
         "title": "Delete Technician?",

@@ -32,6 +32,19 @@ import RestoreServiceForm from "./RestoreServiceForm";
 import NotFoundPage from "@/pages/NotFoundPage";
 import AnonymizeForm from "./AnonymizeForm";
 import { useTranslation } from "react-i18next";
+import { motion, type Variants } from "framer-motion";
+
+const tableRowVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
+};
 
 const DashboardServiceTable = ({
   services,
@@ -110,22 +123,24 @@ const DashboardServiceTable = ({
 
   if (services.length === 0) {
     return (
-      <NotFoundPage
-        variant="minimal"
-        isDashboard={true}
-        entityName={t("services_management.table.not_found_entity")}
-        onGoBack={() => navigate("/dashboard/services", { replace: true })}
-      />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <NotFoundPage
+          variant="minimal"
+          isDashboard={true}
+          entityName={t("services_management.table.not_found_entity")}
+          onGoBack={() => navigate("/dashboard/services", { replace: true })}
+        />
+      </motion.div>
     );
   }
 
   return (
     <>
       <TooltipProvider>
-        <div className="rounded-md border bg-card">
-          <Table className="min-w-200">
+        <div className="rounded-md border bg-card overflow-x-auto w-full shadow-sm custom-scrollbar">
+          <Table className="min-w-275 w-full text-sm table-fixed">
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
+              <TableRow className="hover:bg-transparent bg-muted/30">
                 <TableHead className="w-32 font-bold border-r border-border/60 text-center">
                   {t("services_management.table.headers.service_id")}
                 </TableHead>
@@ -150,26 +165,32 @@ const DashboardServiceTable = ({
                 <TableHead className="w-37.5 font-bold">
                   {t("services_management.table.headers.date")}
                 </TableHead>
-                <TableHead className="w-12.5 text-right font-bold">
+                <TableHead className="w-12.5 text-right pr-6 font-bold">
                   {t("services_management.table.headers.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services.map((service) => (
-                <TableRow key={service.id}>
+              {services.map((service, index) => (
+                <motion.tr
+                  key={service.id}
+                  className="border-b border-border transition-colors hover:bg-muted/50"
+                  variants={tableRowVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: index * 0.03 }}
+                >
                   <TableCell className="border-r border-border/60 text-center">
                     <span className="font-mono text-xs font-semibold px-2 py-1 rounded-sm tracking-wide">
                       {service.service_id}
                     </span>
                   </TableCell>
+
                   <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <TruncatedTooltip
-                        text={service.customer_name}
-                        className="font-medium text-sm max-w-50"
-                      />
-                    </div>
+                    <TruncatedTooltip
+                      text={service.customer_name}
+                      className="font-medium text-sm max-w-50"
+                    />
                   </TableCell>
 
                   <TableCell>
@@ -179,6 +200,7 @@ const DashboardServiceTable = ({
                       </span>
                     </div>
                   </TableCell>
+
                   <TableCell>
                     <div className="flex flex-col gap-1">
                       <span className="text-sm font-medium truncate max-w-45">
@@ -186,14 +208,14 @@ const DashboardServiceTable = ({
                       </span>
                     </div>
                   </TableCell>
+
                   <TableCell className="text-center">
                     {getStatusBadge(service.status)}
                   </TableCell>
+
                   <TableCell className="font-medium text-sm">
-                    {/* WRAPPER UTAMA: Ini yang membuat kontennya rata tengah */}
                     <div className="flex w-full justify-center">
                       {service.status === ServiceStatus.CANCELLED ? (
-                        // KONDISI 1: CANCELLED (Gunakan warna abu-abu/muted agar beda dengan Lunas)
                         <Badge
                           variant="outline"
                           className="bg-slate-100 text-slate-500 border-slate-200 flex items-center gap-1 whitespace-nowrap"
@@ -201,7 +223,6 @@ const DashboardServiceTable = ({
                           {t("services_management.table.badges.cancelled")}
                         </Badge>
                       ) : service.total_price <= 0 ? (
-                        // KONDISI 2: LUNAS (Warna Hijau)
                         <Badge
                           variant="outline"
                           className="bg-emerald-50 text-emerald-700 border-emerald-200 flex items-center gap-1 whitespace-nowrap"
@@ -209,16 +230,15 @@ const DashboardServiceTable = ({
                           {t("services_management.table.badges.paid_off")}
                         </Badge>
                       ) : (
-                        // KONDISI 3: BELUM LUNAS (Text Orange)
                         <span className="text-orange-600 font-mono">
                           {formatRupiah(service.total_price)}
                         </span>
                       )}
                     </div>
                   </TableCell>
+
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {/* Status Dot */}
                       <div className="relative flex h-2.5 w-2.5 shrink-0">
                         <span
                           className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${service.technician.is_active ? "bg-emerald-400" : "hidden"}`}
@@ -227,7 +247,6 @@ const DashboardServiceTable = ({
                           className={`relative inline-flex rounded-full h-2.5 w-2.5 ${service.technician.is_active ? "bg-emerald-500" : "bg-gray-300"}`}
                         ></span>
                       </div>
-
                       <TruncatedTooltip
                         text={service.technician.name}
                         className={`font-medium text-sm max-w-35 ${!service.technician.is_active ? "text-muted-foreground" : ""}`}
@@ -246,21 +265,25 @@ const DashboardServiceTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-right">
-                    <ServiceActionMenu
-                      service={service}
-                      onViewDetails={() => handleViewDetail(service)}
-                      onEditService={() => handleEditServiceOpen(service)}
-                      onUpdateStatus={() => handleUpdateStatusOpen(service)}
-                      onDeleteService={() => handleDeleteServiceOpen(service)}
-                      onRestoreService={() => handleRestoreServiceOpen(service)}
-                      onAnonymizeCustomerData={() =>
-                        handleAnonymizeCustomerDataOpen(service)
-                      }
-                      isTrashView={isTrashView ?? false}
-                    />
+                  <TableCell className="text-right pr-6">
+                    <div className="flex justify-end">
+                      <ServiceActionMenu
+                        service={service}
+                        onViewDetails={() => handleViewDetail(service)}
+                        onEditService={() => handleEditServiceOpen(service)}
+                        onUpdateStatus={() => handleUpdateStatusOpen(service)}
+                        onDeleteService={() => handleDeleteServiceOpen(service)}
+                        onRestoreService={() =>
+                          handleRestoreServiceOpen(service)
+                        }
+                        onAnonymizeCustomerData={() =>
+                          handleAnonymizeCustomerDataOpen(service)
+                        }
+                        isTrashView={isTrashView ?? false}
+                      />
+                    </div>
                   </TableCell>
-                </TableRow>
+                </motion.tr>
               ))}
             </TableBody>
           </Table>
@@ -268,20 +291,16 @@ const DashboardServiceTable = ({
       </TooltipProvider>
 
       <Sheet open={isEditServiceOpen} onOpenChange={setIsEditServiceOpen}>
-        <SheetContent
-          className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
+        <SheetContent className="w-[90vw] sm:max-w-xl flex flex-col h-full p-0 gap-0">
           <SheetHeader className="px-6 py-4 border-b">
             <SheetTitle className="text-xl text-primary">
               {t("services_management.sheet.edit_title")}
             </SheetTitle>
+            <SheetDescription className="sr-only">
+              {t("services_management.sheet.edit_desc")}
+            </SheetDescription>
           </SheetHeader>
-          <SheetDescription className="sr-only">
-            {t("services_management.sheet.edit_desc")}
-          </SheetDescription>
-
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
             {selectedService && (
               <EditServiceForm
                 service={selectedService}
@@ -302,9 +321,7 @@ const DashboardServiceTable = ({
         onOpenChange={setIsUpdateStatusOpen}
         onSuccess={() => {
           setIsUpdateStatusOpen(false);
-          if (onSuccess) {
-            onSuccess();
-          }
+          if (onSuccess) onSuccess();
         }}
       />
 
@@ -314,9 +331,7 @@ const DashboardServiceTable = ({
         service={selectedService}
         onSuccess={() => {
           setIsDeleteServiceOpen(false);
-          if (onSuccess) {
-            onSuccess();
-          }
+          if (onSuccess) onSuccess();
         }}
       />
 
@@ -326,9 +341,7 @@ const DashboardServiceTable = ({
         service={selectedService}
         onSuccess={() => {
           setIsRestoreServiceOpen(false);
-          if (onSuccess) {
-            onSuccess();
-          }
+          if (onSuccess) onSuccess();
         }}
       />
 
@@ -338,9 +351,7 @@ const DashboardServiceTable = ({
         service={selectedService}
         onSuccess={() => {
           setIsAnonymizeCustomerDataOpen(false);
-          if (onSuccess) {
-            onSuccess();
-          }
+          if (onSuccess) onSuccess();
         }}
       />
     </>
