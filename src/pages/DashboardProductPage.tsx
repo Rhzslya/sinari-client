@@ -707,7 +707,7 @@ const DashboardProductPage = () => {
                   </Button>
                 </SheetTrigger>
 
-                <SheetContent className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0">
+                <SheetContent className="flex flex-col h-full p-0 gap-0 sm:max-w-xl">
                   <SheetHeader className="px-6 py-4 border-b">
                     <SheetTitle className="text-xl text-primary">
                       {t("products_management.sheet.add_title")}
@@ -718,7 +718,10 @@ const DashboardProductPage = () => {
                   </SheetDescription>
 
                   <div className="flex-1 overflow-hidden">
-                    <CreateProductForm onSuccess={handleCreateSuccess} />
+                    <CreateProductForm
+                      onSuccess={handleCreateSuccess}
+                      onCancel={() => setIsAddSheetOpen(false)}
+                    />
                   </div>
                 </SheetContent>
               </Sheet>
@@ -743,7 +746,6 @@ const DashboardProductPage = () => {
           {/* MOBILE CONTROLS (HAMBURGER SHEET)                         */}
           {/* ========================================================= */}
           <div className="flex md:hidden items-center gap-2 ml-auto">
-            {/* ADD BUTTON MOBILE */}
             {!isTrashMode && (
               <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
                 <SheetTrigger asChild>
@@ -757,7 +759,8 @@ const DashboardProductPage = () => {
                     </span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="w-[95vw] sm:max-w-xl flex flex-col h-full p-0 gap-0 overflow-y-auto">
+
+                <SheetContent className="flex flex-col h-full p-0 gap-0 overflow-y-auto sm:max-w-xl">
                   <SheetHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b">
                     <SheetTitle className="text-lg sm:text-xl text-primary outline-none">
                       {t("products_management.sheet.add_title")}
@@ -767,7 +770,10 @@ const DashboardProductPage = () => {
                     </SheetDescription>
                   </SheetHeader>
                   <div className="flex-1 overflow-x-hidden p-1">
-                    <CreateProductForm onSuccess={handleCreateSuccess} />
+                    <CreateProductForm
+                      onSuccess={handleCreateSuccess}
+                      onCancel={() => setIsAddSheetOpen(false)}
+                    />
                   </div>
                 </SheetContent>
               </Sheet>

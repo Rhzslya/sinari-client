@@ -1334,53 +1334,59 @@
     },
     "detail": {
       "header_title": "Service Details",
-      "header_subtitle": "Manage repair service",
+      "header_subtitle": "Manage repair service data and progress",
       "device_card": {
-        "device": "Device",
+        "device": "Customer Device",
         "service_id": "Service ID",
         "problem_desc": "Problem Description",
-        "no_description": "No description provided."
+        "no_description": "No description or notes provided."
       },
       "cost_card": {
         "title": "Cost & Billing",
-        "th_service_name": "Service Name",
+        "th_service_name": "Service / Action",
         "th_cost": "Cost",
         "subtotal": "Subtotal",
-        "disc": "Disc",
+        "disc": "Discount",
         "down_payment": "Down Payment",
         "cancelled": "Cancelled",
         "total_due": "Total Due"
       },
       "quick_actions": {
         "title": "Quick Actions",
-        "edit_service": "Edit Service",
+        "edit_service": "Edit Service Data",
         "update_status": "Update Status",
-        "download_pdf": "Download PDF",
-        "delete_service": "Delete Service"
+        "download_pdf": "Download / Print Invoice",
+        "delete_service": "Delete Service Data"
       },
       "technician_card": {
-        "title": "Technician",
+        "title": "Assigned Technician",
         "inactive": "Inactive",
-        "signature": "Signature",
-        "no_signature": "No Signature",
+        "signature": "Technician Signature",
+        "no_signature": "No signature provided.",
         "internal_note": "Internal Note",
-        "no_note": "No internal notes.",
-        "unassigned": "No technician assigned"
+        "no_note": "No internal notes provided.",
+        "unassigned": "No technician assigned yet."
       },
       "system_info": {
-        "title": "System Info",
+        "title": "System Information",
         "tracking_token": "Tracking Token",
         "created_at": "Created At",
-        "last_updated": "Last Updated"
+        "last_updated": "Last Updated",
+        "live_tracking": "Customer Live Tracking",
+        "tracking_desc": "Share this link with the customer to let them track their service status."
       },
       "toast": {
-        "service_not_loaded": "Service data not loaded yet",
-        "settings_not_loaded": "Settings data not loaded yet. Please wait.",
+        "service_not_loaded": "Service data is loading, please wait.",
+        "settings_not_loaded": "Loading store settings. Please wait.",
         "generating_pdf": "Generating Invoice PDF...",
-        "pdf_downloaded": "Invoice Downloaded!",
-        "pdf_failed": "Failed to generate PDF",
+        "pdf_downloaded": "Invoice successfully downloaded!",
+        "pdf_failed": "Failed to generate the document.",
         "token_copied": "Tracking link copied to clipboard!"
       }
+    },
+    "common": {
+      "copy_link": "Copy Link",
+      "open_link": "Open Page"
     }
   },
   "activity_log": {

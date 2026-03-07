@@ -291,16 +291,22 @@ const DashboardServiceTable = ({
       </TooltipProvider>
 
       <Sheet open={isEditServiceOpen} onOpenChange={setIsEditServiceOpen}>
-        <SheetContent className="w-[90vw] sm:max-w-xl flex flex-col h-full p-0 gap-0">
-          <SheetHeader className="px-6 py-4 border-b">
-            <SheetTitle className="text-xl text-primary">
+        <SheetContent
+          className="flex flex-col h-full p-0 gap-0 sm:max-w-xl"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
+          <SheetHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b">
+            <SheetTitle
+              className="text-lg sm:text-xl text-primary outline-none"
+              tabIndex={-1}
+            >
               {t("services_management.sheet.edit_title")}
             </SheetTitle>
             <SheetDescription className="sr-only">
               {t("services_management.sheet.edit_desc")}
             </SheetDescription>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-x-hidden p-1">
             {selectedService && (
               <EditServiceForm
                 service={selectedService}

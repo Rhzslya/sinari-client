@@ -250,19 +250,22 @@ export function DashboardProductTable({
 
       <Sheet open={isEditProductOpen} onOpenChange={setIsEditProductOpen}>
         <SheetContent
-          className="w-100 sm:max-w-xl flex flex-col h-full p-0 gap-0"
+          className="flex flex-col h-full p-0 gap-0 sm:max-w-xl"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          <SheetHeader className="px-6 py-4 border-b">
-            <SheetTitle className="text-xl text-primary">
+          <SheetHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b">
+            <SheetTitle
+              className="text-lg sm:text-xl text-primary outline-none"
+              tabIndex={-1}
+            >
               {t("products_management.sheet.edit_title")}
             </SheetTitle>
+            <SheetDescription className="sr-only">
+              {t("products_management.sheet.edit_desc")}
+            </SheetDescription>
           </SheetHeader>
-          <SheetDescription className="sr-only">
-            {t("products_management.sheet.edit_desc")}
-          </SheetDescription>
 
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-x-hidden p-1">
             {selectedProduct && (
               <EditProductForm
                 product={selectedProduct}

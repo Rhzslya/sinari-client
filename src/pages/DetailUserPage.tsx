@@ -34,6 +34,21 @@ import { FcGoogle } from "react-icons/fc";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { motion, type Variants } from "framer-motion";
+
+// 👇 Setup Animasi
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+};
 
 const DetailUserPage = () => {
   const { userId } = useParams();
@@ -221,335 +236,400 @@ const DetailUserPage = () => {
 
   const haveGoogleAuth = user?.google_id !== null;
 
-  if (isError || !user)
-    return <div className="p-4">{t("users_management.detail.not_found")}</div>;
+  if (isLoading) {
+    return (
+      <div className="p-4 text-sm text-muted-foreground flex items-center gap-2">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        {t("users_management.detail.loading")}
+      </div>
+    );
+  }
 
-  if (isLoading)
-    return <div className="p-4">{t("users_management.detail.loading")}</div>;
+  if (isError || !user) {
+    return (
+      <div className="p-4 text-sm text-destructive">
+        {t("users_management.detail.not_found")}
+      </div>
+    );
+  }
+
+  const labelStyle =
+    "text-[10px] sm:text-xs uppercase text-muted-foreground font-semibold tracking-wider";
+  const valueStyle = "font-medium text-xs sm:text-sm";
 
   return (
     <>
-      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-        <div className="flex items-center gap-4">
+      <motion.div
+        className="space-y-4 sm:space-y-6 pb-10 overflow-x-hidden"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div
+          variants={itemVariants}
+          className="flex items-center gap-3 sm:gap-4 w-full"
+        >
           <Button
             variant="outline"
             size="icon"
             onClick={() => navigate("/dashboard/users")}
-            className="cursor-pointer"
+            className="cursor-pointer shrink-0 h-8 w-8 sm:h-10 sm:w-10"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight truncate">
               {t("users_management.detail.header_title")}
             </h1>
-            <span className="text-sm text-muted-foreground truncate max-w-[320px]">
-              {t("users_management.detail.header_subtitle")}
-            </span>
-            <span className="inline-flex align-middle max-w-37.5">
+            <div className="flex items-center text-xs sm:text-sm text-muted-foreground truncate">
+              <span className="truncate mr-1">
+                {t("users_management.detail.header_subtitle")}
+              </span>
               <TruncatedTooltip
                 text={user.username || ""}
-                className="font-semibold text-sm text-foreground max-w-37.5 truncate"
+                className="font-semibold text-foreground truncate"
               />
-            </span>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 auto-rows-fr">
-          <Card className="xl:col-span-2 h-full flex flex-col">
-            <CardHeader className="bg-muted/10 pb-8">
-              <div className="flex items-center gap-4">
-                <Avatar className="w-17 h-17 border-2 border-background shadow-sm">
-                  <AvatarFallback className="text-2xl font-bold text-foreground bg-primary border-3 border-muted">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-2xl">{user.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-2 mt-1">
-                    <TruncatedTooltip
-                      text={user.username}
-                      className="max-w-100"
-                    />
-                    {user.is_online ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr">
+          {/* 1. PROFILE CARD */}
+          <motion.div
+            variants={itemVariants}
+            className="lg:col-span-2 flex h-full"
+          >
+            <Card className="w-full flex flex-col shadow-sm">
+              <CardHeader className="pb-6 sm:pb-8">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <Avatar className="w-14 h-14 sm:w-20 sm:h-20  outline-2 outline-offset-2 outline-primary/20 shadow-sm shrink-0">
+                    <AvatarFallback className="text-xl sm:text-3xl font-bold text-primary bg-primary/5 border border-primary/10">
+                      {getInitials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg sm:text-2xl truncate pr-2">
+                      {user.name}
+                    </CardTitle>
+                    <CardDescription className="flex flex-wrap items-center gap-2 mt-1 sm:mt-1.5">
+                      <TruncatedTooltip
+                        text={user.username}
+                        className="max-w-30 sm:max-w-xs text-xs sm:text-sm"
+                      />
+                      {user.is_online ? (
+                        <Badge
+                          variant="outline"
+                          className="text-green-600 bg-green-50 border-green-200 text-[10px] sm:text-xs py-0 h-5"
+                        >
+                          {t("users_management.table.status.online")}
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] sm:text-xs py-0 h-5 text-muted-foreground"
+                        >
+                          {t("users_management.table.status.offline")}
+                        </Badge>
+                      )}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="-mt-4 sm:-mt-6 flex-1 px-4 sm:px-6">
+                <div className="bg-card border rounded-lg p-4 sm:p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 h-full">
+                  <div className="space-y-1 sm:space-y-1.5">
+                    <label className={labelStyle}>
+                      {t("users_management.detail.profile.email")}
+                    </label>
+                    <div className={`${valueStyle} flex items-center gap-2`}>
+                      <TruncatedTooltip
+                        text={user.email}
+                        className="max-w-45 sm:max-w-55"
+                      />
+                      {user.is_verified && (
+                        <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 sm:space-y-1.5 md:text-center">
+                    <label className={labelStyle}>
+                      {t("users_management.detail.profile.user_id")}
+                    </label>
+                    <div
+                      className={`${valueStyle} font-mono bg-muted/50 w-fit md:mx-auto px-2 py-0.5 rounded border`}
+                    >
+                      #{user.id}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 sm:space-y-1.5">
+                    <label className={labelStyle}>
+                      {t("users_management.detail.profile.auth_method")}
+                    </label>
+                    <div className={`${valueStyle} flex items-center gap-2`}>
+                      {user.google_id ? (
+                        <FcGoogle className="w-4 h-4 shrink-0" />
+                      ) : (
+                        <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
+                      )}
+                      <span className="truncate">
+                        {user.google_id
+                          ? t("users_management.detail.profile.google_oauth")
+                          : t("users_management.detail.profile.standard_email")}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 sm:space-y-1.5 md:text-center">
+                    <label className={labelStyle}>
+                      {t("users_management.detail.profile.role")}
+                    </label>
+                    <div>
                       <Badge
                         variant="outline"
-                        className="text-green-600 bg-green-50 border-green-200"
+                        className={`capitalize min-w-20 justify-center border text-[10px] sm:text-xs ${getRoleBadgeColor(user.role)}`}
                       >
-                        {t("users_management.table.status.online")}
+                        {user.role.toLowerCase()}
                       </Badge>
-                    ) : (
-                      <Badge variant="outline">
-                        {t("users_management.table.status.offline")}
-                      </Badge>
-                    )}
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="-mt-4 flex-1">
-              <div className="bg-card border rounded-lg p-6 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-                <div className="space-y-1">
-                  <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    {t("users_management.detail.profile.email")}
-                  </label>
-                  <div className="font-medium flex items-center gap-2">
-                    <TruncatedTooltip text={user.email} className="max-w-100" />
-                    {user.is_verified && (
-                      <CheckCircle2 className="w-4 h-4 text-blue-500" />
-                    )}
+                    </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-                <div className="space-y-1 text-center">
-                  <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    {t("users_management.detail.profile.user_id")}
-                  </label>
-                  <div className="font-medium font-mono text-sm bg-muted/50 w-fit mx-auto px-2 py-0.5 rounded border">
-                    #{user.id}
-                  </div>
-                </div>
+          {/* 2. QUICK ACTIONS CARD */}
+          <motion.div variants={itemVariants} className="flex h-full">
+            <Card className="bg-muted/30 w-full flex flex-col shadow-sm border-dashed sm:border-solid border-2 sm:border">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="text-sm sm:text-base">
+                  {t("users_management.detail.quick_actions.title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2.5 sm:gap-3 flex-1">
+                <Button
+                  className="w-full justify-start duration-300 cursor-pointer h-9 sm:h-10 text-xs sm:text-sm"
+                  variant="outline"
+                  disabled={
+                    isCurrentUser ||
+                    verifyLoading ||
+                    verifyCooldown > 0 ||
+                    user.is_verified ||
+                    isRateLimited(user.resend_count)
+                  }
+                  onClick={handleResendVerification}
+                >
+                  {verifyLoading ? (
+                    <Loader2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin shrink-0" />
+                  ) : (
+                    <Mail className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
+                  )}
 
-                <div className="space-y-1">
-                  <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    {t("users_management.detail.profile.auth_method")}
-                  </label>
-                  <div className="font-medium flex items-center gap-2">
-                    {user.google_id ? (
-                      <FcGoogle className="w-4 h-4" />
-                    ) : (
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                    )}
-                    {user.google_id
-                      ? t("users_management.detail.profile.google_oauth")
-                      : t("users_management.detail.profile.standard_email")}
-                  </div>
-                </div>
-                <div className="space-y-1 text-center">
-                  <label className="text-xs uppercase text-muted-foreground font-semibold">
-                    {t("users_management.detail.profile.role")}
-                  </label>
-                  <div className="font-medium">
-                    <Badge
-                      variant="outline"
-                      className={`capitalize min-w-20 justify-center border ${getRoleBadgeColor(user.role)}`}
-                    >
-                      {user.role.toLowerCase()}
-                    </Badge>{" "}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  <span className="truncate">
+                    {verifyCooldown > 0
+                      ? t("users_management.detail.quick_actions.resend_in", {
+                          seconds: verifyCooldown,
+                        })
+                      : user.is_verified
+                        ? t(
+                            "users_management.detail.quick_actions.already_verified",
+                          )
+                        : t(
+                            "users_management.detail.quick_actions.resend_verify",
+                          )}
+                  </span>
+                </Button>
 
-          <Card className="bg-muted/40 h-full flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-base">
-                {t("users_management.detail.quick_actions.title")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3 flex-1">
-              <Button
-                className="w-full justify-start duration-300 cursor-pointer"
-                variant="outline"
-                disabled={
-                  isCurrentUser ||
-                  verifyLoading ||
-                  verifyCooldown > 0 ||
-                  user.is_verified ||
-                  isRateLimited(user.resend_count)
-                }
-                onClick={handleResendVerification}
-              >
-                {verifyLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Mail className="mr-2 h-4 w-4" />
-                )}
+                <Button
+                  className="w-full justify-start duration-300 cursor-pointer h-9 sm:h-10 text-xs sm:text-sm"
+                  variant="outline"
+                  disabled={
+                    isCurrentUser ||
+                    resetLoading ||
+                    resetCooldown > 0 ||
+                    haveGoogleAuth ||
+                    isRateLimited(user.pass_reset_count)
+                  }
+                  onClick={handleResendResetPassword}
+                >
+                  {resetLoading ? (
+                    <Loader2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin shrink-0" />
+                  ) : (
+                    <RefreshCcw className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
+                  )}
 
-                {verifyCooldown > 0
-                  ? t("users_management.detail.quick_actions.resend_in", {
-                      seconds: verifyCooldown,
-                    })
-                  : user.is_verified
-                    ? t(
-                        "users_management.detail.quick_actions.already_verified",
-                      )
-                    : t("users_management.detail.quick_actions.resend_verify")}
-              </Button>
-              <Button
-                className="w-full justify-start duration-300 cursor-pointer"
-                variant="outline"
-                disabled={
-                  isCurrentUser ||
-                  resetLoading ||
-                  resetCooldown > 0 ||
-                  haveGoogleAuth ||
-                  isRateLimited(user.pass_reset_count)
-                }
-                onClick={handleResendResetPassword}
-              >
-                {resetLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCcw className="mr-2 h-4 w-4" />
-                )}
+                  <span className="truncate">
+                    {isRateLimited(user.pass_reset_count)
+                      ? t("users_management.detail.quick_actions.daily_limit")
+                      : resetCooldown > 0
+                        ? t("users_management.detail.quick_actions.resend_in", {
+                            seconds: resetCooldown,
+                          })
+                        : t(
+                            "users_management.detail.quick_actions.resend_reset",
+                          )}
+                  </span>
+                </Button>
 
-                {isRateLimited(user.pass_reset_count)
-                  ? t("users_management.detail.quick_actions.daily_limit")
-                  : resetCooldown > 0
-                    ? t("users_management.detail.quick_actions.resend_in", {
-                        seconds: resetCooldown,
-                      })
-                    : t("users_management.detail.quick_actions.resend_reset")}
-              </Button>
-              <Button
-                onClick={() => handleUpdateRoleOpen(user)}
-                className="w-full justify-start duration-300 cursor-pointer"
-                variant="outline"
-                disabled={isChangeRoleDisabled}
-              >
-                <Pen className="mr-2 h-4 w-4" />{" "}
-                {t("users_management.detail.quick_actions.change_role")}
-              </Button>
-              <Button
-                onClick={() => handleDeleteUserOpen(user)}
-                className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer"
-                variant="outline"
-                disabled={isDeleteDisabled}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />{" "}
-                {t("users_management.detail.quick_actions.delete_user")}
-              </Button>
-            </CardContent>
-          </Card>
+                <Button
+                  onClick={() => handleUpdateRoleOpen(user)}
+                  className="w-full justify-start duration-300 cursor-pointer h-9 sm:h-10 text-xs sm:text-sm"
+                  variant="outline"
+                  disabled={isChangeRoleDisabled}
+                >
+                  <Pen className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
+                  <span className="truncate">
+                    {t("users_management.detail.quick_actions.change_role")}
+                  </span>
+                </Button>
 
-          <Card className="xl:col-span-2 h-full flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-lg flex gap-2 items-center">
-                <Activity className="w-5 h-5 text-orange-600" />{" "}
-                {t("users_management.detail.activity_limits.title")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
+                <Button
+                  onClick={() => handleDeleteUserOpen(user)}
+                  className="w-full justify-start text-destructive hover:text-red-700 hover:bg-red-50 duration-300 cursor-pointer h-9 sm:h-10 text-xs sm:text-sm"
+                  variant="outline"
+                  disabled={isDeleteDisabled}
+                >
+                  <Trash2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                  <span className="truncate">
+                    {t("users_management.detail.quick_actions.delete_user")}
+                  </span>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* 3. ACTIVITY LIMITS CARD */}
+          <motion.div
+            variants={itemVariants}
+            className="lg:col-span-2 flex h-full"
+          >
+            <Card className="w-full flex flex-col shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-base sm:text-lg flex gap-2 items-center">
+                  <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                  {t("users_management.detail.activity_limits.title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col justify-center">
+                <div className="space-y-6 sm:space-y-8">
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between items-end text-xs sm:text-sm">
+                      <span className="text-muted-foreground font-medium">
+                        {t(
+                          "users_management.detail.activity_limits.verify_attempts",
+                        )}
+                      </span>
+                      <span
+                        className={`font-mono ${isRateLimited(user.resend_count) ? "text-destructive font-bold" : "text-foreground font-semibold"}`}
+                      >
+                        {user.resend_count} / 5
+                      </span>
+                    </div>
+                    <div className="h-2 w-full bg-secondary/60 rounded-full overflow-hidden border border-border/50">
+                      <div
+                        className={`h-full transition-all duration-1000 ${isRateLimited(user.resend_count) ? "bg-destructive" : "bg-orange-500"}`}
+                        style={{ width: `${(user.resend_count / 5) * 100}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground text-right">
                       {t(
-                        "users_management.detail.activity_limits.verify_attempts",
-                      )}
-                    </span>
-                    <span
-                      className={
-                        isRateLimited(user.resend_count)
-                          ? "text-destructive font-bold"
-                          : ""
-                      }
-                    >
-                      {user.resend_count} / 5
-                    </span>
+                        "users_management.detail.activity_limits.last_attempt",
+                      )}{" "}
+                      <span className="font-medium">
+                        {formatDate(user.last_resend_time)}
+                      </span>
+                    </p>
                   </div>
-                  <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${
-                        isRateLimited(user.resend_count)
-                          ? "bg-destructive"
-                          : "bg-primary"
-                      }`}
-                      style={{ width: `${(user.resend_count / 5) * 100}%` }}
-                    />
+
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between items-end text-xs sm:text-sm">
+                      <span className="text-muted-foreground font-medium">
+                        {t(
+                          "users_management.detail.activity_limits.reset_attempts",
+                        )}
+                      </span>
+                      <span
+                        className={`font-mono ${isRateLimited(user.pass_reset_count) ? "text-destructive font-bold" : "text-foreground font-semibold"}`}
+                      >
+                        {user.pass_reset_count} / 5
+                      </span>
+                    </div>
+                    <div className="h-2 w-full bg-secondary/60 rounded-full overflow-hidden border border-border/50">
+                      <div
+                        className={`h-full transition-all duration-1000 ${isRateLimited(user.pass_reset_count) ? "bg-destructive" : "bg-orange-500"}`}
+                        style={{
+                          width: `${(user.pass_reset_count / 5) * 100}%`,
+                        }}
+                      />
+                    </div>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground text-right">
+                      {t(
+                        "users_management.detail.activity_limits.last_attempt",
+                      )}{" "}
+                      <span className="font-medium">
+                        {formatDate(user.pass_reset_last_time)}
+                      </span>
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground text-right">
-                    {t("users_management.detail.activity_limits.last_attempt")}{" "}
-                    {formatDate(user.last_resend_time)}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* 4. SYSTEM TIME CARD */}
+          <motion.div variants={itemVariants} className="flex h-full">
+            <Card className="w-full flex flex-col shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-sm sm:text-base flex gap-2 items-center">
+                  <CalendarClock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                  {t("users_management.detail.system_time.title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col justify-center space-y-5 sm:space-y-6">
+                <div className="space-y-1 sm:space-y-1.5">
+                  <label className={labelStyle}>
+                    {t("users_management.detail.system_time.created_at")}
+                  </label>
+                  <p className={`${valueStyle} border-b border-border/50 pb-2`}>
+                    {formatDate(user.created_at)}
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t(
-                        "users_management.detail.activity_limits.reset_attempts",
-                      )}
-                    </span>
-                    <span
-                      className={
-                        isRateLimited(user.pass_reset_count)
-                          ? "text-destructive font-bold"
-                          : ""
-                      }
-                    >
-                      {user.pass_reset_count} / 5
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${
-                        isRateLimited(user.pass_reset_count)
-                          ? "bg-destructive"
-                          : "bg-primary"
-                      }`}
-                      style={{
-                        width: `${(user.pass_reset_count / 5) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground text-right">
-                    {t("users_management.detail.activity_limits.last_attempt")}{" "}
-                    {formatDate(user.pass_reset_last_time)}
+                <div className="space-y-1 sm:space-y-1.5">
+                  <label className={labelStyle}>
+                    {t("users_management.detail.system_time.last_updated")}
+                  </label>
+                  <p className={`${valueStyle} border-b border-border/50 pb-2`}>
+                    {formatDate(user.updated_at)}
                   </p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="h-full flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-base flex gap-2 items-center">
-                <CalendarClock className="w-5 h-5 text-blue-600" />{" "}
-                {t("users_management.detail.system_time.title")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 flex-1">
-              <div className="space-y-1">
-                <label className="text-xs uppercase text-muted-foreground font-semibold">
-                  {t("users_management.detail.system_time.created_at")}
-                </label>
-                <p className="font-medium text-sm border-b pb-2">
-                  {formatDate(user.created_at)}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs uppercase text-muted-foreground font-semibold">
-                  {t("users_management.detail.system_time.last_updated")}
-                </label>
-                <p className="font-medium text-sm border-b pb-2">
-                  {formatDate(user.updated_at)}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <div
-                  className={`w-2 h-2 rounded-full ${user.updated_at === user.created_at ? "bg-slate-300" : "bg-emerald-500"}`}
-                ></div>
-                <span className="text-xs text-muted-foreground">
-                  {user.updated_at === user.created_at
-                    ? t("users_management.detail.system_time.no_modifications")
-                    : t("users_management.detail.system_time.data_modified")}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="flex items-center gap-2 pt-1 sm:pt-2">
+                  <div
+                    className={`w-2 h-2 rounded-full shrink-0 ${user.updated_at === user.created_at ? "bg-slate-300 dark:bg-slate-600" : "bg-emerald-500 animate-pulse"}`}
+                  ></div>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">
+                    {user.updated_at === user.created_at
+                      ? t(
+                          "users_management.detail.system_time.no_modifications",
+                        )
+                      : t("users_management.detail.system_time.data_modified")}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
+
+      {/* DIALOGS */}
       <UpdateRoleForm
         open={isUpdateRoleOpen}
         onOpenChange={setIsUpdateRoleOpen}
         user={selectedUser}
         onSuccess={() => {
-          setIsDeleteUserOpen(false);
+          setIsUpdateRoleOpen(false);
         }}
       />
 

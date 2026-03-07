@@ -40,9 +40,23 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 
 const BRAND_OPTIONS = Object.values(Brand);
 const CATEGORY_OPTIONS = Object.values(Category);
+
+const formContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const formItemVariants: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+};
 
 interface ProductFormProps {
   product: ProductResponse;
@@ -185,6 +199,7 @@ export function EditProductForm({
       image: undefined,
     });
     setPreview(product.image_url || null);
+    setIsImageDeleted(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -221,18 +236,18 @@ export function EditProductForm({
   }, [isRateLimited, error, cooldown, startCooldown, reset]);
 
   const inputStyle =
-    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-xs sm:text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-9 sm:h-10";
   const labelStyle =
-    "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+    "text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider";
 
   return (
     <Form {...formUpdate}>
       <form
         onSubmit={(e) => void formUpdate.handleSubmit(onSubmit)(e)}
-        className="flex flex-col h-full"
+        className="flex flex-col h-full relative"
       >
         <div
-          className="flex-1 overflow-y-auto px-6 py-6 
+          className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 
             [&::-webkit-scrollbar]:w-1
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-primary/20 
@@ -240,393 +255,432 @@ export function EditProductForm({
             hover:[&::-webkit-scrollbar-thumb]:bg-primary
             transition-colors"
         >
-          <div className="grid gap-5">
-            {(cooldown > 0 || isRateLimited) && (
-              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
-                <div className="space-y-1 flex flex-col justify-center items-center">
-                  <AlertTriangle className="h-7 w-7 shrink-0" />
-                  <p className="font-semibold text-xs uppercase">
-                    {t("products_management.forms.common.action_paused")}
-                  </p>
-                  <p
-                    className="text-xs opacity-90"
-                    dangerouslySetInnerHTML={{
-                      __html: t(
-                        "products_management.forms.common.too_many_attempts",
-                      ).replace(
-                        "{{seconds}}",
-                        String(cooldown).padStart(2, "0"),
-                      ),
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div>
-              <h3 className="text-base font-semibold tracking-tight">
-                {t("products_management.forms.edit.general_title")}
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {t("products_management.forms.edit.general_desc")}
-              </p>
-            </div>
-
-            <FormField
-              control={formUpdate.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="relative grid gap-2 space-y-0">
-                  <FormLabel className={labelStyle}>
-                    {t("products_management.forms.edit.name_label")}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="off"
-                      placeholder={t(
-                        "products_management.forms.edit.name_placeholder",
-                      )}
-                      className={inputStyle}
-                      {...field}
-                      disabled={isPending}
+          <motion.div
+            className="grid gap-8 sm:gap-10 pb-8 sm:pb-12"
+            variants={formContainerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <AnimatePresence>
+              {(cooldown > 0 || isRateLimited) && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20"
+                >
+                  <div className="space-y-1 flex flex-col justify-center items-center">
+                    <AlertTriangle className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
+                    <p className="font-semibold text-[10px] sm:text-xs uppercase">
+                      {t("products_management.forms.common.action_paused")}
+                    </p>
+                    <p
+                      className="text-[10px] sm:text-xs opacity-90 text-center"
+                      dangerouslySetInnerHTML={{
+                        __html: t(
+                          "products_management.forms.common.too_many_attempts",
+                        ).replace(
+                          "{{seconds}}",
+                          String(cooldown).padStart(2, "0"),
+                        ),
+                      }}
                     />
-                  </FormControl>
-                  <FormMessage className="absolute -bottom-4 left-0 text-xs" />
-                </FormItem>
+                  </div>
+                </motion.div>
               )}
-            />
+            </AnimatePresence>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={formUpdate.control}
-                name="brand"
-                render={({ field }) => (
-                  <FormItem className="relative grid gap-2 space-y-0 py-0">
-                    <FormLabel className={labelStyle}>
-                      {t("products_management.forms.edit.brand_label")}
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={isPending}
-                    >
-                      <FormControl>
-                        <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue
-                            placeholder={t(
-                              "products_management.forms.edit.brand_placeholder",
-                            )}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {BRAND_OPTIONS.map((brand) => (
-                          <SelectItem key={brand} value={brand}>
-                            {brand}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage className="text-xs" />
-                  </FormItem>
-                )}
-              />
+            {/* GENERAL SECTION */}
+            <motion.div variants={formItemVariants} className="space-y-7">
+              <div>
+                <h3 className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
+                  {t("products_management.forms.edit.general_title")}
+                </h3>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                  {t("products_management.forms.edit.general_desc")}
+                </p>
+              </div>
 
               <FormField
                 control={formUpdate.control}
-                name="category"
+                name="name"
                 render={({ field }) => (
                   <FormItem className="relative grid gap-2 space-y-0">
                     <FormLabel className={labelStyle}>
-                      {t("products_management.forms.edit.category_label")}
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={isPending}
-                    >
-                      <FormControl>
-                        <SelectTrigger size="sm" className={inputStyle}>
-                          <SelectValue
-                            placeholder={t(
-                              "products_management.forms.edit.category_placeholder",
-                            )}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {CATEGORY_OPTIONS.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage className="text-xs" />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={formUpdate.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem className="grid gap-1">
-                  <FormLabel className={labelStyle}>
-                    {t("products_management.forms.edit.image_label")}
-                  </FormLabel>
-                  <FormControl>
-                    <div key={product.id}>
-                      <Input
-                        type="file"
-                        className="hidden"
-                        ref={fileInputRef}
-                        accept="image/png, image/jpeg, image/jpg, image/webp"
-                        onChange={(e) => handleImageChange(e, field.onChange)}
-                        disabled={isPending}
-                      />
-
-                      {!preview ? (
-                        <div className="flex items-center justify-center w-full">
-                          <div
-                            onClick={triggerFileInput}
-                            className="flex flex-col items-center justify-center w-full h-42 border-2 border-dashed rounded-xl cursor-pointer bg-muted/5 hover:bg-muted/20 border-border transition-all group"
-                          >
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                              <div className="p-3 rounded-full bg-background shadow-sm mb-3 group-hover:scale-110 transition-transform">
-                                <UploadCloud className="w-6 h-6 text-primary" />
-                              </div>
-                              <p className="text-sm font-medium text-foreground">
-                                {t(
-                                  "products_management.forms.edit.upload_prompt",
-                                )}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {t(
-                                  "products_management.forms.edit.upload_format",
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div
-                          className={`w-full overflow-hidden rounded-xl border bg-background shadow-sm group relative cursor-pointer ${
-                            isImageOversized
-                              ? "border-destructive"
-                              : "border-border hover:border-primary/50"
-                          }`}
-                          onClick={triggerFileInput}
-                        >
-                          <div className="relative w-full aspect-square bg-white flex items-center justify-center border-b">
-                            <img
-                              src={preview}
-                              alt="Preview"
-                              className="relative h-full w-full object-contain z-10 p-2"
-                            />
-
-                            <div className="absolute inset-0 z-20 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              <PenLine className="w-8 h-8 text-white mb-2" />
-                              <span className="text-white text-xs font-medium">
-                                {t(
-                                  "products_management.forms.edit.click_to_change",
-                                )}
-                              </span>
-                            </div>
-
-                            <div className="absolute top-2 right-2 flex gap-1 z-30">
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                className="h-6 w-6 rounded-md shadow-sm transition-transform hover:scale-110"
-                                onClick={(e) =>
-                                  handleRemoveImage(e, field.onChange)
-                                }
-                                disabled={isPending}
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-
-                            <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center px-4">
-                              {isImageOversized ? (
-                                <div className="flex items-center gap-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground px-3 py-1.5 rounded-full shadow-lg border border-white/10">
-                                  <X className="w-3.5 h-3.5" />
-                                  <span className="text-[10px] font-medium tracking-wide">
-                                    {t(
-                                      "products_management.forms.edit.file_too_large",
-                                    )}
-                                  </span>
-                                </div>
-                              ) : imageValue instanceof File ? (
-                                <div className="flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-full shadow-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                  <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400 animate-pulse" />
-                                  <span className="text-[10px] font-medium tracking-wide">
-                                    {t(
-                                      "products_management.forms.edit.bg_remove_auto",
-                                    )}
-                                  </span>
-                                </div>
-                              ) : null}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3 p-1.5 bg-card border-t z-30 relative">
-                            <div
-                              className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${isImageOversized ? "bg-destructive/10" : "bg-background"}`}
-                            >
-                              <FileImage
-                                className={`h-4 w-4 ${isImageOversized ? "text-destructive" : "text-foreground"}`}
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p
-                                className={`text-xs font-medium truncate ${isImageOversized ? "text-destructive" : "text-foreground"}`}
-                              >
-                                {imageValue instanceof File
-                                  ? imageValue.name
-                                  : t(
-                                      "products_management.forms.edit.current_image",
-                                    )}
-                              </p>
-                              <p
-                                className={`text-xs absolute -bottom-4 left-0 ${isImageOversized ? "text-destructive font-semibold" : "text-muted-foreground"}`}
-                              >
-                                {imageValue instanceof File
-                                  ? formatBytes(imageValue.size)
-                                  : t(
-                                      "products_management.forms.edit.click_to_replace",
-                                    )}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <div>
-              <h3 className="text-base font-semibold tracking-tight">
-                {t("products_management.forms.edit.pricing_title")}
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {t("products_management.forms.edit.pricing_desc")}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={formUpdate.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>
-                      {t("products_management.forms.edit.selling_price")}
-                    </FormLabel>
-                    <FormControl>
-                      <NumberStepper
-                        value={field.value}
-                        onChange={(val) => {
-                          field.onChange(val);
-                          formUpdate.trigger("cost_price");
-                        }}
-                        step={10000}
-                        prefix="Rp"
-                        placeholder="0"
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    <FormMessage className="text-xs" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={formUpdate.control}
-                name="cost_price"
-                render={({ field }) => (
-                  <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>
-                      {t("products_management.forms.edit.cost_price")}
-                    </FormLabel>
-                    <FormControl>
-                      <NumberStepper
-                        value={field.value}
-                        onChange={field.onChange}
-                        step={10000}
-                        prefix="Rp"
-                        placeholder="0"
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    <FormMessage className="absolute -bottom-4 left-0 text-xs" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={formUpdate.control}
-                name="stock"
-                render={({ field }) => (
-                  <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>
-                      {t("products_management.forms.edit.initial_stock")}
-                    </FormLabel>
-                    <FormControl>
-                      <NumberStepper
-                        value={field.value}
-                        onChange={field.onChange}
-                        step={1}
-                        placeholder="0"
-                        disabled={true}
-                      />
-                    </FormControl>
-                    <FormMessage className="text-xs" />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={formUpdate.control}
-                name="manufacturer"
-                render={({ field }) => (
-                  <FormItem className="relative grid gap-2 space-y-0">
-                    <FormLabel className={labelStyle}>
-                      {t("products_management.forms.edit.manufacturer_label")}
+                      {t("products_management.forms.edit.name_label")}
                     </FormLabel>
                     <FormControl>
                       <Input
                         autoComplete="off"
                         placeholder={t(
-                          "products_management.forms.edit.manufacturer_placeholder",
+                          "products_management.forms.edit.name_placeholder",
                         )}
                         className={inputStyle}
-                        disabled={isPending}
                         {...field}
+                        disabled={isPending}
                       />
                     </FormControl>
-                    <FormMessage className="text-xs" />
+                    <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
                   </FormItem>
                 )}
               />
-            </div>
-            <div className="h-4"></div>
-          </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-7">
+                <FormField
+                  control={formUpdate.control}
+                  name="brand"
+                  render={({ field }) => (
+                    <FormItem className="relative grid gap-2 space-y-0 py-0">
+                      <FormLabel className={labelStyle}>
+                        {t("products_management.forms.edit.brand_label")}
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isPending}
+                      >
+                        <FormControl>
+                          <SelectTrigger size="sm" className={inputStyle}>
+                            <SelectValue
+                              placeholder={t(
+                                "products_management.forms.edit.brand_placeholder",
+                              )}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {BRAND_OPTIONS.map((brand) => (
+                            <SelectItem key={brand} value={brand}>
+                              {brand}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={formUpdate.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem className="relative grid gap-2 space-y-0">
+                      <FormLabel className={labelStyle}>
+                        {t("products_management.forms.edit.category_label")}
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={isPending}
+                      >
+                        <FormControl>
+                          <SelectTrigger size="sm" className={inputStyle}>
+                            <SelectValue
+                              placeholder={t(
+                                "products_management.forms.edit.category_placeholder",
+                              )}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {CATEGORY_OPTIONS.map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </motion.div>
+
+            {/* IMAGE SECTION */}
+            <motion.div variants={formItemVariants} className="space-y-7">
+              <FormField
+                control={formUpdate.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem className="grid gap-2 relative">
+                    <FormLabel className={labelStyle}>
+                      {t("products_management.forms.edit.image_label")}
+                    </FormLabel>
+                    <FormControl>
+                      <div key={product.id} className="w-full">
+                        <Input
+                          type="file"
+                          className="hidden"
+                          ref={fileInputRef}
+                          accept="image/png, image/jpeg, image/jpg, image/webp"
+                          onChange={(e) => handleImageChange(e, field.onChange)}
+                          disabled={isPending}
+                        />
+
+                        {!preview ? (
+                          <div className="flex items-center justify-center w-full">
+                            <div
+                              onClick={triggerFileInput}
+                              className="flex flex-col items-center justify-center w-full aspect-2/1 border-2 border-dashed rounded-xl cursor-pointer bg-muted/5 hover:bg-muted/20 border-border transition-all group"
+                            >
+                              <div className="flex flex-col items-center justify-center text-center px-4">
+                                <div className="p-3 sm:p-4 rounded-full bg-background shadow-sm mb-3 group-hover:scale-110 transition-transform">
+                                  <UploadCloud className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                                </div>
+                                <p className="text-xs sm:text-sm font-medium text-foreground">
+                                  {t(
+                                    "products_management.forms.edit.upload_prompt",
+                                  )}
+                                </p>
+                                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                                  {t(
+                                    "products_management.forms.edit.upload_format",
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            className={`w-full overflow-hidden rounded-xl border bg-background shadow-sm group relative cursor-pointer ${
+                              isImageOversized
+                                ? "border-destructive"
+                                : "border-border hover:border-primary/50"
+                            }`}
+                            onClick={triggerFileInput}
+                          >
+                            <div className="relative w-full aspect-2/1 bg-white flex items-center justify-center border-b">
+                              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDBMOCA4Wk04IDBMMCA4WiIgc3Ryb2tlPSIjZWVlIiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')] opacity-50"></div>
+
+                              <img
+                                src={preview}
+                                alt="Preview"
+                                className="relative h-full w-full object-contain z-10 p-2 sm:p-4 mix-blend-multiply"
+                              />
+
+                              <div className="absolute inset-0 z-20 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <PenLine className="w-6 h-6 sm:w-8 sm:h-8 text-white mb-2" />
+                                <span className="text-white text-[10px] sm:text-xs font-medium">
+                                  {t(
+                                    "products_management.forms.edit.click_to_change",
+                                  )}
+                                </span>
+                              </div>
+
+                              <div className="absolute top-2 right-2 flex gap-1 z-30">
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="h-6 w-6 sm:h-7 sm:w-7 rounded-md shadow-sm transition-transform hover:scale-110 cursor-pointer"
+                                  onClick={(e) =>
+                                    handleRemoveImage(e, field.onChange)
+                                  }
+                                  disabled={isPending}
+                                >
+                                  <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                </Button>
+                              </div>
+
+                              <div className="absolute bottom-2 sm:bottom-3 left-0 right-0 z-20 flex justify-center px-2">
+                                {isImageOversized ? (
+                                  <div className="flex items-center gap-1.5 sm:gap-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg border border-white/10">
+                                    <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                    <span className="text-[9px] sm:text-[10px] font-medium tracking-wide">
+                                      {t(
+                                        "products_management.forms.edit.file_too_large",
+                                      )}
+                                    </span>
+                                  </div>
+                                ) : imageValue instanceof File ? (
+                                  <div className="flex items-center gap-1.5 sm:gap-2 bg-black/70 backdrop-blur-sm text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg border border-white/10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                    <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-400 fill-yellow-400 animate-pulse" />
+                                    <span className="text-[9px] sm:text-[10px] font-medium tracking-wide">
+                                      {t(
+                                        "products_management.forms.edit.bg_remove_auto",
+                                      )}
+                                    </span>
+                                  </div>
+                                ) : null}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 bg-card border-t z-30 relative">
+                              <div
+                                className={`h-7 w-7 sm:h-8 sm:w-8 rounded-md flex items-center justify-center shrink-0 ${
+                                  isImageOversized
+                                    ? "bg-destructive/10"
+                                    : "bg-background shadow-sm border"
+                                }`}
+                              >
+                                <FileImage
+                                  className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                                    isImageOversized
+                                      ? "text-destructive"
+                                      : "text-muted-foreground"
+                                  }`}
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p
+                                  className={`text-[10px] sm:text-xs font-medium truncate ${
+                                    isImageOversized
+                                      ? "text-destructive"
+                                      : "text-foreground"
+                                  }`}
+                                >
+                                  {imageValue instanceof File
+                                    ? imageValue.name
+                                    : t(
+                                        "products_management.forms.edit.current_image",
+                                      )}
+                                </p>
+                                <p
+                                  className={`text-[9px] sm:text-[10px] truncate ${
+                                    isImageOversized
+                                      ? "text-destructive font-semibold"
+                                      : "text-muted-foreground"
+                                  }`}
+                                >
+                                  {imageValue instanceof File
+                                    ? formatBytes(imageValue.size)
+                                    : t(
+                                        "products_management.forms.edit.click_to_replace",
+                                      )}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
+                  </FormItem>
+                )}
+              />
+            </motion.div>
+
+            {/* PRICING SECTION */}
+            <motion.div variants={formItemVariants} className="space-y-7">
+              <div>
+                <h3 className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
+                  {t("products_management.forms.edit.pricing_title")}
+                </h3>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                  {t("products_management.forms.edit.pricing_desc")}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-8">
+                <FormField
+                  control={formUpdate.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem className="relative grid gap-2 space-y-0">
+                      <FormLabel className={labelStyle}>
+                        {t("products_management.forms.edit.selling_price")}
+                      </FormLabel>
+                      <FormControl>
+                        <NumberStepper
+                          value={field.value}
+                          onChange={(val) => {
+                            field.onChange(val);
+                            formUpdate.trigger("cost_price");
+                          }}
+                          step={10000}
+                          prefix="Rp"
+                          placeholder="0"
+                          disabled={isPending}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={formUpdate.control}
+                  name="cost_price"
+                  render={({ field }) => (
+                    <FormItem className="relative grid gap-2 space-y-0">
+                      <FormLabel className={labelStyle}>
+                        {t("products_management.forms.edit.cost_price")}
+                      </FormLabel>
+                      <FormControl>
+                        <NumberStepper
+                          value={field.value}
+                          onChange={field.onChange}
+                          step={10000}
+                          prefix="Rp"
+                          placeholder="0"
+                          disabled={isPending}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={formUpdate.control}
+                  name="stock"
+                  render={({ field }) => (
+                    <FormItem className="relative grid gap-2 space-y-0">
+                      <FormLabel className={labelStyle}>
+                        {t("products_management.forms.edit.initial_stock")}
+                      </FormLabel>
+                      <FormControl>
+                        {/* Disable untuk edit karena stock punya logic sendiri biasanya */}
+                        <NumberStepper
+                          value={field.value}
+                          onChange={field.onChange}
+                          step={1}
+                          placeholder="0"
+                          disabled={true}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={formUpdate.control}
+                  name="manufacturer"
+                  render={({ field }) => (
+                    <FormItem className="relative grid gap-2 space-y-0">
+                      <FormLabel className={labelStyle}>
+                        {t("products_management.forms.edit.manufacturer_label")}
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          autoComplete="off"
+                          placeholder={t(
+                            "products_management.forms.edit.manufacturer_placeholder",
+                          )}
+                          className={inputStyle}
+                          disabled={isPending}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 p-4 border-t bg-background mt-auto">
+        <div className="flex items-center justify-end gap-2 sm:gap-3 p-4 sm:p-5 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 mt-auto sticky bottom-0 z-10">
           {isDirty || isImageDeleted ? (
             <Button
               size="sm"
               variant="ghost"
               type="button"
-              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              className="w-auto text-xs sm:text-sm font-semibold shadow-none cursor-pointer text-foreground duration-300 px-4"
               onClick={handleResetToOriginal}
               disabled={isPending}
             >
@@ -637,7 +691,7 @@ export function EditProductForm({
               size="sm"
               variant="ghost"
               type="button"
-              className="w-1/4 text-sm font-semibold shadow-sm cursor-pointer text-foreground duration-300"
+              className="w-auto text-xs sm:text-sm font-semibold shadow-none cursor-pointer text-foreground duration-300 px-4"
               onClick={onCancel}
               disabled={isPending}
             >
@@ -647,12 +701,12 @@ export function EditProductForm({
 
           <Button
             size="sm"
-            className="w-1/3 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground duration-300"
+            className="min-w-25 sm:min-w-30 text-xs sm:text-sm font-semibold shadow-md shadow-primary/20 cursor-pointer text-foreground duration-300 px-6"
             type="submit"
             disabled={isButtonDisabled || (!isDirty && !isImageDeleted)}
           >
             {isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
             ) : (
               t("products_management.forms.edit.btn_save")
             )}

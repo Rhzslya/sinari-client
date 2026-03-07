@@ -1336,53 +1336,59 @@
     },
     "detail": {
       "header_title": "Detail Servis",
-      "header_subtitle": "Kelola layanan perbaikan",
+      "header_subtitle": "Kelola data dan progres layanan perbaikan",
       "device_card": {
-        "device": "Perangkat",
+        "device": "Perangkat Pelanggan",
         "service_id": "ID Servis",
-        "problem_desc": "Deskripsi Masalah",
-        "no_description": "Tidak ada deskripsi."
+        "problem_desc": "Keluhan / Deskripsi Masalah",
+        "no_description": "Belum ada keterangan atau deskripsi masalah."
       },
       "cost_card": {
         "title": "Biaya & Tagihan",
-        "th_service_name": "Nama Servis",
+        "th_service_name": "Tindakan / Layanan",
         "th_cost": "Biaya",
         "subtotal": "Subtotal",
         "disc": "Diskon",
-        "down_payment": "Uang Muka",
+        "down_payment": "Uang Muka (DP)",
         "cancelled": "Dibatalkan",
-        "total_due": "Sisa Tagihan"
+        "total_due": "Tagihan"
       },
       "quick_actions": {
         "title": "Aksi Cepat",
-        "edit_service": "Edit Servis",
+        "edit_service": "Ubah Data Servis",
         "update_status": "Perbarui Status",
-        "download_pdf": "Unduh PDF",
-        "delete_service": "Hapus Servis"
+        "download_pdf": "Cetak / Unduh Invoice",
+        "delete_service": "Hapus Data Servis"
       },
       "technician_card": {
-        "title": "Teknisi",
+        "title": "Teknisi Penanggung Jawab",
         "inactive": "Nonaktif",
-        "signature": "Tanda Tangan",
-        "no_signature": "Tidak Ada Tanda Tangan",
-        "internal_note": "Catatan Internal",
-        "no_note": "Tidak ada catatan internal.",
-        "unassigned": "Tidak ada teknisi ditugaskan"
+        "signature": "Tanda Tangan Teknisi",
+        "no_signature": "Belum ada tanda tangan.",
+        "internal_note": "Catatan Teknisi (Internal)",
+        "no_note": "Belum ada catatan tambahan dari teknisi.",
+        "unassigned": "Belum ada teknisi yang ditugaskan."
       },
       "system_info": {
-        "title": "Info Sistem",
-        "tracking_token": "Token Pelacakan",
-        "created_at": "Dibuat Pada",
-        "last_updated": "Terakhir Diperbarui"
+        "title": "Informasi Sistem",
+        "tracking_token": "Kode Pelacakan (Resi)",
+        "created_at": "Tanggal Dibuat",
+        "last_updated": "Terakhir Diperbarui",
+        "live_tracking": "Pantau Status Servis",
+        "tracking_desc": "Bagikan tautan ini agar pelanggan dapat memantau progres servis secara mandiri."
       },
       "toast": {
-        "service_not_loaded": "Data servis belum dimuat",
-        "settings_not_loaded": "Data pengaturan belum dimuat. Harap tunggu.",
-        "generating_pdf": "Membuat PDF Invoice...",
-        "pdf_downloaded": "Invoice Diunduh!",
-        "pdf_failed": "Gagal membuat PDF",
-        "token_copied": "Tautan pelacakan disalin ke papan klip!"
+        "service_not_loaded": "Data servis sedang dimuat, harap tunggu.",
+        "settings_not_loaded": "Sistem sedang memuat pengaturan toko. Harap tunggu.",
+        "generating_pdf": "Sedang menyiapkan dokumen Invoice...",
+        "pdf_downloaded": "Invoice berhasil diunduh!",
+        "pdf_failed": "Terjadi kesalahan saat mengunduh dokumen.",
+        "token_copied": "Tautan pelacakan berhasil disalin ke clipboard!"
       }
+    },
+    "common": {
+      "copy_link": "Salin Tautan",
+      "open_link": "Buka Halaman"
     }
   },
   "activity_log": {

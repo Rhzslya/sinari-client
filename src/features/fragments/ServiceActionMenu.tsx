@@ -25,6 +25,7 @@ import { useUserQueries } from "@/hooks/user-queries";
 import { ServiceStatus } from "@/enum/product-enum";
 import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ServiceActionMenuProps {
   service: ServiceResponse;
@@ -66,8 +67,19 @@ export function ServiceActionMenu({
     isDeleteDisabled || service.is_anonymized === true;
 
   if (isSettingsLoading || !storeData) {
-    return <div>{t("services_management.action_menu.loading_invoice")}</div>;
+    return (
+      <div className="text-xs text-muted-foreground pr-2">
+        {t("services_management.action_menu.loading_invoice")}
+      </div>
+    );
   }
+
+  const handleAction = (callback: () => void) => {
+    setIsOpen(false);
+    setTimeout(() => {
+      callback();
+    }, 150);
+  };
 
   const handleDownloadPDF = async () => {
     setIsGeneratingPdf(true);
@@ -75,7 +87,6 @@ export function ServiceActionMenu({
       t("services_management.detail.toast.generating_pdf"),
     );
 
-    // FIX TYPESCRIPT ERROR: Mapping the data
     const formattedSettings = {
       ...storeData,
       store_email: storeData.store_email || "",
@@ -86,16 +97,13 @@ export function ServiceActionMenu({
       const blob = await pdf(
         <ServiceInvoicePDF service={service} settings={formattedSettings} />,
       ).toBlob();
-
       const url = URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = url;
       link.download = `Invoice-${service.service_id}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
       toast.success(t("services_management.detail.toast.pdf_downloaded"), {
         id: toastId,
       });
@@ -112,82 +120,97 @@ export function ServiceActionMenu({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer">
-          <MoreHorizontal className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 cursor-pointer hover:bg-muted transition-colors rounded-full"
+        >
+          <MoreHorizontal className="size-4 text-muted-foreground" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        {!isTrashView ? (
-          <>
-            <DropdownMenuItem
-              onClick={onViewDetails}
-              className="cursor-pointer"
+      <DropdownMenuContent align="end" className="w-52 p-1">
+        <AnimatePresence>
+          {!isTrashView ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
             >
-              <Eye className="mr-2 h-4 w-4" />
-              {t("services_management.action_menu.view_details")}
-            </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleAction(onViewDetails)}
+                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                <Eye className="size-4 text-muted-foreground" />
+                {t("services_management.action_menu.view_details")}
+              </DropdownMenuItem>
 
-            <DropdownMenuItem
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPdf}
-              className="cursor-pointer"
+              <DropdownMenuItem
+                onClick={handleDownloadPDF}
+                disabled={isGeneratingPdf}
+                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm ${isGeneratingPdf ? "opacity-50" : "cursor-pointer"}`}
+              >
+                <FileText className="size-4 text-muted-foreground" />
+                {isGeneratingPdf
+                  ? t("services_management.action_menu.generating_pdf")
+                  : t("services_management.action_menu.download_pdf")}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => handleAction(onEditService)}
+                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                <Pencil className="size-4 text-muted-foreground" />
+                {t("services_management.action_menu.edit_service")}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => handleAction(onUpdateStatus)}
+                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                <RefreshCw className="size-4 text-muted-foreground" />
+                {t("services_management.action_menu.update_status")}
+              </DropdownMenuItem>
+
+              {isOwner && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => handleAction(onDeleteService)}
+                    className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${isDeleteDisabled ? "opacity-50" : "cursor-pointer"}`}
+                    disabled={isDeleteDisabled}
+                  >
+                    <Trash2 className="size-4" />
+                    {t("services_management.action_menu.delete")}
+                  </DropdownMenuItem>
+                </>
+              )}
+
+              <DropdownMenuItem
+                onClick={() => handleAction(onAnonymizeCustomerData)}
+                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${isAnonymizeDisabled ? "opacity-50" : "cursor-pointer"}`}
+                disabled={isAnonymizeDisabled}
+              >
+                <HatGlasses className="size-4" />
+                {t("services_management.action_menu.anonymize")}
+              </DropdownMenuItem>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
             >
-              <FileText className="mr-2 h-4 w-4" />
-              {isGeneratingPdf
-                ? t("services_management.action_menu.generating_pdf")
-                : t("services_management.action_menu.download_pdf")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={onEditService}
-              className="cursor-pointer"
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              {t("services_management.action_menu.edit_service")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              onClick={onUpdateStatus}
-              className="cursor-pointer"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              {t("services_management.action_menu.update_status")}
-            </DropdownMenuItem>
-
-            {isOwner && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={onDeleteService}
-                  className="text-destructive focus:text-destructive cursor-pointer"
-                  disabled={isDeleteDisabled}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {t("services_management.action_menu.delete")}
-                </DropdownMenuItem>
-              </>
-            )}
-
-            <DropdownMenuItem
-              onClick={onAnonymizeCustomerData}
-              className="text-destructive focus:text-destructive cursor-pointer"
-              disabled={isAnonymizeDisabled}
-            >
-              <HatGlasses className="mr-2 h-4 w-4" />{" "}
-              {t("services_management.action_menu.anonymize")}
-            </DropdownMenuItem>
-          </>
-        ) : (
-          <DropdownMenuItem
-            onClick={onRestoreService}
-            className="text-emerald-600 focus:text-emerald-600 cursor-pointer"
-            disabled={!isOwner}
-          >
-            <ArchiveRestore className="mr-2 h-4 w-4" />
-            {t("services_management.action_menu.restore_data")}
-          </DropdownMenuItem>
-        )}
+              <DropdownMenuItem
+                onClick={onRestoreService}
+                disabled={!isOwner}
+                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${!isOwner ? "opacity-50" : "cursor-pointer"}`}
+              >
+                <ArchiveRestore className="size-4" />
+                {t("services_management.action_menu.restore_data")}
+              </DropdownMenuItem>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </DropdownMenuContent>
     </DropdownMenu>
   );

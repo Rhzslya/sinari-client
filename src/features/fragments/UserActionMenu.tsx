@@ -7,9 +7,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArchiveRestore, MoreHorizontalIcon } from "lucide-react";
+import {
+  ArchiveRestore,
+  MoreHorizontalIcon,
+  UserCircle,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import type { NotPublicUserResponse, UserResponse } from "@/model/user-model";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface UserActionMenuProps {
   user: NotPublicUserResponse;
@@ -50,74 +57,83 @@ export function UserActionMenu({
     isCurrentUser || isTargetOwner || !isCurrentUserOwner;
 
   const handleAction = (callback: () => void) => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        callback();
-      }, 0);
-    });
+    setIsOpen(false);
+    setTimeout(() => {
+      callback();
+    }, 150);
   };
 
   return (
-    <DropdownMenu
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      modal={false}
-      key={user.id}
-    >
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen} modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
-          <MoreHorizontalIcon className="size-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 cursor-pointer hover:bg-muted transition-colors rounded-full"
+        >
+          <MoreHorizontalIcon className="size-4 text-muted-foreground" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end">
-        {!isTrashView ? (
-          <>
-            <DropdownMenuItem
-              onClick={() => handleAction(onViewDetails)}
-              className="cursor-pointer"
+      <DropdownMenuContent align="end" className="w-48 p-1">
+        <AnimatePresence>
+          {!isTrashView ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
             >
-              {t("users_management.action_menu.view_details")}
-            </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleAction(onViewDetails)}
+                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+              >
+                <UserCircle className="size-4 text-muted-foreground" />
+                {t("users_management.action_menu.view_details")}
+              </DropdownMenuItem>
 
-            <DropdownMenuItem
-              onSelect={() => {
-                handleAction(onUpdateRole);
-              }}
-              disabled={isDeleteDisabled}
-              className={
-                isEditRoleDisabled
-                  ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer"
-              }
-            >
-              {t("users_management.action_menu.edit_role")}
-            </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => handleAction(onUpdateRole)}
+                disabled={isEditRoleDisabled}
+                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm ${
+                  isEditRoleDisabled ? "opacity-50" : "cursor-pointer"
+                }`}
+              >
+                <ShieldCheck className="size-4 text-muted-foreground" />
+                {t("users_management.action_menu.edit_role")}
+              </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={() => handleAction(onDeleteUser)}
-              disabled={isDeleteDisabled}
-              className={`text-destructive focus:text-destructive ${
-                isDeleteDisabled
-                  ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer"
-              }`}
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onSelect={() => handleAction(onDeleteUser)}
+                disabled={isDeleteDisabled}
+                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${
+                  isDeleteDisabled ? "opacity-50" : "cursor-pointer"
+                }`}
+              >
+                <Trash2 className="size-4" />
+                {t("users_management.action_menu.delete_user")}
+              </DropdownMenuItem>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
             >
-              {t("users_management.action_menu.delete_user")}
-            </DropdownMenuItem>
-          </>
-        ) : (
-          <DropdownMenuItem
-            onClick={onRestoreUser}
-            className="text-emerald-600 focus:text-emerald-600 cursor-pointer"
-            disabled={!isCurrentUserOwner}
-          >
-            <ArchiveRestore className="mr-2 h-4 w-4" />
-            {t("users_management.action_menu.restore_data")}
-          </DropdownMenuItem>
-        )}
+              <DropdownMenuItem
+                onClick={onRestoreUser}
+                disabled={!isCurrentUserOwner}
+                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${
+                  !isCurrentUserOwner ? "opacity-50" : "cursor-pointer"
+                }`}
+              >
+                <ArchiveRestore className="size-4" />
+                {t("users_management.action_menu.restore_data")}
+              </DropdownMenuItem>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </DropdownMenuContent>
     </DropdownMenu>
   );

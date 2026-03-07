@@ -204,10 +204,9 @@ const DashboardTechnicianTable = ({
         </div>
       </TooltipProvider>
 
-      {/* EDIT TECHNICIAN SHEET */}
       <Sheet open={isEditTechnicianOpen} onOpenChange={setIsEditTechnicianOpen}>
         <SheetContent
-          className="w-[90vw] sm:max-w-xl flex flex-col h-full p-0 gap-0"
+          className="flex flex-col h-full p-0 gap-0 sm:max-w-xl"
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <SheetHeader className="px-5 sm:px-6 py-4 border-b">
