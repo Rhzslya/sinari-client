@@ -50,6 +50,29 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const [isInert, setIsInert] = React.useState(false);
+
+  React.useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "aria-hidden"
+        ) {
+          const isHidden = el.getAttribute("aria-hidden") === "true";
+          setIsInert(isHidden);
+        }
+      });
+    });
+
+    observer.observe(el, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
+
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen);
@@ -111,16 +134,21 @@ function SidebarProvider({
     <SidebarContext.Provider value={contextValue}>
       <TooltipProvider delayDuration={0}>
         <div
+          ref={wrapperRef}
+          inert={isInert ? true : undefined}
           data-slot="sidebar-wrapper"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH,
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
               ...style,
+              pointerEvents: isInert ? "none" : "auto",
+              userSelect: isInert ? "none" : "auto",
             } as React.CSSProperties
           }
           className={cn(
             "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
+            isInert && "selection:bg-transparent",
             className,
           )}
           {...props}

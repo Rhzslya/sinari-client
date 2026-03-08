@@ -134,7 +134,7 @@ const DetailProductPublicPage = () => {
             {/* Hero Product Card */}
             <motion.div variants={scaleIn}>
               <Card className="flex flex-col overflow-hidden shrink-0 shadow-sm border-border/60">
-                <CardHeader className="bg-slate-50/50 dark:bg-muted/10 p-5 sm:p-6 md:p-8 pb-6 sm:pb-8 border-b">
+                <CardHeader className=" p-5 sm:p-6 md:p-8 pb-6 sm:pb-8 border-b">
                   <div className="flex items-start md:items-center gap-4 sm:gap-6 flex-col md:flex-row">
                     {/* Image Area */}
                     <div className="w-full md:w-48 h-48 sm:h-56 md:h-48 shrink-0 rounded-xl border-2 border-background shadow-sm bg-white flex items-center justify-center overflow-hidden p-4 relative">
@@ -197,7 +197,7 @@ const DetailProductPublicPage = () => {
                   </div>
                 </CardHeader>
 
-                <CardContent className="p-5 sm:p-6 md:p-8 bg-background">
+                <CardContent className="p-5 sm:p-6 md:p-8">
                   <div className="space-y-1 sm:space-y-2">
                     <label className="text-[10px] sm:text-xs uppercase text-muted-foreground font-bold tracking-widest">
                       {t("product_detail.info.price_label")}

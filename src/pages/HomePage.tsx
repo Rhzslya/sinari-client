@@ -179,7 +179,7 @@ const HomePage = () => {
             <Button
               size="lg"
               variant="outline"
-              className="font-semibold text-base sm:text-lg h-12 sm:h-14 px-6 sm:px-8 cursor-pointer w-full sm:w-1/2"
+              className="font-semibold text-base sm:text-lg h-12 sm:h-14 px-6 sm:px-8 cursor-pointer w-full sm:w-auto"
               onClick={handleConsultClick}
             >
               {t("home.hero.consult_btn")}
