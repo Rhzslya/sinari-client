@@ -137,7 +137,16 @@ const DashboardServiceTable = ({
   return (
     <>
       <TooltipProvider>
-        <div className="rounded-md border bg-card overflow-x-auto w-full shadow-sm custom-scrollbar">
+        <div
+          className="rounded-md border bg-card shadow-sm w-full overflow-x-auto pb-2 sm:pb-0
+            [&::-webkit-scrollbar]:h-1.5
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:bg-primary/20 
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-primary
+            transition-colors"
+        >
+          {" "}
           <Table className="min-w-275 w-full text-sm table-fixed">
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-muted/30">

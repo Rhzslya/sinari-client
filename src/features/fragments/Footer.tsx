@@ -165,7 +165,7 @@ export function Footer() {
               />
               <Button
                 type="submit"
-                className="shrink-0 gap-2 cursor-pointer text-foreground h-10 md:h-9 w-full sm:w-auto"
+                className="shrink-0 gap-2 cursor-pointer text-foreground h-10 md:h-9 w-full sm:w-1/2"
                 disabled={isSubmitting || !isValidEmail}
               >
                 {isSubmitting ? (

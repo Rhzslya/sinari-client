@@ -6,8 +6,9 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import { motion } from "framer-motion"; // 👈 Import framer-motion
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
 
 interface OverviewChartProps {
   data: { name: string; total: number }[];
@@ -16,14 +17,33 @@ interface OverviewChartProps {
 export function OverviewChart({ data }: OverviewChartProps) {
   const { t } = useTranslation();
 
+  const [chartHeight, setChartHeight] = useState(300);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setChartHeight(250);
+      } else if (window.innerWidth < 768) {
+        setChartHeight(300);
+      } else {
+        setChartHeight(450);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-      className="w-full h-62.5 sm:h-75 md:h-87.5"
+      className="w-full"
     >
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={chartHeight}>
         <BarChart
           data={data}
           margin={{ top: 10, right: 10, left: -20, bottom: 0 }}

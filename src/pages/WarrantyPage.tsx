@@ -61,7 +61,7 @@ const WarrantyPage = () => {
         >
           <motion.div
             variants={scaleIn}
-            className="flex items-center justify-center sm:justify-start gap-3 bg-muted/20 border border-border/50 px-5 sm:px-6 py-3 sm:py-4 rounded-full w-full sm:w-auto"
+            className="flex items-center justify-center sm:justify-start gap-3 bg-muted/20 border border-border/50 px-5 sm:px-6 py-3 sm:py-4 rounded-full w-full sm:w-1/2"
           >
             <BadgeCheck className="text-primary size-5 sm:size-6 shrink-0" />
             <span className="font-semibold text-sm sm:text-base">
@@ -70,7 +70,7 @@ const WarrantyPage = () => {
           </motion.div>
           <motion.div
             variants={scaleIn}
-            className="flex items-center justify-center sm:justify-start gap-3 bg-muted/20 border border-border/50 px-5 sm:px-6 py-3 sm:py-4 rounded-full w-full sm:w-auto"
+            className="flex items-center justify-center sm:justify-start gap-3 bg-muted/20 border border-border/50 px-5 sm:px-6 py-3 sm:py-4 rounded-full w-full sm:w-1/2"
           >
             <BadgeCheck className="text-primary size-5 sm:size-6 shrink-0" />
             <span className="font-semibold text-sm sm:text-base">

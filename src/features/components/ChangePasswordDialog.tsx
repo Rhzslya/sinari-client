@@ -122,7 +122,7 @@ export function ChangePasswordDialog() {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="font-bold border-2 shrink-0 w-full sm:w-auto cursor-pointer"
+          className="font-bold border-2 shrink-0 w-full sm:w-1/2 cursor-pointer"
         >
           <Key className="w-4 h-4 mr-2" />{" "}
           {t("profile.change_password.trigger_btn")}
@@ -325,7 +325,7 @@ export function ChangePasswordDialog() {
               <Button
                 type="button"
                 variant="ghost"
-                className="w-full sm:w-auto text-sm font-semibold cursor-pointer"
+                className="w-full sm:w-1/4 text-sm font-semibold cursor-pointer"
                 onClick={() => handleOpenChange(false)}
                 disabled={isLoading || isSubmitting}
               >
@@ -333,7 +333,7 @@ export function ChangePasswordDialog() {
               </Button>
               <Button
                 variant="default"
-                className="w-full sm:w-auto text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground px-6"
+                className="w-full sm:w-1/2 text-sm font-semibold shadow-lg shadow-primary/20 cursor-pointer text-foreground px-6"
                 type="submit"
                 disabled={isLoading || isSubmitting || !isValid || cooldown > 0}
               >

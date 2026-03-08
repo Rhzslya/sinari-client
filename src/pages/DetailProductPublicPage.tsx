@@ -187,7 +187,7 @@ const DetailProductPublicPage = () => {
                           •
                         </span>
                         <span
-                          className="truncate max-w-full sm:max-w-62.5 text-xs sm:text-sm font-medium uppercase tracking-wider w-full sm:w-auto mt-1 sm:mt-0"
+                          className="truncate max-w-full sm:max-w-62.5 text-xs sm:text-sm font-medium uppercase tracking-wider w-full sm:w-1/2 mt-1 sm:mt-0"
                           title={product.manufacturer}
                         >
                           {product.manufacturer || "N/A"}

@@ -199,7 +199,7 @@ const DashboardPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full sm:w-auto shrink-0 cursor-pointer text-foreground shadow-sm h-9 sm:h-10"
+                className="w-full sm:w-1/2 shrink-0 cursor-pointer text-foreground shadow-sm h-9 sm:h-10"
               >
                 <Download className="mr-2 h-4 w-4" />
                 {t("dashboard.export.btn")}

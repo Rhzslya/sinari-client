@@ -509,7 +509,7 @@ const DashboardSettingPage = () => {
                             e.preventDefault();
                             setIsWaActive(true);
                           }}
-                          className="w-full sm:w-auto cursor-pointer text-foreground duration-300"
+                          className="w-full sm:w-1/4 cursor-pointer text-foreground duration-300"
                         >
                           {t("settings.whatsapp.btn_check")}
                         </Button>
@@ -558,7 +558,7 @@ const DashboardSettingPage = () => {
                                 disabled={disconnectMutation.isPending}
                                 variant="destructive"
                                 size="sm"
-                                className="gap-2 cursor-pointer w-full sm:w-auto h-9 duration-300"
+                                className="gap-2 cursor-pointer w-full sm:w-1/4 h-9 duration-300"
                               >
                                 {disconnectMutation.isPending ? (
                                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -578,7 +578,7 @@ const DashboardSettingPage = () => {
                                 }}
                                 variant="secondary"
                                 size="sm"
-                                className="w-full sm:w-auto h-9 cursor-pointer duration-300 text-foreground"
+                                className="w-full sm:w-1/4 h-9 cursor-pointer duration-300 text-foreground"
                               >
                                 <span className="text-xs sm:text-sm">
                                   {t("settings.whatsapp.btn_stop")}
@@ -634,7 +634,7 @@ const DashboardSettingPage = () => {
             <Button
               type="submit"
               disabled={!form.formState.isDirty || isButtonDisabled}
-              className="w-full sm:w-auto bg-primary text-foreground cursor-pointer h-10 sm:h-11 font-medium shadow-sm transition-all duration-300 active:scale-[0.98]"
+              className="w-full sm:w-1/4 bg-primary text-foreground cursor-pointer h-10 sm:h-11 font-medium shadow-sm transition-all duration-300 active:scale-[0.98]"
             >
               <Eye className="mr-2 h-4 w-4" />
               <span className="text-sm">

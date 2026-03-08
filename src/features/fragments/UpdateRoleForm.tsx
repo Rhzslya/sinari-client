@@ -48,6 +48,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface UpdateRoleFormProps {
   user: NotPublicUserResponse | DetailedUserResponse | null;
@@ -128,9 +129,7 @@ export default function UpdateRoleForm({
         role: data.role,
       });
       setShowConfirmDialog(false);
-
       onOpenChange(false);
-
       onSuccess();
     } catch {
       // Error handled by hook
@@ -160,30 +159,29 @@ export default function UpdateRoleForm({
   const ROLE_OPTIONS = Object.values(UserRole);
 
   const inputStyle =
-    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-2 text-xs sm:text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-9 sm:h-10";
   const labelStyle =
-    "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+    "text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider";
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-100">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="w-[95vw] sm:max-w-md p-4 sm:p-6 rounded-xl">
+          <DialogHeader className="space-y-2 sm:space-y-3">
+            <DialogTitle className="text-lg sm:text-xl">
               {t("users_management.forms.update_role.title")}
             </DialogTitle>
             <DialogDescription asChild>
-              <div className="flex flex-col gap-1">
-                <div className="flex flex-wrap items-center gap-1 text-muted-foreground text-sm">
+              <div className="flex flex-col gap-1.5 sm:gap-2">
+                <div className="flex flex-wrap items-center gap-1 text-muted-foreground text-xs sm:text-sm">
                   <span>{t("users_management.forms.update_role.desc_1")}</span>
                   <TruncatedTooltip
                     text={user?.username || ""}
-                    className="font-semibold text-foreground max-w-37.5 truncate"
+                    className="font-bold text-foreground max-w-30 sm:max-w-50 truncate"
                   />
                   <span>.</span>
                 </div>
-
-                <span className="text-xs text-muted-foreground">
+                <span className="text-[10px] sm:text-xs text-muted-foreground/80 leading-relaxed">
                   {t("users_management.forms.update_role.desc_2")}
                 </span>
               </div>
@@ -193,13 +191,13 @@ export default function UpdateRoleForm({
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onPreSubmit)}
-              className="space-y-6 py-2"
+              className="space-y-5 sm:space-y-6 pt-2 sm:pt-4"
             >
               <FormField
                 control={form.control}
                 name="role"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="space-y-2">
                     <FormLabel className={labelStyle}>
                       {t("users_management.forms.update_role.current_role")}
                     </FormLabel>
@@ -219,81 +217,122 @@ export default function UpdateRoleForm({
                       </FormControl>
                       <SelectContent>
                         {ROLE_OPTIONS.map((role) => (
-                          <SelectItem key={role} value={role}>
+                          <SelectItem
+                            key={role}
+                            value={role}
+                            className="text-xs sm:text-sm"
+                          >
                             <span className="capitalize">{role}</span>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {field.value === UserRole.OWNER &&
-                      user?.role !== UserRole.OWNER && (
-                        <div className="flex items-start gap-2 mt-2 rounded-md bg-amber-500/15 p-3 text-sm text-amber-600 dark:text-amber-500 border border-amber-500/20">
-                          <AlertTriangle className="h-5 w-5 shrink-0" />
-                          <div className="space-y-1">
-                            <p className="font-semibold text-xs uppercase">
-                              {t(
-                                "users_management.forms.update_role.warn_high_privilege",
-                              )}
-                            </p>
-                            <p className="text-xs opacity-90">
-                              {t(
-                                "users_management.forms.update_role.warn_high_privilege_desc",
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                      )}
 
-                    {user?.role === UserRole.OWNER &&
-                      field.value !== UserRole.OWNER && (
-                        <div className="flex items-start gap-2 mt-2 rounded-md bg-red-500/15 p-3 text-sm text-red-600 dark:text-red-500 border border-red-500/20">
-                          <AlertTriangle className="h-5 w-5 shrink-0" />
-                          <div className="space-y-1">
-                            <p className="font-semibold text-xs uppercase">
-                              {t(
-                                "users_management.forms.update_role.warn_demote",
-                              )}
-                            </p>
-                            <p className="text-xs opacity-90">
-                              {t(
-                                "users_management.forms.update_role.warn_demote_desc",
-                              )}
-                            </p>
+                    <AnimatePresence initial={false}>
+                      {field.value === UserRole.OWNER &&
+                        user?.role !== UserRole.OWNER && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pt-3">
+                              <div className="flex items-start gap-2.5 rounded-lg bg-amber-500/10 p-3 sm:p-4 text-amber-600 dark:text-amber-500 border border-amber-500/20">
+                                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                  <p className="font-bold text-[10px] sm:text-xs uppercase tracking-wider">
+                                    {t(
+                                      "users_management.forms.update_role.warn_high_privilege",
+                                    )}
+                                  </p>
+                                  <p className="text-[10px] sm:text-xs opacity-90 leading-relaxed">
+                                    {t(
+                                      "users_management.forms.update_role.warn_high_privilege_desc",
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+
+                      {user?.role === UserRole.OWNER &&
+                        field.value !== UserRole.OWNER && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pt-3">
+                              <div className="flex items-start gap-2.5 rounded-lg bg-red-500/10 p-3 sm:p-4 text-red-600 dark:text-red-500 border border-red-500/20">
+                                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                  <p className="font-bold text-[10px] sm:text-xs uppercase tracking-wider">
+                                    {t(
+                                      "users_management.forms.update_role.warn_demote",
+                                    )}
+                                  </p>
+                                  <p className="text-[10px] sm:text-xs opacity-90 leading-relaxed">
+                                    {t(
+                                      "users_management.forms.update_role.warn_demote_desc",
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+
+                      {(cooldown > 0 || isRateLimited) && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="pt-4">
+                            <div className="flex flex-col items-center justify-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive border border-destructive/20 text-center">
+                              <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 shrink-0 opacity-80" />
+                              <div className="space-y-1">
+                                <p className="font-bold text-[10px] sm:text-xs uppercase tracking-wider">
+                                  {t(
+                                    "users_management.forms.common.action_paused",
+                                  )}
+                                </p>
+                                <p
+                                  className="text-[10px] sm:text-xs opacity-90 leading-relaxed"
+                                  dangerouslySetInnerHTML={{
+                                    __html: t(
+                                      "users_management.forms.common.too_many_attempts",
+                                    ).replace(
+                                      "{{seconds}}",
+                                      String(cooldown).padStart(2, "0"),
+                                    ),
+                                  }}
+                                />
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        </motion.div>
                       )}
-                    <FormMessage />
+                    </AnimatePresence>
+
+                    <FormMessage className="text-[10px] sm:text-xs" />
                   </FormItem>
                 )}
               />
 
-              {(cooldown > 0 || isRateLimited) && (
-                <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
-                  <div className="space-y-1 flex flex-col justify-center items-center">
-                    <AlertTriangle className="h-7 w-7 shrink-0" />
-                    <p className="font-semibold text-xs uppercase">
-                      {t("users_management.forms.common.action_paused")}
-                    </p>
-                    <p
-                      className="text-xs opacity-90"
-                      dangerouslySetInnerHTML={{
-                        __html: t(
-                          "users_management.forms.common.too_many_attempts",
-                        ).replace(
-                          "{{seconds}}",
-                          String(cooldown).padStart(2, "0"),
-                        ),
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-              <DialogFooter>
+              <DialogFooter className="gap-2 sm:gap-3 mt-6 sm:mt-8 flex-col sm:flex-row">
                 <Button
                   size="sm"
                   type="button"
                   variant="outline"
-                  className="cursor-pointer duration-300"
+                  className="w-full sm:w-1/4 h-9 sm:h-10 text-xs sm:text-sm cursor-pointer duration-300 order-1 sm:order-0"
                   onClick={() => onOpenChange(false)}
                   disabled={isSubmitting || isPending}
                 >
@@ -301,7 +340,7 @@ export default function UpdateRoleForm({
                 </Button>
                 <Button
                   size="sm"
-                  className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
+                  className="w-full sm:w-1/2 sm:px-8 h-9 sm:h-10 text-xs sm:text-sm text-foreground cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                   type="submit"
                   disabled={
                     isSubmitting || !isDirty || isPending || cooldown > 0
@@ -324,14 +363,15 @@ export default function UpdateRoleForm({
           </Form>
         </DialogContent>
       </Dialog>
+
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[90vw] sm:max-w-106.25 rounded-xl p-4 sm:p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-destructive flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
+            <AlertDialogTitle className="text-destructive flex items-center gap-2 text-base sm:text-lg">
+              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               {t("users_management.forms.update_role.confirm_title")}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-muted-foreground">
+            <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed mt-2">
               {pendingData?.role === UserRole.OWNER ? (
                 <span>
                   {t("users_management.forms.update_role.confirm_promote_1")}{" "}
@@ -339,7 +379,7 @@ export default function UpdateRoleForm({
                     {user?.username}
                   </span>{" "}
                   {t("users_management.forms.update_role.confirm_promote_2")}{" "}
-                  <strong className="text-white">OWNER</strong>
+                  <strong className="text-foreground">OWNER</strong>
                   {t("users_management.forms.update_role.confirm_promote_3")}
                 </span>
               ) : (
@@ -349,24 +389,26 @@ export default function UpdateRoleForm({
                     {user?.username}
                   </span>{" "}
                   {t("users_management.forms.update_role.confirm_demote_2")}{" "}
-                  <strong className="text-white">OWNER</strong>
+                  <strong className="text-foreground">OWNER</strong>
                   {t("users_management.forms.update_role.confirm_demote_3")}
                 </span>
               )}
               <br />
               <br />
-              {t("users_management.forms.update_role.confirm_proceed")}
+              <span className="font-medium">
+                {t("users_management.forms.update_role.confirm_proceed")}
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="mt-4 sm:mt-6 flex-col sm:flex-row gap-2 sm:gap-3">
             <AlertDialogCancel
-              className="cursor-pointer duration-300"
+              className="w-full sm:w-1/4 h-9 sm:h-10 text-xs sm:text-sm cursor-pointer duration-300 mt-0"
               disabled={isPending}
             >
               {t("users_management.forms.update_role.btn_cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
-              className="w-1/3 bg-destructive hover:bg-destructive/90 text-foreground! cursor-pointer duration-300"
+              className="w-full sm:w-1/2 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm bg-destructive hover:bg-destructive/90 text-white cursor-pointer duration-300"
               disabled={isSubmitting || !isDirty || isPending}
               onClick={(e) => {
                 e.preventDefault();
@@ -374,7 +416,7 @@ export default function UpdateRoleForm({
               }}
             >
               {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="h-4 w-4 sm:h-4 sm:w-4 animate-spin mr-2" />
               ) : (
                 t("users_management.forms.update_role.btn_confirm")
               )}

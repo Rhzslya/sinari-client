@@ -14,6 +14,7 @@ import { isAxiosError } from "axios";
 import { AlertTriangle, ArchiveRestore, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface RestoreTechnicianProps {
   technician: TechnicianResponse | null;
@@ -77,53 +78,68 @@ const RestoreTechnicianForm = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="sm:max-w-106.25"
+        className="w-[95vw] sm:max-w-106.25 p-4 sm:p-6 rounded-xl"
       >
         <DialogHeader>
-          <div className="flex mx-auto size-16 shrink-0 items-center border-2 border-success justify-center rounded-full bg-foreground/10 mb-4">
-            <ArchiveRestore className="size-8 text-success" />
+          <div className="flex mx-auto h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center border-2 border-success justify-center rounded-full bg-success/10 mb-3 sm:mb-4">
+            <ArchiveRestore className="h-6 w-6 sm:h-8 sm:w-8 text-success" />
           </div>
 
-          <div className="space-y-4 text-center">
-            <DialogTitle>
+          <div className="space-y-2 sm:space-y-3 text-center">
+            <DialogTitle className="text-lg sm:text-xl">
               {t("technicians_management.forms.restore.title")}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               {t("technicians_management.forms.restore.desc_1")}{" "}
-              <span className="font-semibold text-foreground">
+              <span className="font-bold text-foreground">
                 {technician?.name}
-              </span>
+              </span>{" "}
               {t("technicians_management.forms.restore.desc_2")}
             </DialogDescription>
           </div>
         </DialogHeader>
 
-        {(cooldown > 0 || isRateLimited) && (
-          <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
-            <div className="space-y-1 flex flex-col justify-center items-center">
-              <AlertTriangle className="h-7 w-7 shrink-0" />
-              <p className="font-semibold text-xs uppercase">
-                {t("technicians_management.forms.common.action_paused")}
-              </p>
-              <p
-                className="text-xs opacity-90"
-                dangerouslySetInnerHTML={{
-                  __html: t(
-                    "technicians_management.forms.common.too_many_attempts",
-                  ).replace("{{seconds}}", String(cooldown).padStart(2, "0")),
-                }}
-              />
-            </div>
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {(cooldown > 0 || isRateLimited) && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="pt-4">
+                <div className="flex flex-col items-center justify-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive border border-destructive/20 text-center">
+                  <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 shrink-0 opacity-80" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-[10px] sm:text-xs uppercase tracking-wider">
+                      {t("technicians_management.forms.common.action_paused")}
+                    </p>
+                    <p
+                      className="text-[10px] sm:text-xs opacity-90 leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: t(
+                          "technicians_management.forms.common.too_many_attempts",
+                        ).replace(
+                          "{{seconds}}",
+                          String(cooldown).padStart(2, "0"),
+                        ),
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <DialogFooter className="w-full sm:justify-between mt-4">
+        <DialogFooter className="mt-6 sm:mt-8 flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-between w-full">
           <Button
             size="sm"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
-            className="w-1/3 cursor-pointer duration-300"
+            className="w-full sm:w-1/2 h-9 sm:h-10 text-xs sm:text-sm cursor-pointer duration-300 order-1 sm:order-0"
           >
             {t("technicians_management.forms.restore.btn_cancel")}
           </Button>
@@ -132,10 +148,14 @@ const RestoreTechnicianForm = ({
             size="sm"
             variant="default"
             onClick={handleDelete}
-            disabled={isPending}
-            className="w-1/3 cursor-pointer duration-300 text-foreground"
+            disabled={isPending || cooldown > 0}
+            className="w-full sm:w-1/2 h-9 sm:h-10 text-xs sm:text-sm cursor-pointer duration-300 text-white bg-success hover:bg-success/90"
           >
-            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArchiveRestore className="h-4 w-4" />
+            )}
             {t("technicians_management.forms.restore.btn_restore")}
           </Button>
         </DialogFooter>

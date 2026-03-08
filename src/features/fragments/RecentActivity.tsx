@@ -76,7 +76,7 @@ export function RecentActivity({ data }: RecentActivityProps) {
 
           <div className="sm:ml-4 space-y-1 sm:space-y-1.5 w-full min-w-0">
             <div className="flex items-start sm:items-center justify-between gap-2 flex-col sm:flex-row">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 w-full sm:w-auto">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0 w-full sm:w-1/2">
                 <p className="text-xs sm:text-sm font-semibold truncate max-w-30 sm:max-w-50">
                   {item.username}
                 </p>

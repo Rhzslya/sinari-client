@@ -35,6 +35,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 const statusSchema = RepairValidation.UPDATE.pick({
   status: true,
@@ -157,20 +158,22 @@ export function UpdateStatusDialog({
   }, [open, reset]);
 
   const inputStyle =
-    "flex w-full bg-input/50 border border-border rounded-md px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-8";
+    "flex w-full bg-input/50 border border-border rounded-md px-3 py-2 text-xs sm:text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 h-9 sm:h-10";
   const labelStyle =
-    "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+    "text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider";
 
   const renderStatusAlert = () => {
     if (isTaken) {
       return (
-        <div className="bg-destructive/10 text-destructive p-3 rounded-md border border-destructive/20 text-xs flex items-start gap-2 mb-4">
-          <Lock className="w-4 h-4 mt-0.5 shrink-0" />
+        <div className="bg-destructive/10 text-destructive p-3 sm:p-4 rounded-lg border border-destructive/20 text-xs flex items-start gap-2.5 mb-2 sm:mb-4">
+          <Lock className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 shrink-0" />
           <div>
-            <span className="font-bold uppercase block mb-1">
+            <span className="font-bold text-[10px] sm:text-xs uppercase tracking-wider block mb-1">
               {t("services_management.forms.edit.alert_locked_title")}
             </span>
-            {t("services_management.forms.edit.alert_locked_desc")}
+            <span className="text-[10px] sm:text-xs opacity-90 leading-relaxed">
+              {t("services_management.forms.edit.alert_locked_desc")}
+            </span>
           </div>
         </div>
       );
@@ -178,13 +181,14 @@ export function UpdateStatusDialog({
 
     if (isTimeExpiredButCanTake) {
       return (
-        <div className="bg-warning/20 text-warning-foreground p-3 rounded-md border border-warning/50 text-xs flex items-start gap-2 mb-4">
-          <Lock className="w-4 h-4 mt-0.5 shrink-0" />
+        <div className="bg-warning/20 text-warning-foreground p-3 sm:p-4 rounded-lg border border-warning/50 text-xs flex items-start gap-2.5 mb-2 sm:mb-4">
+          <Lock className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 shrink-0" />
           <div>
-            <span className="font-bold uppercase block mb-1">
+            <span className="font-bold text-[10px] sm:text-xs uppercase tracking-wider block mb-1">
               {t("services_management.forms.edit.alert_restricted_title")}
             </span>
             <span
+              className="text-[10px] sm:text-xs opacity-90 leading-relaxed"
               dangerouslySetInnerHTML={{
                 __html: t(
                   "services_management.forms.edit.alert_restricted_desc",
@@ -198,13 +202,14 @@ export function UpdateStatusDialog({
 
     if (isGracePeriodActive) {
       return (
-        <div className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 p-3 rounded-md border border-blue-200 dark:border-blue-800 text-xs flex items-start gap-2 mb-4">
-          <Clock className="w-4 h-4 mt-0.5 shrink-0 animate-pulse" />
+        <div className="bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 p-3 sm:p-4 rounded-lg border border-blue-200 dark:border-blue-800 text-xs flex items-start gap-2.5 mb-2 sm:mb-4">
+          <Clock className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 shrink-0 animate-pulse" />
           <div>
-            <span className="font-bold uppercase block mb-1">
+            <span className="font-bold text-[10px] sm:text-xs uppercase tracking-wider block mb-1">
               {t("services_management.forms.edit.alert_grace_title")}
             </span>
             <span
+              className="text-[10px] sm:text-xs opacity-90 leading-relaxed"
               dangerouslySetInnerHTML={{
                 __html: t("services_management.forms.edit.alert_grace_desc")
                   .replace("{{minutes}}", String(timeLeft.m))
@@ -218,37 +223,39 @@ export function UpdateStatusDialog({
 
     return null;
   };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-100">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="w-[95vw] sm:max-w-106.25 p-4 sm:p-6 rounded-xl">
+        <DialogHeader className="space-y-2 sm:space-y-3">
+          <DialogTitle className="text-lg sm:text-xl">
             {t("services_management.forms.update_status.title")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
             {t("services_management.forms.update_status.desc_1")}{" "}
-            <span className="font-semibold text-foreground">
+            <span className="font-bold text-foreground">
               {service?.service_id}
             </span>
             .
             <br />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[10px] sm:text-xs text-muted-foreground/80 mt-1 block">
               {t("services_management.forms.update_status.desc_2")}
             </span>
           </DialogDescription>
         </DialogHeader>
+
         {renderStatusAlert()}
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 py-2"
+            className="space-y-5 sm:space-y-6 pt-2"
           >
             <FormField
               control={form.control}
               name="status"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="space-y-2">
                   <FormLabel className={labelStyle}>
                     {t("services_management.forms.update_status.status_label")}
                   </FormLabel>
@@ -268,45 +275,61 @@ export function UpdateStatusDialog({
                     </FormControl>
                     <SelectContent>
                       {uniqueOptions.map((status) => (
-                        <SelectItem key={status} value={status}>
+                        <SelectItem
+                          key={status}
+                          value={status}
+                          className="text-xs sm:text-sm"
+                        >
                           {status}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="text-[10px] sm:text-xs" />
                 </FormItem>
               )}
             />
 
-            {(cooldown > 0 || isRateLimited) && (
-              <div className="flex justify-center gap-2 mt-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive border border-destructive/20 animate-in fade-in zoom-in duration-300">
-                <div className="space-y-1 flex flex-col justify-center items-center">
-                  <AlertTriangle className="h-7 w-7 shrink-0" />
-                  <p className="font-semibold text-xs uppercase">
-                    {t("services_management.forms.common.action_paused")}
-                  </p>
-                  <p
-                    className="text-xs opacity-90"
-                    dangerouslySetInnerHTML={{
-                      __html: t(
-                        "services_management.forms.common.too_many_attempts",
-                      ).replace(
-                        "{{seconds}}",
-                        String(cooldown).padStart(2, "0"),
-                      ),
-                    }}
-                  />
-                </div>
-              </div>
-            )}
+            <AnimatePresence initial={false}>
+              {(cooldown > 0 || isRateLimited) && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-2">
+                    <div className="flex flex-col items-center justify-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive border border-destructive/20 text-center">
+                      <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 shrink-0 opacity-80" />
+                      <div className="space-y-1">
+                        <p className="font-bold text-[10px] sm:text-xs uppercase tracking-wider">
+                          {t("services_management.forms.common.action_paused")}
+                        </p>
+                        <p
+                          className="text-[10px] sm:text-xs opacity-90 leading-relaxed"
+                          dangerouslySetInnerHTML={{
+                            __html: t(
+                              "services_management.forms.common.too_many_attempts",
+                            ).replace(
+                              "{{seconds}}",
+                              String(cooldown).padStart(2, "0"),
+                            ),
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-3 mt-4 sm:mt-6 flex-col sm:flex-row">
               <Button
                 size="sm"
                 type="button"
                 variant="outline"
-                className="cursor-pointer duration-300"
+                className="w-full sm:w-1/4 h-9 sm:h-10 text-xs sm:text-sm cursor-pointer duration-300 order-1 sm:order-0"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting || isPending}
               >
@@ -314,7 +337,7 @@ export function UpdateStatusDialog({
               </Button>
               <Button
                 size="sm"
-                className="w-1/3 text-foreground text-sm cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
+                className="w-full sm:w-1/2 sm:px-8 h-9 sm:h-10 text-xs sm:text-sm text-foreground cursor-pointer bg-success hover:bg-success/80 focus:ring-success duration-300"
                 type="submit"
                 disabled={
                   isSubmitting ||
@@ -325,7 +348,7 @@ export function UpdateStatusDialog({
                 }
               >
                 {isSubmitting || isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   t("services_management.forms.update_status.btn_save")
                 )}

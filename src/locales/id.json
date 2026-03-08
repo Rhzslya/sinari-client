@@ -823,7 +823,7 @@
         "warn_demote": "Peringatan: Penurunan Peran Pemilik",
         "warn_demote_desc": "Anda akan menghapus akses kepemilikan. Pastikan ada setidaknya satu Pemilik (Owner) lain yang tersisa.",
         "btn_cancel": "Batal",
-        "btn_save": "Simpan Perubahan",
+        "btn_save": "Simpan",
         "confirm_title": "Konfirmasi Aksi Kritis",
         "confirm_promote_1": "Anda akan mempromosikan",
         "confirm_promote_2": "menjadi",
@@ -1151,7 +1151,7 @@
         "reason_label": "Alasan Penyesuaian",
         "reason_placeholder": "Pilih alasan",
         "btn_cancel": "Batal",
-        "btn_save": "Simpan Perubahan"
+        "btn_save": "Simpan"
       },
       "delete": {
         "title": "Hapus Produk?",
@@ -1286,7 +1286,7 @@
         "cost_billing_desc": "Perbarui layanan dan harga.",
         "btn_reset": "Atur Ulang",
         "btn_cancel": "Batal",
-        "btn_save": "Simpan Perubahan",
+        "btn_save": "Simpan",
         "toast_wa_failed": "Notifikasi WhatsApp Gagal",
         "toast_wa_failed_desc": "Gagal mengirim pesan ke nomor pelanggan"
       },
@@ -1297,7 +1297,7 @@
         "status_label": "Status Saat Ini",
         "status_placeholder": "Pilih status",
         "btn_cancel": "Batal",
-        "btn_save": "Simpan Perubahan",
+        "btn_save": "Simpan",
         "toast_wa_failed": "Notifikasi WhatsApp Gagal",
         "toast_wa_failed_desc": "Gagal mengirim pesan ke nomor pelanggan"
       },

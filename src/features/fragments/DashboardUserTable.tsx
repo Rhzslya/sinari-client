@@ -20,10 +20,10 @@ import UpdateRoleForm from "./UpdateRoleForm";
 import EmailCell from "./EmailCell";
 import { getRoleBadgeColor } from "@/components/utils/roleBadge";
 import { UserSkeletonTable } from "./Skeleton";
-import RestoreUserForm from "../components/RestoreUserForm";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import RestoreUserForm from "./RestoreUserForm";
 
 const tableRowVariants: Variants = {
   hidden: { opacity: 0, scale: 0.98 },
@@ -106,7 +106,16 @@ const DashboardUserTable = ({
   return (
     <>
       <TooltipProvider>
-        <div className="rounded-md border bg-card overflow-x-auto w-full shadow-sm custom-scrollbar">
+        <div
+          className="rounded-md border bg-card shadow-sm w-full overflow-x-auto pb-2 sm:pb-0
+            [&::-webkit-scrollbar]:h-1.5
+            [&::-webkit-scrollbar-track]:bg-transparent
+            [&::-webkit-scrollbar-thumb]:bg-primary/20 
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            hover:[&::-webkit-scrollbar-thumb]:bg-primary
+            transition-colors
+            "
+        >
           <Table className="min-w-250 w-full text-sm table-fixed">
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-muted/30">

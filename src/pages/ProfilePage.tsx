@@ -189,7 +189,7 @@ const ProfilePage = () => {
                 {user.google_id ? (
                   <Button
                     variant="outline"
-                    className="font-bold border-2 shrink-0 opacity-50 cursor-not-allowed w-full sm:w-auto"
+                    className="font-bold border-2 shrink-0 opacity-50 cursor-not-allowed w-full sm:w-1/2"
                     disabled
                   >
                     <Key className="w-4 h-4 mr-2" />{" "}
@@ -215,7 +215,7 @@ const ProfilePage = () => {
                 </div>
                 <Button
                   variant="destructive"
-                  className="font-bold shrink-0 shadow-sm cursor-pointer w-full sm:w-auto"
+                  className="font-bold shrink-0 shadow-sm cursor-pointer w-full sm:w-1/2"
                   onClick={handleManualLogout}
                 >
                   <LogOut className="w-4 h-4 mr-2" />{" "}
