@@ -27,7 +27,6 @@ import {
   Wrench,
   Wallet,
   ShoppingBag,
-  Loader2,
   FileText,
   FileSpreadsheet,
 } from "lucide-react";
@@ -36,6 +35,7 @@ import { toast } from "sonner";
 import { pdf } from "@react-pdf/renderer";
 import { DashboardReportPDF } from "@/features/components/DashboardReportPDF";
 import { motion, type Variants } from "framer-motion";
+import { DashboardSkeleton } from "@/features/fragments/Skeleton";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -138,14 +138,7 @@ const DashboardPage = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-primary" />
-        <span className="ml-3 text-sm sm:text-base text-muted-foreground font-medium animate-pulse">
-          {t("dashboard.loading")}
-        </span>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (isError && !stats) {
@@ -199,7 +192,7 @@ const DashboardPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full sm:w-1/2 shrink-0 cursor-pointer text-foreground shadow-sm h-9 sm:h-10"
+                className="w-full sm:w-auto shrink-0 cursor-pointer text-foreground shadow-sm h-9 sm:h-10"
               >
                 <Download className="mr-2 h-4 w-4" />
                 {t("dashboard.export.btn")}

@@ -1,7 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { UserRole } from "@/enum/product-enum";
 import { useUserQueries } from "@/hooks/user-queries";
-import { DashboardLayoutSkeleton } from "@/features/fragments/Skeleton";
 import { Loader2 } from "lucide-react";
 
 export const GuestRoute = () => {
@@ -28,7 +27,11 @@ export const ProtectedRoute = () => {
   const { data: user, isLoading, isError } = useProfile();
 
   if (isLoading) {
-    return <DashboardLayoutSkeleton />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (isError || !user) {
@@ -42,7 +45,11 @@ export const AdminRoute = () => {
   const { data: user, isLoading, isError } = useProfile();
 
   if (isLoading) {
-    return <DashboardLayoutSkeleton />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   const isAuthorized =

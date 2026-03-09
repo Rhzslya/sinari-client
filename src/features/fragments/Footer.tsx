@@ -1,4 +1,11 @@
-import { Send, ShieldCheck, Banknote, Wrench, Smartphone } from "lucide-react";
+import {
+  Send,
+  ShieldCheck,
+  Banknote,
+  Wrench,
+  Smartphone,
+  Loader2,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,6 +13,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
+import { formatPhoneNumberToWA } from "@/components/utils/formatNumbeToWa";
 
 const InstagramIcon = () => (
   <svg
@@ -80,6 +89,9 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
   const location = useLocation();
 
+  const { useGetPublicSettings } = useStoreSettingQueries();
+  const { data: storeData, isLoading: isStoreLoading } = useGetPublicSettings();
+
   const isActive = (path: string) => {
     if (path === "/") {
       return location.pathname === "/";
@@ -96,7 +108,7 @@ export function Footer() {
   };
 
   const handleConsultClick = () => {
-    const phoneNumber = "6281234567890";
+    const phoneNumber = formatPhoneNumberToWA(storeData?.store_phone);
     const text =
       "Halo Sinari Cell, saya ingin konsultasi mengenai servis gadget saya.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
@@ -213,7 +225,11 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10 py-10 md:py-12">
           <motion.div variants={fadeInUp} className="col-span-2 md:col-span-1">
             <h2 className="text-2xl font-black text-primary mb-4 tracking-tighter">
-              Sinari Cell
+              {isStoreLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                `${storeData?.store_name}`
+              )}
             </h2>
             <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-6 max-w-xs">
               {t("footer.company_desc")}
@@ -260,7 +276,11 @@ export function Footer() {
                   className="text-muted-foreground hover:text-primary transition-colors p-0 h-auto font-normal text-sm cursor-pointer py-1"
                   onClick={handleConsultClick}
                 >
-                  {t("footer.links.services.consultation")}
+                  {isStoreLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    t("footer.links.services.consultation")
+                  )}
                 </button>
               </li>
               <li>

@@ -1,49 +1,28 @@
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { ServiceStatus } from "@/enum/product-enum";
-import { format } from "date-fns";
-import { Globe, Loader2, MapPin, Phone, RefreshCcw } from "lucide-react";
-import { useParams } from "react-router-dom";
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  ClipboardList,
+  Clock,
+  Loader2,
+  Receipt,
+  RefreshCcw,
+  ShieldCheck,
+  Smartphone,
+  User,
+} from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import { useServiceQueries } from "@/hooks/repair-queries";
 import { isAxiosError } from "axios";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
-import RateLimitBanner from "@/features/fragments/RateLimitBanner";
 import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 import { useTranslation } from "react-i18next";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
-
-const PDF_COLORS = {
-  primary: "#ef473a",
-  dark: "#1e293b",
-  muted: "#64748b",
-  warning: "#f59e0b",
-};
-
-const staggerContainer: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
-
-const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
-};
-
-const stampAnimation: Variants = {
-  hidden: { opacity: 0, scale: 2, rotate: -20 },
-  visible: {
-    opacity: 0.8,
-    scale: 1,
-    rotate: -6,
-    transition: { type: "spring", stiffness: 200, damping: 15, delay: 0.5 },
-  },
-};
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { format } from "date-fns";
 
 export default function TrackServicePage() {
   const { t } = useTranslation();
@@ -68,27 +47,38 @@ export default function TrackServicePage() {
 
   if (isRateLimited) {
     const message = error.response?.data?.errors || "";
-    const match = message.match(/(\d+)(?:s| seconds)/);
+    const match = message.match(/(\d+)/);
     cooldownSeconds = match ? parseInt(match[1]) : 60;
   }
 
   if (isLoading && !service) {
     return (
-      <div className="min-h-dvh flex flex-col items-center justify-center bg-gray-100 gap-3">
-        <Loader2 className="w-10 h-10 animate-spin text-slate-400" />
-        <p className="text-sm text-slate-500 font-medium animate-pulse">
+      <div className="min-h-dvh flex flex-col items-center justify-center bg-slate-50 gap-4">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        >
+          <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
+        </motion.div>
+        <motion.p
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+          className="text-sm sm:text-base text-slate-500 font-medium tracking-wide"
+        >
           {t("track_service.loading")}
-        </p>
+        </motion.p>
       </div>
     );
   }
 
   if (isRateLimited && !service) {
     return (
-      <RateLimitFallback
-        seconds={cooldownSeconds}
-        onRetry={() => void refetch()}
-      />
+      <div className="min-h-dvh flex items-center justify-center bg-slate-50 p-4">
+        <RateLimitFallback
+          seconds={cooldownSeconds}
+          onRetry={() => void refetch()}
+        />
+      </div>
     );
   }
 
@@ -103,426 +93,499 @@ export default function TrackServicePage() {
     );
   }
 
-  const storeName = storeData?.store_name || "SINARI CELL";
-  const storeAddress = storeData?.store_address || "Tangerang Selatan";
-  const storePhone = storeData?.store_phone || "0812-3456-7890";
-  const storeWebsite = storeData?.store_website || "";
-  const warrantyText = storeData?.warranty_text || "";
-  const paymentInfo = storeData?.payment_info || "";
-
   const isCancelled = service.status === ServiceStatus.CANCELLED;
+  const isFinished =
+    service.status === ServiceStatus.TAKEN ||
+    service.status === ServiceStatus.FINISHED;
 
+  const steps = [
+    {
+      status: ServiceStatus.PENDING,
+      label: t("track_service.steps.received"),
+      icon: Clock,
+    },
+    {
+      status: ServiceStatus.PROCESS,
+      label: t("track_service.steps.repairing"),
+      icon: RefreshCcw,
+    },
+    {
+      status: ServiceStatus.FINISHED,
+      label: t("track_service.steps.ready"),
+      icon: ShieldCheck,
+    },
+    {
+      status: ServiceStatus.TAKEN,
+      label: t("track_service.steps.completed"),
+      icon: CheckCircle2,
+    },
+  ];
+
+  const currentStepIndex = isCancelled
+    ? -1
+    : steps.findIndex((s) => s.status === service.status);
+
+  const downPayment = service.down_payment ?? 0;
   const subTotal = service.service_list.reduce(
     (acc, item) => acc + item.price,
     0,
   );
-  const discountAmount = (subTotal * (service.discount || 0)) / 100;
-  const downPayment = service.down_payment || 0;
-  const grandTotal = isCancelled ? 0 : subTotal - discountAmount - downPayment;
+  const discountAmount = (subTotal * (service.discount ?? 0)) / 100;
+  const grandTotal = isCancelled
+    ? 0
+    : Math.max(0, Math.round(subTotal - discountAmount - downPayment));
+
+  const getStatusContent = () => {
+    switch (service.status) {
+      case ServiceStatus.PENDING:
+        return {
+          title: t("track_service.status.pending.title"),
+          desc: t("track_service.status.pending.desc"),
+          color: "from-blue-500 to-primary",
+        };
+      case ServiceStatus.PROCESS:
+        return {
+          title: t("track_service.status.process.title"),
+          desc: t("track_service.status.process.desc"),
+          color: "from-indigo-500 to-blue-600",
+        };
+      case ServiceStatus.FINISHED:
+        return {
+          title: t("track_service.status.finished.title"),
+          desc: t("track_service.status.finished.desc"),
+          color: "from-emerald-400 to-emerald-600",
+        };
+      case ServiceStatus.TAKEN:
+        return {
+          title: t("track_service.status.taken.title"),
+          desc: t("track_service.status.taken.desc"),
+          color: "from-teal-600 to-emerald-800",
+        };
+      case ServiceStatus.CANCELLED:
+        return {
+          title: t("track_service.status.cancelled.title"),
+          desc: t("track_service.status.cancelled.desc"),
+          color: "from-slate-700 to-slate-900",
+        };
+      default:
+        return {
+          title: service.status,
+          desc: "",
+          color: "from-primary to-blue-600",
+        };
+    }
+  };
+
+  const statusInfo = getStatusContent();
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
+  };
+
+  const itemVariants: Variants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 100 },
+    },
+  };
 
   return (
-    <div className="min-h-dvh bg-gray-100/80 p-4 sm:p-6 md:p-8 flex flex-col items-center py-10 font-sans overflow-hidden">
-      <AnimatePresence>
-        {isRateLimited && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-2xl mb-4"
-          >
-            <RateLimitBanner
-              seconds={cooldownSeconds}
-              onRetry={() => void refetch()}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Refetching Indicator */}
-      {isRefetching && !isRateLimited && (
-        <div className="w-full max-w-2xl mb-4 flex items-center justify-center gap-2 text-sm text-slate-500 animate-pulse">
-          <RefreshCcw className="h-4 w-4 animate-spin" />
-          <p>{t("track_service.updating")}</p>
-        </div>
-      )}
-
-      {/* INVOICE CONTAINER */}
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 pb-20 font-sans selection:bg-primary/20">
+      {/* Header */}
       <motion.div
-        className="w-full max-w-2xl bg-white sm:rounded-xl shadow-2xl min-h-37.5 flex flex-col relative overflow-hidden"
-        variants={staggerContainer}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 120, damping: 20 }}
+        className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 px-4 py-3 sm:px-8 sm:py-4 flex justify-between items-center shadow-sm"
+      >
+        <Link to="/" className="flex items-center gap-2 sm:gap-3">
+          <span className="font-black tracking-tighter text-lg sm:text-2xl text-slate-800">
+            {storeData?.store_name || "SINARI"}
+          </span>
+        </Link>
+        <div className="flex flex-col items-end">
+          <span className="text-xs sm:text-sm font-mono font-bold text-slate-700 ">
+            {service.service_id}
+          </span>
+          <span className="text-[10px] sm:text-xs text-slate-400 font-medium flex items-center gap-1 mt-1">
+            <Calendar className="w-3 h-3" />
+            {format(new Date(service.created_at), "dd MMM yyyy")}
+          </span>
+        </div>
+      </motion.div>
+
+      <motion.main
+        variants={containerVariants}
         initial="hidden"
         animate="visible"
+        className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 space-y-6 sm:space-y-8"
       >
-        {/* Aksen atas agar terlihat seperti kertas */}
-        <div
-          className="absolute top-0 left-0 w-full h-1.5"
-          style={{ backgroundColor: PDF_COLORS.primary }}
-        />
-
-        {/* 1. HEADER SECTION */}
-        <motion.div variants={fadeInUp} className="p-5 sm:p-8 pb-2 mt-2">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h1
-                className="text-2xl sm:text-3xl font-black tracking-tight"
-                style={{ color: PDF_COLORS.dark }}
-              >
-                {storeName.toUpperCase()}
-              </h1>
-              <p
-                className="text-[10px] sm:text-xs uppercase tracking-widest font-semibold"
-                style={{ color: PDF_COLORS.muted }}
-              >
-                {t("track_service.invoice.subtitle")}
-              </p>
-            </div>
-
-            {/* Status Stamp */}
-            <motion.div className="text-right" variants={stampAnimation}>
-              <div
-                className="border-2 px-3 sm:px-4 py-1 sm:py-1.5 inline-block"
-                style={{ borderColor: PDF_COLORS.dark }}
-              >
-                <span
-                  className="text-xs sm:text-sm font-black uppercase tracking-widest"
-                  style={{ color: PDF_COLORS.dark }}
-                >
-                  {service.status.replace("_", " ")}
-                </span>
-              </div>
-            </motion.div>
-          </div>
-
-          <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-            <div
-              className="h-3 sm:h-4 flex-1 rounded-r-full"
-              style={{ backgroundColor: PDF_COLORS.primary }}
-            ></div>
-            <h2
-              className="text-lg sm:text-xl font-bold tracking-widest uppercase shrink-0"
-              style={{ color: PDF_COLORS.dark }}
-            >
-              {t("track_service.invoice.title")}
-            </h2>
-            <div
-              className="h-3 w-3 sm:h-4 sm:w-4 rounded-full shrink-0"
-              style={{ backgroundColor: PDF_COLORS.primary }}
-            ></div>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-6 text-sm mb-4">
-            <div className="flex-1 space-y-1.5 min-w-0 bg-slate-50 p-3 sm:p-4 rounded-lg border border-slate-100">
-              <p
-                className="font-bold text-xs uppercase tracking-wider mb-2"
-                style={{ color: PDF_COLORS.primary }}
-              >
-                {t("track_service.invoice.info_to")}
-              </p>
-              <TruncatedTooltip
-                text={service.customer_name}
-                className="font-bold uppercase truncate text-[#1e293b] text-sm sm:text-base block"
-              />
-              <p
-                className="text-xs sm:text-sm font-medium"
-                style={{ color: PDF_COLORS.muted }}
-              >
-                {service.phone_number}
-              </p>
-              <div
-                className="flex flex-wrap items-center text-xs sm:text-sm pt-1 mt-2 border-t border-slate-200"
-                style={{ color: PDF_COLORS.dark }}
-              >
-                <span className="font-bold shrink-0 mr-1">{service.brand}</span>
-                <span className="shrink-0 mr-1 text-slate-400">-</span>
-                <div className="min-w-0">
-                  <TruncatedTooltip
-                    text={service.model}
-                    className="truncate text-[#64748b] font-medium block"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 space-y-2 sm:space-y-3 justify-center flex flex-col p-2 sm:p-0">
-              <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                <span
-                  className="font-bold text-xs sm:text-sm"
-                  style={{ color: PDF_COLORS.dark }}
-                >
-                  {t("track_service.invoice.inv_no")}
-                </span>
-                <span
-                  className="text-xs sm:text-sm font-mono font-semibold"
-                  style={{ color: PDF_COLORS.muted }}
-                >
-                  {service.service_id}
-                </span>
-              </div>
-              <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                <span
-                  className="font-bold text-xs sm:text-sm"
-                  style={{ color: PDF_COLORS.dark }}
-                >
-                  {t("track_service.invoice.date")}
-                </span>
-                <span
-                  className="text-xs sm:text-sm font-medium"
-                  style={{ color: PDF_COLORS.muted }}
-                >
-                  {format(new Date(service.created_at), "dd MMM yyyy")}
-                </span>
-              </div>
-              <div className="flex justify-between border-b border-gray-100 pb-1.5">
-                <span
-                  className="font-bold text-xs sm:text-sm"
-                  style={{ color: PDF_COLORS.dark }}
-                >
-                  {t("track_service.invoice.technician")}
-                </span>
-                <span
-                  className="text-xs sm:text-sm font-medium"
-                  style={{ color: PDF_COLORS.muted }}
-                >
-                  {service.technician?.name || "-"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* 2. TABLE SECTION */}
-        <motion.div variants={fadeInUp} className="px-5 sm:px-8 mb-6 sm:mb-8">
-          <div className="w-full rounded-lg overflow-hidden border border-slate-200">
-            <div
-              className="flex text-[10px] sm:text-xs font-bold py-2.5 px-3 uppercase text-white"
-              style={{ backgroundColor: PDF_COLORS.dark }}
-            >
-              <div className="w-8 sm:w-10 text-center shrink-0">
-                {t("track_service.invoice.table.no")}
-              </div>
-              <div className="flex-1 px-2">
-                {t("track_service.invoice.table.desc")}
-              </div>
-              <div className="w-20 sm:w-28 text-right shrink-0">
-                {t("track_service.invoice.table.price")}
-              </div>
-            </div>
-
-            <div className="text-xs sm:text-sm">
-              {service.service_list.map((item, index) => (
-                <div
-                  key={index}
-                  className={`flex py-2.5 px-3 border-b border-gray-100 last:border-0 hover:bg-slate-50 transition-colors ${
-                    index % 2 !== 0 ? "bg-slate-50/50" : "bg-white"
-                  }`}
-                >
-                  <div
-                    className="w-8 sm:w-10 text-center shrink-0 font-medium pt-0.5"
-                    style={{ color: PDF_COLORS.muted }}
-                  >
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0 px-2">
-                    <TruncatedTooltip
-                      text={item.name}
-                      className={`font-medium block ${
-                        isCancelled
-                          ? "line-through text-gray-400"
-                          : "text-[#1e293b]"
-                      }`}
-                    />
-                  </div>
-                  <div
-                    className={`w-20 sm:w-28 text-right font-semibold shrink-0 pt-0.5 ${
-                      isCancelled
-                        ? "text-gray-400 line-through"
-                        : "text-[#1e293b]"
-                    }`}
-                  >
-                    {formatRupiah(item.price)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* 3. FOOTER SECTION */}
+        {/* 1. Hero Card */}
         <motion.div
-          variants={fadeInUp}
-          className="px-5 sm:px-8 flex flex-col-reverse md:flex-row gap-8 mb-8 flex-1"
+          variants={itemVariants}
+          className={`relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 text-white shadow-2xl bg-linear-to-br ${statusInfo.color}`}
         >
-          {/* Terms & Payment */}
-          <div
-            className="flex-1 text-[10px] sm:text-xs space-y-3 sm:space-y-4 bg-slate-50 p-4 sm:p-5 rounded-lg border border-slate-100"
-            style={{ color: PDF_COLORS.muted }}
-          >
-            <div>
-              <p
-                className="font-bold uppercase tracking-wider mb-1"
-                style={{ color: PDF_COLORS.dark }}
-              >
-                {t("track_service.invoice.footer.terms")}
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] backdrop-blur-sm">
+                  {t("track_service.current_status")}
+                </span>
+                <AnimatePresence>
+                  {isRefetching && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                    >
+                      <RefreshCcw className="w-4 h-4 animate-spin" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-black uppercase tracking-tighter leading-none text-white drop-shadow-md">
+                {statusInfo.title}
+              </h1>
+              <p className="text-sm sm:text-base text-white/90 font-medium max-w-md leading-relaxed">
+                {statusInfo.desc}
               </p>
-              <div className="whitespace-pre-wrap leading-relaxed text-[10px]">
-                {warrantyText}
-              </div>
             </div>
 
-            <div>
-              <p
-                className="font-bold uppercase tracking-wider mb-1"
-                style={{ color: PDF_COLORS.dark }}
-              >
-                {t("track_service.invoice.footer.payment")}
-              </p>
-              <div className="whitespace-pre-wrap leading-relaxed">
-                {paymentInfo}
-              </div>
-            </div>
-          </div>
-
-          {/* Totals & Signature */}
-          <div className="w-full md:w-64 text-xs sm:text-sm space-y-2.5">
-            <div className="flex justify-between items-center px-1">
-              <span className="font-bold text-slate-500">
-                {t("track_service.invoice.footer.subtotal")}
-              </span>
-              <span
-                className={`font-semibold ${isCancelled ? "line-through text-slate-400" : "text-slate-700"}`}
-              >
-                {formatRupiah(subTotal)}
-              </span>
-            </div>
-
-            {!isCancelled && discountAmount > 0 && (
-              <div className="flex justify-between items-center px-1 text-red-500">
-                <span className="font-bold">
-                  {t("track_service.invoice.footer.discount")} (
-                  {service.discount}%)
-                </span>
-                <span className="font-semibold">
-                  - {formatRupiah(discountAmount)}
-                </span>
-              </div>
-            )}
-
-            {downPayment > 0 && (
-              <div className="flex justify-between items-center px-1 text-emerald-600">
-                <span className="font-bold">
-                  {t("track_service.invoice.footer.dp")}
-                </span>
-                <span className="font-semibold">
-                  - {formatRupiah(downPayment)}
-                </span>
-              </div>
-            )}
-
-            <div
-              className="text-white p-3 sm:p-4 rounded-lg flex justify-between items-center mt-3 shadow-md"
-              style={{
-                backgroundColor: isCancelled
-                  ? PDF_COLORS.muted
-                  : PDF_COLORS.primary,
-              }}
-            >
-              <span className="font-bold uppercase tracking-wider text-[10px] sm:text-xs">
-                {isCancelled
-                  ? t("track_service.invoice.footer.amount_due")
-                  : t("track_service.invoice.footer.total_due")}
-              </span>
-              <span className="font-black text-base sm:text-lg tracking-tight">
-                {formatRupiah(Math.max(0, grandTotal))}
-              </span>
-            </div>
-
-            {isCancelled && downPayment > 0 && (
-              <div className="mt-3 border-2 border-dashed border-red-200 bg-red-50 p-3 rounded-lg text-xs leading-relaxed text-red-800">
-                <div className="flex items-center gap-1.5 mb-1.5 font-bold">
-                  <RefreshCcw className="w-4 h-4" />
-                  <span>{t("track_service.invoice.footer.refund_notice")}</span>
-                </div>
-                <p>
-                  {t("track_service.invoice.footer.refund_msg", {
-                    amount: formatRupiah(downPayment),
-                  })}
-                </p>
-              </div>
-            )}
-
-            {/* Signature Box */}
-            <div className="pt-6 sm:pt-8 text-center mt-auto">
-              <div className="h-16 flex items-end justify-center mb-2">
-                {service.technician?.signature_url ? (
-                  <img
-                    src={service.technician.signature_url}
-                    alt="Signature"
-                    className="max-h-full max-w-[80%] object-contain opacity-80 mix-blend-multiply"
-                    crossOrigin="anonymous"
-                  />
-                ) : (
-                  <div className="h-full w-full"></div>
-                )}
-              </div>
-
-              <div
-                className="border-b-2 w-3/4 mx-auto mb-1.5"
-                style={{ borderColor: PDF_COLORS.dark }}
-              ></div>
-
-              <p
-                className="text-[10px] sm:text-xs font-bold uppercase tracking-widest"
-                style={{ color: PDF_COLORS.dark }}
-              >
-                {service.technician?.name ||
-                  t("track_service.invoice.footer.authorized_sign")}
-              </p>
-
-              {service.technician?.name && (
-                <p className="text-[8px] sm:text-[10px] text-gray-400 uppercase tracking-widest mt-0.5">
-                  Technician
-                </p>
+            {/* Icon Decoration */}
+            <div className="hidden sm:flex items-center justify-center w-32 h-32 bg-white/10 rounded-full backdrop-blur-md">
+              {isFinished ? (
+                <ShieldCheck className="w-16 h-16 text-white" />
+              ) : isCancelled ? (
+                <AlertCircle className="w-16 h-16 text-white" />
+              ) : (
+                <RefreshCcw className="w-16 h-16 text-white animate-spin-slow" />
               )}
             </div>
           </div>
+
+          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -left-10 top-10 w-32 h-32 bg-black/5 rounded-full blur-2xl pointer-events-none" />
         </motion.div>
 
-        {/* 4. BOTTOM BAR */}
+        {/* 2. Timeline */}
+        {!isCancelled && (
+          <motion.div
+            variants={itemVariants}
+            className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm"
+          >
+            <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-slate-400 mb-8 sm:mb-10 text-center sm:text-left">
+              {t("track_service.repair_progress")}
+            </h3>
+
+            <div className="relative">
+              <div className="absolute top-5 sm:top-6 -translate-y-1/2 left-8 right-8 sm:left-12 sm:right-12 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${(currentStepIndex / (steps.length - 1)) * 100}%`,
+                  }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  className="absolute top-0 left-0 h-full bg-primary rounded-full origin-left"
+                />
+              </div>
+
+              <div className="relative flex justify-between">
+                {steps.map((step, idx) => {
+                  const isCompleted = idx <= currentStepIndex;
+                  const isCurrent = idx === currentStepIndex;
+                  const StepIcon = step.icon;
+
+                  return (
+                    <div
+                      key={idx}
+                      className="relative z-10 flex flex-col items-center gap-3 w-16 sm:w-24"
+                    >
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors duration-500 shadow-sm ${
+                          isCompleted
+                            ? "bg-primary text-white"
+                            : "bg-white border-2 border-slate-100 text-slate-300"
+                        } ${isCurrent ? "ring-4 ring-primary/20 scale-110" : ""}`}
+                      >
+                        <StepIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </motion.div>
+                      <span
+                        className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider text-center transition-colors duration-300 ${
+                          isCompleted ? "text-slate-800" : "text-slate-400"
+                        }`}
+                      >
+                        {step.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {service.service_list.length > 0 && (
+          <motion.div
+            variants={itemVariants}
+            className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm"
+          >
+            <div className="flex items-center gap-3 text-blue-600 mb-6">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <ClipboardList className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold uppercase text-xs tracking-widest text-slate-800">
+                Service Details
+              </h3>
+            </div>
+
+            <div
+              className="space-y-4 max-h-75 overflow-y-auto pr-2 
+              [&::-webkit-scrollbar]:w-1.5
+              [&::-webkit-scrollbar-track]:bg-transparent
+              [&::-webkit-scrollbar-thumb]:bg-primary/20 
+              [&::-webkit-scrollbar-thumb]:rounded-full
+              hover:[&::-webkit-scrollbar-thumb]:bg-primary
+              transition-colors"
+            >
+              {service.service_list.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50/80 border border-slate-100 hover:bg-slate-100 transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white shadow-sm text-slate-400 font-bold text-[10px] shrink-0">
+                      {idx + 1}
+                    </span>
+                    <TruncatedTooltip
+                      text={item.name}
+                      className="text-sm sm:text-base font-semibold text-slate-700 truncate block"
+                    />
+                  </div>
+                  <span className="font-bold text-slate-800 text-sm sm:text-base shrink-0">
+                    {formatRupiah(item.price)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* 3. Info Grid (Device & Billing) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Device Info */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm flex flex-col h-full min-w-0"
+          >
+            <div className="flex items-center gap-3 text-primary mb-4 sm:mb-6">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Smartphone className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold uppercase text-xs tracking-widest text-slate-800">
+                {t("track_service.device_info")}
+              </h3>
+            </div>
+
+            <div className="min-w-0 flex-1 mb-6">
+              <p className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter truncate">
+                {service.brand}
+              </p>
+              <TruncatedTooltip
+                text={service.model}
+                className="text-slate-500 font-medium text-sm sm:text-base block truncate mt-1"
+              />
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex justify-between items-center min-w-0 bg-slate-50/50 -mx-6 -mb-6 p-4 sm:px-6 rounded-b-3xl">
+              <div className="flex items-center gap-3 min-w-0 flex-1 mr-4">
+                <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4 text-slate-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase">
+                    Customer
+                  </p>
+                  <TruncatedTooltip
+                    text={service.customer_name}
+                    className="text-sm font-bold text-slate-800 truncate block"
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+          {/* Billing Summary */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm flex flex-col h-full"
+          >
+            <div className="flex items-center gap-3 text-emerald-600 mb-4 sm:mb-6">
+              <div className="p-2 bg-emerald-50 rounded-lg">
+                <Receipt className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold uppercase text-xs tracking-widest text-slate-800">
+                {t("track_service.billing_summary")}
+              </h3>
+            </div>
+
+            <div className="space-y-3 sm:space-y-4 flex-1">
+              {/* Total Service */}
+              <div className="flex justify-between items-center text-sm sm:text-base">
+                <span className="text-slate-500 font-medium">
+                  {t("track_service.billing.total_service")}
+                </span>
+                <span className="font-bold text-slate-800">
+                  {formatRupiah(subTotal)}
+                </span>
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-sm sm:text-base">
+                  <span className="text-red-500 font-medium">
+                    {t("track_service.billing.discount")} ({service.discount}%)
+                  </span>
+                  <span className="text-red-500 font-bold">
+                    -{formatRupiah(discountAmount)}
+                  </span>
+                </div>
+              )}
+
+              {/* Down Payment */}
+              {downPayment > 0 && (
+                <div className="flex justify-between items-center text-sm sm:text-base">
+                  <span className="text-emerald-600 font-medium">
+                    {t("track_service.billing.down_payment")}
+                  </span>
+                  <span className="text-emerald-600 font-bold">
+                    -{formatRupiah(downPayment)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-6 mt-4 border-t border-dashed border-slate-200 flex justify-between items-end">
+              <span className="text-[10px] sm:text-xs font-black uppercase text-slate-400 tracking-widest pb-1">
+                {t("track_service.billing.amount_due")}
+              </span>
+              <span className="text-3xl sm:text-4xl font-black text-primary tracking-tighter">
+                {formatRupiah(grandTotal)}
+              </span>
+            </div>
+          </motion.div>
+        </div>
+
+        {(service.description || service.technician_note) && (
+          <motion.div
+            variants={itemVariants}
+            className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col gap-6"
+          >
+            {service.description && (
+              <div className="space-y-2">
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  {t("track_service.customer_issue", "Customer Issue")}
+                </h4>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-sm font-medium text-slate-700 leading-relaxed whitespace-pre-wrap wrap-break-word">
+                    {service.description}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {service.description && service.technician_note && (
+              <div className="w-full h-px bg-slate-100" />
+            )}
+
+            {service.technician_note && (
+              <div className="space-y-2">
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                  {t("track_service.technician_note", "Technician Note")}
+                </h4>
+                <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
+                  <p className="text-sm font-medium text-emerald-800 leading-relaxed whitespace-pre-wrap wrap-break-word">
+                    {service.technician_note}
+                  </p>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* 4. Warranty Notes */}
         <motion.div
-          variants={fadeInUp}
-          className="mt-auto py-3.5 bg-slate-800 flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-2 text-[10px] sm:text-xs px-4 w-full text-slate-300"
+          variants={itemVariants}
+          className="bg-amber-50/80 border border-amber-200/50 rounded-3xl p-6 sm:p-8 relative overflow-hidden"
         >
-          {storePhone && (
-            <span className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="whitespace-nowrap font-medium tracking-wider">
-                {storePhone}
-              </span>
-            </span>
-          )}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-3xl" />
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 relative z-10">
+            <div className="bg-amber-200/50 p-3 rounded-2xl shrink-0">
+              <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-amber-700" />
+            </div>
+            <div className="space-y-4 sm:space-y-5 flex-1">
+              <div className="space-y-1.5">
+                <h4 className="font-black text-amber-900 text-sm sm:text-base uppercase tracking-widest">
+                  {t("track_service.warranty.title")}
+                </h4>
+                <div className="h-0.5 w-full bg-amber-300 rounded-full" />
+              </div>
 
-          {storeAddress && (
-            <span className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-              <span
-                className="truncate max-w-37.5 sm:max-w-xs font-medium tracking-wider"
-                title={storeAddress}
-              >
-                {storeAddress}
-              </span>
-            </span>
-          )}
+              <ul className="space-y-3">
+                {storeData?.warranty_text ? (
+                  storeData.warranty_text.split("\n").map(
+                    (line, index) =>
+                      line.trim() && (
+                        <li
+                          key={index}
+                          className="flex items-start gap-3 sm:gap-4 text-amber-900/80 text-xs sm:text-sm leading-relaxed group"
+                        >
+                          <span className="shrink-0 flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-200/80 text-amber-900 font-bold text-[10px] sm:text-xs mt-0.5 sm:mt-0 shadow-sm">
+                            {index + 1}
+                          </span>
+                          <span className="flex-1 font-medium pt-0.5">
+                            {line.replace(/^\d+\.\s*/, "")}
+                          </span>
+                        </li>
+                      ),
+                  )
+                ) : (
+                  <li className="flex gap-3 text-amber-800/80 text-xs sm:text-sm italic font-medium">
+                    <span className="shrink-0 text-amber-500 font-bold">•</span>
+                    <span>{t("track_service.warranty.default")}</span>
+                  </li>
+                )}
+              </ul>
 
-          {storeWebsite && (
-            <span className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Globe className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-              <span className="whitespace-nowrap font-medium tracking-wider">
-                {storeWebsite}
-              </span>
-            </span>
-          )}
+              <div className="pt-4 border-t border-amber-200/50">
+                <p className="text-[10px] sm:text-xs text-amber-700/80 font-bold uppercase italic flex items-center gap-2">
+                  <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4" />
+                  {t("track_service.warranty.footer")}
+                </p>
+              </div>
+            </div>
+          </div>
         </motion.div>
-      </motion.div>
+
+        {/* Footer */}
+        <motion.footer
+          variants={itemVariants}
+          className="text-center py-8 sm:py-12 space-y-4 opacity-80 hover:opacity-100 transition-opacity"
+        >
+          <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.3em]">
+            {storeData?.store_address}
+          </p>
+          <div className="flex justify-center gap-3">
+            <div className="h-1 w-8 sm:w-12 bg-slate-200 rounded-full" />
+            <div className="h-1 w-3 sm:w-4 bg-primary/50 rounded-full" />
+            <div className="h-1 w-8 sm:w-12 bg-slate-200 rounded-full" />
+          </div>
+        </motion.footer>
+      </motion.main>
     </div>
   );
 }

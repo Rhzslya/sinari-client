@@ -6,7 +6,16 @@ import App from "./App.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/query-client.ts";
+import { Buffer } from "buffer";
 
+// PDF require buffer
+declare global {
+  interface Window {
+    Buffer: typeof Buffer;
+  }
+}
+
+window.Buffer = window.Buffer || Buffer;
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

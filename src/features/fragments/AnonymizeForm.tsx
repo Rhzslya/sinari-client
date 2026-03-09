@@ -97,7 +97,7 @@ const AnonymizeForm = ({
             <DialogDescription>
               {t("services_management.forms.anonymize.desc_1")}{" "}
               <span className="font-semibold text-foreground">
-                {service?.customer_name}
+                {service?.service_id}
               </span>
               {t("services_management.forms.anonymize.desc_2")}
             </DialogDescription>

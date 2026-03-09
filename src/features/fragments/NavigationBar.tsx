@@ -183,7 +183,7 @@ const NavigationBar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-linear-to-l from-primary from-30% to-(--gradient-primary) shadow-sm">
-      <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between relative">
         <div className="flex items-center gap-2 md:gap-4">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -242,53 +242,49 @@ const NavigationBar = () => {
           </Sheet>
 
           <Link to="/" className="flex items-center">
-            <motion.span
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="font-extrabold text-lg md:text-xl text-white tracking-tight cursor-pointer whitespace-nowrap"
-            >
+            <span className="font-extrabold text-lg md:text-xl text-white tracking-tight cursor-pointer whitespace-nowrap">
               Sinari Cell
-            </motion.span>
+            </span>
           </Link>
         </div>
-
         {/* TENGAH: Desktop Nav (Hidden on Mobile) */}
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className={navigationMenuTriggerStyle()}
-                active={isActive("/")}
-              >
-                <Link to="/">{t("nav.home")}</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                asChild
-                className={navigationMenuTriggerStyle()}
-                active={isActive("/products")}
-              >
-                <Link to="/products">{t("nav.products")}</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
-            {isPrivilegedUser && (
+        <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <NavigationMenu>
+            <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuLink
                   asChild
                   className={navigationMenuTriggerStyle()}
-                  active={isActive("/dashboard")}
+                  active={isActive("/")}
                 >
-                  <Link to="/dashboard">{t("nav.dashboard")}</Link>
+                  <Link to="/">{t("nav.home")}</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-            )}
-          </NavigationMenuList>
-        </NavigationMenu>
 
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className={navigationMenuTriggerStyle()}
+                  active={isActive("/products")}
+                >
+                  <Link to="/products">{t("nav.products")}</Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              {isPrivilegedUser && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink
+                    asChild
+                    className={navigationMenuTriggerStyle()}
+                    active={isActive("/dashboard")}
+                  >
+                    <Link to="/dashboard">{t("nav.dashboard")}</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}

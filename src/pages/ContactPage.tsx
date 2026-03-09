@@ -270,8 +270,8 @@ const ContactPage = () => {
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                      <FormItem className="relative grid gap-2 space-y-0 mb-4 sm:mb-4">
-                        <FormLabel className={labelStyle}>
+                      <FormItem className="relative flex flex-col h-full gap-2 space-y-0 mb-4 sm:mb-4">
+                        <FormLabel className={`${labelStyle} mb-auto`}>
                           {t("contact.form.labels.name")}
                         </FormLabel>
                         <FormControl>
@@ -283,7 +283,7 @@ const ContactPage = () => {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                        <FormMessage className="absolute top-4 left-0 text-xs" />
                       </FormItem>
                     )}
                   />
@@ -291,8 +291,8 @@ const ContactPage = () => {
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem className="relative grid gap-2 space-y-0 mb-4 sm:mb-4">
-                        <FormLabel className={labelStyle}>
+                      <FormItem className="relative flex flex-col h-full gap-2 space-y-0 mb-4 sm:mb-4">
+                        <FormLabel className={`${labelStyle} mb-auto`}>
                           {t("contact.form.labels.email")}
                         </FormLabel>
                         <FormControl>
@@ -305,7 +305,7 @@ const ContactPage = () => {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                        <FormMessage className="absolute top-4 left-0 text-xs" />
                       </FormItem>
                     )}
                   />
@@ -316,8 +316,8 @@ const ContactPage = () => {
                     control={form.control}
                     name="phone_number"
                     render={({ field }) => (
-                      <FormItem className="relative grid gap-2 space-y-0 mb-4 sm:mb-4">
-                        <FormLabel className={labelStyle}>
+                      <FormItem className="relative flex flex-col h-full gap-2 space-y-0 mb-4 sm:mb-4">
+                        <FormLabel className={`${labelStyle} mb-auto`}>
                           {t("contact.form.labels.phone")}
                         </FormLabel>
                         <FormControl>
@@ -330,16 +330,17 @@ const ContactPage = () => {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                        <FormMessage className="absolute top-4 left-0 text-xs" />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="subject"
                     render={({ field }) => (
-                      <FormItem className="relative grid gap-2 space-y-0 mb-4 sm:mb-4">
-                        <FormLabel className={labelStyle}>
+                      <FormItem className="relative flex flex-col h-full gap-2 space-y-0 mb-4 sm:mb-4">
+                        <FormLabel className={`${labelStyle} mb-auto`}>
                           {t("contact.form.labels.subject")}
                         </FormLabel>
                         <FormControl>
@@ -352,7 +353,7 @@ const ContactPage = () => {
                             {...field}
                           />
                         </FormControl>
-                        <FormMessage className="absolute -bottom-4 left-0 text-xs" />
+                        <FormMessage className="absolute top-4 left-0 text-xs" />
                       </FormItem>
                     )}
                   />

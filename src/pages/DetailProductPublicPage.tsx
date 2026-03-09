@@ -21,12 +21,16 @@ import {
   AlertCircle,
   MapPin,
   Store,
+  Loader2,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import NotFoundPage from "./NotFoundPage";
 import { useProductQueries } from "@/hooks/product-queries";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { DetailProductPublicSkeleton } from "@/features/fragments/Skeleton";
+import { formatPhoneNumberToWA } from "@/components/utils/formatNumbeToWa";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -60,12 +64,10 @@ const DetailProductPublicPage = () => {
     isError,
   } = productQueries.usePublicDetail({ id });
 
-  if (isLoading)
-    return (
-      <div className="p-8 text-center text-muted-foreground animate-pulse h-[60vh] flex items-center justify-center">
-        {t("product_detail.loading")}
-      </div>
-    );
+  const { useGetPublicSettings } = useStoreSettingQueries();
+  const { data: storeData, isLoading: isStoreLoading } = useGetPublicSettings();
+
+  if (isLoading) return <DetailProductPublicSkeleton />;
 
   if (isError || !product)
     return (
@@ -86,11 +88,12 @@ const DetailProductPublicPage = () => {
   else if (isLowStock) stockColor = "bg-amber-500";
 
   const handleWhatsAppClick = () => {
+    const phoneNumber = formatPhoneNumberToWA(storeData?.store_phone);
     const message = t("product_detail.cta.wa_message", {
       name: product.name,
       stock: product.stock,
     });
-    const whatsappUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message,
     )}`;
     window.open(whatsappUrl, "_blank");
@@ -295,8 +298,13 @@ const DetailProductPublicPage = () => {
                     size="lg"
                     onClick={handleWhatsAppClick}
                     className="w-full justify-center duration-300 font-bold shadow-md bg-green-600 hover:bg-green-700 text-white border-none cursor-pointer h-12"
+                    disabled={isStoreLoading}
                   >
-                    <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />{" "}
+                    {isStoreLoading ? (
+                      <Loader2 className="mr-2 h-4 sm:h-5 w-4 sm:w-5 animate-spin" />
+                    ) : (
+                      <MessageCircle className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    )}
                     {t("product_detail.cta.wa_btn")}
                   </Button>
                   <p className="text-[9px] sm:text-[10px] text-muted-foreground text-center mt-1">

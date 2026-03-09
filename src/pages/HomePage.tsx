@@ -14,8 +14,8 @@ import {
   Star,
   ShieldCheck,
   Package,
-  Loader2,
   Banknote,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -24,6 +24,9 @@ import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { useRotatedPage } from "@/hooks/use-rotated";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { PublicProductSkeleton } from "@/features/fragments/Skeleton";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
+import { formatPhoneNumberToWA } from "@/components/utils/formatNumbeToWa";
 
 const CACHE_KEY = "sinari_home_featured_products";
 const CACHE_DURATION_MS = 3 * 60 * 60 * 1000;
@@ -69,6 +72,9 @@ const HomePage = () => {
       size: size,
     });
 
+  const { useGetPublicSettings } = useStoreSettingQueries();
+  const { data: storeData, isLoading: isStoreLoading } = useGetPublicSettings();
+
   const products = data?.data || [];
 
   useEffect(() => {
@@ -89,7 +95,7 @@ const HomePage = () => {
   }, [isError, error]);
 
   const handleConsultClick = () => {
-    const phoneNumber = "6281234567890";
+    const phoneNumber = formatPhoneNumberToWA(storeData?.store_phone);
     const text =
       "Halo Sinari Cell, saya ingin konsultasi mengenai servis gadget saya.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
@@ -179,10 +185,18 @@ const HomePage = () => {
             <Button
               size="lg"
               variant="outline"
-              className="font-semibold text-base sm:text-lg h-12 sm:h-14 px-6 sm:px-8 cursor-pointer w-full sm:w-auto"
+              className="font-semibold text-base sm:text-lg h-12 sm:h-14 px-6 sm:px-8 cursor-pointer w-full sm:w-auto transition-all"
               onClick={handleConsultClick}
+              disabled={isStoreLoading}
             >
-              {t("home.hero.consult_btn")}
+              {isStoreLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 sm:h-5 w-4 sm:w-5 animate-spin" />
+                  {t("home.hero.consult_btn")}
+                </>
+              ) : (
+                t("home.hero.consult_btn")
+              )}
             </Button>
           </motion.div>
         </motion.div>
@@ -304,9 +318,7 @@ const HomePage = () => {
           </motion.div>
 
           {isLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-primary/60" />
-            </div>
+            <PublicProductSkeleton count={4} />
           ) : products.length === 0 ? (
             <motion.div
               variants={fadeInUp}

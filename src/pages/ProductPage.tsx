@@ -12,7 +12,6 @@ import {
   Check,
   X,
   PackageSearch,
-  Loader2,
   SlidersHorizontal,
   Package,
 } from "lucide-react";
@@ -35,6 +34,7 @@ import { SidebarFilters } from "@/features/fragments/SidebarFilter";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { CatalogProductSkeleton } from "@/features/fragments/Skeleton";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -249,34 +249,36 @@ const ProductPage = () => {
               </h1>
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-1/2">
               {/* FILTER BUTTON (Mobile) */}
-              <div className="md:hidden flex-1">
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full gap-2 h-10"
-                      disabled={isDatabaseEmpty}
-                    >
-                      <SlidersHorizontal className="h-4 w-4" />{" "}
-                      {t("catalog.filters.title")}
-                      {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent
-                    side="left"
-                    className="w-[85vw] sm:w-87.5 overflow-y-auto"
-                  >
-                    <SheetTitle className="sr-only">Filters</SheetTitle>
-                    <div className="py-6 mt-4 mx-2">
-                      <h2 className="text-lg font-bold mb-6">
+              <div className="flex items-center justify-end gap-2 w-full sm:w-auto ml-auto">
+                <div className="md:hidden flex-1">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full gap-2 h-10"
+                        disabled={isDatabaseEmpty}
+                      >
+                        <SlidersHorizontal className="h-4 w-4" />{" "}
                         {t("catalog.filters.title")}
-                      </h2>
-                      <SidebarFilters {...sidebarProps} />
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                        {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent
+                      side="left"
+                      className="w-[85vw] sm:w-87.5 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-primary transition-colors"
+                    >
+                      <SheetTitle className="sr-only">Filters</SheetTitle>
+                      <div className="py-6 mt-4 mx-2">
+                        <h2 className="text-lg font-bold mb-6">
+                          {t("catalog.filters.title")}
+                        </h2>
+                        <SidebarFilters {...sidebarProps} />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
               </div>
 
               {/* SORT DROPDOWN */}
@@ -361,7 +363,6 @@ const ProductPage = () => {
                 </Badge>
               )}
 
-              {/* Ulangi untuk badge lain dengan responsif text-[10px] sm:text-xs... (Sama seperti Search) */}
               {categoryParam && (
                 <Badge
                   variant="secondary"
@@ -458,9 +459,7 @@ const ProductPage = () => {
           )}
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-64 space-y-4">
-              <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-primary/60" />
-            </div>
+            <CatalogProductSkeleton count={size} />
           ) : products.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}

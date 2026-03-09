@@ -1,7 +1,15 @@
-import { CheckCircle2, XCircle, Receipt, BadgeCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Receipt,
+  BadgeCheck,
+  Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
+import { formatPhoneNumberToWA } from "@/components/utils/formatNumbeToWa";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -24,8 +32,11 @@ const scaleIn: Variants = {
 const WarrantyPage = () => {
   const { t } = useTranslation();
 
+  const { useGetPublicSettings } = useStoreSettingQueries();
+  const { data: storeData, isLoading: isStoreLoading } = useGetPublicSettings();
+
   const handleConsultClick = () => {
-    const phoneNumber = "6281234567890";
+    const phoneNumber = formatPhoneNumberToWA(storeData?.store_phone);
     const text =
       "Halo Sinari Cell, saya ingin konsultasi mengenai servis gadget saya.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
@@ -87,7 +98,6 @@ const WarrantyPage = () => {
           viewport={{ once: true, amount: 0.2 }}
           variants={staggerContainer}
         >
-          {/* Garansi Berlaku */}
           <motion.div
             variants={fadeInUp}
             className="bg-success/5 border border-success/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 hover:shadow-md transition-shadow"
@@ -132,7 +142,6 @@ const WarrantyPage = () => {
             </ul>
           </motion.div>
 
-          {/* Garansi Hangus */}
           <motion.div
             variants={fadeInUp}
             className="bg-destructive/5 border border-destructive/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 hover:shadow-md transition-shadow"
@@ -203,8 +212,16 @@ const WarrantyPage = () => {
             onClick={handleConsultClick}
             size="lg"
             className="w-full md:w-auto shrink-0 cursor-pointer text-foreground h-12"
+            disabled={isStoreLoading}
           >
-            {t("warranty.claim.btn")}
+            {isStoreLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 sm:h-5 w-4 sm:w-5 animate-spin" />
+                {t("warranty.claim.btn")}
+              </>
+            ) : (
+              t("warranty.claim.btn")
+            )}
           </Button>
         </motion.div>
       </div>

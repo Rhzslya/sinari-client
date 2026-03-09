@@ -160,9 +160,8 @@ const DeleteServiceForm = ({
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Trash2 className="h-4 w-4" />
+              t("services_management.forms.delete.btn_delete")
             )}
-            {t("services_management.forms.delete.btn_delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

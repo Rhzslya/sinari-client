@@ -158,9 +158,8 @@ const RestoreProductForm = ({
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <ArchiveRestore className="h-4 w-4" />
+              t("products_management.forms.restore.btn_restore")
             )}
-            {t("products_management.forms.restore.btn_restore")}
           </Button>
         </DialogFooter>
       </DialogContent>

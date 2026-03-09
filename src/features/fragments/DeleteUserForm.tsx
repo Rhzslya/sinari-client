@@ -164,9 +164,8 @@ const DeleteUserForm = ({
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Trash2 className="h-4 w-4" />
+              t("users_management.forms.delete.btn_delete")
             )}
-            {t("users_management.forms.delete.btn_delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

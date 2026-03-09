@@ -620,33 +620,49 @@
   },
   "track_service": {
     "loading": "Melacak Layanan...",
-    "updating": "Memperbarui data terbaru...",
     "not_found_entity": "Pelacakan Servis",
-    "invoice": {
-      "subtitle": "Layanan Perbaikan Profesional",
-      "title": "INVOICE TRACKER",
-      "info_to": "Ditujukan kepada:",
-      "inv_no": "No. Inv",
-      "date": "Tanggal",
-      "technician": "Teknisi",
-      "table": {
-        "no": "No.",
-        "desc": "Deskripsi",
-        "price": "Harga",
-        "total": "Total"
+    "current_status": "Status Saat Ini",
+    "repair_progress": "Progres Perbaikan",
+    "device_info": "Informasi Perangkat",
+    "billing_summary": "Ringkasan Tagihan",
+    "steps": {
+      "received": "Diterima",
+      "repairing": "Dikerjakan",
+      "ready": "Selesai",
+      "completed": "Diambil"
+    },
+    "billing": {
+      "total_service": "Total Servis",
+      "discount": "Diskon",
+      "down_payment": "Uang Muka (DP)",
+      "amount_due": "Sisa Tagihan"
+    },
+    "status": {
+      "pending": {
+        "title": "Perangkat Diterima",
+        "desc": "Kami telah menerima perangkat Anda dan saat ini sedang dalam antrean untuk pengecekan."
       },
-      "footer": {
-        "terms": "Syarat & Ketentuan:",
-        "payment": "Info Pembayaran:",
-        "subtotal": "Sub Total",
-        "discount": "Diskon",
-        "dp": "Uang Muka (DP)",
-        "amount_due": "Total Tagihan",
-        "total_due": "Sisa Tagihan",
-        "refund_notice": "PEMBERITAHUAN REFUND",
-        "refund_msg": "Layanan dibatalkan. Silakan tunjukkan invoice ini ke kasir untuk pengembalian dana DP sebesar {{amount}}.",
-        "authorized_sign": "Tanda Tangan Resmi"
+      "process": {
+        "title": "Sedang Diperbaiki",
+        "desc": "Teknisi kami sedang mengerjakan perangkat Anda. Mohon tunggu pembaruan selanjutnya."
+      },
+      "finished": {
+        "title": "Siap Diambil",
+        "desc": "Kabar baik! Perangkat Anda sudah selesai diperbaiki dan siap diambil di toko kami."
+      },
+      "taken": {
+        "title": "Layanan Selesai",
+        "desc": "Perangkat telah diambil oleh pemilik. Terima kasih telah mempercayakan servis kepada kami!"
+      },
+      "cancelled": {
+        "title": "Layanan Dibatalkan",
+        "desc": "Layanan perbaikan ini telah dibatalkan. Silakan hubungi kami untuk informasi lebih lanjut."
       }
+    },
+    "warranty": {
+      "title": "Syarat & Ketentuan Garansi",
+      "default": "Harap simpan Service ID ini sebagai bukti klaim garansi.",
+      "footer": "Nota digital ini sah sebagai bukti servis yang dapat ditunjukkan kepada petugas."
     }
   },
   "settings": {

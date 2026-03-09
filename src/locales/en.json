@@ -620,33 +620,49 @@
   },
   "track_service": {
     "loading": "Tracking Service...",
-    "updating": "Updating latest data...",
     "not_found_entity": "Service Tracking",
-    "invoice": {
-      "subtitle": "Professional Repair Service",
-      "title": "INVOICE TRACKER",
-      "info_to": "Invoice to:",
-      "inv_no": "Inv#",
-      "date": "Date",
-      "technician": "Technician",
-      "table": {
-        "no": "No.",
-        "desc": "Description",
-        "price": "Price",
-        "total": "Total"
+    "current_status": "Current Status",
+    "repair_progress": "Repair Progress",
+    "device_info": "Device Info",
+    "billing_summary": "Billing Summary",
+    "steps": {
+      "received": "Received",
+      "repairing": "Repairing",
+      "ready": "Ready",
+      "completed": "Completed"
+    },
+    "billing": {
+      "total_service": "Total Service",
+      "discount": "Discount",
+      "down_payment": "Down Payment",
+      "amount_due": "Amount Due"
+    },
+    "status": {
+      "pending": {
+        "title": "Device Received",
+        "desc": "We have received your device and it's currently in the queue for inspection."
       },
-      "footer": {
-        "terms": "Terms & Conditions:",
-        "payment": "Payment Info:",
-        "subtotal": "Sub Total",
-        "discount": "Discount",
-        "dp": "Down Payment",
-        "amount_due": "Amount Due",
-        "total_due": "Total Due",
-        "refund_notice": "REFUND NOTICE",
-        "refund_msg": "Service cancelled. Please present this invoice to the cashier for a DP refund of {{amount}}.",
-        "authorized_sign": "Authorized Sign"
+      "process": {
+        "title": "Repairing",
+        "desc": "Our technician is currently working on your device. Please wait for further updates."
+      },
+      "finished": {
+        "title": "Ready for Pickup",
+        "desc": "Great news! Your device is fixed and ready to be collected at our store."
+      },
+      "taken": {
+        "title": "Service Completed",
+        "desc": "The device has been collected. Thank you for choosing our service!"
+      },
+      "cancelled": {
+        "title": "Service Cancelled",
+        "desc": "This service has been cancelled. Please contact us for more information."
       }
+    },
+    "warranty": {
+      "title": "Warranty Terms & Conditions",
+      "default": "Please keep your Service ID for warranty claims.",
+      "footer": "This digital note is valid as proof of service."
     }
   },
   "settings": {
