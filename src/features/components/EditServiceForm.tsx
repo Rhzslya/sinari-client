@@ -806,11 +806,11 @@ export function EditServiceForm({
                         name={`service_list.${index}.price`}
                         render={({ field }) => (
                           <FormItem className="relative flex flex-col gap-2 space-y-0">
-                            <FormLabel className="text-[10px] uppercase text-muted-foreground font-semibold tracking-wider">
+                            <div className="text-[10px] uppercase text-muted-foreground font-semibold tracking-wider">
                               {t(
                                 "services_management.forms.create.cost_estimation",
                               )}
-                            </FormLabel>
+                            </div>
                             <FormControl>
                               <NumberStepper
                                 value={field.value}

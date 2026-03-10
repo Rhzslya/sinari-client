@@ -41,6 +41,7 @@ import { isAxiosError } from "axios";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { SettingSkeleton } from "@/features/fragments/Skeleton";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -168,11 +169,7 @@ const DashboardSettingPage = () => {
   const anyError = storeError || waError;
 
   if (isStoreLoading) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <SettingSkeleton />;
   }
 
   if (hasError) {

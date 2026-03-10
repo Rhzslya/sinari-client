@@ -16,7 +16,7 @@ import {
 import type { TechnicianResponse } from "@/model/technician-model";
 import { useUserQueries } from "@/hooks/user-queries";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { UserRole } from "@/enum/product-enum";
 
 interface TechnicianActionMenuProps {
   technician: TechnicianResponse;
@@ -37,15 +37,21 @@ export function TechnicianActionMenu({
   const userQueries = useUserQueries();
 
   const { data: currentUser } = userQueries.useProfile();
-  const isOwner = currentUser?.role === "OWNER";
+  const isOwner = currentUser?.role === UserRole.OWNER;
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleAction = (callback: () => void) => {
+  const handleAction = (e: Event, callback: () => void) => {
+    e.preventDefault();
+
+    document.body.focus();
+
     setIsOpen(false);
+
+    //Aria Hidden
     setTimeout(() => {
       callback();
-    }, 150);
+    }, 250);
   };
 
   return (
@@ -66,51 +72,44 @@ export function TechnicianActionMenu({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-48 p-1">
-        <AnimatePresence>
-          {!isTrashView ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
+      <DropdownMenuContent
+        align="end"
+        className="w-48 p-1"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
+        {!isTrashView ? (
+          <>
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onEditTechnician)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
             >
-              <DropdownMenuItem
-                onSelect={() => handleAction(onEditTechnician)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <Pencil className="size-4 text-muted-foreground" />
-                {t("technicians_management.action_menu.edit_technician")}
-              </DropdownMenuItem>
+              <Pencil className="size-4 text-muted-foreground" />
+              {t("technicians_management.action_menu.edit_technician")}
+            </DropdownMenuItem>
 
-              {isOwner && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onSelect={() => handleAction(onDeleteTechnician)}
-                    className="gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer"
-                  >
-                    <Trash2 className="size-4" />
-                    {t("technicians_management.action_menu.delete_technician")}
-                  </DropdownMenuItem>
-                </>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
-              <DropdownMenuItem
-                onClick={onRestoreTechnician}
-                disabled={!isOwner}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${!isOwner ? "opacity-50" : "cursor-pointer"}`}
-              >
-                <ArchiveRestore className="size-4" />
-                {t("technicians_management.action_menu.restore_data")}
-              </DropdownMenuItem>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {isOwner && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(e) => handleAction(e, onDeleteTechnician)}
+                  className="gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer"
+                >
+                  <Trash2 className="size-4" />
+                  {t("technicians_management.action_menu.delete_technician")}
+                </DropdownMenuItem>
+              </>
+            )}
+          </>
+        ) : (
+          <DropdownMenuItem
+            onSelect={(e) => handleAction(e, onRestoreTechnician)}
+            disabled={!isOwner}
+            className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${!isOwner ? "opacity-50" : "cursor-pointer"}`}
+          >
+            <ArchiveRestore className="size-4" />
+            {t("technicians_management.action_menu.restore_data")}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

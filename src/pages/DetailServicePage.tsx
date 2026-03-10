@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { ServiceStatus } from "@/enum/product-enum";
 import type { ServiceResponse } from "@/model/repair-model";
@@ -55,6 +54,7 @@ import { useUserQueries } from "@/hooks/user-queries";
 import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { ServiceDetailSkeleton } from "@/features/fragments/Skeleton";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -206,8 +206,9 @@ const DetailServicePage = () => {
       </Badge>
     );
   };
-
-  if (isLoading) return <DetailServiceSkeleton />;
+  if (isLoading) {
+    return <ServiceDetailSkeleton />;
+  }
   if (isError || !service)
     return (
       <NotFoundPage
@@ -319,7 +320,7 @@ const DetailServicePage = () => {
                         <Tag className="w-3.5 h-3.5" />{" "}
                         {t("services_management.detail.device_card.service_id")}
                       </label>
-                      <div className="font-medium font-mono text-[10px] sm:text-sm bg-muted/50 w-fit px-2 py-0.5 rounded border">
+                      <div className="inline-flex items-center justify-center font-medium font-mono text-[10px] sm:text-sm leading-none bg-muted/50 px-2 py-1 sm:py-1.5 rounded border">
                         {service.service_id}
                       </div>
                     </div>
@@ -841,24 +842,6 @@ const DetailServicePage = () => {
         }}
       />
     </>
-  );
-};
-
-const DetailServiceSkeleton = () => {
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <Skeleton className="h-8 sm:h-10 w-32 sm:w-48" />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-          <Skeleton className="h-48 sm:h-64 w-full rounded-xl" />
-          <Skeleton className="h-72 sm:h-96 w-full rounded-xl" />
-        </div>
-        <div className="space-y-4 sm:space-y-6">
-          <Skeleton className="h-40 sm:h-48 w-full rounded-xl" />
-          <Skeleton className="h-56 sm:h-64 w-full rounded-xl" />
-        </div>
-      </div>
-    </div>
   );
 };
 

@@ -102,7 +102,8 @@ const DashboardProductPage = () => {
   const [tempInStock, setTempInStock] = useState(inStockOnlyParam);
 
   // --- STATES (Mobile & Form Add) ---
-  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
+  const [isDesktopAddOpen, setIsDesktopAddOpen] = useState(false);
+  const [isMobileAddOpen, setIsMobileAddOpen] = useState(false);
   const [isControlSheetOpen, setIsControlSheetOpen] = useState(false);
 
   const [mobileSearch, setMobileSearch] = useState(searchParam);
@@ -278,7 +279,8 @@ const DashboardProductPage = () => {
   };
 
   const handleCreateSuccess = () => {
-    setIsAddSheetOpen(false);
+    setIsDesktopAddOpen(false);
+    setIsMobileAddOpen(false);
     if (page === 1) {
       refetch();
     } else {
@@ -693,12 +695,13 @@ const DashboardProductPage = () => {
             </Popover>
 
             {!isTrashMode && (
-              <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
+              <Sheet open={isDesktopAddOpen} onOpenChange={setIsDesktopAddOpen}>
+                {" "}
                 <SheetTrigger asChild>
                   <Button
-                    variant="outline"
                     size="sm"
                     className="h-9 gap-1.5 cursor-pointer shadow-sm text-foreground duration-300"
+                    onClick={(e) => e.currentTarget.blur()}
                   >
                     <PlusCircle className="h-4 w-4" />
                     <span className="text-sm">
@@ -706,7 +709,6 @@ const DashboardProductPage = () => {
                     </span>
                   </Button>
                 </SheetTrigger>
-
                 <SheetContent className="flex flex-col h-full p-0 gap-0 sm:max-w-xl">
                   <SheetHeader className="px-6 py-4 border-b">
                     <SheetTitle className="text-xl text-primary">
@@ -720,7 +722,7 @@ const DashboardProductPage = () => {
                   <div className="flex-1 overflow-hidden">
                     <CreateProductForm
                       onSuccess={handleCreateSuccess}
-                      onCancel={() => setIsAddSheetOpen(false)}
+                      onCancel={() => setIsDesktopAddOpen(false)}
                     />
                   </div>
                 </SheetContent>
@@ -747,11 +749,13 @@ const DashboardProductPage = () => {
           {/* ========================================================= */}
           <div className="flex md:hidden items-center gap-2 ml-auto">
             {!isTrashMode && (
-              <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
+              <Sheet open={isMobileAddOpen} onOpenChange={setIsMobileAddOpen}>
+                {" "}
                 <SheetTrigger asChild>
                   <Button
                     size="sm"
                     className="h-9 w-9 p-0 rounded-full shadow-sm cursor-pointer text-foreground duration-300"
+                    onClick={(e) => e.currentTarget.blur()}
                   >
                     <PlusCircle className="h-4 w-4" />
                     <span className="sr-only">
@@ -759,10 +763,9 @@ const DashboardProductPage = () => {
                     </span>
                   </Button>
                 </SheetTrigger>
-
                 <SheetContent className="flex flex-col h-full p-0 gap-0 overflow-y-auto sm:max-w-xl">
                   <SheetHeader className="px-5 sm:px-6 py-4 sm:py-5 border-b">
-                    <SheetTitle className="text-lg sm:text-xl text-primary outline-none">
+                    <SheetTitle className="text-lg sm:text-xl text-primary">
                       {t("products_management.sheet.add_title")}
                     </SheetTitle>
                     <SheetDescription className="sr-only">
@@ -772,7 +775,7 @@ const DashboardProductPage = () => {
                   <div className="flex-1 overflow-x-hidden p-1">
                     <CreateProductForm
                       onSuccess={handleCreateSuccess}
-                      onCancel={() => setIsAddSheetOpen(false)}
+                      onCancel={() => setIsMobileAddOpen(false)}
                     />
                   </div>
                 </SheetContent>
@@ -790,6 +793,7 @@ const DashboardProductPage = () => {
                   size="sm"
                   className="h-9 gap-2 shadow-sm cursor-pointer relative pr-3"
                   disabled={isDatabaseEmpty && !isFiltering}
+                  onClick={(e) => e.currentTarget.blur()}
                 >
                   <Menu className="h-4 w-4" />
                   <span className="text-xs font-medium">
@@ -817,6 +821,7 @@ const DashboardProductPage = () => {
                       defaultValue: "Filters & Options",
                     })}
                   </SheetTitle>
+                  <SheetDescription className="sr-only" />
                 </SheetHeader>
 
                 <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-6">

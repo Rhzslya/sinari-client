@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import type { NotPublicUserResponse, UserResponse } from "@/model/user-model";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { UserRole } from "@/enum/product-enum";
 
 interface UserActionMenuProps {
   user: NotPublicUserResponse;
@@ -42,11 +42,11 @@ export function UserActionMenu({
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const isTargetOwner = user.role === "OWNER";
-  const isTargetAdmin = user.role === "ADMIN";
+  const isTargetOwner = user.role === UserRole.OWNER;
+  const isTargetAdmin = user.role === UserRole.ADMIN;
 
-  const isCurrentUserOwner = currentUser?.role === "OWNER";
-  const isCurrentUserAdmin = currentUser?.role === "ADMIN";
+  const isCurrentUserOwner = currentUser?.role === UserRole.OWNER;
+  const isCurrentUserAdmin = currentUser?.role === UserRole.ADMIN;
 
   const isAdminDeletingAdmin = isCurrentUserAdmin && isTargetAdmin;
 
@@ -56,11 +56,15 @@ export function UserActionMenu({
   const isEditRoleDisabled =
     isCurrentUser || isTargetOwner || !isCurrentUserOwner;
 
-  const handleAction = (callback: () => void) => {
+  const handleAction = (e: Event, callback: () => void) => {
+    e.preventDefault();
+    document.body.focus();
     setIsOpen(false);
+
+    //Aria Hidden
     setTimeout(() => {
       callback();
-    }, 150);
+    }, 250);
   };
 
   return (
@@ -76,64 +80,57 @@ export function UserActionMenu({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-48 p-1">
-        <AnimatePresence>
-          {!isTrashView ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
+      <DropdownMenuContent
+        align="end"
+        className="w-48 p-1"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
+        {!isTrashView ? (
+          <>
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onViewDetails)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
             >
-              <DropdownMenuItem
-                onClick={() => handleAction(onViewDetails)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <UserCircle className="size-4 text-muted-foreground" />
-                {t("users_management.action_menu.view_details")}
-              </DropdownMenuItem>
+              <UserCircle className="size-4 text-muted-foreground" />
+              {t("users_management.action_menu.view_details")}
+            </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onSelect={() => handleAction(onUpdateRole)}
-                disabled={isEditRoleDisabled}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm ${
-                  isEditRoleDisabled ? "opacity-50" : "cursor-pointer"
-                }`}
-              >
-                <ShieldCheck className="size-4 text-muted-foreground" />
-                {t("users_management.action_menu.edit_role")}
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem
-                onSelect={() => handleAction(onDeleteUser)}
-                disabled={isDeleteDisabled}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${
-                  isDeleteDisabled ? "opacity-50" : "cursor-pointer"
-                }`}
-              >
-                <Trash2 className="size-4" />
-                {t("users_management.action_menu.delete_user")}
-              </DropdownMenuItem>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onUpdateRole)}
+              disabled={isEditRoleDisabled}
+              className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm ${
+                isEditRoleDisabled ? "opacity-50" : "cursor-pointer"
+              }`}
             >
-              <DropdownMenuItem
-                onClick={onRestoreUser}
-                disabled={!isCurrentUserOwner}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${
-                  !isCurrentUserOwner ? "opacity-50" : "cursor-pointer"
-                }`}
-              >
-                <ArchiveRestore className="size-4" />
-                {t("users_management.action_menu.restore_data")}
-              </DropdownMenuItem>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <ShieldCheck className="size-4 text-muted-foreground" />
+              {t("users_management.action_menu.edit_role")}
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onDeleteUser)}
+              disabled={isDeleteDisabled}
+              className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${
+                isDeleteDisabled ? "opacity-50" : "cursor-pointer"
+              }`}
+            >
+              <Trash2 className="size-4" />
+              {t("users_management.action_menu.delete_user")}
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <DropdownMenuItem
+            onSelect={(e) => onRestoreUser && handleAction(e, onRestoreUser)}
+            disabled={!isCurrentUserOwner}
+            className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${
+              !isCurrentUserOwner ? "opacity-50" : "cursor-pointer"
+            }`}
+          >
+            <ArchiveRestore className="size-4" />
+            {t("users_management.action_menu.restore_data")}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

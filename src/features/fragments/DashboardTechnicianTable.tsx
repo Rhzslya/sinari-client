@@ -131,19 +131,19 @@ const DashboardTechnicianTable = ({
               {technicians.map((technician, index) => (
                 <motion.tr
                   key={technician.id}
-                  className="border-b border-border transition-colors hover:bg-muted/50"
+                  className="border-b border-border transition-colors hover:bg-muted/50 h-14 sm:h-17"
                   variants={tableRowVariants}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: index * 0.04 }}
                 >
-                  <TableCell className="border-r border-border/60 text-center font-medium">
+                  <TableCell className="border-r border-border/60 text-center font-medium py-3 sm:py-4">
                     <span className="text-xs text-muted-foreground">
                       {technician.id}
                     </span>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <div className="flex flex-col gap-0.5 truncate">
                       <TruncatedTooltip
                         text={technician.name}
@@ -159,7 +159,7 @@ const DashboardTechnicianTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <div className="flex justify-center">
                       <div
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium border shadow-sm ${
@@ -175,19 +175,19 @@ const DashboardTechnicianTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">
                       {format(new Date(technician.created_at), "dd MMM yyyy")}
                     </span>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">
                       {format(new Date(technician.updated_at), "dd MMM yyyy")}
                     </span>
                   </TableCell>
 
-                  <TableCell className="text-right pr-6">
+                  <TableCell className="text-right pr-6 py-3 sm:py-4">
                     <div className="flex justify-end">
                       <TechnicianActionMenu
                         technician={technician}
@@ -212,10 +212,7 @@ const DashboardTechnicianTable = ({
       </TooltipProvider>
 
       <Sheet open={isEditTechnicianOpen} onOpenChange={setIsEditTechnicianOpen}>
-        <SheetContent
-          className="flex flex-col h-full p-0 gap-0 sm:max-w-xl"
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
+        <SheetContent className="flex flex-col h-full p-0 gap-0 sm:max-w-xl">
           <SheetHeader className="px-5 sm:px-6 py-4 border-b">
             <SheetTitle className="text-lg sm:text-xl text-primary">
               {t("technicians_management.sheet.edit_title")}

@@ -15,7 +15,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -209,9 +208,9 @@ export function ChangePasswordDialog() {
               name="old_password"
               render={({ field }) => (
                 <FormItem className="relative grid gap-1 sm:gap-2 space-y-0 pb-4 sm:pb-5">
-                  <FormLabel className={labelStyle}>
+                  <div className={labelStyle}>
                     {t("profile.change_password.labels.old_password")}
-                  </FormLabel>
+                  </div>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -248,9 +247,9 @@ export function ChangePasswordDialog() {
               name="new_password"
               render={({ field }) => (
                 <FormItem className="relative grid gap-1 sm:gap-2 space-y-0 pb-4 sm:pb-5">
-                  <FormLabel className={labelStyle}>
+                  <div className={labelStyle}>
                     {t("profile.change_password.labels.new_password")}
-                  </FormLabel>
+                  </div>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -287,9 +286,9 @@ export function ChangePasswordDialog() {
               name="confirm_new_password"
               render={({ field }) => (
                 <FormItem className="relative grid gap-1 sm:gap-2 space-y-0 pb-4 sm:pb-5">
-                  <FormLabel className={labelStyle}>
+                  <div className={labelStyle}>
                     {t("profile.change_password.labels.confirm_password")}
-                  </FormLabel>
+                  </div>
                   <FormControl>
                     <div className="relative">
                       <Input

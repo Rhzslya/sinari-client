@@ -191,6 +191,7 @@ const NavigationBar = () => {
                 variant="ghost"
                 size="icon"
                 className="md:hidden text-white hover:bg-white/20 shrink-0"
+                onClick={(e) => e.currentTarget.blur()}
               >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle navigation menu</span>

@@ -210,7 +210,7 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
       >
         <div
           className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 
-            [&::-webkit-scrollbar]:w-1
+           [&::-webkit-scrollbar]:w-1
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-primary/20 
             [&::-webkit-scrollbar-thumb]:rounded-full
@@ -365,9 +365,9 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
                 name="image"
                 render={({ field }) => (
                   <FormItem className="grid gap-2 relative">
-                    <FormLabel className={labelStyle}>
+                    <div className={labelStyle}>
                       {t("products_management.forms.create.image_label")}
-                    </FormLabel>
+                    </div>
                     <FormControl>
                       <div className="w-full">
                         <Input
@@ -533,16 +533,15 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
                 </p>
               </div>
 
-              {/* 👇 UBAH DI SINI: grid-cols-1 di HP, grid-cols-2 di Layar Besar */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-8">
                 <FormField
                   control={formCreate.control}
                   name="price"
                   render={({ field }) => (
                     <FormItem className="relative grid gap-2 space-y-0">
-                      <FormLabel className={labelStyle}>
+                      <div className={labelStyle}>
                         {t("products_management.forms.create.selling_price")}
-                      </FormLabel>
+                      </div>
                       <FormControl>
                         <NumberStepper
                           value={field.value}
@@ -566,9 +565,9 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
                   name="cost_price"
                   render={({ field }) => (
                     <FormItem className="relative grid gap-2 space-y-0">
-                      <FormLabel className={labelStyle}>
+                      <div className={labelStyle}>
                         {t("products_management.forms.create.cost_price")}
-                      </FormLabel>
+                      </div>
                       <FormControl>
                         <NumberStepper
                           value={field.value}
@@ -589,9 +588,9 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
                   name="stock"
                   render={({ field }) => (
                     <FormItem className="relative grid gap-2 space-y-0">
-                      <FormLabel className={labelStyle}>
+                      <div className={labelStyle}>
                         {t("products_management.forms.create.initial_stock")}
-                      </FormLabel>
+                      </div>
                       <FormControl>
                         <NumberStepper
                           value={field.value}

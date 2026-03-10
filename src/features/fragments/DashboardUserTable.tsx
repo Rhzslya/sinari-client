@@ -107,7 +107,7 @@ const DashboardUserTable = ({
     <>
       <TooltipProvider>
         <div
-          className="rounded-md border bg-card shadow-sm w-full overflow-x-auto pb-2 sm:pb-0
+          className="rounded-md border bg-card shadow-sm w-full overflow-x-auto sm:pb-0
             [&::-webkit-scrollbar]:h-1.5
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-primary/20 
@@ -163,23 +163,23 @@ const DashboardUserTable = ({
                 return (
                   <motion.tr
                     key={user.id}
-                    className={`border-b border-border ${rowClass}`}
+                    className={`border-b border-border h-14 sm:h-17 ${rowClass}`}
                     variants={tableRowVariants}
                     initial="hidden"
                     animate="visible"
                     transition={{ delay: index * 0.04 }}
                   >
-                    <TableCell className="border-r border-border/60 text-center font-medium">
+                    <TableCell className="border-r border-border/60 text-center font-medium py-3 sm:py-4">
                       <span className="text-xs text-muted-foreground">
                         {user.id}
                       </span>
                     </TableCell>
 
-                    <TableCell className="truncate">
+                    <TableCell className="truncate py-3 sm:py-4">
                       <EmailCell email={user.email} />
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="py-3 sm:py-4">
                       <div className="flex items-center gap-2">
                         <TruncatedTooltip
                           text={user.username}
@@ -188,7 +188,7 @@ const DashboardUserTable = ({
                       </div>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="py-3 sm:py-4">
                       <div className="flex justify-center items-center">
                         <Badge
                           variant="outline"
@@ -199,7 +199,7 @@ const DashboardUserTable = ({
                       </div>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="py-3 sm:py-4">
                       <div className="flex justify-center items-center">
                         <div
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-medium border min-w-21.25 justify-center shadow-sm ${
@@ -227,13 +227,13 @@ const DashboardUserTable = ({
                       </div>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="py-3 sm:py-4">
                       <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">
                         {format(new Date(user.created_at), "dd MMM yyyy")}
                       </span>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="py-3 sm:py-4">
                       <span className="text-[10px] sm:text-xs text-muted-foreground font-mono">
                         {user.updated_at
                           ? format(new Date(user.updated_at), "dd MMM yyyy")
@@ -241,7 +241,7 @@ const DashboardUserTable = ({
                       </span>
                     </TableCell>
 
-                    <TableCell className="text-right pr-6">
+                    <TableCell className="text-right pr-6 py-3 sm:py-4">
                       <div className="flex justify-end">
                         <UserActionMenu
                           currentUser={currentUser}

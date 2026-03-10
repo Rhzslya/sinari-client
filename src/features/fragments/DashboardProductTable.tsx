@@ -160,19 +160,19 @@ export function DashboardProductTable({
               {products.map((product, index) => (
                 <motion.tr
                   key={product.id}
-                  className="border-b border-border transition-colors hover:bg-muted/50"
+                  className="border-b border-border transition-colors hover:bg-muted/50 h-14 sm:h-17"
                   variants={tableRowVariants}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: index * 0.03 }}
                 >
-                  <TableCell className="border-r border-border/60 text-center font-medium">
+                  <TableCell className="border-r border-border/60 text-center font-medium py-3 sm:py-4">
                     <span className="text-xs text-muted-foreground">
                       {product.id}
                     </span>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <div className="flex flex-col gap-0.5">
                       <TruncatedTooltip
                         text={product.name}
@@ -184,19 +184,19 @@ export function DashboardProductTable({
                     </div>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <span className="text-xs text-muted-foreground font-medium">
                       {product.brand}
                     </span>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <span className="text-xs text-muted-foreground">
                       {product.category}
                     </span>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <span
                       className={`font-medium ${
                         product.stock > 0
@@ -207,7 +207,8 @@ export function DashboardProductTable({
                       {product.stock}
                     </span>
                   </TableCell>
-                  <TableCell className="text-muted-foreground font-mono text-sm truncate">
+
+                  <TableCell className="text-muted-foreground font-mono text-sm truncate py-3 sm:py-4">
                     {showCost ? (
                       formatRupiah(product.cost_price ?? 0)
                     ) : (
@@ -217,11 +218,11 @@ export function DashboardProductTable({
                     )}
                   </TableCell>
 
-                  <TableCell className="font-medium font-mono text-sm truncate">
+                  <TableCell className="font-medium font-mono text-sm truncate py-3 sm:py-4">
                     {formatRupiah(product.price)}
                   </TableCell>
 
-                  <TableCell className="text-right pr-6">
+                  <TableCell className="text-right pr-6 py-3 sm:py-4">
                     <div className="flex justify-end">
                       <ProductActionMenu
                         product={product}
@@ -243,7 +244,6 @@ export function DashboardProductTable({
         </div>
       </TooltipProvider>
 
-      {/* Modals & Forms Dipertahankan Ukuran/Style Aslinya */}
       <UpdateStockForm
         key={selectedProduct ? selectedProduct.id : "reset"}
         open={isUpdateStockOpen}

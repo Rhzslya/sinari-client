@@ -97,7 +97,8 @@ const DashboardServicePage = () => {
   const [tempMaxPrice, setTempMaxPrice] = useState(maxPriceParam);
 
   // --- STATES (Mobile & Form Add) ---
-  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
+  const [isDesktopAddOpen, setIsDesktopAddOpen] = useState(false);
+  const [isMobileAddOpen, setIsMobileAddOpen] = useState(false);
   const [isControlSheetOpen, setIsControlSheetOpen] = useState(false);
 
   const [mobileSearch, setMobileSearch] = useState(searchParam);
@@ -254,7 +255,8 @@ const DashboardServicePage = () => {
   };
 
   const handleCreateSuccess = () => {
-    setIsAddSheetOpen(false);
+    setIsDesktopAddOpen(false);
+    setIsMobileAddOpen(false);
     if (page === 1) {
       refetch();
     } else {
@@ -620,12 +622,13 @@ const DashboardServicePage = () => {
             </Popover>
 
             {!isTrashMode && (
-              <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
+              <Sheet open={isDesktopAddOpen} onOpenChange={setIsDesktopAddOpen}>
                 <SheetTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
                     className="h-9 gap-1.5 cursor-pointer shadow-sm text-foreground duration-300"
+                    onClick={(e) => e.currentTarget.blur()}
                   >
                     <PlusCircle className="h-4 w-4" />
                     <span className="text-sm">
@@ -649,7 +652,7 @@ const DashboardServicePage = () => {
                   <div className="flex-1 overflow-x-hidden p-1">
                     <CreateServiceForm
                       onSuccess={handleCreateSuccess}
-                      onCancel={() => setIsAddSheetOpen(false)}
+                      onCancel={() => setIsDesktopAddOpen(false)}
                     />
                   </div>
                 </SheetContent>
@@ -677,11 +680,12 @@ const DashboardServicePage = () => {
           <div className="flex md:hidden items-center gap-2 ml-auto">
             {/* ADD BUTTON MOBILE */}
             {!isTrashMode && (
-              <Sheet open={isAddSheetOpen} onOpenChange={setIsAddSheetOpen}>
+              <Sheet open={isMobileAddOpen} onOpenChange={setIsMobileAddOpen}>
                 <SheetTrigger asChild>
                   <Button
                     size="sm"
                     className="h-9 w-9 p-0 rounded-full shadow-sm cursor-pointer text-foreground duration-300"
+                    onClick={(e) => e.currentTarget.blur()}
                   >
                     <PlusCircle className="h-4 w-4" />
                     <span className="sr-only">
@@ -701,7 +705,7 @@ const DashboardServicePage = () => {
                   <div className="flex-1 overflow-x-hidden p-1">
                     <CreateServiceForm
                       onSuccess={handleCreateSuccess}
-                      onCancel={() => setIsAddSheetOpen(false)}
+                      onCancel={() => setIsMobileAddOpen(false)}
                     />
                   </div>
                 </SheetContent>
@@ -719,6 +723,7 @@ const DashboardServicePage = () => {
                   size="sm"
                   className="h-9 gap-2 shadow-sm cursor-pointer relative pr-3"
                   disabled={isDatabaseEmpty && !isFiltering}
+                  onClick={(e) => e.currentTarget.blur()}
                 >
                   <Menu className="h-4 w-4" />
                   <span className="text-xs font-medium">
@@ -746,6 +751,9 @@ const DashboardServicePage = () => {
                       defaultValue: "Filters & Options",
                     })}
                   </SheetTitle>
+                  <SheetDescription className="sr-only">
+                    {t("products_management.sheet.add_desc")}
+                  </SheetDescription>
                 </SheetHeader>
 
                 <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-6">

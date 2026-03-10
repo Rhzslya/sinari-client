@@ -303,7 +303,7 @@ export function EditTechnicianForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-input/20 p-3 shadow-sm mt-2">
                     <div className="space-y-0.5 pr-4">
-                      <FormLabel className={labelStyle}>
+                      <FormLabel htmlFor={field.name} className={labelStyle}>
                         {t("technicians_management.forms.edit.active_status")}
                       </FormLabel>
                       <FormDescription className="text-[10px] sm:text-xs leading-tight">
@@ -314,6 +314,7 @@ export function EditTechnicianForm({
                     </div>
                     <FormControl>
                       <Switch
+                        id={field.name}
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         disabled={isPending}
@@ -340,9 +341,9 @@ export function EditTechnicianForm({
                 name="signature"
                 render={({ field }) => (
                   <FormItem className="grid gap-1.5 relative">
-                    <FormLabel className={labelStyle}>
+                    <div className={labelStyle}>
                       {t("technicians_management.forms.edit.signature_label")}
-                    </FormLabel>
+                    </div>
                     <FormControl>
                       <div key={technician.id} className="w-full">
                         <Input

@@ -82,10 +82,7 @@ const DeleteServiceForm = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        className="w-[95vw] sm:max-w-106.25 p-4 sm:p-6 rounded-xl"
-      >
+      <DialogContent className="w-[95vw] sm:max-w-106.25 p-4 sm:p-6 rounded-xl">
         <DialogHeader>
           <div className="flex mx-auto h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center border-2 border-destructive justify-center rounded-full bg-destructive/10 mb-3 sm:mb-4">
             <Trash2 className="h-6 w-6 sm:h-8 sm:w-8 text-destructive" />

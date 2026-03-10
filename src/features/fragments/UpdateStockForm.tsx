@@ -207,9 +207,9 @@ const UpdateStockForm = ({
 
                   return (
                     <FormItem className="space-y-2">
-                      <FormLabel className={labelStyle}>
+                      <div className={labelStyle}>
                         {t("products_management.forms.update_stock.new_stock")}
-                      </FormLabel>
+                      </div>
                       <FormControl>
                         <NumberStepper
                           placeholder="0"

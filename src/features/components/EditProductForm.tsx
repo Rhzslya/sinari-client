@@ -405,9 +405,9 @@ export function EditProductForm({
                 name="image"
                 render={({ field }) => (
                   <FormItem className="grid gap-2 relative">
-                    <FormLabel className={labelStyle}>
+                    <div className={labelStyle}>
                       {t("products_management.forms.edit.image_label")}
-                    </FormLabel>
+                    </div>
                     <FormControl>
                       <div key={product.id} className="w-full">
                         <Input
@@ -579,9 +579,9 @@ export function EditProductForm({
                   name="price"
                   render={({ field }) => (
                     <FormItem className="relative grid gap-2 space-y-0">
-                      <FormLabel className={labelStyle}>
+                      <div className={labelStyle}>
                         {t("products_management.forms.edit.selling_price")}
-                      </FormLabel>
+                      </div>
                       <FormControl>
                         <NumberStepper
                           value={field.value}
@@ -605,9 +605,9 @@ export function EditProductForm({
                   name="cost_price"
                   render={({ field }) => (
                     <FormItem className="relative grid gap-2 space-y-0">
-                      <FormLabel className={labelStyle}>
+                      <div className={labelStyle}>
                         {t("products_management.forms.edit.cost_price")}
-                      </FormLabel>
+                      </div>
                       <FormControl>
                         <NumberStepper
                           value={field.value}
@@ -628,11 +628,10 @@ export function EditProductForm({
                   name="stock"
                   render={({ field }) => (
                     <FormItem className="relative grid gap-2 space-y-0">
-                      <FormLabel className={labelStyle}>
+                      <div className={labelStyle}>
                         {t("products_management.forms.edit.initial_stock")}
-                      </FormLabel>
+                      </div>
                       <FormControl>
-                        {/* Disable untuk edit karena stock punya logic sendiri biasanya */}
                         <NumberStepper
                           value={field.value}
                           onChange={field.onChange}

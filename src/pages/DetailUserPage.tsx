@@ -35,6 +35,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import NotFoundPage from "./NotFoundPage";
+import { UserDetailSkeleton } from "@/features/fragments/Skeleton";
 
 // 👇 Setup Animasi
 const containerVariants: Variants = {
@@ -237,19 +239,17 @@ const DetailUserPage = () => {
   const haveGoogleAuth = user?.google_id !== null;
 
   if (isLoading) {
-    return (
-      <div className="p-4 text-sm text-muted-foreground flex items-center gap-2">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        {t("users_management.detail.loading")}
-      </div>
-    );
+    return <UserDetailSkeleton />;
   }
 
   if (isError || !user) {
     return (
-      <div className="p-4 text-sm text-destructive">
-        {t("users_management.detail.not_found")}
-      </div>
+      <NotFoundPage
+        variant="minimal"
+        isDashboard={true}
+        entityName={t("users_management.detail.not_found")}
+        onGoBack={() => navigate("/dashboard/users", { replace: true })}
+      />
     );
   }
 

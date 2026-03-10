@@ -216,7 +216,6 @@ export function CreateTechnicianForm({
               )}
             </AnimatePresence>
 
-            {/* 👇 space-y-7 memberikan jarak longgar antar input agar FormMessage absolute tidak menabrak label bawahnya */}
             <motion.div variants={formItemVariants} className="space-y-7">
               <div>
                 <h3 className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
@@ -257,7 +256,7 @@ export function CreateTechnicianForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-input/20 p-3 shadow-sm">
                     <div className="space-y-0.5 pr-4">
-                      <FormLabel className={labelStyle}>
+                      <FormLabel htmlFor={field.name} className={labelStyle}>
                         {t("technicians_management.forms.create.active_status")}
                       </FormLabel>
                       <FormDescription className="text-[10px] sm:text-xs leading-tight">
@@ -268,6 +267,7 @@ export function CreateTechnicianForm({
                     </div>
                     <FormControl>
                       <Switch
+                        id={field.name}
                         checked={field.value}
                         onCheckedChange={field.onChange}
                         disabled={isSubmitting || isPending}
@@ -294,9 +294,9 @@ export function CreateTechnicianForm({
                 name="signature"
                 render={({ field }) => (
                   <FormItem className="grid gap-2 relative">
-                    <FormLabel className={labelStyle}>
+                    <div className={labelStyle}>
                       {t("technicians_management.forms.create.signature_label")}
-                    </FormLabel>
+                    </div>
                     <FormControl>
                       <div className="w-full">
                         <Input

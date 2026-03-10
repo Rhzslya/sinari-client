@@ -22,10 +22,9 @@ import { toast } from "sonner";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
 import { useUserQueries } from "@/hooks/user-queries";
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus, UserRole } from "@/enum/product-enum";
 import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface ServiceActionMenuProps {
   service: ServiceResponse;
@@ -54,7 +53,7 @@ export function ServiceActionMenu({
 
   const { data: currentUser } = userQueries.useProfile();
   const { data: storeData, isLoading: isSettingsLoading } = useGetSettings();
-  const isOwner = currentUser?.role === "OWNER";
+  const isOwner = currentUser?.role === UserRole.OWNER;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
@@ -74,11 +73,15 @@ export function ServiceActionMenu({
     );
   }
 
-  const handleAction = (callback: () => void) => {
+  const handleAction = (e: Event, callback: () => void) => {
+    e.preventDefault();
+    document.body.focus();
     setIsOpen(false);
+
+    //Aria Hidden
     setTimeout(() => {
       callback();
-    }, 150);
+    }, 250);
   };
 
   const handleDownloadPDF = async () => {
@@ -129,88 +132,82 @@ export function ServiceActionMenu({
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52 p-1">
-        <AnimatePresence>
-          {!isTrashView ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
+
+      <DropdownMenuContent
+        align="end"
+        className="w-52 p-1"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
+        {!isTrashView ? (
+          <>
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onViewDetails)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
             >
-              <DropdownMenuItem
-                onClick={() => handleAction(onViewDetails)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <Eye className="size-4 text-muted-foreground" />
-                {t("services_management.action_menu.view_details")}
-              </DropdownMenuItem>
+              <Eye className="size-4 text-muted-foreground" />
+              {t("services_management.action_menu.view_details")}
+            </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={handleDownloadPDF}
-                disabled={isGeneratingPdf}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm ${isGeneratingPdf ? "opacity-50" : "cursor-pointer"}`}
-              >
-                <FileText className="size-4 text-muted-foreground" />
-                {isGeneratingPdf
-                  ? t("services_management.action_menu.generating_pdf")
-                  : t("services_management.action_menu.download_pdf")}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => handleAction(onEditService)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <Pencil className="size-4 text-muted-foreground" />
-                {t("services_management.action_menu.edit_service")}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => handleAction(onUpdateStatus)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <RefreshCw className="size-4 text-muted-foreground" />
-                {t("services_management.action_menu.update_status")}
-              </DropdownMenuItem>
-
-              {isOwner && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => handleAction(onDeleteService)}
-                    className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${isDeleteDisabled ? "opacity-50" : "cursor-pointer"}`}
-                    disabled={isDeleteDisabled}
-                  >
-                    <Trash2 className="size-4" />
-                    {t("services_management.action_menu.delete")}
-                  </DropdownMenuItem>
-                </>
-              )}
-
-              <DropdownMenuItem
-                onClick={() => handleAction(onAnonymizeCustomerData)}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${isAnonymizeDisabled ? "opacity-50" : "cursor-pointer"}`}
-                disabled={isAnonymizeDisabled}
-              >
-                <HatGlasses className="size-4" />
-                {t("services_management.action_menu.anonymize")}
-              </DropdownMenuItem>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, handleDownloadPDF)}
+              disabled={isGeneratingPdf}
+              className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm ${isGeneratingPdf ? "opacity-50" : "cursor-pointer"}`}
             >
-              <DropdownMenuItem
-                onClick={onRestoreService}
-                disabled={!isOwner}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${!isOwner ? "opacity-50" : "cursor-pointer"}`}
-              >
-                <ArchiveRestore className="size-4" />
-                {t("services_management.action_menu.restore_data")}
-              </DropdownMenuItem>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <FileText className="size-4 text-muted-foreground" />
+              {isGeneratingPdf
+                ? t("services_management.action_menu.generating_pdf")
+                : t("services_management.action_menu.download_pdf")}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onEditService)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+            >
+              <Pencil className="size-4 text-muted-foreground" />
+              {t("services_management.action_menu.edit_service")}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onUpdateStatus)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+            >
+              <RefreshCw className="size-4 text-muted-foreground" />
+              {t("services_management.action_menu.update_status")}
+            </DropdownMenuItem>
+
+            {isOwner && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(e) => handleAction(e, onDeleteService)}
+                  className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${isDeleteDisabled ? "opacity-50" : "cursor-pointer"}`}
+                  disabled={isDeleteDisabled}
+                >
+                  <Trash2 className="size-4" />
+                  {t("services_management.action_menu.delete")}
+                </DropdownMenuItem>
+              </>
+            )}
+
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onAnonymizeCustomerData)}
+              className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 ${isAnonymizeDisabled ? "opacity-50" : "cursor-pointer"}`}
+              disabled={isAnonymizeDisabled}
+            >
+              <HatGlasses className="size-4" />
+              {t("services_management.action_menu.anonymize")}
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <DropdownMenuItem
+            onSelect={(e) => handleAction(e, onRestoreService)}
+            disabled={!isOwner}
+            className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${!isOwner ? "opacity-50" : "cursor-pointer"}`}
+          >
+            <ArchiveRestore className="size-4" />
+            {t("services_management.action_menu.restore_data")}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

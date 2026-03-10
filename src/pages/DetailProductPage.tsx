@@ -49,6 +49,7 @@ import { ProductLogTimeline } from "@/features/fragments/ProductLogTimeline";
 import { useUserQueries } from "@/hooks/user-queries";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { ProductDetailSkeleton } from "@/features/fragments/Skeleton";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -110,9 +111,9 @@ const DetailProductPage = () => {
     setSelectedProduct(product);
     setIsDeleteProductOpen(true);
   };
-
-  if (isLoading)
-    return <div className="p-4">{t("products_management.detail.loading")}</div>;
+  if (isLoading) {
+    return <ProductDetailSkeleton />;
+  }
   if (isError || !product)
     return (
       <NotFoundPage

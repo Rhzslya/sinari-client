@@ -28,6 +28,7 @@ import {
   SheetTitle,
   SheetTrigger,
   SheetFooter,
+  SheetDescription,
 } from "@/components/ui/sheet";
 
 import { DashboardHeader } from "@/features/fragments/DashboardHeader";
@@ -531,6 +532,7 @@ const DashboardUserPage = () => {
                     size="sm"
                     className="h-9 gap-2 shadow-sm cursor-pointer relative pr-3"
                     disabled={isDatabaseEmpty}
+                    onClick={(e) => e.currentTarget.blur()}
                   >
                     <Menu className="h-4 w-4" />
                     <span className="text-xs font-medium">
@@ -554,6 +556,7 @@ const DashboardUserPage = () => {
                       <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                       {t("users_management.controls_title")}
                     </SheetTitle>
+                    <SheetDescription className="sr-only" />
                   </SheetHeader>
 
                   <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-6">

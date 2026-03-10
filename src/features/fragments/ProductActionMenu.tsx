@@ -18,7 +18,7 @@ import {
 import type { ProductResponse } from "@/model/product-model";
 import { useUserQueries } from "@/hooks/user-queries";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { UserRole } from "@/enum/product-enum";
 
 interface ProductActionMenuProps {
   product: ProductResponse;
@@ -43,15 +43,19 @@ export function ProductActionMenu({
   const userQueries = useUserQueries();
 
   const { data: currentUser } = userQueries.useProfile();
-  const isOwner = currentUser?.role === "OWNER";
+  const isOwner = currentUser?.role === UserRole.OWNER;
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleAction = (callback: () => void) => {
+  const handleAction = (e: Event, callback: () => void) => {
+    e.preventDefault();
+    document.body.focus();
     setIsOpen(false);
+
+    //Aria Hidden
     setTimeout(() => {
       callback();
-    }, 150);
+    }, 250);
   };
 
   return (
@@ -72,67 +76,62 @@ export function ProductActionMenu({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-48 p-1">
-        <AnimatePresence>
-          {!isTrashView ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
+      <DropdownMenuContent
+        align="end"
+        className="w-48 p-1"
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
+        {!isTrashView ? (
+          <>
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onViewDetails)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
             >
-              <DropdownMenuItem
-                onClick={() => handleAction(onViewDetails)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <Eye className="size-4 text-muted-foreground" />
-                {t("products_management.action_menu.view_details")}
-              </DropdownMenuItem>
+              <Eye className="size-4 text-muted-foreground" />
+              {t("products_management.action_menu.view_details")}
+            </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onSelect={() => handleAction(onUpdateStock)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <PackagePlus className="size-4 text-muted-foreground" />
-                {t("products_management.action_menu.update_stock")}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onSelect={() => handleAction(onEditProduct)}
-                className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
-              >
-                <Pencil className="size-4 text-muted-foreground" />
-                {t("products_management.action_menu.edit_product")}
-              </DropdownMenuItem>
-
-              {isOwner && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onSelect={() => handleAction(onDeleteProduct)}
-                    className="gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer"
-                  >
-                    <Trash2 className="size-4" />
-                    {t("products_management.action_menu.delete_product")}
-                  </DropdownMenuItem>
-                </>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onUpdateStock)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
             >
-              <DropdownMenuItem
-                onClick={onRestoreProduct}
-                disabled={!isOwner}
-                className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${!isOwner ? "opacity-50" : "cursor-pointer"}`}
-              >
-                <ArchiveRestore className="size-4" />
-                {t("products_management.action_menu.restore_data")}
-              </DropdownMenuItem>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <PackagePlus className="size-4 text-muted-foreground" />
+              {t("products_management.action_menu.update_stock")}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onSelect={(e) => handleAction(e, onEditProduct)}
+              className="cursor-pointer gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+            >
+              <Pencil className="size-4 text-muted-foreground" />
+              {t("products_management.action_menu.edit_product")}
+            </DropdownMenuItem>
+
+            {isOwner && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(e) => handleAction(e, onDeleteProduct)}
+                  className="gap-2 h-9 sm:h-10 text-xs sm:text-sm text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer"
+                >
+                  <Trash2 className="size-4" />
+                  {t("products_management.action_menu.delete_product")}
+                </DropdownMenuItem>
+              </>
+            )}
+          </>
+        ) : (
+          <DropdownMenuItem
+            onSelect={(e) =>
+              onRestoreProduct && handleAction(e, onRestoreProduct)
+            }
+            disabled={!isOwner}
+            className={`gap-2 h-9 sm:h-10 text-xs sm:text-sm text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 ${!isOwner ? "opacity-50" : "cursor-pointer"}`}
+          >
+            <ArchiveRestore className="size-4" />
+            {t("products_management.action_menu.restore_data")}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

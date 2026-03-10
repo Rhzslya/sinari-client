@@ -7,7 +7,6 @@ import {
   Mail,
   ShieldCheck,
   LogOut,
-  Loader2,
   ShieldAlert,
   AtSign,
   Hash,
@@ -18,6 +17,7 @@ import { AuthServices } from "@/services/user-services";
 import { ChangePasswordDialog } from "@/features/components/ChangePasswordDialog";
 import { useTranslation } from "react-i18next";
 import { motion, type Variants } from "framer-motion";
+import { ProfilePageSkeleton } from "@/features/fragments/Skeleton";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -38,12 +38,9 @@ const ProfilePage = () => {
   const { useProfile } = useUserQueries();
   const { data: user, isLoading, isError } = useProfile();
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-primary" />
-      </div>
-    );
+  if (isLoading) {
+    return <ProfilePageSkeleton />;
+  }
 
   if (isError || !user)
     return (

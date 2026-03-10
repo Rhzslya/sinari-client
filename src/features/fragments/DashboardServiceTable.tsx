@@ -183,26 +183,26 @@ const DashboardServiceTable = ({
               {services.map((service, index) => (
                 <motion.tr
                   key={service.id}
-                  className="border-b border-border transition-colors hover:bg-muted/50"
+                  className="border-b border-border transition-colors hover:bg-muted/50 h-14 sm:h-17"
                   variants={tableRowVariants}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: index * 0.03 }}
                 >
-                  <TableCell className="border-r border-border/60 text-center">
+                  <TableCell className="border-r border-border/60 text-center py-3 sm:py-4">
                     <span className="font-mono text-xs font-semibold px-2 py-1 rounded-sm tracking-wide">
                       {service.service_id}
                     </span>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <TruncatedTooltip
                       text={service.customer_name}
                       className="font-medium text-sm max-w-50"
                     />
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <div className="flex flex-col gap-1">
                       <span className="text-sm font-medium truncate max-w-45">
                         {service.brand}
@@ -210,7 +210,7 @@ const DashboardServiceTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <div className="flex flex-col gap-1">
                       <span className="text-sm font-medium truncate max-w-45">
                         {service.model}
@@ -218,11 +218,11 @@ const DashboardServiceTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-center">
+                  <TableCell className="text-center py-3 sm:py-4">
                     {getStatusBadge(service.status)}
                   </TableCell>
 
-                  <TableCell className="font-medium text-sm">
+                  <TableCell className="font-medium text-sm py-3 sm:py-4">
                     <div className="flex w-full justify-center">
                       {service.status === ServiceStatus.CANCELLED ? (
                         <Badge
@@ -246,7 +246,7 @@ const DashboardServiceTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="py-3 sm:py-4">
                     <div className="flex items-center gap-2">
                       <div className="relative flex h-2.5 w-2.5 shrink-0">
                         <span
@@ -263,7 +263,7 @@ const DashboardServiceTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-xs text-muted-foreground">
+                  <TableCell className="text-xs text-muted-foreground py-3 sm:py-4">
                     <div className="flex flex-col">
                       <span className="font-medium text-foreground">
                         {format(new Date(service.created_at), "dd MMM yyyy")}
@@ -274,7 +274,7 @@ const DashboardServiceTable = ({
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-right pr-6">
+                  <TableCell className="text-right pr-6 py-3 sm:py-4">
                     <div className="flex justify-end">
                       <ServiceActionMenu
                         service={service}
