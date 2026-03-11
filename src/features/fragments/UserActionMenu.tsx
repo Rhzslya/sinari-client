@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import type { NotPublicUserResponse, UserResponse } from "@/model/user-model";
 import { useTranslation } from "react-i18next";
-import { UserRole } from "@/enum/product-enum";
+import { UserRole } from "@/enum/enum";
 
 interface UserActionMenuProps {
   user: NotPublicUserResponse;

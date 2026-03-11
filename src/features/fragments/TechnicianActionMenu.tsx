@@ -16,7 +16,7 @@ import {
 import type { TechnicianResponse } from "@/model/technician-model";
 import { useUserQueries } from "@/hooks/user-queries";
 import { useTranslation } from "react-i18next";
-import { UserRole } from "@/enum/product-enum";
+import { UserRole } from "@/enum/enum";
 
 interface TechnicianActionMenuProps {
   technician: TechnicianResponse;

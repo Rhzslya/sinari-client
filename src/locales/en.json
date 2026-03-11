@@ -625,6 +625,9 @@
     "repair_progress": "Repair Progress",
     "device_info": "Device Info",
     "billing_summary": "Billing Summary",
+    "repair_details": "Repair Details",
+    "customer": "Customer",
+    "customer_issue": "Customer Issue",
     "steps": {
       "received": "Received",
       "repairing": "Repairing",

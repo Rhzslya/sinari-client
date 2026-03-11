@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
-import { UserRole } from "@/enum/product-enum";
+import { UserRole } from "@/enum/enum";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { useUserQueries } from "@/hooks/user-queries";
 import type {

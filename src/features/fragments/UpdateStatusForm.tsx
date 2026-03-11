@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus } from "@/enum/enum";
 import { useServiceQueries } from "@/hooks/repair-queries";
 import { useCooldown, useServiceLock } from "@/hooks/use-cooldown";
 import { type ServiceResponse } from "@/model/repair-model";

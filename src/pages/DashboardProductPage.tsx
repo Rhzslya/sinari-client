@@ -25,7 +25,7 @@ import { CreateProductForm } from "@/features/components/CreateProductForm";
 import { PaginationComponent } from "@/features/fragments/Pagination";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Brand, Category } from "@/enum/product-enum";
+import { Brand, Category } from "@/enum/enum";
 import {
   Popover,
   PopoverContent,

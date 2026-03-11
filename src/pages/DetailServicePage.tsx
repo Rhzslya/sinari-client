@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatRupiah } from "@/components/utils/formatRupiah";
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus } from "@/enum/enum";
 import type { ServiceResponse } from "@/model/repair-model";
 import { format } from "date-fns";
 import {

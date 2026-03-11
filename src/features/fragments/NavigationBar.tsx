@@ -23,7 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { navigationMenuTriggerStyle } from "@/components/utils/navigationMenuTriggerStyle";
-import { UserRole } from "@/enum/product-enum";
+import { UserRole } from "@/enum/enum";
 import { useUserQueries } from "@/hooks/user-queries";
 import { AuthServices } from "@/services/user-services";
 import {

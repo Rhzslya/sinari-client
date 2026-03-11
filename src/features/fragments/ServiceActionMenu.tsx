@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { pdf } from "@react-pdf/renderer";
 import { useUserQueries } from "@/hooks/user-queries";
-import { ServiceStatus, UserRole } from "@/enum/product-enum";
+import { ServiceStatus, UserRole } from "@/enum/enum";
 import { useStoreSettingQueries } from "@/hooks/store-setting-queries";
 import { useTranslation } from "react-i18next";
 

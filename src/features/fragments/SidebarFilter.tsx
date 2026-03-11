@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { NumberStepper } from "@/components/utils/numberStepper";
-import { Brand, Category } from "@/enum/product-enum";
+import { Brand, Category } from "@/enum/enum";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 

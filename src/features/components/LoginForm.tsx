@@ -203,7 +203,6 @@ export function LoginForm() {
     if (!identifier) return;
     setResendLoading(true);
     setIsVerifiedNow(false);
-    setCardError(null);
     setShowInitialCheckEmail(true);
 
     try {
@@ -215,6 +214,8 @@ export function LoginForm() {
       }
 
       startCooldown(60, identifier);
+
+      setCardError(null);
     } catch (error) {
       const message = getErrorMessage(error);
 

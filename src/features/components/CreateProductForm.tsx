@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { formatBytes } from "@/components/utils/formatBytes";
 import { NumberStepper } from "@/components/utils/numberStepper";
-import { Brand, Category } from "@/enum/product-enum";
+import { Brand, Category } from "@/enum/enum";
 import { useProductQueries } from "@/hooks/product-queries";
 import { useCooldown } from "@/hooks/use-cooldown";
 import { type CreateProductRequest } from "@/model/product-model";

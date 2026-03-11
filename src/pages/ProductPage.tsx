@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brand, Category } from "@/enum/product-enum";
+import { Brand, Category } from "@/enum/enum";
 import RateLimitFallback from "@/features/fragments/RateLimitFallback";
 import { useProductQueries } from "@/hooks/product-queries";
 import { handleApiError } from "@/lib/utils";

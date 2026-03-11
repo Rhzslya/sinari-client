@@ -1,4 +1,4 @@
-import type { Brand, Category, ProductLogAction } from "@/enum/product-enum";
+import type { Brand, Category, ProductLogAction } from "@/enum/enum";
 
 export type ProductResponse = {
   id: number;

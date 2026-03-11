@@ -1,4 +1,4 @@
-import { UserRole } from "@/enum/product-enum";
+import { UserRole } from "@/enum/enum";
 import z from "zod";
 
 const ROLE_VALUES = Object.values(UserRole) as [UserRole, ...UserRole[]];

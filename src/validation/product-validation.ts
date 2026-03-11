@@ -1,4 +1,4 @@
-import { Brand, Category, ProductLogAction } from "@/enum/product-enum";
+import { Brand, Category, ProductLogAction } from "@/enum/enum";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE } from "@/types/type";
 import { z } from "zod";
 

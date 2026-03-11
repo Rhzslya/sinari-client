@@ -1,5 +1,5 @@
 import { formatRupiah } from "@/components/utils/formatRupiah";
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus } from "@/enum/enum";
 import type { ServiceResponse } from "@/model/repair-model";
 import type { UpdateStoreSettingRequest } from "@/model/store-setting-model";
 import {

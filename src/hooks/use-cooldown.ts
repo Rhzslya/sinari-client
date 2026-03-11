@@ -1,4 +1,4 @@
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus } from "@/enum/enum";
 import type { ServiceResponse } from "@/model/repair-model";
 import { useState, useEffect, useCallback } from "react";
 

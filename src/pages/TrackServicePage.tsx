@@ -1,6 +1,6 @@
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus } from "@/enum/enum";
 import {
   AlertCircle,
   Calendar,
@@ -341,7 +341,7 @@ export default function TrackServicePage() {
                 <ClipboardList className="w-5 h-5" />
               </div>
               <h3 className="font-bold uppercase text-xs tracking-widest text-slate-800">
-                Service Details
+                {t("track_service.repair_details")}
               </h3>
             </div>
 
@@ -410,7 +410,7 @@ export default function TrackServicePage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] text-slate-400 font-bold uppercase">
-                    Customer
+                    {t("track_service.customer")}
                   </p>
                   <TruncatedTooltip
                     text={service.customer_name}
@@ -480,7 +480,7 @@ export default function TrackServicePage() {
           </motion.div>
         </div>
 
-        {(service.description || service.technician_note) && (
+        {service.description && (
           <motion.div
             variants={itemVariants}
             className="bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col gap-6"
@@ -493,23 +493,6 @@ export default function TrackServicePage() {
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <p className="text-sm font-medium text-slate-700 leading-relaxed whitespace-pre-wrap wrap-break-word">
                     {service.description}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {service.description && service.technician_note && (
-              <div className="w-full h-px bg-slate-100" />
-            )}
-
-            {service.technician_note && (
-              <div className="space-y-2">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-                  {t("track_service.technician_note", "Technician Note")}
-                </h4>
-                <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
-                  <p className="text-sm font-medium text-emerald-800 leading-relaxed whitespace-pre-wrap wrap-break-word">
-                    {service.technician_note}
                   </p>
                 </div>
               </div>

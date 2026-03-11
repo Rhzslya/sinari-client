@@ -625,6 +625,9 @@
     "repair_progress": "Progres Perbaikan",
     "device_info": "Informasi Perangkat",
     "billing_summary": "Ringkasan Tagihan",
+    "repair_details": "Detail Perbaikan",
+    "customer": "Pelanggan",
+    "customer_issue": "Masalah / Pengaduan",
     "steps": {
       "received": "Diterima",
       "repairing": "Dikerjakan",

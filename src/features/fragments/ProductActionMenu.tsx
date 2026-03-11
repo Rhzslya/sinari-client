@@ -18,7 +18,7 @@ import {
 import type { ProductResponse } from "@/model/product-model";
 import { useUserQueries } from "@/hooks/user-queries";
 import { useTranslation } from "react-i18next";
-import { UserRole } from "@/enum/product-enum";
+import { UserRole } from "@/enum/enum";
 
 interface ProductActionMenuProps {
   product: ProductResponse;

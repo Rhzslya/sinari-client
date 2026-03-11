@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { UserRole } from "@/enum/product-enum";
+import { UserRole } from "@/enum/enum";
 import { useUserQueries } from "@/hooks/user-queries";
 import { Loader2 } from "lucide-react";
 

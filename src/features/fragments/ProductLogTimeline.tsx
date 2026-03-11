@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ProductLogAction } from "@/enum/product-enum";
+import { ProductLogAction } from "@/enum/enum";
 import { useProductLogQueries } from "@/hooks/product-log-queries";
 import type { GetLogRequest } from "@/model/product-logs-model";
 import { format } from "date-fns";

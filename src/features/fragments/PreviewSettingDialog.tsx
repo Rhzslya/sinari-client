@@ -9,7 +9,7 @@ import { Loader2, Eye, X } from "lucide-react";
 import { PDFViewer } from "@react-pdf/renderer";
 import type { UpdateStoreSettingRequest } from "@/model/store-setting-model";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus } from "@/enum/enum";
 import type { ServiceResponse } from "@/model/repair-model";
 import { useTranslation } from "react-i18next";
 

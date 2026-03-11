@@ -10,7 +10,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { TruncatedTooltip } from "@/components/utils/truncatedTooltip";
-import { ServiceStatus } from "@/enum/product-enum";
+import { ServiceStatus } from "@/enum/enum";
 import type { ServiceResponse } from "@/model/repair-model";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";

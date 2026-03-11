@@ -1,4 +1,4 @@
-import { Brand, ServiceStatus } from "@/enum/product-enum";
+import { Brand, ServiceStatus } from "@/enum/enum";
 import { z } from "zod";
 
 const BRAND_VALUES = Object.values(Brand) as [Brand, ...Brand[]];

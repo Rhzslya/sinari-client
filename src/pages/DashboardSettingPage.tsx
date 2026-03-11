@@ -481,7 +481,7 @@ const DashboardSettingPage = () => {
               {/* TABS CONTENT: INTEGRATIONS */}
               <TabsContent value="integrations" className="mt-2 outline-none">
                 <Card className="border-border/50 shadow-sm overflow-hidden">
-                  <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-border/30 bg-muted/10">
+                  <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-border/30">
                     <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                       <Smartphone className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
                       {t("settings.whatsapp.title")}

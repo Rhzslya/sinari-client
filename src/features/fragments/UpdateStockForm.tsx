@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { NumberStepper } from "@/components/utils/numberStepper";
-import { ProductLogAction } from "@/enum/product-enum";
+import { ProductLogAction } from "@/enum/enum";
 import { useProductQueries } from "@/hooks/product-queries";
 import { useCooldown } from "@/hooks/use-cooldown";
 import type {

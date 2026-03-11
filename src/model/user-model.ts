@@ -1,4 +1,4 @@
-import type { UserRole } from "@/enum/product-enum";
+import type { UserRole } from "@/enum/enum";
 
 export type UserResponse = {
   id: number;
@@ -76,14 +76,6 @@ export type ChangePasswordRequest = {
   old_password: string;
   new_password: string;
   confirm_new_password: string;
-};
-
-export type ContactUsRequest = {
-  name: string;
-  email: string;
-  subject: string;
-  phone_number?: string;
-  message: string;
 };
 
 export type DetailedUserResponse = {

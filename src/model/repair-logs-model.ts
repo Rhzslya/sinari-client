@@ -1,4 +1,4 @@
-import type { ServiceLogAction, UserRole } from "@/enum/product-enum";
+import type { ServiceLogAction, UserRole } from "@/enum/enum";
 
 export type ServiceLogResponse = {
   id: number;

@@ -19,7 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { formatRupiah } from "@/components/utils/formatRupiah";
 import { NumberStepper } from "@/components/utils/numberStepper";
-import { Brand } from "@/enum/product-enum";
+import { Brand } from "@/enum/enum";
 import { useServiceQueries } from "@/hooks/repair-queries";
 import { useTechnicianQueries } from "@/hooks/technician-queries";
 import { useCooldown } from "@/hooks/use-cooldown";

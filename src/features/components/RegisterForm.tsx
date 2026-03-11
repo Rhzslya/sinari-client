@@ -155,7 +155,6 @@ export function RegisterForm() {
     if (!registeredEmail) return;
     setResendLoading(true);
     setIsVerifiedNow(false);
-    setCardError(null);
 
     try {
       await AuthServices.resendVerification({ identifier: registeredEmail });
@@ -164,6 +163,8 @@ export function RegisterForm() {
       if (registeredUsername) {
         startCooldown(60, registeredUsername);
       }
+
+      setCardError(null);
     } catch (error) {
       const message = getErrorMessage(error);
       if (isAxiosError(error)) {
