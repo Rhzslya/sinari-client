@@ -214,7 +214,7 @@ export function ChangePasswordDialog() {
                   <FormControl>
                     <div className="relative">
                       <Input
-                        autoComplete="off"
+                        autoComplete="nope"
                         type={showOld ? "text" : "password"}
                         placeholder={t(
                           "profile.change_password.placeholders.old_password",
@@ -253,7 +253,7 @@ export function ChangePasswordDialog() {
                   <FormControl>
                     <div className="relative">
                       <Input
-                        autoComplete="off"
+                        autoComplete="nope"
                         type={showNew ? "text" : "password"}
                         placeholder={t(
                           "profile.change_password.placeholders.new_password",
@@ -292,7 +292,7 @@ export function ChangePasswordDialog() {
                   <FormControl>
                     <div className="relative">
                       <Input
-                        autoComplete="off"
+                        autoComplete="nope"
                         type={showConfirm ? "text" : "password"}
                         placeholder={t(
                           "profile.change_password.placeholders.confirm_password",

@@ -253,7 +253,7 @@ export function ResetPasswordForm() {
                       <FormControl>
                         <div className="relative">
                           <Input
-                            autoComplete="off"
+                            autoComplete="nope"
                             type={showPassword ? "text" : "password"}
                             placeholder={t(
                               "auth.reset.placeholders.new_password",
@@ -292,7 +292,7 @@ export function ResetPasswordForm() {
                       <FormControl>
                         <div className="relative">
                           <Input
-                            autoComplete="off"
+                            autoComplete="nope"
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder={t(
                               "auth.reset.placeholders.confirm_password",

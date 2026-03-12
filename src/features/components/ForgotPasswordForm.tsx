@@ -321,7 +321,7 @@ export function ForgotPasswordForm() {
                     <FormItem className="relative mb-6 sm:mb-8">
                       <FormControl>
                         <Input
-                          autoComplete="off"
+                          autoComplete="nope"
                           placeholder={t("auth.forgot.identifier")}
                           {...field}
                           disabled={isFormDisabled || isDailyLimit}

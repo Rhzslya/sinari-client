@@ -300,7 +300,7 @@ const DashboardSettingPage = () => {
                           </FormLabel>
                           <FormControl>
                             <Input
-                              autoComplete="off"
+                              autoComplete="nope"
                               {...field}
                               className={inputStyle}
                               disabled={isStorePending}
@@ -322,7 +322,7 @@ const DashboardSettingPage = () => {
                           </FormLabel>
                           <FormControl>
                             <Input
-                              autoComplete="off"
+                              autoComplete="nope"
                               {...field}
                               className={inputStyle}
                               disabled={isStorePending}
@@ -346,7 +346,7 @@ const DashboardSettingPage = () => {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                autoComplete="off"
+                                autoComplete="nope"
                                 {...field}
                                 className={inputStyle}
                                 disabled={isStorePending}
@@ -367,7 +367,7 @@ const DashboardSettingPage = () => {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                autoComplete="off"
+                                autoComplete="nope"
                                 className={inputStyle}
                                 {...field}
                                 value={field.value || ""}

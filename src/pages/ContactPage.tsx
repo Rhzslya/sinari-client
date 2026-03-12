@@ -276,7 +276,7 @@ const ContactPage = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            autoComplete="off"
+                            autoComplete="nope"
                             placeholder={t("contact.form.placeholders.name")}
                             disabled={isPending || cooldown > 0}
                             className={inputStyle}
@@ -297,7 +297,7 @@ const ContactPage = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            autoComplete="off"
+                            autoComplete="nope"
                             type="email"
                             placeholder={t("contact.form.placeholders.email")}
                             disabled={isPending || cooldown > 0}
@@ -322,7 +322,7 @@ const ContactPage = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            autoComplete="off"
+                            autoComplete="nope"
                             type="tel"
                             placeholder={t("contact.form.placeholders.phone")}
                             disabled={isPending || cooldown > 0}
@@ -345,7 +345,7 @@ const ContactPage = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            autoComplete="off"
+                            autoComplete="nope"
                             placeholder={t("contact.form.placeholders.subject")}
                             disabled={isPending || cooldown > 0}
                             readOnly={isPrivacyRequestMode}

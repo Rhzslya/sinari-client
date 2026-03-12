@@ -236,7 +236,7 @@ export function CreateTechnicianForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        autoComplete="off"
+                        autoComplete="nope"
                         placeholder={t(
                           "technicians_management.forms.create.name_placeholder",
                         )}
