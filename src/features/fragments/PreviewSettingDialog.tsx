@@ -6,10 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, X } from "lucide-react";
-import { lazy, Suspense } from "react";
-const PDFViewer = lazy(() =>
-  import("@react-pdf/renderer").then((mod) => ({ default: mod.PDFViewer })),
-);
+import { PDFViewer } from "@react-pdf/renderer";
 import type { UpdateStoreSettingRequest } from "@/model/store-setting-model";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { ServiceStatus } from "@/enum/enum";
@@ -70,6 +67,7 @@ export function PreviewSettingDialog({
     store_website: data.store_website || "",
     warranty_text: data.warranty_text || "",
     payment_info: data.payment_info || "",
+    store_hours: data.store_hours || "",
   };
 
   return (
@@ -111,29 +109,17 @@ export function PreviewSettingDialog({
           <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-primary/5 pointer-events-none" />
 
           <div className="w-full max-w-[320px] md:max-w-95 aspect-[1/1.414] bg-white shadow-2xl border border-border/50 relative z-10 transition-transform hover:scale-[1.01] duration-300 flex flex-col">
-            <Suspense
-              fallback={
-                <div className="flex flex-col items-center justify-center h-full w-full">
-                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
-                  <p className="text-xs text-muted-foreground">
-                    Generating Preview...
-                  </p>
-                </div>
-              }
+            <PDFViewer
+              width="100%"
+              height="100%"
+              showToolbar={false}
+              className="border-none w-full h-full"
             >
-              <PDFViewer
-                width="100%"
-                height="100%"
-                showToolbar={false}
-                className="border-none w-full h-full"
-              >
-                <ServiceInvoicePDF
-                  service={DUMMY_SERVICE}
-                  settings={sanitizedSettings as UpdateStoreSettingRequest}
-                  t={t}
-                />
-              </PDFViewer>
-            </Suspense>
+              <ServiceInvoicePDF
+                service={DUMMY_SERVICE}
+                settings={sanitizedSettings as UpdateStoreSettingRequest}
+              />
+            </PDFViewer>
           </div>
         </div>
 

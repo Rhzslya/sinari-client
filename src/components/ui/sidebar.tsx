@@ -135,8 +135,7 @@ function SidebarProvider({
       <TooltipProvider delayDuration={0}>
         <div
           ref={wrapperRef}
-          // @ts-expect-error: TS2322
-          inert={isInert ? "true" : undefined}
+          inert={isInert ? true : undefined}
           data-slot="sidebar-wrapper"
           style={
             {

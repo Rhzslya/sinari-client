@@ -1,13 +1,16 @@
-"use client";
-
 import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
+
 import { cn } from "@/lib/utils";
 
-const Slider = React.forwardRef<
-  React.ElementRef<typeof SliderPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
->(({ className, defaultValue, value, min = 0, max = 100, ...props }, ref) => {
+function Slider({
+  className,
+  defaultValue,
+  value,
+  min = 0,
+  max = 100,
+  ...props
+}: React.ComponentProps<typeof SliderPrimitive.Root>) {
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -20,7 +23,6 @@ const Slider = React.forwardRef<
 
   return (
     <SliderPrimitive.Root
-      ref={ref}
       data-slot="slider"
       defaultValue={defaultValue}
       value={value}
@@ -47,14 +49,13 @@ const Slider = React.forwardRef<
       </SliderPrimitive.Track>
       {Array.from({ length: _values.length }, (_, index) => (
         <SliderPrimitive.Thumb
-          key={index}
           data-slot="slider-thumb"
+          key={index}
           className="border-primary ring-ring/50 block size-4 shrink-0 rounded-full border bg-white shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
     </SliderPrimitive.Root>
   );
-});
-Slider.displayName = SliderPrimitive.Root.displayName;
+}
 
 export { Slider };

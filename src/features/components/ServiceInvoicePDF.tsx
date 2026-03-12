@@ -11,7 +11,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
-import { type TFunction } from "i18next";
+import { useTranslation } from "react-i18next";
 
 const COLORS = {
   primary: "#ef473a",
@@ -302,10 +302,10 @@ const styles = StyleSheet.create({
 interface InvoiceProps {
   service: ServiceResponse;
   settings: UpdateStoreSettingRequest;
-  t: TFunction;
 }
 
-export const ServiceInvoicePDF = ({ service, settings, t }: InvoiceProps) => {
+export const ServiceInvoicePDF = ({ service, settings }: InvoiceProps) => {
+  const { t } = useTranslation();
   const isCancelled = service.status === ServiceStatus.CANCELLED;
 
   const subTotal = service.service_list.reduce(

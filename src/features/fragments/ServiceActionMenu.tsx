@@ -98,11 +98,7 @@ export function ServiceActionMenu({
 
     try {
       const blob = await pdf(
-        <ServiceInvoicePDF
-          service={service}
-          settings={formattedSettings}
-          t={t}
-        />,
+        <ServiceInvoicePDF service={service} settings={formattedSettings} />,
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");

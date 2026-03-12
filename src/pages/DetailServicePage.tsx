@@ -153,11 +153,7 @@ const DetailServicePage = () => {
     );
     try {
       const blob = await pdf(
-        <ServiceInvoicePDF
-          service={service}
-          settings={formattedSettings}
-          t={t}
-        />,
+        <ServiceInvoicePDF service={service} settings={formattedSettings} />,
       ).toBlob();
 
       const url = URL.createObjectURL(blob);
