@@ -166,7 +166,7 @@ export function Footer() {
               className="flex flex-col sm:flex-row gap-2 max-w-md mt-4"
             >
               <Input
-                autoComplete="nope"
+                autoComplete="off"
                 type="email"
                 required
                 placeholder={t("footer.newsletter.placeholder")}

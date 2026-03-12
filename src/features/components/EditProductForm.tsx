@@ -311,7 +311,7 @@ export function EditProductForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        autoComplete="nope"
+                        autoComplete="off"
                         placeholder={t(
                           "products_management.forms.edit.name_placeholder",
                         )}
@@ -655,7 +655,7 @@ export function EditProductForm({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t(
                             "products_management.forms.edit.manufacturer_placeholder",
                           )}

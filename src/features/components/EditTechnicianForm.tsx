@@ -283,7 +283,7 @@ export function EditTechnicianForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        autoComplete="nope"
+                        autoComplete="off"
                         placeholder={t(
                           "technicians_management.forms.edit.name_placeholder",
                         )}

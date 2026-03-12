@@ -416,7 +416,7 @@ export function EditServiceForm({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t(
                             "services_management.forms.create.customer_placeholder",
                           )}
@@ -442,7 +442,7 @@ export function EditServiceForm({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t(
                             "services_management.forms.create.phone_placeholder",
                           )}
@@ -510,7 +510,7 @@ export function EditServiceForm({
                       </FormLabel>
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t(
                             "services_management.forms.create.model_placeholder",
                           )}
@@ -785,7 +785,7 @@ export function EditServiceForm({
                             </div>
                             <FormControl>
                               <Input
-                                autoComplete="nope"
+                                autoComplete="off"
                                 placeholder={t(
                                   "services_management.forms.create.service_name_placeholder",
                                 )}

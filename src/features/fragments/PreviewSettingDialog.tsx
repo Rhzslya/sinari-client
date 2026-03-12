@@ -130,6 +130,7 @@ export function PreviewSettingDialog({
                 <ServiceInvoicePDF
                   service={DUMMY_SERVICE}
                   settings={sanitizedSettings as UpdateStoreSettingRequest}
+                  t={t}
                 />
               </PDFViewer>
             </Suspense>

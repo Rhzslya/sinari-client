@@ -366,7 +366,7 @@ export function RegisterForm() {
                     <FormItem className="relative mb-6 sm:mb-8">
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t("auth.register.email")}
                           {...field}
                           disabled={isFormDisabled}
@@ -387,7 +387,7 @@ export function RegisterForm() {
                     <FormItem className="relative mb-6 sm:mb-8">
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t("auth.register.username")}
                           {...field}
                           disabled={isFormDisabled}
@@ -408,7 +408,7 @@ export function RegisterForm() {
                     <FormItem className="relative mb-6 sm:mb-8">
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t("auth.register.name")}
                           {...field}
                           disabled={isFormDisabled}
@@ -433,7 +433,7 @@ export function RegisterForm() {
                     <FormItem>
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           tabIndex={-1}
                           placeholder="Secondary Phone Number"
                           {...field}
@@ -453,7 +453,7 @@ export function RegisterForm() {
                       <FormControl>
                         <div className="relative">
                           <Input
-                            autoComplete="nope"
+                            autoComplete="off"
                             type={showPassword ? "text" : "password"}
                             placeholder={t("auth.register.password")}
                             {...field}

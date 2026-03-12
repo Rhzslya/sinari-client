@@ -453,7 +453,7 @@ export function LoginForm() {
                     <FormItem className="relative mb-6 sm:mb-8">
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t("auth.login.identifier")}
                           {...field}
                           disabled={isLoading}
@@ -475,7 +475,7 @@ export function LoginForm() {
                       <FormControl>
                         <div className="relative">
                           <Input
-                            autoComplete="nope"
+                            autoComplete="off"
                             type={showPassword ? "text" : "password"}
                             placeholder={t("auth.login.password")}
                             {...field}

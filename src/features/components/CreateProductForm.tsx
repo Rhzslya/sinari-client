@@ -272,7 +272,7 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        autoComplete="nope"
+                        autoComplete="off"
                         placeholder={t(
                           "products_management.forms.create.name_placeholder",
                         )}
@@ -616,7 +616,7 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          autoComplete="nope"
+                          autoComplete="off"
                           placeholder={t(
                             "products_management.forms.create.manufacturer_placeholder",
                           )}
