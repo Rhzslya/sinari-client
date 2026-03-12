@@ -704,7 +704,7 @@
       "desc": "Connect a WhatsApp number to send automatic notifications to customers.",
       "idle_title": "WhatsApp is Idle",
       "idle_desc": "Click the button below to check current connection status or generate a new QR Code.",
-      "btn_check": "Check Status / Connect Device",
+      "btn_check": "Check Status",
       "status_label": "Status",
       "status_connected": "Connected",
       "status_waiting": "Waiting for Scan...",
@@ -717,7 +717,7 @@
       "generating_qr": "Generating QR..."
     },
     "footer": {
-      "btn_preview": "Preview Changes",
+      "btn_preview": "Preview",
       "btn_save": "Save Settings"
     }
   },

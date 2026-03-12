@@ -704,7 +704,7 @@
       "desc": "Hubungkan nomor WhatsApp untuk mengirim notifikasi otomatis ke pelanggan.",
       "idle_title": "WhatsApp Tidak Aktif",
       "idle_desc": "Klik tombol di bawah untuk mengecek status koneksi saat ini atau memunculkan QR Code baru.",
-      "btn_check": "Cek Status / Hubungkan Perangkat",
+      "btn_check": "Cek Status",
       "status_label": "Status",
       "status_connected": "Terhubung",
       "status_waiting": "Menunggu Pemindaian...",
@@ -717,7 +717,7 @@
       "generating_qr": "Menghasilkan QR..."
     },
     "footer": {
-      "btn_preview": "Pratinjau Perubahan",
+      "btn_preview": "Pratinjau",
       "btn_save": "Simpan Pengaturan"
     }
   },

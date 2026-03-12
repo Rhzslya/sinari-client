@@ -108,6 +108,7 @@ const DashboardSettingPage = () => {
     if (storeData) {
       form.reset({
         ...storeData,
+        id: storeData.id ?? 1,
         store_email: storeData.store_email ?? "",
         store_website: storeData.store_website ?? "",
       });
@@ -147,6 +148,7 @@ const DashboardSettingPage = () => {
 
   const onHandlePreview = () => {
     setIsPreviewOpen(true);
+    console.log(isPreviewOpen);
   };
 
   const onFinalSubmit = async () => {
@@ -236,7 +238,9 @@ const DashboardSettingPage = () => {
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onHandlePreview)}
+          onSubmit={form.handleSubmit(onHandlePreview, (errors) => {
+            console.log("VALIDATION ERRORS:", errors);
+          })}
           className="flex flex-col flex-1"
         >
           <motion.div variants={itemVariants} className="flex-1">
