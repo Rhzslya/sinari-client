@@ -668,7 +668,6 @@ export function CreateProductForm({ onSuccess, onCancel }: ProductFormProps) {
             {isSubmitting || isPending ? (
               <>
                 <Loader2 className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-                <span>Memproses...</span>
               </>
             ) : (
               t("products_management.forms.create.btn_save")

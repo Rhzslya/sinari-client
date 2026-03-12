@@ -6,7 +6,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye, X } from "lucide-react";
-import { PDFViewer } from "@react-pdf/renderer";
+import { lazy, Suspense } from "react";
+const PDFViewer = lazy(() =>
+  import("@react-pdf/renderer").then((mod) => ({ default: mod.PDFViewer })),
+);
 import type { UpdateStoreSettingRequest } from "@/model/store-setting-model";
 import { ServiceInvoicePDF } from "../components/ServiceInvoicePDF";
 import { ServiceStatus } from "@/enum/enum";
@@ -108,17 +111,28 @@ export function PreviewSettingDialog({
           <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-primary/5 pointer-events-none" />
 
           <div className="w-full max-w-[320px] md:max-w-95 aspect-[1/1.414] bg-white shadow-2xl border border-border/50 relative z-10 transition-transform hover:scale-[1.01] duration-300 flex flex-col">
-            <PDFViewer
-              width="100%"
-              height="100%"
-              showToolbar={false}
-              className="border-none w-full h-full"
+            <Suspense
+              fallback={
+                <div className="flex flex-col items-center justify-center h-full w-full">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
+                  <p className="text-xs text-muted-foreground">
+                    Generating Preview...
+                  </p>
+                </div>
+              }
             >
-              <ServiceInvoicePDF
-                service={DUMMY_SERVICE}
-                settings={sanitizedSettings as UpdateStoreSettingRequest}
-              />
-            </PDFViewer>
+              <PDFViewer
+                width="100%"
+                height="100%"
+                showToolbar={false}
+                className="border-none w-full h-full"
+              >
+                <ServiceInvoicePDF
+                  service={DUMMY_SERVICE}
+                  settings={sanitizedSettings as UpdateStoreSettingRequest}
+                />
+              </PDFViewer>
+            </Suspense>
           </div>
         </div>
 

@@ -108,8 +108,12 @@ const DashboardSettingPage = () => {
     if (storeData) {
       form.reset({
         ...storeData,
+        id: storeData.id ?? 1,
         store_email: storeData.store_email ?? "",
         store_website: storeData.store_website ?? "",
+        warranty_text: storeData.warranty_text ?? "",
+        payment_info: storeData.payment_info ?? "",
+        store_hours: storeData.store_hours ?? "",
       });
     }
   }, [storeData, form]);
@@ -294,8 +298,8 @@ const DashboardSettingPage = () => {
                       control={form.control}
                       name="store_name"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className={labelStyle}>
+                        <FormItem className="relative flex flex-col h-full gap-2 space-y-0 mb-5 sm:mb-6">
+                          <FormLabel className={`${labelStyle} mb-auto`}>
                             {t("settings.store_profile.name")}
                           </FormLabel>
                           <FormControl>
@@ -307,7 +311,7 @@ const DashboardSettingPage = () => {
                               spellCheck={false}
                             />
                           </FormControl>
-                          <FormMessage className="text-[10px] sm:text-xs" />
+                          <FormMessage className="absolute -bottom-4 left-0 text-[10px] sm:text-xs" />
                         </FormItem>
                       )}
                     />
@@ -316,8 +320,8 @@ const DashboardSettingPage = () => {
                       control={form.control}
                       name="store_address"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className={labelStyle}>
+                        <FormItem className="relative flex flex-col h-full gap-2 space-y-0 mb-5 sm:mb-6">
+                          <FormLabel className={`${labelStyle} mb-auto`}>
                             {t("settings.store_profile.address")}
                           </FormLabel>
                           <FormControl>
@@ -329,19 +333,18 @@ const DashboardSettingPage = () => {
                               spellCheck={false}
                             />
                           </FormControl>
-                          <FormMessage className="text-[10px] sm:text-xs" />
+                          <FormMessage className="absolute -bottom-4 left-0 text-[10px] sm:text-xs" />
                         </FormItem>
                       )}
                     />
 
-                    {/* Split 2 Kolom di Desktop, Atas-Bawah di Mobile */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5 sm:gap-y-6">
                       <FormField
                         control={form.control}
                         name="store_phone"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className={labelStyle}>
+                          <FormItem className="relative flex flex-col h-full gap-2 space-y-0">
+                            <FormLabel className={`${labelStyle} mb-auto`}>
                               {t("settings.store_profile.phone")}
                             </FormLabel>
                             <FormControl>
@@ -353,7 +356,7 @@ const DashboardSettingPage = () => {
                                 spellCheck={false}
                               />
                             </FormControl>
-                            <FormMessage className="text-[10px] sm:text-xs" />
+                            <FormMessage className="absolute -bottom-4 left-0 text-[10px] sm:text-xs" />
                           </FormItem>
                         )}
                       />
@@ -361,8 +364,8 @@ const DashboardSettingPage = () => {
                         control={form.control}
                         name="store_email"
                         render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className={labelStyle}>
+                          <FormItem className="relative flex flex-col h-full gap-2 space-y-0">
+                            <FormLabel className={`${labelStyle} mb-auto`}>
                               {t("settings.store_profile.email")}
                             </FormLabel>
                             <FormControl>
@@ -375,18 +378,17 @@ const DashboardSettingPage = () => {
                                 spellCheck={false}
                               />
                             </FormControl>
-                            <FormMessage className="text-[10px] sm:text-xs" />
+                            <FormMessage className="absolute -bottom-4 left-0 text-[10px] sm:text-xs" />
                           </FormItem>
                         )}
                       />
                     </div>
-
                     <FormField
                       control={form.control}
                       name="store_hours"
                       render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className={labelStyle}>
+                        <FormItem className="relative flex flex-col h-full gap-2 space-y-0 mb-6 sm:mb-8">
+                          <FormLabel className={`${labelStyle} mb-auto`}>
                             {t("settings.store_profile.hours")}
                           </FormLabel>
                           <FormControl>
@@ -398,7 +400,7 @@ const DashboardSettingPage = () => {
                               spellCheck={false}
                             />
                           </FormControl>
-                          <FormMessage className="text-[10px] sm:text-xs" />
+                          <FormMessage className="absolute -bottom-5 left-0 text-[10px] sm:text-xs" />
                         </FormItem>
                       )}
                     />

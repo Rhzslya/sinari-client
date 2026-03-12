@@ -32,10 +32,9 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { pdf } from "@react-pdf/renderer";
-import { DashboardReportPDF } from "@/features/components/DashboardReportPDF";
 import { motion, type Variants } from "framer-motion";
 import { DashboardSkeleton } from "@/features/fragments/Skeleton";
+import { DashboardReportPDF } from "@/features/components/DashboardReportPDF";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -117,6 +116,8 @@ const DashboardPage = () => {
         th_action: t("dashboard.report_pdf.th_action"),
         th_desc: t("dashboard.report_pdf.th_desc"),
       };
+
+      const { pdf } = await import("@react-pdf/renderer");
 
       const blob = await pdf(
         <DashboardReportPDF stats={stats} translations={pdfTranslations} />,
