@@ -10,9 +10,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  optimizeDeps: {
-    exclude: ["@xenova/transformers"],
+    dedupe: ["react", "react-dom"],
   },
   server: {
     proxy: {
