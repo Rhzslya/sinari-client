@@ -318,15 +318,15 @@ const DashboardUserPage = () => {
 
   return (
     <motion.div
-      className="flex flex-col h-full space-y-4 sm:space-y-6"
+      className="flex flex-col h-full space-y-4 sm:space-y-6 w-full min-w-0"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       <motion.div variants={itemVariants}>
         <DashboardHeader title={t("users_management.title")}>
-          <div className="hidden md:flex items-center gap-3 w-full justify-end">
-            <div className="relative w-64">
+          <div className="hidden lg:flex flex-wrap items-center gap-2 xl:gap-3 w-full justify-end mb-2">
+            <div className="relative w-40 xl:w-64 shrink-0 transition-all duration-300">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -350,7 +350,6 @@ const DashboardUserPage = () => {
                 </button>
               )}
             </div>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -409,7 +408,6 @@ const DashboardUserPage = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -506,7 +504,6 @@ const DashboardUserPage = () => {
                 </div>
               </PopoverContent>
             </Popover>
-
             <Button
               variant={isTrashMode ? "destructive" : "outline"}
               size="sm"
@@ -522,224 +519,219 @@ const DashboardUserPage = () => {
             </Button>
           </div>
 
-          <div className="flex md:hidden ml-auto">
-            {/* MOBILE CONTROLS (HAMBURGER SHEET)                         */}
-            <div className="flex md:hidden ml-auto">
-              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 gap-2 shadow-sm cursor-pointer relative pr-3"
-                    disabled={isDatabaseEmpty}
-                    onClick={(e) => e.currentTarget.blur()}
-                  >
-                    <Menu className="h-4 w-4" />
-                    <span className="text-xs font-medium">
-                      {t("users_management.btn_filter")}
-                    </span>
-
-                    {activeMobileFiltersCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold leading-none pt-px text-foreground shadow-sm">
-                        {activeMobileFiltersCount}
-                      </span>
-                    )}
-                  </Button>
-                </SheetTrigger>
-
-                <SheetContent
-                  side="right"
-                  className="w-[85vw] sm:max-w-md flex flex-col p-0"
+          {/* MOBILE CONTROLS (HAMBURGER SHEET)                         */}
+          <div className="flex lg:hidden items-center gap-2 ml-auto">
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 gap-2 shadow-sm cursor-pointer relative pr-3"
+                  disabled={isDatabaseEmpty}
+                  onClick={(e) => e.currentTarget.blur()}
                 >
-                  <SheetHeader className="p-4 sm:p-6 border-b border-border/50 text-left">
-                    <SheetTitle className="text-base sm:text-lg font-bold flex items-center gap-2">
-                      <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-                      {t("users_management.controls_title")}
-                    </SheetTitle>
-                    <SheetDescription className="sr-only" />
-                  </SheetHeader>
+                  <Menu className="h-4 w-4" />
+                  <span className="text-xs font-medium">
+                    {t("users_management.btn_filter")}
+                  </span>
 
-                  <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-6">
-                    {/* MOBILE SEARCH */}
-                    <div className="space-y-2.5">
-                      <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="search"
-                          placeholder={t("users_management.search_placeholder")}
-                          className="pl-8 pr-8 bg-muted/20 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 h-9 text-xs sm:text-sm [&::-webkit-search-cancel-button]:appearance-none"
-                          value={mobileSearch}
-                          onChange={(e) => setMobileSearch(e.target.value)}
-                          onKeyDown={(e) =>
-                            e.key === "Enter" && applyMobileSettings()
-                          }
+                  {activeMobileFiltersCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold leading-none pt-px text-foreground shadow-sm">
+                      {activeMobileFiltersCount}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+
+              <SheetContent
+                side="right"
+                className="w-[85vw] sm:max-w-md flex flex-col p-0"
+              >
+                <SheetHeader className="p-4 sm:p-6 border-b border-border/50 text-left">
+                  <SheetTitle className="text-base sm:text-lg font-bold flex items-center gap-2">
+                    <Filter className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                    {t("users_management.controls_title")}
+                  </SheetTitle>
+                  <SheetDescription className="sr-only" />
+                </SheetHeader>
+
+                <div className="p-4 sm:p-6 flex-1 overflow-y-auto space-y-6">
+                  {/* MOBILE SEARCH */}
+                  <div className="space-y-2.5">
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="search"
+                        placeholder={t("users_management.search_placeholder")}
+                        className="pl-8 pr-8 bg-muted/20 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:ring-1 h-9 text-xs sm:text-sm [&::-webkit-search-cancel-button]:appearance-none"
+                        value={mobileSearch}
+                        onChange={(e) => setMobileSearch(e.target.value)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && applyMobileSettings()
+                        }
+                      />
+                      {mobileSearch && (
+                        <button
+                          onClick={() => setMobileSearch("")}
+                          className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive cursor-pointer"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* MOBILE SORT */}
+                  <div className="space-y-2.5">
+                    <Label className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                      {t("users_management.btn_sort")}
+                    </Label>
+                    <Select value={mobileSort} onValueChange={setMobileSort}>
+                      <SelectTrigger className="h-9 text-xs sm:text-sm bg-muted/20">
+                        <SelectValue
+                          placeholder={t("users_management.btn_sort")}
                         />
-                        {mobileSearch && (
-                          <button
-                            onClick={() => setMobileSearch("")}
-                            className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-destructive cursor-pointer"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem
+                          value="created_at-desc"
+                          className="text-xs sm:text-sm"
+                        >
+                          {t("users_management.sort.newest")}
+                        </SelectItem>
+                        <SelectItem
+                          value="created_at-asc"
+                          className="text-xs sm:text-sm"
+                        >
+                          {t("users_management.sort.oldest")}
+                        </SelectItem>
+                        <SelectItem
+                          value="name-asc"
+                          className="text-xs sm:text-sm"
+                        >
+                          {t("users_management.sort.name_asc")}
+                        </SelectItem>
+                        <SelectItem
+                          value="name-desc"
+                          className="text-xs sm:text-sm"
+                        >
+                          {t("users_management.sort.name_desc")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                    {/* MOBILE SORT */}
-                    <div className="space-y-2.5">
-                      <Label className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                        {t("users_management.btn_sort")}
-                      </Label>
-                      <Select value={mobileSort} onValueChange={setMobileSort}>
-                        <SelectTrigger className="h-9 text-xs sm:text-sm bg-muted/20">
-                          <SelectValue
-                            placeholder={t("users_management.btn_sort")}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem
-                            value="created_at-desc"
-                            className="text-xs sm:text-sm"
-                          >
-                            {t("users_management.sort.newest")}
-                          </SelectItem>
-                          <SelectItem
-                            value="created_at-asc"
-                            className="text-xs sm:text-sm"
-                          >
-                            {t("users_management.sort.oldest")}
-                          </SelectItem>
-                          <SelectItem
-                            value="name-asc"
-                            className="text-xs sm:text-sm"
-                          >
-                            {t("users_management.sort.name_asc")}
-                          </SelectItem>
-                          <SelectItem
-                            value="name-desc"
-                            className="text-xs sm:text-sm"
-                          >
-                            {t("users_management.sort.name_desc")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  {/* MOBILE ROLE */}
+                  <div className="space-y-2.5">
+                    <Label className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                      {t("users_management.filter.role_label")}
+                    </Label>
+                    <Select value={mobileRole} onValueChange={setMobileRole}>
+                      <SelectTrigger className="h-9 text-xs sm:text-sm bg-muted/20">
+                        <SelectValue
+                          placeholder={t(
+                            "users_management.filter.role_placeholder",
+                          )}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL" className="text-xs sm:text-sm">
+                          {t("users_management.filter.roles.all")}
+                        </SelectItem>
+                        <SelectItem
+                          value="ADMIN"
+                          className="text-xs sm:text-sm"
+                        >
+                          {t("users_management.filter.roles.admin")}
+                        </SelectItem>
+                        <SelectItem
+                          value="CUSTOMER"
+                          className="text-xs sm:text-sm"
+                        >
+                          {t("users_management.filter.roles.customer")}
+                        </SelectItem>
+                        <SelectItem
+                          value="OWNER"
+                          className="text-xs sm:text-sm"
+                        >
+                          {t("users_management.filter.roles.owner")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                    {/* MOBILE ROLE */}
-                    <div className="space-y-2.5">
-                      <Label className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                        {t("users_management.filter.role_label")}
-                      </Label>
-                      <Select value={mobileRole} onValueChange={setMobileRole}>
-                        <SelectTrigger className="h-9 text-xs sm:text-sm bg-muted/20">
-                          <SelectValue
-                            placeholder={t(
-                              "users_management.filter.role_placeholder",
-                            )}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem
-                            value="ALL"
-                            className="text-xs sm:text-sm"
+                  {/* MOBILE TOGGLES (Online & Trash) */}
+                  <div className="space-y-2.5 pt-1">
+                    <Label className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                      {t("users_management.filter.preferences")}
+                    </Label>
+                    <div className="flex flex-col gap-2.5">
+                      {/* Online Checkbox */}
+                      <div className="flex items-start space-x-3 border p-3.5 rounded-lg bg-muted/20">
+                        <Checkbox
+                          id="mobile-online"
+                          checked={mobileOnline}
+                          onCheckedChange={(checked) =>
+                            setMobileOnline(checked === true)
+                          }
+                          className="size-4 sm:size-5 mt-0.5 data-[state=checked]:text-white"
+                        />
+                        <div className="grid gap-1">
+                          <Label
+                            htmlFor="mobile-online"
+                            className="text-xs sm:text-sm font-medium leading-none cursor-pointer"
                           >
-                            {t("users_management.filter.roles.all")}
-                          </SelectItem>
-                          <SelectItem
-                            value="ADMIN"
-                            className="text-xs sm:text-sm"
-                          >
-                            {t("users_management.filter.roles.admin")}
-                          </SelectItem>
-                          <SelectItem
-                            value="CUSTOMER"
-                            className="text-xs sm:text-sm"
-                          >
-                            {t("users_management.filter.roles.customer")}
-                          </SelectItem>
-                          <SelectItem
-                            value="OWNER"
-                            className="text-xs sm:text-sm"
-                          >
-                            {t("users_management.filter.roles.owner")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* MOBILE TOGGLES (Online & Trash) */}
-                    <div className="space-y-2.5 pt-1">
-                      <Label className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                        {t("users_management.filter.preferences")}
-                      </Label>
-                      <div className="flex flex-col gap-2.5">
-                        {/* Online Checkbox */}
-                        <div className="flex items-start space-x-3 border p-3.5 rounded-lg bg-muted/20">
-                          <Checkbox
-                            id="mobile-online"
-                            checked={mobileOnline}
-                            onCheckedChange={(checked) =>
-                              setMobileOnline(checked === true)
-                            }
-                            className="size-4 sm:size-5 mt-0.5 data-[state=checked]:text-white"
-                          />
-                          <div className="grid gap-1">
-                            <Label
-                              htmlFor="mobile-online"
-                              className="text-xs sm:text-sm font-medium leading-none cursor-pointer"
-                            >
-                              {t("users_management.filter.online_label")}
-                            </Label>
-                            <p className="text-[10px] text-muted-foreground leading-tight">
-                              {t("users_management.filter.online_desc")}
-                            </p>
-                          </div>
+                            {t("users_management.filter.online_label")}
+                          </Label>
+                          <p className="text-[10px] text-muted-foreground leading-tight">
+                            {t("users_management.filter.online_desc")}
+                          </p>
                         </div>
+                      </div>
 
-                        {/* Trash Checkbox */}
-                        <div className="flex items-start space-x-3 border p-3.5 rounded-lg border-destructive/20 bg-destructive/5">
-                          <Checkbox
-                            id="mobile-trash"
-                            checked={mobileTrash}
-                            onCheckedChange={(checked) =>
-                              setMobileTrash(checked === true)
-                            }
-                            className="size-4 sm:size-5 mt-0.5 border-destructive/50 data-[state=checked]:bg-destructive data-[state=checked]:border-destructive data-[state=checked]:text-white"
-                          />
-                          <div className="grid gap-1">
-                            <Label
-                              htmlFor="mobile-trash"
-                              className="text-xs sm:text-sm font-medium leading-none text-destructive cursor-pointer"
-                            >
-                              {t("users_management.btn_trash")}
-                            </Label>
-                            <p className="text-[10px] text-destructive/70 leading-tight">
-                              {t("users_management.filter.trash_desc")}
-                            </p>
-                          </div>
+                      {/* Trash Checkbox */}
+                      <div className="flex items-start space-x-3 border p-3.5 rounded-lg border-destructive/20 bg-destructive/5">
+                        <Checkbox
+                          id="mobile-trash"
+                          checked={mobileTrash}
+                          onCheckedChange={(checked) =>
+                            setMobileTrash(checked === true)
+                          }
+                          className="size-4 sm:size-5 mt-0.5 border-destructive/50 data-[state=checked]:bg-destructive data-[state=checked]:border-destructive data-[state=checked]:text-white"
+                        />
+                        <div className="grid gap-1">
+                          <Label
+                            htmlFor="mobile-trash"
+                            className="text-xs sm:text-sm font-medium leading-none text-destructive cursor-pointer"
+                          >
+                            {t("users_management.btn_trash")}
+                          </Label>
+                          <p className="text-[10px] text-destructive/70 leading-tight">
+                            {t("users_management.filter.trash_desc")}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <SheetFooter className="p-4 sm:p-6 border-t border-border/50 bg-background mt-auto grid grid-cols-2 gap-3">
-                    <Button
-                      variant="outline"
-                      className="w-full h-9 text-xs sm:text-sm"
-                      onClick={clearMobileSettings}
-                    >
-                      {t("users_management.filter.btn_clear")}
-                    </Button>
-                    <Button
-                      className="w-full h-9 text-xs sm:text-sm text-foreground"
-                      onClick={applyMobileSettings}
-                    >
-                      {t("users_management.filter.btn_apply")}
-                    </Button>
-                  </SheetFooter>
-                </SheetContent>
-              </Sheet>
-            </div>
+                <SheetFooter className="p-4 sm:p-6 border-t border-border/50 bg-background mt-auto grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    className="w-full h-9 text-xs sm:text-sm"
+                    onClick={clearMobileSettings}
+                  >
+                    {t("users_management.filter.btn_clear")}
+                  </Button>
+                  <Button
+                    className="w-full h-9 text-xs sm:text-sm text-foreground"
+                    onClick={applyMobileSettings}
+                  >
+                    {t("users_management.filter.btn_apply")}
+                  </Button>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
           </div>
         </DashboardHeader>
       </motion.div>

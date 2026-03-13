@@ -182,7 +182,8 @@ const NavigationBar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-linear-to-l from-primary from-30% to-(--gradient-primary) shadow-sm">
+    <header className="sticky top-0 z-30 w-full border-b bg-linear-to-l from-primary from-30% to-(--gradient-primary) shadow-sm">
+      {" "}
       <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between relative">
         <div className="flex items-center gap-2 md:gap-4">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>

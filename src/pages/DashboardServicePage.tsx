@@ -390,7 +390,7 @@ const DashboardServicePage = () => {
 
   return (
     <motion.div
-      className="flex flex-col h-full space-y-4 sm:space-y-6"
+      className="flex flex-col h-full space-y-4 sm:space-y-6 w-full min-w-0"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -400,8 +400,8 @@ const DashboardServicePage = () => {
           {/* ========================================================= */}
           {/* DESKTOP CONTROLS (Hidden on Mobile)                       */}
           {/* ========================================================= */}
-          <div className="hidden md:flex items-center gap-3 w-full justify-end">
-            <div className="relative w-64">
+          <div className="hidden lg:flex flex-wrap items-center gap-2 xl:gap-3 w-full justify-end mb-2">
+            <div className="relative w-40 xl:w-64 shrink-0 transition-all duration-300">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
@@ -425,7 +425,6 @@ const DashboardServicePage = () => {
                 </button>
               )}
             </div>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -483,7 +482,6 @@ const DashboardServicePage = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
             <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -620,7 +618,6 @@ const DashboardServicePage = () => {
                 </div>
               </PopoverContent>
             </Popover>
-
             {!isTrashMode && (
               <Sheet open={isDesktopAddOpen} onOpenChange={setIsDesktopAddOpen}>
                 <SheetTrigger asChild>
@@ -658,7 +655,6 @@ const DashboardServicePage = () => {
                 </SheetContent>
               </Sheet>
             )}
-
             <Button
               variant={isTrashMode ? "destructive" : "outline"}
               size="sm"
@@ -677,7 +673,7 @@ const DashboardServicePage = () => {
           {/* ========================================================= */}
           {/* MOBILE CONTROLS (HAMBURGER SHEET)                         */}
           {/* ========================================================= */}
-          <div className="flex md:hidden items-center gap-2 ml-auto">
+          <div className="flex lg:hidden items-center gap-2 ml-auto">
             {/* ADD BUTTON MOBILE */}
             {!isTrashMode && (
               <Sheet open={isMobileAddOpen} onOpenChange={setIsMobileAddOpen}>
@@ -711,7 +707,6 @@ const DashboardServicePage = () => {
                 </SheetContent>
               </Sheet>
             )}
-
             {/* CONTROLS HAMBURGER MOBILE */}
             <Sheet
               open={isControlSheetOpen}
