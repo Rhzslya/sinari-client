@@ -360,20 +360,6 @@ export function Footer() {
           <p>
             &copy; {currentYear} Sinari Cell. {t("footer.copyright")}
           </p>
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
-              BCA
-            </span>
-            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
-              MANDIRI
-            </span>
-            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
-              QRIS
-            </span>
-            <span className="px-2 py-1 bg-muted/30 rounded border border-border/50 text-[10px] md:text-xs font-semibold tracking-wider">
-              GOPAY
-            </span>
-          </div>
         </motion.div>
       </motion.div>
     </footer>

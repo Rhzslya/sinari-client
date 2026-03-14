@@ -338,7 +338,7 @@ const DashboardSettingPage = () => {
                       )}
                     />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5 sm:gap-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-5 sm:gap-y-6 mb-5 sm:mb-6">
                       <FormField
                         control={form.control}
                         name="store_phone"
@@ -360,6 +360,7 @@ const DashboardSettingPage = () => {
                           </FormItem>
                         )}
                       />
+
                       <FormField
                         control={form.control}
                         name="store_email"
@@ -382,7 +383,35 @@ const DashboardSettingPage = () => {
                           </FormItem>
                         )}
                       />
+
+                      {/* Form Field Baru untuk Website */}
+                      <FormField
+                        control={form.control}
+                        name="store_website"
+                        render={({ field }) => (
+                          <FormItem className="relative flex flex-col h-full gap-2 space-y-0 md:col-span-2">
+                            <FormLabel className={`${labelStyle} mb-auto`}>
+                              {t("settings.store_profile.website", {
+                                defaultValue: "Website URL",
+                              })}
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                autoComplete="off"
+                                placeholder="https://sinaricell.com"
+                                className={inputStyle}
+                                {...field}
+                                value={field.value || ""}
+                                disabled={isStorePending}
+                                spellCheck={false}
+                              />
+                            </FormControl>
+                            <FormMessage className="absolute -bottom-4 left-0 text-[10px] sm:text-xs" />
+                          </FormItem>
+                        )}
+                      />
                     </div>
+
                     <FormField
                       control={form.control}
                       name="store_hours"
@@ -494,7 +523,7 @@ const DashboardSettingPage = () => {
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6">
                     {!isWaActive ? (
-                      <div className="flex flex-col items-center justify-center p-6 sm:p-10 bg-muted/20 border border-dashed border-border/60 rounded-xl text-center transition-colors hover:bg-muted/30">
+                      <div className="flex flex-col items-center justify-center p-6 sm:p-10 border border-dashed border-border/60 rounded-xl text-center transition-colors hover:bg-muted/30">
                         <Smartphone className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50 mb-4" />
                         <h3 className="text-sm sm:text-base font-semibold mb-1">
                           {t("settings.whatsapp.idle_title")}
@@ -514,7 +543,7 @@ const DashboardSettingPage = () => {
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 bg-muted/10 p-5 sm:p-8 rounded-xl border border-border/50 shadow-inner">
+                      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8  p-5 sm:p-8 rounded-xl border border-border/50 shadow-inner">
                         {/* Info Section */}
                         <div className="flex-1 space-y-4 w-full text-center md:text-left">
                           <div className="flex items-center justify-center md:justify-start gap-2.5">

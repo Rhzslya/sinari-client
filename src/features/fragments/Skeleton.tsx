@@ -1381,6 +1381,11 @@ export function SettingSkeleton() {
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 sm:h-4 w-32" />
+                    <Skeleton className="h-9 sm:h-10 w-full rounded-md" />
+                  </div>
+
                   <div className="space-y-2 pt-2">
                     <Skeleton className="h-3 sm:h-4 w-32" />
                     <Skeleton className="min-h-25 w-full rounded-md" />

@@ -184,8 +184,8 @@ const HomePage = () => {
           >
             <Button
               size="lg"
-              variant="outline"
-              className="font-semibold text-base sm:text-lg h-12 sm:h-14 px-6 sm:px-8 cursor-pointer w-full sm:w-auto transition-all"
+              variant="default"
+              className="font-semibold text-base sm:text-lg h-12 sm:h-14 px-6 sm:px-8 cursor-pointer w-full sm:w-auto transition-all text-foreground"
               onClick={handleConsultClick}
               disabled={isStoreLoading}
             >
@@ -404,9 +404,9 @@ const HomePage = () => {
                           {formatRupiah(product.price)}
                         </span>
 
-                        <div className="flex items-center text-yellow-500 text-[8px] sm:text-[10px] font-bold bg-background px-1.5 sm:px-2 py-1 rounded shadow-sm border border-border/50 gap-1 shrink-0">
-                          <Star className="size-2 sm:size-3 fill-current" /> 4.9
-                        </div>
+                        <span className="text-[8px] sm:text-[10px] font-bold text-success bg-background px-1.5 sm:px-2 py-1 rounded shadow-sm border border-border/50 shrink-0">
+                          {t("catalog.product.stock")} {product.stock}
+                        </span>
                       </div>
                     </div>
                   </div>
