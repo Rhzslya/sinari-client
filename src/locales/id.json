@@ -482,7 +482,15 @@
       "no_account": "Belum punya akun?",
       "create_account": "Buat akun baru",
       "rate_limit_title": "Terlalu Banyak Percobaan",
-      "rate_limit_desc": "Harap tunggu <strong class='font-bold text-sm'>{{seconds}}</strong> detik sebelum mencoba lagi."
+      "rate_limit_desc": "Harap tunggu <strong class='font-bold text-sm'>{{seconds}}</strong> detik sebelum mencoba lagi.",
+
+      "otp_title": "Verifikasi OTP",
+      "otp_subtitle": "Masukkan kode 6 digit yang dikirimkan ke email Anda.",
+      "otp_valid_time": "Kode valid selama 5 menit.",
+      "btn_verify": "Verifikasi OTP",
+      "otp_resend_prompt": "Belum menerima kode?",
+      "otp_resend_btn": "Kirim Ulang",
+      "otp_resend_wait": "Kirim ulang dalam {{seconds}}d"
     },
     "register": {
       "title": "Sinari Cell",

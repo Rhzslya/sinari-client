@@ -78,6 +78,17 @@ export type ChangePasswordRequest = {
   confirm_new_password: string;
 };
 
+export type OtpLoginRequest = {
+  user_id: number;
+  otp_code: string;
+};
+
+export type OtpLoginResponse = {
+  user_id: number;
+  message: string;
+  requires_otp: boolean;
+};
+
 export type DetailedUserResponse = {
   id: number;
   name: string;
@@ -149,6 +160,14 @@ export type DeleteUserResponse = {
 
 export type ChangePasswordResponse = {
   message: string;
+};
+
+export type ResendOtpResponse = {
+  message: string;
+};
+
+export type ResendOtpRequest = {
+  user_id: number;
 };
 
 export function toUserResponse(data: UserResponse): UserResponse {
@@ -236,6 +255,12 @@ export function toResetPasswordResponse(data: ResetPasswordResponse) {
 }
 
 export function toChangePasswordResponse(data: ChangePasswordResponse) {
+  return {
+    message: data.message,
+  };
+}
+
+export function toResendOtpResponse(data: ResendOtpResponse) {
   return {
     message: data.message,
   };

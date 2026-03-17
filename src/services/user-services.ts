@@ -29,13 +29,18 @@ import {
   type ChangePasswordRequest,
   type ChangePasswordResponse,
   toChangePasswordResponse,
+  type OtpLoginResponse,
+  type OtpLoginRequest,
+  type ResendOtpRequest,
+  type ResendOtpResponse,
+  toResendOtpResponse,
 } from "@/model/user-model";
 import { UserValidation } from "@/validation/user-validation";
 import { Validation } from "@/validation/validation";
 import axios from "axios";
 
 export class AuthServices {
-  static async login(request: LoginUserRequest): Promise<UserResponse> {
+  static async login(request: LoginUserRequest): Promise<OtpLoginResponse> {
     const loginRequest = Validation.validate(UserValidation.LOGIN, request);
 
     const payload = {
@@ -43,11 +48,42 @@ export class AuthServices {
       password: loginRequest.password,
     };
 
-    const response = await api.post<ApiResponse<UserResponse>>(
+    const response = await api.post<ApiResponse<OtpLoginResponse>>(
       "/auth/login",
       payload,
     );
+
+    return response.data.data;
+  }
+
+  static async verifyOtp(request: OtpLoginRequest): Promise<UserResponse> {
+    const verifyRequest = Validation.validate(
+      UserValidation.VERIFY_OTP,
+      request,
+    );
+
+    const response = await api.post<ApiResponse<UserResponse>>(
+      "/auth/verify-otp",
+      verifyRequest,
+    );
+
     return toUserResponse(response.data.data);
+  }
+
+  static async resendOtp(
+    request: ResendOtpRequest,
+  ): Promise<ResendOtpResponse> {
+    const resendRequest = Validation.validate(
+      UserValidation.RESEND_OTP,
+      request,
+    );
+
+    const response = await api.post<ApiResponse<ResendOtpResponse>>(
+      "/auth/resend-otp",
+      resendRequest,
+    );
+
+    return toResendOtpResponse(response.data.data);
   }
 
   static async googleLogin(request: GoogleLoginRequest): Promise<UserResponse> {

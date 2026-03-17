@@ -482,7 +482,15 @@
       "no_account": "Don't have an account?",
       "create_account": "Create an account",
       "rate_limit_title": "Too Many Attempts",
-      "rate_limit_desc": "Please wait <strong class='font-bold text-sm'>{{seconds}}</strong> seconds before trying again."
+      "rate_limit_desc": "Please wait <strong class='font-bold text-sm'>{{seconds}}</strong> seconds before trying again.",
+
+      "otp_title": "OTP Verification",
+      "otp_subtitle": "Enter the 6-digit code sent to your email.",
+      "otp_valid_time": "Code is valid for 5 minutes.",
+      "btn_verify": "Verify OTP",
+      "otp_resend_prompt": "Didn't receive the code?",
+      "otp_resend_btn": "Resend",
+      "otp_resend_wait": "Resend in {{seconds}}s"
     },
     "register": {
       "title": "Sinari Cell",
