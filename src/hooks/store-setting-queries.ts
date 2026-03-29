@@ -15,7 +15,8 @@ import { handleApiError } from "@/lib/utils";
 
 export const STORE_SETTING_KEYS = {
   all: ["store-settings"] as const,
-  detail: () => [...STORE_SETTING_KEYS.all, "current"] as const,
+  private: () => [...STORE_SETTING_KEYS.all, "private"] as const,
+  public: () => [...STORE_SETTING_KEYS.all, "public"] as const,
 };
 
 export const useStoreSettingQueries = () => {
@@ -24,7 +25,7 @@ export const useStoreSettingQueries = () => {
   return {
     useGetSettings: (): UseQueryResult<StoreSettingResponse, Error> => {
       return useQuery({
-        queryKey: STORE_SETTING_KEYS.detail(),
+        queryKey: STORE_SETTING_KEYS.private(),
         queryFn: () => StoreSettingService.get(),
         staleTime: 1000 * 60 * 5,
         retry: false,
@@ -36,9 +37,10 @@ export const useStoreSettingQueries = () => {
       Error
     > => {
       return useQuery({
-        queryKey: STORE_SETTING_KEYS.detail(),
+        queryKey: STORE_SETTING_KEYS.public(),
         queryFn: () => StoreSettingService.getPublic(),
         staleTime: 1000 * 60 * 5,
+        gcTime: 30 * 60 * 1000,
         retry: false,
       });
     },
