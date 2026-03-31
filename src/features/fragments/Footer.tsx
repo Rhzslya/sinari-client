@@ -240,7 +240,7 @@ export function Footer() {
                 whileHover={{ scale: 1.1, rotate: -5 }}
                 whileTap={{ scale: 0.9 }}
                 href="#"
-                className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-foreground transition-colors"
                 aria-label="Instagram"
               >
                 <InstagramIcon />
@@ -249,7 +249,7 @@ export function Footer() {
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 href="#"
-                className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-foreground transition-colors"
                 aria-label="Facebook"
               >
                 <FacebookIcon />
@@ -258,7 +258,7 @@ export function Footer() {
                 whileHover={{ scale: 1.1, rotate: -5 }}
                 whileTap={{ scale: 0.9 }}
                 href="#"
-                className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
+                className="p-2.5 bg-muted rounded-full hover:bg-primary hover:text-foreground transition-colors"
                 aria-label="Twitter"
               >
                 <TwitterIcon />
