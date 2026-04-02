@@ -112,14 +112,12 @@ export const ProductLogTimeline = ({ productId }: { productId: number }) => {
                       : "bg-muted/10 border-border/60 hover:bg-muted/30"
                   }`}
                 >
-                  {/* Header Log: User & Time */}
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5 sm:gap-2 mb-2 sm:mb-2.5">
                     <div className="flex items-center gap-1.5 sm:gap-2 text-foreground font-semibold min-w-0">
                       <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
                       <span className="text-xs sm:text-sm truncate max-w-37.5 sm:max-w-50">
                         {log.user.username}
                       </span>
-                      {/* Optical Adjustment Badge */}
                       <Badge
                         variant="outline"
                         className="text-[9px] sm:text-[10px] uppercase px-1.5 pt-0.75 pb-px sm:pt-1 sm:pb-0.5 leading-none tracking-wider bg-background shrink-0"
