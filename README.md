@@ -6,7 +6,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=react-query&logoColor=white)
 
-This is the Single Page Application (SPA) client for **Sinari** (Fullstack Store Management & Service Tracking). Built with the latest React 19 ecosystem, it utilizes Vite for lightning-fast development and delivers a highly responsive, animated, and accessible user interface.
+This is the Single Page Application (SPA) client for **Sinari** (Fullstack Store Management & Service Tracking). Built with the latest React 19 ecosystem, it utilizes Vite for fast development and delivers a highly responsive, animated, and accessible user interface.
 
 ## Tech Stack
 
