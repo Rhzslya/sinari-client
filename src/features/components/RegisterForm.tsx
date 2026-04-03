@@ -63,7 +63,7 @@ export function RegisterForm() {
 
   const { cooldown, startCooldown } = useCooldown(registeredEmail);
 
-  // Cooldown untuk Rate Limit / Brute Force
+  // Cooldown untuk Rate Limit
   const { cooldown: blockCooldown, startCooldown: startBlockCooldown } =
     useCooldown("register_block", "ratelimit_");
 
