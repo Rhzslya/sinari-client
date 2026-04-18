@@ -22,7 +22,7 @@ mock.module("@/hooks/store-setting-queries", () => ({
   }),
 }));
 
-// Mock Contact Queries (Kirim Email)
+// Mock Contact Queries
 const mockMutateAsync = mock();
 const mockReset = mock();
 const mockUseContactQueries = mock().mockReturnValue({
@@ -107,7 +107,7 @@ describe("ContactPage Component", () => {
     expect(screen.getByText("contact.title")).toBeDefined();
     expect(screen.getByText("contact.subtitle")).toBeDefined();
 
-    // Cek data info toko dari mock
+    // Check data info from mock
     expect(screen.getByText("Jalan Melati No. 1")).toBeDefined();
     expect(screen.getByText("08:00 - 20:00")).toBeDefined();
     expect(screen.getByText("08123456789")).toBeDefined();
@@ -126,7 +126,7 @@ describe("ContactPage Component", () => {
       </MemoryRouter>,
     );
 
-    // Cek apakah ada tulisan loading (karena dirender 4 kali untuk 4 kolom info, kita ambil arraynya)
+    // Check if there is loading text (because we render 4 times for 4 columns, we take the array)
     const loadingTexts = screen.getAllByText("contact.info.loading");
     expect(loadingTexts.length).toBe(4);
   });
@@ -162,7 +162,7 @@ describe("ContactPage Component", () => {
     const defaultMessage = "Tolong hapus akun saya.";
 
     render(
-      // Mensimulasikan pengguna yang datang dari klik tombol di PrivacyPage
+      // Simulate user coming from PrivacyPage
       <MemoryRouter
         initialEntries={[
           { pathname: "/contact", state: { defaultSubject, defaultMessage } },
@@ -172,22 +172,22 @@ describe("ContactPage Component", () => {
       </MemoryRouter>,
     );
 
-    // 1. Cek apakah banner mode privasi muncul
+    // 1. Check if banner mode privacy is displayed
     expect(screen.getByText("contact.form.privacy_mode")).toBeDefined();
 
-    // 2. Cek apakah input subject sudah terisi secara otomatis (menggunakan displayValue)
+    // 2. Check if input subject is already filled (using displayValue)
     const subjectInput = screen.getByDisplayValue(defaultSubject);
     expect(subjectInput).toBeDefined();
 
-    // Pastikan input subject readOnly (tidak bisa diedit oleh user)
+    // Make sure input subject is readOnly (cannot be edited by user)
     expect(subjectInput.hasAttribute("readonly")).toBe(true);
 
-    // 3. Cek apakah message juga terisi
+    // 3. Check if message is also filled
     expect(screen.getByDisplayValue(defaultMessage)).toBeDefined();
   });
 
   it("should disable submit button and show cooldown text if cooldown is active", () => {
-    // Memanipulasi cooldown hook agar mengembalikan nilai > 0
+    // Manipulate cooldown hook to return value > 0
     mockUseCooldown.mockImplementation((_, prefix) => {
       if (prefix === "delay_")
         return { cooldown: 45, startCooldown: mockStartCooldown };
@@ -202,7 +202,7 @@ describe("ContactPage Component", () => {
 
     expect(screen.getByText("contact.form.cooldown")).toBeDefined();
 
-    // Cek apakah tombol di-disable
+    // Check if the button is disabled
     const submitBtn = screen
       .getByText("contact.form.cooldown")
       .closest("button");
