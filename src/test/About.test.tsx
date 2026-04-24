@@ -63,16 +63,16 @@ describe("AboutPage Component", () => {
       </MemoryRouter>,
     );
 
-    // Cek item 1 (Flag Icon)
+    // Check item 1 (Flag Icon)
     expect(screen.getByText("2020")).toBeDefined();
     expect(screen.getByText("Awal Berdiri")).toBeDefined();
     expect(screen.getByText("Toko pertama kali dibuka.")).toBeDefined();
 
-    // Cek item 2 (Smartphone Icon)
+    // Check item 2 (Smartphone Icon)
     expect(screen.getByText("2022")).toBeDefined();
     expect(screen.getByText("Ekspansi Layanan")).toBeDefined();
 
-    // Cek item 3 (Rocket Icon)
+    // Check item 3 (Rocket Icon)
     expect(screen.getByText("2024")).toBeDefined();
     expect(screen.getByText("Digitalisasi")).toBeDefined();
   });
